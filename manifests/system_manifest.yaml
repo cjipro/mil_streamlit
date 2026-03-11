@@ -188,7 +188,7 @@ components:
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "BUILT"
     priority: P1
     estimated_effort_hours: 2
     tool: "Cursor"
