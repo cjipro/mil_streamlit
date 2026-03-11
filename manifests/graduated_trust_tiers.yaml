@@ -1,0 +1,428 @@
+schema_version: "1.0"
+spec_id: "CJI-TRUST-001"
+name: "CJI Pulse — Graduated Trust Model"
+description: >
+  Defines two interlocking trust hierarchies:
+  (A) Operator Trust Tiers — the permissions a human operator has earned within the system.
+  (B) Finding Trust Tiers — the confidence tier assigned to an agent output or finding.
+  Both hierarchies must be read together. An operator at Tier N can only act on findings
+  at or below the finding trust tier their operator tier permits.
+owner: "Hussain Ahmed"
+created: "2026-03-11"
+last_updated: "2026-03-11"
+manifest_reference: "manifests/system_manifest.yaml#KAN-1G"
+traceability: "Programme principle: Governance as a ramp, not a wall"
+
+# ============================================================
+# PART A — OPERATOR TRUST TIERS (Human Permissions)
+# Tier 1 is entry level. Tier 4 is maximum authority.
+# Phase 1 maximum: Tier 3 for journey owners, Tier 4 for analytics lead only.
+# ============================================================
+
+operator_tiers:
+
+  - tier: 1
+    name: "Read Only"
+    label: "TIER-1-READ"
+    description: >
+      Entry-level access. Operator can observe the system but cannot take any action
+      that influences findings, hypotheses, or pipeline outputs.
+    permissions:
+      - "View all findings in the briefing dashboard"
+      - "Read investigation queue (no approval or rejection)"
+      - "Read daily briefing and KPI summaries"
+      - "View hypothesis library (read only)"
+      - "View telemetry and pipeline run logs"
+    restricted_from:
+      - "Approving or rejecting any finding"
+      - "Submitting or editing hypotheses"
+      - "Adjusting priority weights"
+      - "Triggering any pipeline or agent action"
+      - "Modifying any manifest or config"
+    how_to_earn:
+      - "Default level for any new programme participant"
+      - "No additional criteria required"
+    phase_1_maximum_for: []
+    approval_required_from: "N/A — read-only, no approvals"
+
+  - tier: 2
+    name: "Hypothesis Approver"
+    label: "TIER-2-HYPOTHESIS"
+    description: >
+      Operator has demonstrated familiarity with the data domain. Can approve
+      investigation queue items and submit new hypotheses for consideration.
+    permissions:
+      - "All Tier 1 permissions"
+      - "Approve or reject investigation queue items"
+      - "Submit new hypotheses to the hypothesis library"
+      - "Flag a finding for escalation"
+      - "Add comments and context to findings"
+    restricted_from:
+      - "Approving agent outputs directly"
+      - "Closing queue items as resolved"
+      - "Adjusting priority weights"
+      - "Triggering pipeline or agent rebuilds"
+      - "Modifying manifests or config"
+    how_to_earn:
+      - "Completed onboarding walkthrough with analytics lead"
+      - "Demonstrated correct interpretation of EVIDENCED vs DIRECTIONAL findings"
+      - "Analytics lead sign-off recorded in governance_run_fact"
+    phase_1_maximum_for: []
+    approval_required_from: "Analytics lead for tier upgrade"
+
+  - tier: 3
+    name: "Validated Operator"
+    label: "TIER-3-OPERATOR"
+    description: >
+      Trusted operator. Can approve agent outputs, close resolved queue items,
+      and tune priority weights within defined bounds. Phase 1 maximum for journey owners.
+    permissions:
+      - "All Tier 2 permissions"
+      - "Approve agent outputs (PROVISIONAL findings only — see Finding Trust Tiers)"
+      - "Close investigation queue items as RESOLVED or WILL-NOT-FIX"
+      - "Adjust priority weights within pre-approved bounds (±20% of baseline)"
+      - "Request re-run of a specific pipeline step"
+      - "Mark a finding as CONTRADICTED with documented rationale"
+    restricted_from:
+      - "Approving VALIDATED or TRUSTED finding tier promotions"
+      - "Approving manifest changes"
+      - "Triggering full agent rebuilds"
+      - "Modifying trust tier definitions"
+      - "Self-upgrading to Tier 4"
+    how_to_earn:
+      - "Minimum 4 weeks at Tier 2 with no approval errors"
+      - "Passed structured review of 5 historical findings with analytics lead"
+      - "Analytics lead sign-off and programme owner notification"
+    phase_1_maximum_for:
+      - "Journey owners"
+      - "All non-analytics-lead participants"
+    approval_required_from: "Analytics lead for tier upgrade. Programme owner notified."
+
+  - tier: 4
+    name: "Controlled Deployer"
+    label: "TIER-4-DEPLOYER"
+    description: >
+      Maximum authority tier. Can approve manifest changes and trigger controlled
+      agent rebuilds. Phase 1: analytics lead only. No exceptions.
+    permissions:
+      - "All Tier 3 permissions"
+      - "Approve changes to system_manifest.yaml"
+      - "Approve changes to any config or spec file"
+      - "Trigger controlled agent rebuild"
+      - "Promote findings to VALIDATED or TRUSTED tier"
+      - "Grant or revoke Tier 2 and Tier 3 status for other operators"
+      - "Override a demotion rule with documented justification"
+    restricted_from:
+      - "Autonomous deployment without human review step"
+      - "Self-granting any permission not listed above"
+      - "Bypassing the dual_closure_rule"
+    how_to_earn:
+      - "Reserved for analytics lead role only in Phase 1"
+      - "Programme owner sign-off required"
+      - "No pathway for journey owners in Phase 1 — this is by design"
+    phase_1_maximum_for:
+      - "Analytics lead only"
+    approval_required_from: "Programme owner (Hussain Ahmed)"
+
+# ============================================================
+# PART B — FINDING TRUST TIERS (Agent Output Confidence)
+# Every agent output carries a finding_trust_tier.
+# Tier promotions require conditions to be met and human approval.
+# ============================================================
+
+finding_trust_tiers:
+
+  - tier: "UNVERIFIED"
+    ordinal: 1
+    description: >
+      Raw agent output. Not yet reviewed by any human operator.
+      May be incomplete, based on partial data, or contain model errors.
+      Must not be used to inform any customer-facing decision.
+    response_mode_link: "UNKNOWN"
+    display_label: "UNVERIFIED — Not reviewed"
+    permitted_actions:
+      - "Visible to Tier 1+ operators in read-only view"
+      - "Can be flagged for investigation by Tier 2+"
+      - "Can be rejected by Tier 2+"
+    blocked_actions:
+      - "Cannot be presented as a recommendation"
+      - "Cannot close a queue item"
+      - "Cannot influence pipeline priority weights"
+    promotion_conditions:
+      target_tier: "PROVISIONAL"
+      requires:
+        - "Reviewed and approved by a Tier 2 or above operator"
+        - "Supporting data reference attached (input_reference populated)"
+        - "No open CONTRADICTED flag on this finding"
+      approval_from: "Tier 2 operator minimum"
+
+  - tier: "PROVISIONAL"
+    ordinal: 2
+    description: >
+      Finding has passed initial human review. Based on real data but not yet
+      cross-validated. Suitable for internal hypothesis generation and queue prioritisation.
+      Must be labelled DIRECTIONAL when presented externally.
+    response_mode_link: "DIRECTIONAL"
+    display_label: "PROVISIONAL — Directional only"
+    permitted_actions:
+      - "Used for internal hypothesis prioritisation"
+      - "Presented as DIRECTIONAL in briefing dashboard"
+      - "Approved or rejected by Tier 3 operator"
+      - "Referenced in investigation queue items"
+    blocked_actions:
+      - "Cannot be presented as an EVIDENCED finding"
+      - "Cannot be used to trigger remediation actions"
+      - "Cannot be used in customer-facing reports"
+    promotion_conditions:
+      target_tier: "VALIDATED"
+      requires:
+        - "Cross-validated against a second independent data source"
+        - "Data quality checks passed on both sources (no open DATA_QUALITY errors)"
+        - "Approved by Tier 3 operator with documented rationale"
+        - "Finding has been stable (unchanged) across minimum 3 pipeline runs"
+      approval_from: "Tier 3 operator minimum"
+
+  - tier: "VALIDATED"
+    ordinal: 3
+    description: >
+      Finding is cross-validated, data-quality-clean, and stable across multiple runs.
+      Can be presented as EVIDENCED. Suitable for reporting and remediation planning.
+      Requires Tier 4 approval for promotion to TRUSTED.
+    response_mode_link: "EVIDENCED"
+    display_label: "VALIDATED — Evidenced"
+    permitted_actions:
+      - "Presented as EVIDENCED in briefing dashboard and reports"
+      - "Used to trigger remediation planning (not execution)"
+      - "Referenced in governance_run_fact"
+      - "Shared with journey owners as confirmed finding"
+    blocked_actions:
+      - "Cannot trigger automated remediation without Tier 4 approval"
+      - "Cannot be used in external regulatory reporting without additional sign-off"
+    promotion_conditions:
+      target_tier: "TRUSTED"
+      requires:
+        - "Stable across minimum 10 consecutive pipeline runs"
+        - "Peer review by second Tier 4-equivalent reviewer (or programme owner)"
+        - "No demotion events in past 30 days"
+        - "Data owner sign-off obtained"
+      approval_from: "Tier 4 operator (analytics lead)"
+
+  - tier: "TRUSTED"
+    ordinal: 4
+    description: >
+      Highest confidence tier. Finding is stable, cross-validated, data-owner-signed-off,
+      and peer reviewed. May be used in automated decision support within defined bounds.
+      Treated as ground truth until a demotion event occurs.
+    response_mode_link: "EVIDENCED"
+    display_label: "TRUSTED — Ground truth"
+    permitted_actions:
+      - "All VALIDATED permissions"
+      - "Used as input to automated decision support agents (within Tier 3/4 bounds)"
+      - "Referenced in external reports with appropriate caveats"
+      - "Used to seed hypothesis library as confirmed pattern"
+    blocked_actions:
+      - "Cannot be used for autonomous customer-facing decisions without human review"
+      - "Cannot override a CONTRADICTED flag without Tier 4 re-approval"
+    promotion_conditions:
+      target_tier: "N/A — maximum tier"
+      requires: []
+      approval_from: "N/A"
+
+# ============================================================
+# RESPONSE MODE MAPPING
+# Links finding trust tiers to the canonical response mode labels
+# used in briefings, dashboards, and agent outputs.
+# ============================================================
+
+response_mode_definitions:
+
+  EVIDENCED:
+    description: >
+      Finding is supported by quantified data from a confirmed source.
+      Cross-validated. Data quality clean. Permitted on VALIDATED and TRUSTED findings only.
+    permitted_finding_tiers: ["VALIDATED", "TRUSTED"]
+    display_colour: "green"
+
+  DIRECTIONAL:
+    description: >
+      Finding points in a direction supported by data but not fully cross-validated.
+      Cannot be presented as proof. Permitted on PROVISIONAL findings.
+    permitted_finding_tiers: ["PROVISIONAL"]
+    display_colour: "amber"
+
+  UNKNOWN:
+    description: >
+      Insufficient data to draw a conclusion. Agent output present but unreviewed.
+      Permitted on UNVERIFIED findings only.
+    permitted_finding_tiers: ["UNVERIFIED"]
+    display_colour: "grey"
+
+  GUARDED:
+    description: >
+      Finding exists but data quality issues or missing sign-off create material uncertainty.
+      Must be labelled GUARDED regardless of finding trust tier when active quality flags exist.
+      Overrides DIRECTIONAL or EVIDENCED if quality conditions are not met.
+    permitted_finding_tiers: ["PROVISIONAL", "VALIDATED", "TRUSTED"]
+    override_trigger: "Any open DATA_QUALITY or GOVERNANCE telemetry error on the source data"
+    display_colour: "orange"
+
+  CONTRADICTED:
+    description: >
+      A previously accepted finding has been directly contradicted by new data or analysis.
+      Causes immediate demotion — see demotion_rules. Finding is frozen pending review.
+    permitted_finding_tiers: ["UNVERIFIED", "PROVISIONAL", "VALIDATED", "TRUSTED"]
+    display_colour: "red"
+
+# ============================================================
+# DEMOTION RULES
+# What causes a finding to drop back to a lower trust tier.
+# Demotion is automatic unless overridden by Tier 4 with documented justification.
+# ============================================================
+
+demotion_rules:
+
+  - id: "DEMOTE-01"
+    trigger: "A CONTRADICTED flag is raised on the finding by any Tier 2+ operator"
+    from_tiers: ["PROVISIONAL", "VALIDATED", "TRUSTED"]
+    demoted_to: "UNVERIFIED"
+    automatic: true
+    override_permitted: true
+    override_requires: "Tier 4 approval with documented rationale within 24h"
+    action_on_demotion: >
+      Finding is frozen. response_mode set to CONTRADICTED. Downstream queue items
+      referencing this finding are flagged for review. Telemetry event emitted:
+      GOVERNANCE-003 or DATA_QUALITY class depending on contradiction source.
+
+  - id: "DEMOTE-02"
+    trigger: "Source data for the finding fails a DATA_QUALITY pipeline check"
+    from_tiers: ["PROVISIONAL", "VALIDATED", "TRUSTED"]
+    demoted_to: "PROVISIONAL"
+    automatic: true
+    override_permitted: false
+    action_on_demotion: >
+      response_mode overridden to GUARDED. Finding remains visible but marked
+      GUARDED until the DATA_QUALITY error is resolved and validation re-run.
+
+  - id: "DEMOTE-03"
+    trigger: "Finding is unstable — result changes direction across 2 consecutive pipeline runs"
+    from_tiers: ["VALIDATED", "TRUSTED"]
+    demoted_to: "PROVISIONAL"
+    automatic: true
+    override_permitted: true
+    override_requires: "Tier 4 approval. Instability must be explained by documented data event."
+    action_on_demotion: >
+      Finding moves to PROVISIONAL. Promotion conditions reset — 3 stable runs required
+      before re-promotion to VALIDATED.
+
+  - id: "DEMOTE-04"
+    trigger: "Data owner sign-off is revoked or expires without renewal"
+    from_tiers: ["VALIDATED", "TRUSTED"]
+    demoted_to: "PROVISIONAL"
+    automatic: true
+    override_permitted: false
+    action_on_demotion: >
+      Finding reverts to PROVISIONAL. response_mode set to DIRECTIONAL.
+      Notification sent to Tier 3+ operators. Re-promotion requires fresh data owner sign-off.
+
+  - id: "DEMOTE-05"
+    trigger: "Schema drift detected on source table — SCHEMA class telemetry error raised"
+    from_tiers: ["PROVISIONAL", "VALIDATED", "TRUSTED"]
+    demoted_to: "UNVERIFIED"
+    automatic: true
+    override_permitted: false
+    action_on_demotion: >
+      Finding is invalidated until schema is confirmed and finding is re-derived
+      from the corrected schema. Full re-validation required before re-promotion.
+
+# ============================================================
+# OPERATOR × FINDING TIER INTERACTION MATRIX
+# Which operator tier can act on which finding trust tier.
+# ============================================================
+
+interaction_matrix:
+  description: >
+    An operator at Tier N can only perform the listed actions on findings at or below
+    the permitted finding tier. Higher finding tiers require higher operator authority.
+
+  rules:
+    - operator_tier: 1
+      can_view: ["UNVERIFIED", "PROVISIONAL", "VALIDATED", "TRUSTED"]
+      can_approve: []
+      can_promote: []
+      can_demote: []
+
+    - operator_tier: 2
+      can_view: ["UNVERIFIED", "PROVISIONAL", "VALIDATED", "TRUSTED"]
+      can_approve: ["UNVERIFIED"]
+      can_promote: ["UNVERIFIED → PROVISIONAL"]
+      can_demote: ["PROVISIONAL → UNVERIFIED (via CONTRADICTED flag)"]
+
+    - operator_tier: 3
+      can_view: ["UNVERIFIED", "PROVISIONAL", "VALIDATED", "TRUSTED"]
+      can_approve: ["UNVERIFIED", "PROVISIONAL"]
+      can_promote: ["UNVERIFIED → PROVISIONAL", "PROVISIONAL → VALIDATED"]
+      can_demote: ["PROVISIONAL → UNVERIFIED", "VALIDATED → PROVISIONAL"]
+
+    - operator_tier: 4
+      can_view: ["UNVERIFIED", "PROVISIONAL", "VALIDATED", "TRUSTED"]
+      can_approve: ["UNVERIFIED", "PROVISIONAL", "VALIDATED", "TRUSTED"]
+      can_promote: ["UNVERIFIED → PROVISIONAL", "PROVISIONAL → VALIDATED", "VALIDATED → TRUSTED"]
+      can_demote: ["Any tier → any lower tier with documented justification"]
+      can_override_demotion: true
+
+# ============================================================
+# USAGE CONTRACT
+# ============================================================
+
+usage_contract:
+  mandatory: true
+  applies_to: "ALL agent outputs and findings in the CJI Pulse / while-sleeping programme"
+  effective_date: "2026-03-11"
+
+  rules:
+    - id: "GT-UC-01"
+      rule: >
+        Every agent output MUST carry a finding_trust_tier field set to one of:
+        UNVERIFIED / PROVISIONAL / VALIDATED / TRUSTED.
+        Default for all new outputs: UNVERIFIED.
+
+    - id: "GT-UC-02"
+      rule: >
+        Every finding trust tier promotion MUST be approved by an operator at or above
+        the minimum tier specified in promotion_conditions. No self-promotion by agents.
+
+    - id: "GT-UC-03"
+      rule: >
+        Demotion rules marked automatic: true execute without human approval.
+        Demotion events must be logged to governance_run_fact with a telemetry event.
+
+    - id: "GT-UC-04"
+      rule: >
+        No finding may be presented as EVIDENCED unless it is at VALIDATED or TRUSTED tier.
+        The response_mode displayed to operators must always match the finding_trust_tier
+        mapping in response_mode_definitions.
+
+    - id: "GT-UC-05"
+      rule: >
+        Phase 1 maximum operator tiers: Tier 3 for journey owners, Tier 4 for analytics lead.
+        No exceptions. Any request to elevate a journey owner to Tier 4 must be rejected
+        and escalated to the programme owner.
+
+    - id: "GT-UC-06"
+      rule: >
+        GUARDED response mode overrides all other response modes when active quality flags
+        exist on source data, regardless of finding trust tier.
+
+    - id: "GT-UC-07"
+      rule: >
+        Trust tier definitions may only be changed by a Tier 4 operator with programme
+        owner sign-off. All changes must be committed to this file and to system_manifest.yaml.
+
+  enforcement:
+    validation_command: "python scripts/validate_KAN-1G.py"
+    review_cadence: "Every sprint — review demotion events and tier distribution"
+    sign_off_required: "Hussain Ahmed"
+    non_compliance_action: >
+      Findings without a valid finding_trust_tier are treated as UNVERIFIED.
+      Agent outputs that present EVIDENCED findings below VALIDATED tier are
+      blocked at the dashboard layer.
