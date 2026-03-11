@@ -1,0 +1,306 @@
+schema_version: "1.0"
+spec_id: "CJI-TELEMETRY-001"
+name: "CJI Pulse — Semantic Telemetry Specification for Pipeline Failures"
+description: >
+  Every failure anywhere in the system emits machine-readable telemetry conforming to this spec.
+  No custom error formats are permitted in pipeline code. This spec is the single source of truth
+  for all error classification, retryability, and recovery routing across the programme.
+owner: "Hussain Ahmed"
+created: "2026-03-11"
+last_updated: "2026-03-11"
+manifest_reference: "manifests/system_manifest.yaml#KAN-19"
+traceability: "Programme principle: Semantic telemetry on every failure"
+
+# ============================================================
+# FIELD DEFINITIONS
+# Every pipeline failure event MUST populate all required fields.
+# ============================================================
+
+fields:
+
+  step_id:
+    type: string
+    required: true
+    description: >
+      Unique identifier for the pipeline step that failed.
+      Format: <pipeline_id>.<step_name> e.g. "MA_pipeline.deduplicate"
+    example: "MA_pipeline.deduplicate"
+
+  input_reference:
+    type: string
+    required: true
+    description: >
+      Reference to the input data or artefact being processed at time of failure.
+      Format: <table_or_path>@<partition_or_date> e.g. "MA_D@2026-03-11"
+    example: "MA_D@2026-03-11"
+
+  output_summary:
+    type: string
+    required: true
+    description: >
+      Human-readable summary of what output was expected but not produced.
+      Machine agents use this to determine if partial output is usable.
+    example: "Deduplication of MA_D failed — no output written to MA_S"
+
+  error_code:
+    type: string
+    required: true
+    description: >
+      Structured error code in the form <CLASS>-<NUMBER> e.g. DATA_QUALITY-001.
+      Must be unique within the error_class. New codes must be added to this spec
+      before being used in pipeline code.
+    pattern: "^(DATA_QUALITY|PIPELINE|SCHEMA|DEPENDENCY|GOVERNANCE)-[0-9]{3}$"
+    example: "DATA_QUALITY-001"
+
+  error_class:
+    type: enum
+    required: true
+    description: >
+      Classification of the failure. Must be one of the five canonical values.
+      Use PIPELINE as the generic fallback only if no other class fits.
+    allowed_values:
+      - DATA_QUALITY
+      - PIPELINE
+      - SCHEMA
+      - DEPENDENCY
+      - GOVERNANCE
+    definitions:
+      DATA_QUALITY: >
+        Input data does not meet quality thresholds — nulls, duplicates,
+        out-of-range values, cust_id=-99 volumes, unexpected distributions.
+      PIPELINE: >
+        Infrastructure or execution failure — Spark errors, OOM, timeout,
+        file system failures not attributable to data or schema issues.
+      SCHEMA: >
+        Unexpected field names, missing columns, type mismatches, or schema
+        drift between source and expected contract.
+      DEPENDENCY: >
+        An upstream pipeline, table, or service this step depends on has
+        not completed, is unavailable, or returned an unexpected state.
+      GOVERNANCE: >
+        Data use is blocked by policy, sensitivity classification, or
+        missing sign-off required before processing can proceed.
+
+  retryability:
+    type: enum
+    required: true
+    description: >
+      Whether and how the failing step should be retried without human intervention.
+    allowed_values:
+      - "yes"
+      - "no"
+      - "backoff"
+    definitions:
+      "yes": "Safe to retry immediately. Transient failure. No data mutation risk."
+      "no": "Do not retry. Requires human review or data owner intervention."
+      "backoff": >
+        Retry after exponential backoff. Suitable for dependency waits or
+        rate-limited external calls. Maximum 3 attempts before escalation.
+
+  business_impact_tier:
+    type: enum
+    required: true
+    description: >
+      Impact classification used to route alerts and set SLA for resolution.
+    allowed_values:
+      - P1
+      - P2
+      - P3
+    definitions:
+      P1: >
+        Customer-facing impact or vulnerable cohort data at risk.
+        SLA: Acknowledge within 15 minutes. Resolve within 2 hours.
+      P2: >
+        Internal reporting or analytics degraded. No direct customer harm.
+        SLA: Acknowledge within 1 hour. Resolve within 8 hours.
+      P3: >
+        Non-critical path. Data quality warning, no immediate downstream impact.
+        SLA: Acknowledge within 4 hours. Resolve within next business day.
+
+  downstream_dependency_impact:
+    type: string
+    required: true
+    description: >
+      Comma-separated list of pipeline IDs or component IDs that cannot run
+      because of this failure. Used by the orchestrator to cascade failure state
+      and prevent downstream runs on stale data.
+    example: "daily_journey_mart, voice_evidence_fact, governance_run_fact"
+
+  manifest_spec_reference:
+    type: string
+    required: true
+    description: >
+      Path and anchor to the component entry in system_manifest.yaml that
+      owns the failing step. Enables agents to look up recovery instructions.
+    format: "manifests/system_manifest.yaml#<component_id>"
+    example: "manifests/system_manifest.yaml#KAN-23"
+
+  recovery_strategy_reference:
+    type: string
+    required: true
+    description: >
+      Path to the recovery runbook, fallback config, or manifest section
+      that defines the remediation steps for this failure type.
+    example: "manifests/system_manifest.yaml#KAN-23.recovery_patterns"
+
+  timestamp_utc:
+    type: string
+    required: true
+    description: "ISO 8601 UTC timestamp of failure event."
+    format: "YYYY-MM-DDTHH:MM:SSZ"
+    example: "2026-03-11T08:42:00Z"
+
+  run_id:
+    type: string
+    required: true
+    description: >
+      Unique identifier for the pipeline run that produced this failure.
+      Format: YYYY-MM-DD_<pipeline_id> or UUID. Links failures to a specific execution.
+    example: "2026-03-11_MA_pipeline"
+
+# ============================================================
+# ERROR CODE REGISTRY
+# All valid error codes. New codes MUST be added here before use.
+# ============================================================
+
+error_code_registry:
+
+  DATA_QUALITY:
+    - code: "DATA_QUALITY-001"
+      description: "cust_id=-99 volume exceeds threshold"
+      retryability: "no"
+      default_business_impact_tier: P2
+    - code: "DATA_QUALITY-002"
+      description: "Null rate exceeds acceptable threshold on critical field"
+      retryability: "no"
+      default_business_impact_tier: P2
+    - code: "DATA_QUALITY-003"
+      description: "Duplicate records detected above threshold"
+      retryability: "no"
+      default_business_impact_tier: P2
+    - code: "DATA_QUALITY-004"
+      description: "Out-of-range values on numeric field"
+      retryability: "no"
+      default_business_impact_tier: P3
+    - code: "DATA_QUALITY-005"
+      description: "Vulnerable cohort data missing or incomplete"
+      retryability: "no"
+      default_business_impact_tier: P1
+
+  PIPELINE:
+    - code: "PIPELINE-001"
+      description: "Spark job out-of-memory"
+      retryability: "backoff"
+      default_business_impact_tier: P2
+    - code: "PIPELINE-002"
+      description: "Pipeline execution timeout"
+      retryability: "backoff"
+      default_business_impact_tier: P2
+    - code: "PIPELINE-003"
+      description: "File system write failure"
+      retryability: "backoff"
+      default_business_impact_tier: P2
+    - code: "PIPELINE-004"
+      description: "Unexpected exception — unclassified"
+      retryability: "no"
+      default_business_impact_tier: P2
+
+  SCHEMA:
+    - code: "SCHEMA-001"
+      description: "Expected column missing from source table"
+      retryability: "no"
+      default_business_impact_tier: P1
+    - code: "SCHEMA-002"
+      description: "Column type mismatch vs contract"
+      retryability: "no"
+      default_business_impact_tier: P2
+    - code: "SCHEMA-003"
+      description: "Schema drift — new column added to source without contract update"
+      retryability: "no"
+      default_business_impact_tier: P3
+
+  DEPENDENCY:
+    - code: "DEPENDENCY-001"
+      description: "Upstream table not yet available for today's run"
+      retryability: "backoff"
+      default_business_impact_tier: P2
+    - code: "DEPENDENCY-002"
+      description: "Upstream pipeline reported failure — blocking downstream"
+      retryability: "no"
+      default_business_impact_tier: P1
+    - code: "DEPENDENCY-003"
+      description: "External service unavailable (Ollama, API)"
+      retryability: "backoff"
+      default_business_impact_tier: P2
+
+  GOVERNANCE:
+    - code: "GOVERNANCE-001"
+      description: "Data use blocked — sensitivity classification prevents processing"
+      retryability: "no"
+      default_business_impact_tier: P1
+    - code: "GOVERNANCE-002"
+      description: "Data owner sign-off not obtained — processing halted"
+      retryability: "no"
+      default_business_impact_tier: P1
+    - code: "GOVERNANCE-003"
+      description: "Purpose limitation breach — data cannot be used for this pipeline"
+      retryability: "no"
+      default_business_impact_tier: P1
+
+# ============================================================
+# USAGE CONTRACT
+# This section is law. Every pipeline in the programme must comply.
+# ============================================================
+
+usage_contract:
+  mandatory: true
+  applies_to: "ALL pipelines in the CJI Pulse / while-sleeping programme"
+  effective_date: "2026-03-11"
+
+  rules:
+    - id: "UC-01"
+      rule: >
+        Every pipeline failure MUST emit a telemetry event conforming to this spec.
+        No custom error formats, ad-hoc exception strings, or undocumented error codes
+        are permitted anywhere in pipeline code.
+
+    - id: "UC-02"
+      rule: >
+        All fields marked required: true MUST be populated on every failure event.
+        Partial telemetry events are invalid and must be treated as PIPELINE-004.
+
+    - id: "UC-03"
+      rule: >
+        New error codes MUST be registered in error_code_registry in this file before
+        they are used in pipeline code. Raise a merge request to update this spec.
+        The spec version must be bumped when new codes are added.
+
+    - id: "UC-04"
+      rule: >
+        New error_class values are non-breaking additions. Removing or renaming an
+        error_class value is a breaking change and requires a full audit of all
+        pipeline code and telemetry consumers before deployment.
+
+    - id: "UC-05"
+      rule: >
+        The downstream_dependency_impact field must be populated using the component
+        IDs from system_manifest.yaml — not free-text pipeline names.
+
+    - id: "UC-06"
+      rule: >
+        Telemetry events for P1 failures must be emitted within 30 seconds of detection.
+        P2 and P3 failures must be emitted before the pipeline exits.
+
+    - id: "UC-07"
+      rule: >
+        Pipeline code must import the telemetry helper from a shared module.
+        The helper enforces this spec at runtime. No pipeline may hand-roll its own
+        telemetry emission logic.
+
+  enforcement:
+    validation_command: "python scripts/validate_KAN-019.py"
+    review_cadence: "Every sprint — spec must be reviewed against any new pipeline failure modes"
+    sign_off_required: "Hussain Ahmed"
+    non_compliance_action: >
+      Pipeline will be blocked from merge. Telemetry spec compliance is a merge
+      requirement, not a nice-to-have.
