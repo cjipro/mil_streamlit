@@ -418,7 +418,7 @@ components:
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "IN_PROGRESS"
+    status: "BUILT"
     priority: P1
     estimated_effort_hours: 6
     tool: "Cursor"
@@ -483,7 +483,7 @@ components:
     days: "1-7"
     type: "Pipeline"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "NEEDS_REBUILD"
     priority: P1
     estimated_effort_hours: 5
     tool: "Claude Code"
