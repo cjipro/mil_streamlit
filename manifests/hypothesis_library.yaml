@@ -1,0 +1,891 @@
+schema_version: "1.0"
+spec_id: "CJI-HYPO-001"
+name: "CJI Pulse — Hypothesis Library"
+description: >
+  Seed hypothesis library for the CJI Pulse intelligence engine.
+  Every hypothesis has a machine-readable schema, evidence tier, half-life, and
+  recommended_action. The Ask CJI interface reads from this library.
+  Phase 1 Refresh Pack hypotheses are APPROVED for immediate use.
+  Research-derived hypotheses (H_RES) are PENDING — each requires an adversarial
+  challenger review before activation.
+owner: "Hussain Ahmed"
+created: "2026-03-11"
+last_updated: "2026-03-11"
+manifest_reference: "manifests/system_manifest.yaml#KAN-1H"
+traceability: "Intelligence core — enables Ask CJI conversational interface"
+
+entry_schema:
+  required_fields:
+    - id
+    - name
+    - domain
+    - source_tier
+    - status
+    - journey_type
+    - hypothesis_text
+    - description
+    - evidence_tier
+    - response_mode
+    - supporting_metrics
+    - evidence_requirements
+    - minimum_effect_size
+    - half_life_days
+    - adversarial_challenger_required
+    - recommended_action
+    - date_added
+  recommended_action_parts:
+    - what_is_happening
+    - why_it_matters
+    - suggested_first_action
+
+source_tier_enum:
+  - TELEMETRY_DERIVED
+  - RESEARCH_DERIVED
+  - COMPLAINT_DERIVED
+  - MIXED_EVIDENCE
+  - HISTORICAL_RETROSPECTIVE
+
+status_enum:
+  - APPROVED
+  - PENDING
+  - CANDIDATE
+  - RETIRED
+
+evidence_tier_enum:
+  - EVIDENCED
+  - DIRECTIONAL
+  - UNKNOWN
+
+half_life_reference:
+  performance: 60
+  behavioural: 90
+  cross_channel: 120
+  voice_of_intent: 90
+  research_derived: 180
+
+# ============================================================
+# PHASE 1 REFRESH PACK — APPROVED HYPOTHESES
+# Source: telemetry and programme brief v2.8
+# Status: APPROVED — active for Phase 1
+# ============================================================
+
+hypotheses:
+
+  # ── PERFORMANCE HYPOTHESES (H_PERF) ── half_life: 60d ──────────────────────
+
+  - id: H_PERF_001
+    name: "Step 3 load time drives abandonment"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Customers who experience Step 3 load times above 4 seconds abandon at a materially
+      higher rate than those with sub-2-second load times, controlling for age cohort.
+    description: >
+      Page performance at Step 3 (income and affordability declaration) is the leading
+      candidate technical cause of abandonment. High latency on form initialisation is
+      visible in app telemetry. 45+ cohort is disproportionately affected due to lower
+      tolerance for perceived system failure.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Step 3 median load time by cohort"
+      - "Abandonment rate by load time quartile"
+      - "Session event: step_loaded vs step_abandoned delta"
+    evidence_requirements:
+      - "Load time percentiles (p50, p90, p99) by cohort from app telemetry"
+      - "Abandonment rate cross-tabulated by load time bucket"
+      - "Minimum 1,000 sessions per load time bucket"
+    minimum_effect_size: "Abandonment rate difference ≥5pp between slowest and fastest quartile"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Step 3 load times above 4s correlate with elevated abandonment, particularly in 45+ cohort."
+      why_it_matters: "Every additional second of load time on a complex form erodes trust disproportionately in less-digitally-confident customers."
+      suggested_first_action: "Extract Step 3 load time distribution from MA_D. Segment by age band. Quantify abandonment rate difference."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_002
+    name: "Mobile performance degradation at Step 3"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Step 3 abandonment rate on mobile devices is at least 15pp higher than on desktop,
+      driven by mobile-specific rendering or interaction performance issues.
+    description: >
+      The loans Step 3 form involves complex inputs that may not be optimised for mobile.
+      App telemetry should reveal device-type split in abandonment. Mobile-first issues
+      are compounding for 45+ customers who may be on older hardware.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Abandonment rate by device type (mobile/tablet/desktop)"
+      - "Step 3 interaction event counts by device"
+      - "App version distribution by device type"
+    evidence_requirements:
+      - "Device type field confirmed in MA_D (or app_experience proxy)"
+      - "Abandonment rate by device type with minimum 500 sessions per segment"
+    minimum_effect_size: "Abandonment rate on mobile ≥15pp higher than desktop"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Mobile users may be abandoning Step 3 at significantly higher rates than desktop users."
+      why_it_matters: "If Step 3 is not mobile-optimised, a large share of applicants face a structurally harder experience."
+      suggested_first_action: "Cross-tabulate abandonment rate by device type in MA_D. Flag if mobile abandonment >15pp above desktop."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_003
+    name: "Inline validation errors stall completion"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Customers who encounter inline form validation errors on Step 3 are twice as likely
+      to abandon as those who complete without errors, regardless of age cohort.
+    description: >
+      Inline validation errors (e.g. income format rejection, postcode mismatch) cause
+      visible session stalls visible in event telemetry. Error-then-abandon sequences
+      are a strong signal for UX friction rather than intent-based abandonment.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Validation error event count per session"
+      - "Abandonment rate: sessions with ≥1 error vs zero errors"
+      - "Error type distribution on Step 3"
+    evidence_requirements:
+      - "Validation error events present in MA_D session telemetry"
+      - "Error-to-abandon event sequence identifiable in data"
+      - "Minimum 500 error sessions"
+    minimum_effect_size: "Abandonment rate for error sessions ≥2x non-error sessions"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Form validation errors on Step 3 create friction that converts hesitant customers into abandoners."
+      why_it_matters: "Error-driven abandonment is structurally fixable — unlike intent-driven abandonment."
+      suggested_first_action: "Identify validation error events in MA_D. Compare abandon rates for error vs non-error sessions."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_004
+    name: "Session timeout on Step 3 causes forced abandonment"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      A material proportion of Step 3 abandonment events are preceded by a session
+      timeout rather than an explicit exit action, causing involuntary abandonment
+      that is recorded identically to intentional abandonment in headline metrics.
+    description: >
+      If session timeout is short relative to the time required to gather income
+      documents for Step 3, customers may be timed out mid-completion. This would
+      inflate abandonment metrics without reflecting customer intent.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Session duration distribution for abandonment events"
+      - "Timeout event presence in MA_D before abandon"
+      - "Re-attempt rate after timeout-induced abandonment"
+    evidence_requirements:
+      - "Timeout event distinguishable from explicit exit in telemetry"
+      - "Session duration distribution for Step 3 abandonment events"
+      - "Minimum 200 timeout-attributed abandonment sessions"
+    minimum_effect_size: "Timeout-attributed abandonment ≥10% of total Step 3 abandonment"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Session timeouts may be generating forced abandonment events that look identical to intentional ones in aggregate metrics."
+      why_it_matters: "Timeout-driven abandonment is fixable by extending session or adding a save-progress flow — but only if it can be isolated."
+      suggested_first_action: "Identify timeout events in MA_D. Quantify timeout-preceded abandonments as a proportion of total Step 3 abandonment."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_005
+    name: "API latency spike causes UI stall at Step 3 submission"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Abandonment spikes on Step 3 correlate temporally with backend API latency events,
+      suggesting customers interpret slow responses as system failure and exit.
+    description: >
+      Step 3 submission likely triggers an affordability or eligibility API call.
+      If that call is slow, the UI may show no feedback, which customers interpret
+      as failure. Temporal correlation between ops events and abandonment spikes
+      would confirm this.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Hourly abandonment rate on Step 3"
+      - "API latency events from OPS_CD"
+      - "Temporal correlation coefficient: abandonment vs latency"
+    evidence_requirements:
+      - "OPS_CD latency events joinable to MA_D session timestamps"
+      - "Minimum 10 distinct latency event windows for correlation"
+    minimum_effect_size: "Abandonment rate during latency windows ≥2x baseline"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "API latency spikes at Step 3 submission may be causing customers to interpret a slow response as a failure and exit."
+      why_it_matters: "API-driven abandonment spikes are addressable with better loading states or retry logic before any UX redesign."
+      suggested_first_action: "Join OPS_CD latency event timestamps to MA_D Step 3 abandonment timestamps. Test for temporal correlation."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_012
+    name: "Document upload failure drives Step 3 abandonment"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Customers who encounter a document upload failure on Step 3 (payslip, bank statement)
+      abandon at a rate materially above those who upload successfully on first attempt.
+    description: >
+      Step 3 requires income evidence upload. Upload failures (size limit, format rejection,
+      connectivity timeout) are a known friction point. 45+ customers with lower digital
+      confidence are more likely to abandon rather than retry after a failed upload.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Upload failure event rate on Step 3"
+      - "Abandonment rate: upload failure sessions vs success sessions"
+      - "Upload failure type distribution"
+    evidence_requirements:
+      - "Document upload event with outcome (success/fail) present in MA_D"
+      - "Minimum 300 upload failure sessions"
+    minimum_effect_size: "Abandonment rate after upload failure ≥3x successful upload sessions"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Document upload failures on Step 3 are likely converting recoverable friction into abandonment, especially in less digitally confident customers."
+      why_it_matters: "Upload failures are technically fixable (better error messaging, format guidance, retry UX) and do not require product redesign."
+      suggested_first_action: "Isolate upload failure events in MA_D. Compare abandonment rates for failure vs success sessions."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_013
+    name: "ID verification latency causes Step 3 exit"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Customers waiting more than 10 seconds for ID verification response on Step 3
+      abandon at a disproportionately high rate, interpreting the delay as a rejection.
+    description: >
+      Automated ID verification is a common source of latency on loan applications.
+      Without clear progress feedback, customers cannot distinguish processing from
+      failure. This is particularly impactful for 45+ customers who are less likely
+      to wait for an ambiguous system state.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "ID verification response time distribution"
+      - "Abandonment rate by verification wait time bucket"
+      - "Exit events during active verification state"
+    evidence_requirements:
+      - "ID verification start and complete events present in MA_D"
+      - "Wait time calculable from event timestamps"
+      - "Minimum 400 verification sessions"
+    minimum_effect_size: "Abandonment rate for waits >10s at least 2x rate for waits <5s"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Long ID verification waits may be read as implicit rejection by customers, causing abandonment during processing."
+      why_it_matters: "Perceived rejection is worse than actual rejection — it leaves the customer with no clear next step."
+      suggested_first_action: "Calculate ID verification wait times from MA_D events. Test abandonment rate by wait time bucket."
+    date_added: "2026-03-11"
+
+  - id: H_PERF_014
+    name: "Credit check response time causes Step 3 abandonment"
+    domain: performance
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Real-time credit check latency on Step 3 is a primary driver of mid-step
+      abandonment, with customers exiting during the wait rather than receiving
+      a formal decline.
+    description: >
+      If the credit check is triggered at Step 3 and is slow, customers may exit
+      before seeing the result. This would inflate abandonment metrics with customers
+      who might have completed — or received a decline they could act on.
+      Distinguishing credit-check-wait abandonment from intent-driven abandonment
+      is critical for accurate root cause analysis.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Credit check event timing in MA_D"
+      - "Abandonment events during pending credit check state"
+      - "Credit check outcome distribution (approve/decline/timeout)"
+    evidence_requirements:
+      - "Credit check event with start/end timestamps in MA_D or OPS_CD"
+      - "Abandoned sessions during pending state identifiable"
+      - "Minimum 300 sessions with credit check event"
+    minimum_effect_size: "Mid-check abandonment ≥15% of total Step 3 abandonment"
+    half_life_days: 60
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Customers may be abandoning Step 3 during credit check processing rather than after a decision — inflating abandonment metrics."
+      why_it_matters: "Credit-check-wait abandonment requires a different intervention (progress feedback, save state) than intent-driven abandonment."
+      suggested_first_action: "Identify credit check events in MA_D/OPS_CD. Quantify abandonments that occur during the pending state."
+    date_added: "2026-03-11"
+
+  # ── BEHAVIOURAL HYPOTHESES (H_BEH) ── half_life: 90d ──────────────────────
+
+  - id: H_BEH_001
+    name: "45+ cohort abandons at income declaration field"
+    domain: behavioural
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Customers aged 45 and above abandon Step 3 at the income declaration field
+      at a rate at least 20pp higher than customers aged 18-44, after controlling
+      for application value and device type.
+    description: >
+      Income declaration requires specific financial documentation and numeric inputs
+      that may be unfamiliar or anxiety-inducing for less digitally-engaged customers.
+      The 45+ cohort is the primary population of concern per the Day 90 vision.
+      Confirming field-level abandonment by cohort is foundational for targeted intervention.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Step 3 field-level progression events by age cohort"
+      - "Abandonment rate at income declaration field by age band"
+      - "Time-on-field distribution by age cohort"
+    evidence_requirements:
+      - "Age band available in CUST_DIM with confirmed join to MA_D"
+      - "Field-level event granularity in MA_D (not just step-level)"
+      - "Minimum 500 sessions per age cohort"
+    minimum_effect_size: "Abandonment rate at income field: 45+ cohort ≥20pp higher than 18-44"
+    half_life_days: 90
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "45+ customers are likely abandoning at the income declaration field at a disproportionate rate relative to younger cohorts."
+      why_it_matters: "If confirmed, this points to a specific, targetable UX intervention (in-context help, format guidance) rather than a full journey redesign."
+      suggested_first_action: "Join CUST_DIM age to MA_D Step 3 field events. Compare abandonment at income field by age band."
+    date_added: "2026-03-11"
+
+  - id: H_BEH_002
+    name: "Step 3 abandoners route to branch within 48 hours"
+    domain: behavioural
+    source_tier: MIXED_EVIDENCE
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      A material proportion of customers who abandon Step 3 digitally visit a branch
+      or call the contact centre within 48 hours, indicating the intent to complete
+      the loan application has not been abandoned — only the channel has.
+    description: >
+      Channel routing after digital abandonment is a core signal for the CJI programme.
+      If abandoners are completing through assisted channels, the cost is borne by
+      the branch and voice estate rather than being a lost application. Quantifying
+      this cross-channel routing is essential for measuring the true cost of
+      Step 3 abandonment.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Branch visit events within 48h of Step 3 abandonment (OPS_CD)"
+      - "Voice contact events within 48h of Step 3 abandonment (SE)"
+      - "Cross-channel routing rate by abandonment type"
+    evidence_requirements:
+      - "OPS_CD and SE joinable to MA_D via customer identifier"
+      - "Timestamp resolution sufficient for 48h window"
+      - "Minimum 300 abandonment events with confirmed customer ID"
+    minimum_effect_size: "Cross-channel routing rate ≥20% of Step 3 abandonment events"
+    half_life_days: 90
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Digital abandoners may be completing their application through branch or voice, masking the true impact of Step 3 abandonment in digital-only metrics."
+      why_it_matters: "If 20%+ of abandoners route to assisted channels, there is a significant cost and experience case for reducing friction at Step 3."
+      suggested_first_action: "Join MA_D Step 3 abandonment events to OPS_CD and SE records within 48h window. Quantify cross-channel routing rate."
+    date_added: "2026-03-11"
+
+  - id: H_BEH_003
+    name: "Low digital engagement score predicts Step 3 abandonment"
+    domain: behavioural
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Customers with a historical digital engagement score below the programme median
+      are at least twice as likely to abandon Step 3 as high-engagement customers,
+      independent of performance factors.
+    description: >
+      CUST_DIM contains a historical_digital_engagement_score. If this is a reliable
+      predictor of Step 3 abandonment, it becomes a pre-emptive intervention signal —
+      identifying vulnerable customers before they reach Step 3 rather than after.
+      This hypothesis underpins the vulnerable cohort detection mission.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "historical_digital_engagement_score distribution for abandoners vs completers"
+      - "Abandonment rate by engagement score quartile"
+      - "Engagement score vs age cohort correlation"
+    evidence_requirements:
+      - "CUST_DIM join to MA_D confirmed (KAN-15)"
+      - "historical_digital_engagement_score populated for ≥70% of Step 3 sessions"
+      - "Minimum 500 sessions per engagement quartile"
+    minimum_effect_size: "Abandonment rate in lowest engagement quartile ≥2x highest quartile"
+    half_life_days: 90
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Low historical digital engagement score may predict Step 3 abandonment — enabling proactive rather than reactive intervention."
+      why_it_matters: "A reliable pre-Step-3 abandonment signal would allow targeted assistance (pop-up help, proactive call offer) for at-risk customers before they hit the friction point."
+      suggested_first_action: "Join CUST_DIM engagement score to MA_D. Compare abandonment rates across engagement score quartiles."
+    date_added: "2026-03-11"
+
+  - id: H_BEH_004
+    name: "First-time applicants abandon at T&Cs acceptance"
+    domain: behavioural
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      First-time loan applicants abandon Step 3 at the terms and conditions acceptance
+      sub-step at a significantly higher rate than repeat applicants, driven by
+      unfamiliarity with the commitment being made.
+    description: >
+      First-time applicants have no prior reference point for loan T&Cs length or
+      complexity. The T&Cs sub-step on Step 3 may trigger uncertainty about the
+      commitment being made, especially for 45+ customers who are first-time digital
+      applicants. Repeat applicants have already accepted these terms before.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "First-time vs repeat applicant status in CUST_DIM"
+      - "Abandonment rate at T&Cs sub-step by applicant history"
+      - "Time-on-T&Cs-step distribution"
+    evidence_requirements:
+      - "First-time applicant flag derivable from CUST_DIM historical data"
+      - "T&Cs acceptance event distinct in MA_D step telemetry"
+      - "Minimum 300 first-time applicant sessions"
+    minimum_effect_size: "Abandonment at T&Cs for first-time applicants ≥15pp above repeat applicants"
+    half_life_days: 90
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "First-time applicants may be abandoning at the T&Cs step because the commitment feels opaque or alarming without prior context."
+      why_it_matters: "T&Cs abandonment is addressable through design (plain-English summary, key points callout) without changing the legal content."
+      suggested_first_action: "Derive first-time applicant flag from CUST_DIM. Compare T&Cs sub-step abandonment rates by applicant history."
+    date_added: "2026-03-11"
+
+  - id: H_BEH_005
+    name: "Out-of-hours Step 3 sessions have higher abandonment"
+    domain: behavioural
+    source_tier: TELEMETRY_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Step 3 sessions started outside business hours (before 9am or after 6pm)
+      have a materially higher abandonment rate, as customers cannot access
+      assisted support when they encounter friction.
+    description: >
+      Customers who encounter difficulty on Step 3 outside business hours have no
+      immediate fallback to branch or phone support. This may convert recoverable
+      friction (a question or confusion that a human could resolve) into abandonment.
+      Time-of-day analysis of abandonment is a quick, low-cost diagnostic.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Step 3 abandonment rate by hour of day"
+      - "Abandonment rate: in-hours vs out-of-hours"
+      - "Out-of-hours session volume as % of total"
+    evidence_requirements:
+      - "Session timestamp with sufficient resolution for hour-of-day analysis"
+      - "Minimum 100 sessions per hour bucket"
+    minimum_effect_size: "Out-of-hours abandonment rate ≥10pp above in-hours abandonment rate"
+    half_life_days: 90
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Step 3 customers who hit friction outside business hours have no recovery path, potentially converting recoverable hesitation into permanent abandonment."
+      why_it_matters: "If confirmed, this justifies an async help mechanism (save and return link, scheduled callback offer) available outside business hours."
+      suggested_first_action: "Calculate Step 3 abandonment rate by hour of day from MA_D timestamps. Test in-hours vs out-of-hours difference."
+    date_added: "2026-03-11"
+
+  # ── CROSS-CHANNEL HYPOTHESES (H_XCH) ── half_life: 120d ──────────────────
+
+  - id: H_XCH_001
+    name: "Step 3 abandoners contact voice channel within 24 hours"
+    domain: cross_channel
+    source_tier: MIXED_EVIDENCE
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      At least 25% of customers who abandon Step 3 digitally make inbound contact
+      via voice within 24 hours, indicating unresolved loan application intent
+      and creating a quantifiable cost on the voice estate.
+    description: >
+      Voice contacts following digital abandonment represent a direct cost of poor
+      digital UX — the customer has not been served digitally and is consuming
+      higher-cost assisted channel capacity. Quantifying this linkage is one of the
+      most important early analyses for the programme's business case.
+      SE table should contain contact reason codes that allow loan-related contacts
+      to be distinguished from other inbound traffic.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Voice contact events within 24h of Step 3 abandonment"
+      - "Contact reason codes in SE for loan-related inbound"
+      - "Cost-per-contact estimate × attributed contacts"
+    evidence_requirements:
+      - "SE joinable to MA_D via customer identifier"
+      - "Contact timestamp resolution sufficient for 24h window"
+      - "Contact reason field in SE with loan-related codes"
+      - "Minimum 300 abandonment events with customer ID"
+    minimum_effect_size: "Voice contact within 24h for ≥25% of Step 3 abandonment events"
+    half_life_days: 120
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Step 3 abandoners may be calling the contact centre to complete or ask about their application, generating avoidable voice cost."
+      why_it_matters: "If 25%+ of abandoners call within 24h, the cost of Step 3 digital friction is measurable in voice contact handle time and can anchor the business case."
+      suggested_first_action: "Join MA_D Step 3 abandonment to SE inbound contacts within 24h. Filter SE by loan-related reason codes. Quantify rate and estimated cost."
+    date_added: "2026-03-11"
+
+  - id: H_XCH_003
+    name: "Branch visits increase after digital Step 3 abandonment"
+    domain: cross_channel
+    source_tier: MIXED_EVIDENCE
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      Branch visit rates for customers who abandoned Step 3 digitally are materially
+      elevated in the 3 days following abandonment relative to their own baseline,
+      confirming cross-channel routing as a consequence of digital friction.
+    description: >
+      Branch routing after digital abandonment is a higher-cost outcome than voice
+      contact. If customers are routing to branch to complete loan applications started
+      digitally, it quantifies a specific channel-shift cost attributable to Step 3 friction.
+      OPS_CD branch visit events should be joinable to MA_D abandonment events.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "Branch visit rate: 3 days post-abandonment vs baseline"
+      - "Branch visit events joinable from OPS_CD"
+      - "Loan-related branch interaction codes in OPS_CD"
+    evidence_requirements:
+      - "OPS_CD branch visit events joinable to MA_D via customer identifier"
+      - "Pre-abandonment baseline branch visit rate calculable (e.g. 30-day prior)"
+      - "Minimum 200 abandonment events with confirmed customer ID"
+    minimum_effect_size: "Branch visit rate in 3 days post-abandonment ≥2x 30-day prior baseline"
+    half_life_days: 120
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Digital Step 3 abandonment may be directly driving branch visits — converting a zero-cost digital application into a high-cost in-person interaction."
+      why_it_matters: "Branch routing is the highest-cost channel outcome. Quantifying it makes the business case for Step 3 investment concrete and compelling."
+      suggested_first_action: "Join MA_D Step 3 abandonment to OPS_CD branch visits within 3 days. Compare to 30-day pre-abandonment baseline."
+    date_added: "2026-03-11"
+
+  # ── VOICE OF INTENT HYPOTHESES (H_VoI) ── half_life: 90d ──────────────────
+
+  - id: H_VoI_001
+    name: "Step 3 abandoners cite complexity in NPS verbatims"
+    domain: voice_of_intent
+    source_tier: COMPLAINT_DERIVED
+    status: APPROVED
+    journey_type: Loans
+    hypothesis_text: >
+      NPS verbatim responses from customers who abandoned Step 3 disproportionately
+      reference complexity, confusion, or document requirements relative to completers,
+      confirming that perceived complexity is a primary abandonment driver.
+    description: >
+      If customers are citing complexity unprompted in NPS verbatims, it corroborates
+      the behavioural telemetry signals with direct customer voice evidence. This
+      elevates the complexity hypothesis from DIRECTIONAL to a candidate for EVIDENCED
+      status when combined with quantitative data.
+      SE table or a separate NPS/verbatim source should contain relevant text.
+    evidence_tier: DIRECTIONAL
+    response_mode: DIRECTIONAL
+    supporting_metrics:
+      - "NPS verbatim mention rate: complexity/confusing/documents in abandoner vs completer cohorts"
+      - "Sentiment score for Step 3 abandonment NPS responses"
+      - "Theme frequency analysis on abandonment verbatims"
+    evidence_requirements:
+      - "NPS or customer verbatim data joinable to MA_D abandonment events"
+      - "Minimum 100 verbatim responses from Step 3 abandonment cohort"
+      - "Text analysis method (keyword or NLP) documented"
+    minimum_effect_size: "Complexity-related terms ≥3x more frequent in abandoner vs completer verbatims"
+    half_life_days: 90
+    adversarial_challenger_required: false
+    recommended_action:
+      what_is_happening: "Customers who abandon Step 3 may be telling us in NPS responses that the form is too complex — providing qualitative validation for the quantitative signals."
+      why_it_matters: "Verbatim evidence elevates the complexity hypothesis and makes the case for UX intervention more compelling to senior stakeholders."
+      suggested_first_action: "Extract NPS verbatims for Step 3 abandonment cohort. Keyword search for complexity/confusing/documents. Compare frequency to completer cohort."
+    date_added: "2026-03-11"
+
+  # ============================================================
+  # RESEARCH-DERIVED HYPOTHESES — PENDING
+  # Source: academic and industry research on digital form abandonment
+  # Status: PENDING — adversarial challenger required before activation
+  # Half-life: 180d
+  # ============================================================
+
+  - id: H_RES_001
+    name: "Digital literacy gap drives 45+ non-completion"
+    domain: behavioural
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      The primary driver of 45+ Step 3 abandonment is a digital literacy gap rather
+      than form complexity per se — customers disengage because they are unfamiliar
+      with the conventions of multi-step digital forms, not because the specific
+      content of Step 3 is problematic.
+    description: >
+      Research on digital inclusion consistently shows that form abandonment in older
+      cohorts is driven by low familiarity with digital form conventions (progress indicators,
+      inline validation, multi-page flows) rather than content complexity alone. If true,
+      this shifts the intervention from content redesign to onboarding and reassurance design.
+      Requires adversarial challenge against H_BEH_001 and H_PERF hypotheses before activation.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "historical_digital_engagement_score vs abandonment (from H_BEH_003)"
+      - "Prior digital journey completion rate from CUST_DIM"
+      - "Abandonment rate controlling for form complexity score"
+    evidence_requirements:
+      - "CUST_DIM digital engagement score confirmed and joined"
+      - "Adversarial challenge: performance hypotheses (H_PERF) ruled out as primary driver"
+      - "Adversarial challenge: form complexity index derived and tested"
+    minimum_effect_size: "Digital literacy score explains ≥30% of variance in abandonment after controlling for performance factors"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Must be tested against H_BEH_001 (field-level abandonment) and H_PERF_001-005.
+      If performance or specific-field hypotheses explain the pattern, H_RES_001 is superseded.
+    recommended_action:
+      what_is_happening: "45+ abandonment may be driven by digital form unfamiliarity rather than the specific content of Step 3."
+      why_it_matters: "If true, the most effective intervention is reassurance and guidance design (progress visibility, plain language) rather than simplifying the specific income fields."
+      suggested_first_action: "Activate only after H_BEH_001, H_BEH_003 and H_PERF_001 are evidenced. Use those results to determine whether digital literacy gap hypothesis adds explanatory power."
+    date_added: "2026-03-11"
+
+  - id: H_RES_002
+    name: "Data sharing anxiety suppresses completion in vulnerable segments"
+    domain: behavioural
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      Customers in vulnerable segments abandon Step 3 at higher rates because they
+      have elevated anxiety about sharing income and financial data digitally, driven
+      by distrust of data security rather than form usability issues.
+    description: >
+      Research on vulnerable customer digital behaviour shows that data sharing anxiety
+      is a distinct abandonment driver from usability friction. If a material proportion
+      of 45+ abandonment is driven by trust deficits rather than UX, the intervention
+      requires trust-building elements (security reassurance, data use explanation) not
+      form simplification.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "Abandonment rate at income data entry vs document upload steps"
+      - "NPS verbatim mentions of privacy/security/data concerns (from H_VoI_001)"
+      - "Segment-level trust scores if available"
+    evidence_requirements:
+      - "H_VoI_001 evidenced — verbatim analysis available"
+      - "Adversarial challenge: privacy-related verbatims distinct from complexity verbatims"
+      - "Minimum 50 privacy-coded verbatims from abandonment cohort"
+    minimum_effect_size: "Privacy/data anxiety verbatims present in ≥15% of abandonment NPS responses"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Requires H_VoI_001 to be evidenced first. Adversarial challenge must distinguish
+      data anxiety from complexity — these produce similar behaviour but different interventions.
+    recommended_action:
+      what_is_happening: "Vulnerable customers may be abandoning Step 3 because they distrust how their financial data will be used, not because the form is too hard."
+      why_it_matters: "Trust-driven abandonment requires a fundamentally different intervention (explicit data use explanation, security reassurance) than UX-driven abandonment."
+      suggested_first_action: "Activate after H_VoI_001 is evidenced. Code verbatims for privacy/data themes. If ≥15% of abandonment verbatims are privacy-coded, escalate to Tier 4 for activation."
+    date_added: "2026-03-11"
+
+  - id: H_RES_003
+    name: "Progressive disclosure reduces abandonment on complex forms"
+    domain: performance
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      Restructuring Step 3 to use progressive disclosure (showing one question at a time
+      rather than the full form) would reduce abandonment by at least 20% in the 45+ cohort,
+      based on industry evidence from comparable financial services journeys.
+    description: >
+      Progressive disclosure is an evidence-based UX pattern for reducing cognitive load
+      on complex digital forms. Industry benchmarks from comparable financial services
+      journeys show 15-30% completion rate improvements. This hypothesis proposes applying
+      it to Step 3. Requires controlled test; cannot be evidenced from observational data alone.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "Controlled test: completion rate — progressive vs full-form Step 3"
+      - "Abandonment rate by step sub-section (field group)"
+      - "Time-on-page by sub-section"
+    evidence_requirements:
+      - "A/B test infrastructure available for Step 3"
+      - "Adversarial challenge: current form length and cognitive load scored"
+      - "Benchmark: comparable journey progressive disclosure results documented"
+    minimum_effect_size: "≥20% relative reduction in Step 3 abandonment rate in 45+ cohort"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Hypothesis is causal and requires controlled testing. Cannot be activated as
+      a directional finding from observational data. Must not be conflated with
+      H_PERF or H_BEH hypotheses which are observational.
+    recommended_action:
+      what_is_happening: "Progressive disclosure may substantially reduce Step 3 abandonment but requires product change and controlled testing to evidence."
+      why_it_matters: "If correct, it is the highest-impact single UX intervention available. If incorrect, it is a costly distraction from faster wins."
+      suggested_first_action: "Do not activate until observational hypotheses (H_PERF, H_BEH) are evidenced and a product change is scoped. Flag to Tier 4 as a Sprint 4+ candidate."
+    date_added: "2026-03-11"
+
+  - id: H_RES_004
+    name: "Contextual help triggers reduce abandonment at friction points"
+    domain: behavioural
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      Deploying contextual in-form help (triggered by time-on-field or scroll-back behaviour)
+      at the income declaration sub-step of Step 3 would reduce 45+ abandonment by at least 15%.
+    description: >
+      Research on contextual help in digital forms shows that triggered help (not persistent
+      help icons which are ignored) reduces abandonment at specific friction points.
+      This hypothesis targets the income declaration field identified in H_BEH_001.
+      Activation requires H_BEH_001 to be evidenced first.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "Time-on-field at income declaration (from H_BEH_001)"
+      - "Help interaction rate if help is deployed"
+      - "Completion rate post-help interaction"
+    evidence_requirements:
+      - "H_BEH_001 evidenced — income field as primary abandonment point confirmed"
+      - "Triggered help capability available in app stack"
+      - "Adversarial challenge: passive help icon vs triggered help distinction tested"
+    minimum_effect_size: "≥15% relative reduction in income-field abandonment in 45+ cohort"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Must not be activated before H_BEH_001 is VALIDATED. The specific trigger point
+      must be confirmed by observational data before a contextual help intervention is designed.
+    recommended_action:
+      what_is_happening: "Contextual help at the income declaration field may prevent a significant share of 45+ abandonment if the field is confirmed as the primary stall point."
+      why_it_matters: "Triggered help is a low-cost, high-impact intervention that can be deployed without a full form redesign."
+      suggested_first_action: "Block on H_BEH_001. Once income field is confirmed as stall point, escalate to Tier 3 for product scoping."
+    date_added: "2026-03-11"
+
+  - id: H_RES_005
+    name: "Save-and-return flow reduces permanent abandonment"
+    domain: behavioural
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      Offering a save-and-return mechanism at Step 3 would convert at least 30% of
+      abandonment events into deferred completions within 72 hours, as customers
+      who need to gather documents before continuing have no current way to pause.
+    description: >
+      A substantial proportion of Step 3 abandonment may be document-gathering pauses
+      rather than intent-to-abandon events. H_PERF_012 tests the document upload failure
+      signal. This hypothesis tests whether providing a save mechanism would retain
+      customers who need to pause rather than exit. Requires product capability change.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "Re-attempt rate within 72h of abandonment (from MA_D)"
+      - "Document-related abandonment proportion (from H_PERF_012)"
+      - "Session duration at abandonment (short=frustrated, long=pausing)"
+    evidence_requirements:
+      - "Re-attempt rate within 72h calculable from MA_D"
+      - "H_PERF_012 evidenced — document upload failure as abandonment driver confirmed"
+      - "Save-and-return capability scoped by product team"
+    minimum_effect_size: "≥30% of abandonment events convert to completion within 72h with save mechanism"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Requires H_PERF_012 to be evidenced. Must distinguish document-pause abandonment
+      from performance-driven and intent-driven abandonment before save mechanism is scoped.
+    recommended_action:
+      what_is_happening: "Customers who need to gather documents before completing Step 3 have no way to pause — forced exit looks identical to intentional abandonment in metrics."
+      why_it_matters: "A save mechanism converts a lost application into a deferred one. If 30% of abandonment is document-related pausing, the ROI on this feature is very high."
+      suggested_first_action: "Calculate re-attempt rate within 72h from MA_D. If ≥15% re-attempt, document-gathering pause abandonment is likely significant. Escalate to product team."
+    date_added: "2026-03-11"
+
+  - id: H_RES_006
+    name: "Mobile-first Step 3 redesign reduces 45+ abandonment"
+    domain: performance
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      A mobile-first redesign of Step 3 would reduce abandonment in the 45+ cohort
+      by at least 25%, as the current form was designed for desktop and is structurally
+      disadvantaged on mobile — the primary device for 45+ customers in this programme.
+    description: >
+      H_PERF_002 tests mobile vs desktop abandonment rate difference. H_RES_006 proposes
+      the remediation. If H_PERF_002 is evidenced, a mobile-first redesign becomes a
+      high-priority product investment. This hypothesis requires product change; it cannot
+      be tested by observational analysis alone. Half-life is 180d reflecting the time
+      for product delivery cycles.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "Mobile abandonment rate (from H_PERF_002)"
+      - "Device type distribution of 45+ applicants"
+      - "Post-redesign mobile completion rate (controlled test required)"
+    evidence_requirements:
+      - "H_PERF_002 evidenced — mobile abandonment gap confirmed"
+      - "45+ cohort device type distribution confirmed from MA_D"
+      - "Product team scoping of mobile-first Step 3 completed"
+    minimum_effect_size: "≥25% relative reduction in 45+ cohort abandonment on mobile post-redesign"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Block on H_PERF_002. If mobile abandonment gap is not confirmed, this hypothesis
+      has no evidential basis and should be retired. Do not scope product work before
+      H_PERF_002 reaches VALIDATED status.
+    recommended_action:
+      what_is_happening: "If H_PERF_002 is confirmed, the current Step 3 form may be structurally unfit for mobile — the primary device of the 45+ cohort."
+      why_it_matters: "A mobile-first redesign is a significant product investment but may be the highest-impact single change for the Day 90 mission."
+      suggested_first_action: "Block on H_PERF_002. Once mobile gap is VALIDATED, escalate to Tier 4 with redesign proposal."
+    date_added: "2026-03-11"
+
+  - id: H_RES_007
+    name: "Proactive call-back offer at Step 3 reduces same-day abandonment"
+    domain: cross_channel
+    source_tier: RESEARCH_DERIVED
+    status: PENDING
+    journey_type: Loans
+    hypothesis_text: >
+      Offering a proactive call-back at the point of detected Step 3 friction
+      (triggered by stall behaviour) would reduce same-day permanent abandonment
+      by at least 20% by providing an immediate human recovery pathway.
+    description: >
+      Research on digital-to-human escalation shows that a contextual call-back offer
+      at the point of digital friction — not after abandonment — is more effective than
+      post-abandonment outreach. This requires real-time stall detection (from telemetry)
+      and a call-back fulfilment capability. Combines insights from H_XCH_001 (voice
+      routing after abandonment) with a proactive rather than reactive intervention.
+    evidence_tier: UNKNOWN
+    response_mode: UNKNOWN
+    supporting_metrics:
+      - "Stall detection signal (time-on-step above threshold)"
+      - "Call-back conversion rate to completion"
+      - "Same-day abandonment rate with and without call-back offer"
+    evidence_requirements:
+      - "H_XCH_001 evidenced — post-abandonment voice routing confirmed"
+      - "Real-time stall detection in app telemetry feasible"
+      - "Call-back fulfilment capability scoped with contact centre"
+      - "Adversarial challenge: proactive vs reactive outreach effectiveness compared"
+    minimum_effect_size: "≥20% relative reduction in same-day permanent abandonment with call-back offer"
+    half_life_days: 180
+    adversarial_challenger_required: true
+    adversarial_challenger_note: >
+      Requires H_XCH_001 to be VALIDATED. Adversarial challenge must address whether
+      proactive call-back cannibalises organic recovery (customers who would have
+      completed without intervention). Do not scope contact centre capacity before
+      H_XCH_001 is evidenced.
+    recommended_action:
+      what_is_happening: "A real-time call-back offer triggered by Step 3 stall behaviour may prevent same-day abandonment by providing an immediate human recovery pathway."
+      why_it_matters: "If H_XCH_001 confirms that abandoners call anyway, a proactive offer converts reactive cost into proactive value at the same or lower total contact volume."
+      suggested_first_action: "Block on H_XCH_001. Once voice routing is VALIDATED, propose call-back pilot to Tier 4 and contact centre lead."
+    date_added: "2026-03-11"
