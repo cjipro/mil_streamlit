@@ -26,14 +26,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Sprint Status
 
-Sprint 1 — 5 tickets BUILT:
-- KAN-17: system_manifest.yaml
-- KAN-18: build_from_manifest.py
-- KAN-19: telemetry_spec.yaml
-- KAN-1G: graduated_trust_tiers.yaml
-- KAN-1H: hypothesis_library.yaml
+Sprint 1 — 6 tickets BUILT:
+- KAN-10: GitLab repo (BUILT)
+- KAN-17: system_manifest.yaml (BUILT, commit 377a4be)
+- KAN-19: telemetry_spec.yaml (BUILT, commit 021a8a9)
+- KAN-1G: graduated_trust_tiers.yaml (BUILT, commit d630986)
+- KAN-1H: hypothesis_library.yaml (BUILT, commit dd89e32)
+- KAN-13: audit_findings.yaml (BUILT, commit fe492e2)
 
-**Next ticket:** KAN-13 — audit_findings.yaml
+WARNING: KAN-18 — build_from_manifest.py — listed as BUILT but files missing from disk. Do not mark as BUILT. Status: NEEDS_REBUILD.
+
+**Next ticket:** KAN-14 — Resolve Finding 002 (CRITICAL)
 
 ## Key Manifests
 
@@ -46,7 +49,7 @@ Sprint 1 — 5 tickets BUILT:
 
 ## Model Config
 
-- **Primary:** `claude-sonnet-4-20250514`
+- **Primary:** `claude-sonnet-4-6`
 - **Local:** `qwen2.5-coder:14b` via Ollama at `http://localhost:11434`
 - **Use local for:** yaml generation, file creation, validation scripts
 - **Use Claude for:** architecture decisions, governance review, complex reasoning
