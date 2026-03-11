@@ -1,0 +1,57 @@
+schema_version: "1.0"
+generated_by: KAN-13
+purpose: "Machine-readable register of all data quality findings. No pipeline is built against an affected table until its findings are RESOLVED or ACCEPTED-WITH-FALLBACK."
+last_updated: "2026-03-11"
+
+findings:
+  - id: FINDING-001
+    severity: HIGH
+    status: OPEN
+    description: "cust_id uses -99 as a sentinel value for unauthenticated/guest sessions. The volume is unknown and must be quantified before pipeline build."
+    business_impact: "The issue affects the accuracy of data related to unauthenticated sessions, potentially leading to skewed analytics."
+    action_required: "Quantify the volume of -99 sentinel values in cust_id and update the pipeline accordingly."
+    owner: Hussain Ahmed
+    data_owner_signoff_required: true
+    resolution: null
+    fallback_if_unresolved: "Consider excluding -99 values from analysis until the volume is quantified."
+    affects_tables:
+      - MA_D
+    blocks_components:
+      - KAN-20
+    raised_date: "2026-03-11"
+    target_resolution_date: "2026-03-18"
+
+  - id: FINDING-002
+    severity: CRITICAL
+    status: OPEN
+    description: "The app_version field is missing in MA_D, blocking the entire Phase 1 mission."
+    business_impact: "This finding blocks the ability to compare refreshed vs legacy app experience, which is crucial for the CJI Pulse Day 90 mission."
+    action_required: "Add the app_version field to the MA_D table and ensure data consistency."
+    owner: Hussain Ahmed
+    data_owner_signoff_required: true
+    resolution: null
+    fallback_if_unresolved: "The mission will be delayed until the app_version field is added."
+    affects_tables:
+      - MA_D
+    blocks_components:
+      - KAN-14
+      - KAN-20
+    raised_date: "2026-03-11"
+    target_resolution_date: "2026-03-18"
+
+  - id: FINDING-003
+    severity: MEDIUM
+    status: OPEN
+    description: "The meaning of the Native flag in OPS_CD is undocumented."
+    business_impact: "The undocumented flag may be crucial for resolving Finding 002, but its meaning is unclear."
+    action_required: "Document the meaning of the Native flag in OPS_CD and investigate its potential mapping to app_experience."
+    owner: Hussain Ahmed
+    data_owner_signoff_required: true
+    resolution: null
+    fallback_if_unresolved: "If the meaning cannot be determined, consider using other available data to resolve Finding 002."
+    affects_tables:
+      - OPS_CD
+    blocks_components:
+      - KAN-14
+    raised_date: "2026-03-11"
+    target_resolution_date: "2026-03-18"
