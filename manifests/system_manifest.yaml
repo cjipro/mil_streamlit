@@ -648,7 +648,8 @@ components:
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "BUILT"
+    retrospective: "hypothesis_library.yaml created, 23 hypotheses, 16 APPROVED, 7 PENDING, 0 errors"
     priority: P1
     estimated_effort_hours: 3
     tool: "Cursor"
