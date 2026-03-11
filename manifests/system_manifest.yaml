@@ -548,7 +548,8 @@ components:
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "BUILT"
+    retrospective: "telemetry_spec.yaml created, 557 lines, 0 errors, 0 warnings, commit 021a8a9"
     priority: P1
     estimated_effort_hours: 2
     tool: "Cursor"
