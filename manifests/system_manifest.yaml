@@ -1,0 +1,4066 @@
+schema_version: "5.0"
+programme: "CJI Pulse / while-sleeping"
+description: "90-Day Delivery Plan — Machine Execution Brief. Built for AI, Reviewed by Human."
+day_90_vision: "Customers experiencing difficulties on Step 3 of Loans journey, abandoning — likely 45+, likely vulnerable. In last 3 days 5 customers said App journey sucks."
+repo: "https://gitlab.com/streaming-analytics/while-sleeping"
+jira_project: "KAN"
+jira_url: "https://cjipro.atlassian.net"
+owner: "Hussain Ahmed"
+last_updated: "2026-03-11"
+status: "ACTIVE"
+
+programme_principles:
+  - "Every Friday: something deployed, board moved, technical problem solved"
+  - "Demotivation is #1 risk: short sprints, visible wins, scope protected"
+  - "Manifest is source of truth: Jira is a view, never the source"
+  - "Manifest executable from Day 1: not a Sprint 12 afterthought"
+  - "Audit before architecture: Canonical Statement 04 is law"
+  - "Semantic telemetry on every failure: every error is machine-readable"
+  - "Build for future agents: all config machine-readable YAML"
+  - "Human-led first release: reconstruction is not autonomous deployment authority"
+  - "One command to run everything: python run_daily.py --date YYYY-MM-DD"
+  - "Protect customer outcomes: Do Not Break, CONTRADICTED, vulnerable cohorts are first-class"
+  - "Governance as a ramp, not a wall"
+  - "AI is easy to demo. It is hard to ship. Day 90 is a shipping proof, not a demo."
+
+dual_closure_rule: "Every ticket requires two independent closure conditions. Human done AND AI-ready done. Neither alone is sufficient. This rule applies to every ticket without exception."
+
+# ============================================================
+# SPRINT 1: Foundation, Manifest Model & Audit (Days 1-7)
+# ============================================================
+
+components:
+
+  - id: KAN-10
+    name: "Initialise GitLab mono-repo"
+    sprint: 1
+    days: "1-7"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "BUILT"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Manual"
+    jira_id: ""
+    gitlab_branch: "feat/KAN-10-initialise-repo"
+    manifest_path: "manifests/KAN-010_repo_manifest.md"
+    gitlab_path: "/"
+    purpose: "Create the canonical repository that all agents read from. Every component, config, and manifest lives here."
+    inputs:
+      - "GitLab account access"
+    outputs:
+      - "gitlab.com/streaming-analytics/while-sleeping"
+      - "Mono-repo directory structure"
+      - "README with one-command setup"
+    dependencies: []
+    acceptance_criteria:
+      - "gitlab.com/streaming-analytics/while-sleeping created"
+      - "Mono-repo structure: /data /agents /app /manifests /contracts /config /scripts /tests"
+      - "README with one-command setup"
+      - "Branch naming convention documented: feature/KAN-XXX-short-description"
+      - ".gitignore excludes credentials and large data files"
+    validation_command: "git clone [repo] && ls data agents app manifests contracts config scripts tests && cat README.md"
+    graduated_trust_tier: 4
+    runtime_permissions: ["git_push", "repo_admin"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "GitLab access issue"
+          action: "Use GitHub as fallback. Document decision in hosting_decision.md. Update all manifest paths accordingly."
+      retry_logic: "Manual retry after access issue resolved"
+      fallback_strategy: "GitHub fallback"
+      escalation_criteria: "If GitLab unavailable for >24h"
+    interfaces:
+      inputs_expected:
+        - schema: "GitLab credentials"
+          format: "environment variables"
+          source: ".env"
+      outputs_promised:
+        - schema: "Repository structure"
+          format: "git repo"
+          destination: "gitlab.com/streaming-analytics/while-sleeping"
+      breaking_change_protocol: "Document any directory renames in manifest before renaming"
+    traceability: "Programme principle: Manifest is source of truth from Day 1"
+
+  - id: KAN-11
+    name: "Create TABLE_CONFIG — all source table names as config"
+    sprint: 1
+    days: "1-7"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-11-table-config"
+    manifest_path: "manifests/KAN-011_table_config_manifest.md"
+    gitlab_path: "config/table_config.yaml"
+    purpose: "Zero hardcoded table names anywhere in codebase. Every pipeline reads from TABLE_CONFIG."
+    inputs:
+      - "KAN-10 (repo must exist)"
+    outputs:
+      - "config/table_config.yaml"
+    dependencies: ["KAN-10"]
+    acceptance_criteria:
+      - "config/table_config.yaml with keys for MA_D, SE, OPS_CD, CC_D, CUST_DIM"
+      - "Output tables: MA_S, daily_journey_mart, voice_evidence_fact, governance_run_fact"
+      - "Every pipeline reads table names from this config"
+      - "grep -r for hardcoded table names returns zero results outside this file"
+    validation_command: "python scripts/validate_KAN-011.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_config"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Table name format changes"
+          action: "Update TABLE_CONFIG only. Run grep audit to confirm zero hardcoded references remain. Re-run validate_KAN-011.py."
+      retry_logic: "Update config and re-run validation"
+      fallback_strategy: "Document any unresolvable table name conflicts"
+      escalation_criteria: "If table names cannot be confirmed by data owner"
+    interfaces:
+      inputs_expected:
+        - schema: "Source table names"
+          format: "string"
+          source: "Data owner confirmation"
+      outputs_promised:
+        - schema: "TABLE_CONFIG YAML"
+          format: "yaml"
+          destination: "config/table_config.yaml"
+      breaking_change_protocol: "Any table rename requires update to TABLE_CONFIG and full grep audit"
+    traceability: "Programme principle: Build for future agents — all config machine-readable YAML"
+
+  - id: KAN-12
+    name: "Set up local Docker environment"
+    sprint: 1
+    days: "1-7"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-12-docker-environment"
+    manifest_path: "manifests/KAN-012_docker_manifest.md"
+    gitlab_path: "docker-compose.yml"
+    purpose: "Single command starts entire local environment. No manual setup steps."
+    inputs:
+      - "KAN-10"
+    outputs:
+      - "docker-compose.yml"
+      - "config/deployment_config.yaml"
+    dependencies: ["KAN-10"]
+    acceptance_criteria:
+      - "docker-compose.yml runs PySpark + Postgres + Streamlit + Ollama locally"
+      - "docker-compose up starts everything"
+      - "Health checks on all services"
+      - "Port mapping documented"
+      - "deployment_config.yaml defines target environment"
+    validation_command: "docker-compose up -d && sleep 30 && docker-compose ps | grep -c 'Up' | grep 4"
+    graduated_trust_tier: 4
+    runtime_permissions: ["docker_exec", "port_binding"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Port conflict"
+          action: "Update deployment_config.yaml port mappings. Never hardcode ports in application code."
+        - condition: "Ollama memory issue"
+          action: "Reduce Qwen model to 7b variant in model_config.yaml. Document in manifest as DEGRADED capability."
+      retry_logic: "Update config and restart docker-compose"
+      fallback_strategy: "Reduce model size to 7b variant"
+      escalation_criteria: "If memory insufficient for any model variant"
+    interfaces:
+      inputs_expected:
+        - schema: "Docker config"
+          format: "yaml"
+          source: "config/deployment_config.yaml"
+      outputs_promised:
+        - schema: "Running services"
+          format: "docker containers"
+          destination: "localhost"
+      breaking_change_protocol: "Port changes require deployment_config.yaml update and team notification"
+    preferred_model:
+      model: "qwen2.5-coder:14b"
+      fallback: "qwen2.5:7b"
+    traceability: "Programme principle: One command to run everything"
+
+  - id: KAN-13
+    name: "Document all audit findings in structured YAML"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-13-audit-findings"
+    manifest_path: "manifests/KAN-013_audit_register_manifest.md"
+    gitlab_path: "manifests/audit_findings.yaml"
+    purpose: "Every data quality risk is named, owned, and machine-readable before any pipeline is built."
+    inputs:
+      - "KAN-10"
+    outputs:
+      - "manifests/audit_findings.yaml"
+    dependencies: ["KAN-10"]
+    acceptance_criteria:
+      - "manifests/audit_findings.yaml with Finding 001 (cust_id -99 volume unknown)"
+      - "Finding 002 (app version missing in MA_D — CRITICAL, blocks Phase 1 mission)"
+      - "Finding 003 (Native flag in OPS_CD meaning unknown)"
+      - "Each entry: id, severity, status, description, business_impact, action_required, owner, data_owner_signoff_required, resolution, fallback_if_unresolved"
+      - "Data owner sign-off obtained before marking any finding RESOLVED"
+    validation_command: "python scripts/validate_KAN-013.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Data owner unavailable for sign-off"
+          action: "Escalate to analytics lead. Document as BLOCKED in audit_findings.yaml. Do not mark RESOLVED without sign-off."
+      retry_logic: "Wait for data owner availability. Escalate after 48h."
+      fallback_strategy: "Mark as BLOCKED with escalation date"
+      escalation_criteria: "Data owner unavailable >48h"
+    interfaces:
+      inputs_expected:
+        - schema: "Data quality observations"
+          format: "unstructured notes"
+          source: "Data owner interviews"
+      outputs_promised:
+        - schema: "Audit findings YAML"
+          format: "yaml"
+          destination: "manifests/audit_findings.yaml"
+      breaking_change_protocol: "New findings must be added before any pipeline is built against affected data"
+    governance_attributes:
+      sensitivity_classification: "INTERNAL"
+      purpose_limitation: "Data quality governance only"
+      retention_period: "Programme lifetime"
+      data_minimisation_notes: "Document findings only, not raw data samples"
+    traceability: "Programme principle: Audit before architecture — Canonical Statement 04 is law"
+
+  - id: KAN-14
+    name: "Resolve Finding 002 — app version / experience source"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Investigation"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-14-finding-002"
+    manifest_path: "manifests/KAN-014_appversion_manifest.md"
+    gitlab_path: "manifests/audit_findings.yaml"
+    purpose: "Finding 002 is CRITICAL. It blocks the entire Phase 1 mission — refreshed vs legacy comparison."
+    inputs:
+      - "KAN-13"
+    outputs:
+      - "Finding 002 marked RESOLVED or ACCEPTED-WITH-FALLBACK"
+      - "config/timing_based_fallback.yaml (if fallback path)"
+    dependencies: ["KAN-13"]
+    acceptance_criteria:
+      - "Path A: Source table identified, field name confirmed, join key to MA_D documented, TABLE_CONFIG updated, Finding 002 RESOLVED with data owner sign-off"
+      - "Path B: No reliable source — timing_based_fallback.yaml documents fallback, downstream comparisons labelled DIRECTIONAL-only, Finding 002 ACCEPTED-WITH-FALLBACK"
+      - "No third option"
+    validation_command: "python scripts/validate_KAN-014.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Source table found but join rate low"
+          action: "If >90% proceed with caveat. If <90% treat as fallback path B. No EVIDENCED classification below 90%."
+        - condition: "Native flag in OPS_CD is the answer"
+          action: "Investigate Finding 003 first. If Native flag maps to app_experience, use it. Document mapping logic fully."
+      retry_logic: "One investigation path at a time. Document each dead end."
+      fallback_strategy: "timing_based_fallback.yaml with DIRECTIONAL-only labels"
+      escalation_criteria: "If investigation exceeds 4h without resolution"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_D schema"
+          format: "data dictionary"
+          source: "Data owner"
+      outputs_promised:
+        - schema: "Audit finding resolution"
+          format: "yaml"
+          destination: "manifests/audit_findings.yaml"
+      breaking_change_protocol: "Finding 002 resolution determines all downstream comparison labelling"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read audit_findings.yaml Finding 002. List all candidate source tables for app_version field."
+        - step: 2
+          description: "For each candidate: check join key to MA_D, check join rate, document result."
+        - step: 3
+          description: "Check OPS_CD Native flag — does it map to app_experience? Document mapping logic."
+        - step: 4
+          description: "Make resolution decision: Path A or Path B. Document with evidence. Write to audit_findings.yaml."
+    traceability: "CRITICAL — blocks entire Phase 1 mission"
+
+  - id: KAN-15
+    name: "Audit CUST_DIM — describe, sample, join key confirmation"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 2
+    tool: "Investigation"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-15-custdim-audit"
+    manifest_path: "manifests/KAN-015_custdim_audit_manifest.md"
+    gitlab_path: "manifests/audit_findings.yaml"
+    purpose: "Customer segmentation is core to vulnerable customer detection. Confirm what we actually have."
+    inputs:
+      - "KAN-13"
+    outputs:
+      - "CUST_DIM field mapping documented"
+      - "Join key status confirmed"
+    dependencies: ["KAN-13"]
+    acceptance_criteria:
+      - "CUST_DIM fields mapped to CJI canonical names: customer_segment, customer_tenure, historical_completion_rate, historical_digital_engagement_score"
+      - "Join key to MA_S confirmed or formally blocked"
+      - "Gaps logged in audit_findings.yaml"
+      - "Data owner sign-off obtained"
+      - "Null rates documented per field"
+    validation_command: "python scripts/validate_KAN-015.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Join key missing"
+          action: "Document as Finding 004. Use synthetic CUST_DIM for Phase 1. Flag all customer context fields as SYNTHETIC."
+      retry_logic: "One field at a time. Escalate unknowns to data owner."
+      fallback_strategy: "Synthetic CUST_DIM with SYNTHETIC flag"
+      escalation_criteria: "Join key missing — escalate immediately"
+    interfaces:
+      inputs_expected:
+        - schema: "CUST_DIM table schema"
+          format: "data dictionary"
+          source: "Data owner"
+      outputs_promised:
+        - schema: "Field mapping document"
+          format: "yaml entry in audit_findings.yaml"
+          destination: "manifests/audit_findings.yaml"
+      breaking_change_protocol: "Join key change requires update to all downstream customer context logic"
+    governance_attributes:
+      sensitivity_classification: "CONFIDENTIAL"
+      purpose_limitation: "Customer segmentation for journey intelligence only"
+      retention_period: "Per data retention policy"
+      data_minimisation_notes: "Aggregate segment only — no individual customer data in audit"
+    traceability: "Day 90 vision: vulnerable customers must be identifiable"
+
+  - id: KAN-16
+    name: "Create all 90-day epics and tickets in Jira"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "generate_jira_tickets.py"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-16-jira-setup"
+    manifest_path: "manifests/KAN-016_jira_setup_manifest.md"
+    gitlab_path: "scripts/generate_jira_tickets.py"
+    purpose: "Jira is a view of the manifest — not the source of truth. Tickets are created from the manifest."
+    inputs:
+      - "KAN-17 (manifest must be committed first)"
+    outputs:
+      - "All epics created in Jira"
+      - "All tickets with descriptions, acceptance criteria, manifest path linked"
+      - "scripts/generate_jira_tickets.py"
+    dependencies: ["KAN-17"]
+    acceptance_criteria:
+      - "All epics created"
+      - "All tickets with descriptions, acceptance criteria, and manifest path linked"
+      - "GitLab branch naming: feature/KAN-XXX-short-description"
+      - "generate_jira_tickets.py script exists and can regenerate from manifest"
+      - "Manifest index linked in Jira project description"
+    validation_command: "python scripts/generate_jira_tickets.py --manifest manifests/system_manifest.yaml --dry-run"
+    graduated_trust_tier: 4
+    runtime_permissions: ["jira_write", "gitlab_write"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Jira unavailable"
+          action: "Use GitLab issues as fallback. Update manifest to reference GitLab issue IDs. Document in operating_model.md."
+        - condition: "API rate limit"
+          action: "Add sleep between API calls. Re-run script — it skips already-created tickets."
+      retry_logic: "Script is idempotent — safe to re-run. Skips tickets where jira_id already populated."
+      fallback_strategy: "GitLab issues as Jira fallback"
+      escalation_criteria: "Jira API unavailable >4h"
+    interfaces:
+      inputs_expected:
+        - schema: "system_manifest.yaml"
+          format: "yaml"
+          source: "manifests/system_manifest.yaml"
+        - schema: "Jira credentials"
+          format: "environment variables"
+          source: ".env"
+        - schema: "GitLab credentials"
+          format: "environment variables"
+          source: ".env"
+      outputs_promised:
+        - schema: "Jira tickets"
+          format: "Jira issues via REST API"
+          destination: "https://cjipro.atlassian.net/jira/software/projects/KAN/"
+        - schema: "GitLab branches"
+          format: "git branches"
+          destination: "gitlab.com/streaming-analytics/while-sleeping"
+        - schema: "Generation log"
+          format: "yaml"
+          destination: "scripts/generation_log.yaml"
+      breaking_change_protocol: "Any manifest schema change requires regeneration of all tickets"
+    traceability: "Programme principle: Manifest is source of truth — Jira is a view"
+
+  - id: KAN-17
+    name: "Scaffold system_manifest.yaml — complete schema with all v5 fields"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "IN_PROGRESS"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-17-system-manifest"
+    manifest_path: "manifests/system_manifest.yaml"
+    gitlab_path: "manifests/system_manifest.yaml"
+    purpose: "Entry point for every AI agent building this system. Complete, correct, machine-readable from Day 1."
+    inputs:
+      - "KAN-10"
+      - "CJI_Pulse_90Day_Plan_v5.docx"
+    outputs:
+      - "manifests/system_manifest.yaml"
+    dependencies: ["KAN-10"]
+    acceptance_criteria:
+      - "manifests/system_manifest.yaml committed Day 1"
+      - "Every component listed with ALL required fields"
+      - "All v5 additions: recovery_patterns, interfaces, preferred_model, vendor, graduated_trust_tier, runtime_permissions, prompt_breakdown"
+      - "Data contract manifests include governance_attributes"
+      - "Validates with zero errors"
+    validation_command: "python scripts/validate_KAN-017.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Schema validation fails"
+          action: "Read validate_KAN-017.py error output. Fix field-by-field. Re-run validation. Do not proceed until validation passes."
+        - condition: "Component dependency cycle detected"
+          action: "Review dependency graph. Cycles are architecture errors. Resolve by introducing intermediate contract."
+      retry_logic: "Fix one validation error at a time. Re-run after each fix."
+      fallback_strategy: "Reduce schema to core fields for first pass, add v5 fields iteratively"
+      escalation_criteria: "Dependency cycle cannot be resolved"
+    interfaces:
+      inputs_expected:
+        - schema: "90-day plan document"
+          format: "docx"
+          source: "CJI_Pulse_90Day_Plan_v5.docx"
+      outputs_promised:
+        - schema: "Complete manifest"
+          format: "yaml"
+          destination: "manifests/system_manifest.yaml"
+      breaking_change_protocol: "Schema version must be incremented on any field addition or removal"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read CJI_Pulse_90Day_Plan_v5.docx. Extract all KAN ticket IDs, names, efforts, dependencies, acceptance criteria."
+        - step: 2
+          description: "Scaffold YAML structure with programme metadata and schema_version."
+        - step: 3
+          description: "Add Sprint 1-3 components with all required fields."
+        - step: 4
+          description: "Add Sprint 4-7 components with all required fields."
+        - step: 5
+          description: "Add Sprint 8-13 components with all required fields."
+        - step: 6
+          description: "Run validate_KAN-017.py. Fix all errors. Re-run until clean."
+    traceability: "THIS IS THE MANIFEST. Every other component references this as root."
+
+  - id: KAN-18
+    name: "Build build_from_manifest.py — executable manifest runner"
+    sprint: 1
+    days: "1-7"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 5
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-18-build-from-manifest"
+    manifest_path: "manifests/KAN-018_buildscript_manifest.md"
+    gitlab_path: "scripts/build_from_manifest.py"
+    purpose: "The manifest is not just documentation — it is executable. Bridge between manifest definition and code scaffolding."
+    inputs:
+      - "KAN-17"
+    outputs:
+      - "scripts/build_from_manifest.py"
+    dependencies: ["KAN-17"]
+    acceptance_criteria:
+      - "scripts/build_from_manifest.py reads component spec from system_manifest.yaml"
+      - "Scaffolds code structure via Claude Code API"
+      - "Updates component status to IN_PROGRESS during build and BUILT on success"
+      - "Context injection: reads all dependency manifests before scaffolding"
+      - "Tested successfully on KAN-11 as proof of concept"
+      - "Retrospective field updated after each build"
+    validation_command: "python scripts/build_from_manifest.py --component KAN-011 --dry-run"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_manifests", "write_code", "update_manifest_status"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Claude Code API unavailable"
+          action: "Log DEGRADED status in manifest. Use manual scaffolding with manifest as spec. Update status to MANUAL-BUILT."
+        - condition: "Dependency not BUILT"
+          action: "Script must halt and log: BLOCKED — KAN-XXX dependency not BUILT. Dependency order is law."
+      retry_logic: "Retry after dependency is confirmed BUILT"
+      fallback_strategy: "Manual scaffolding using manifest as specification"
+      escalation_criteria: "API unavailable >2h during active build sprint"
+    interfaces:
+      inputs_expected:
+        - schema: "Component manifest"
+          format: "yaml"
+          source: "manifests/system_manifest.yaml"
+      outputs_promised:
+        - schema: "Scaffolded code"
+          format: "python files"
+          destination: "Component gitlab_path"
+      breaking_change_protocol: "Changes to manifest schema require corresponding update to build script parser"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read system_manifest.yaml. Parse component schema. Implement YAML loader."
+        - step: 2
+          description: "Implement dependency resolver — check all dependencies have status=BUILT before proceeding."
+        - step: 3
+          description: "Implement context injector — reads all dependency manifests and passes as context."
+        - step: 4
+          description: "Implement Claude Code API caller — sends manifest spec + context, receives scaffolded code."
+        - step: 5
+          description: "Implement status updater — writes IN_PROGRESS then BUILT to system_manifest.yaml."
+        - step: 6
+          description: "Test on KAN-011 with --dry-run flag. Validate manifest parsing and dependency resolution."
+    traceability: "Enables manifest-first architecture to be truly executable"
+
+  - id: KAN-19
+    name: "Define semantic telemetry spec for all pipeline failures"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-19-telemetry-spec"
+    manifest_path: "manifests/KAN-019_telemetry_spec_manifest.md"
+    gitlab_path: "manifests/telemetry_spec.yaml"
+    purpose: "Every failure anywhere in the system emits machine-readable telemetry."
+    inputs:
+      - "KAN-17"
+    outputs:
+      - "manifests/telemetry_spec.yaml"
+    dependencies: ["KAN-17"]
+    acceptance_criteria:
+      - "manifests/telemetry_spec.yaml defines: step_id, input_reference, output_summary, error_code, error_class"
+      - "error_class enum: DATA_QUALITY / PIPELINE / SCHEMA / DEPENDENCY / GOVERNANCE"
+      - "retryability (yes/no/backoff), business_impact_tier (P1/P2/P3)"
+      - "downstream_dependency_impact, manifest_spec_reference, recovery_strategy_reference"
+      - "Committed before any pipeline is built"
+      - "Every pipeline imports and uses this spec — no custom error formats"
+    validation_command: "python scripts/validate_KAN-019.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "New error type not in spec"
+          action: "Add to telemetry_spec.yaml first. Never create custom error formats in pipeline code."
+      retry_logic: "Add new error class to spec, re-validate"
+      fallback_strategy: "Use PIPELINE error class as generic fallback"
+      escalation_criteria: "Error class ambiguity blocking pipeline build"
+    interfaces:
+      inputs_expected:
+        - schema: "Known failure modes"
+          format: "unstructured"
+          source: "Sprint planning"
+      outputs_promised:
+        - schema: "Telemetry specification"
+          format: "yaml"
+          destination: "manifests/telemetry_spec.yaml"
+      breaking_change_protocol: "Adding new error_class values is non-breaking. Removing values is breaking — requires pipeline audit."
+    traceability: "Programme principle: Semantic telemetry on every failure"
+
+  - id: KAN-1G
+    name: "Scaffold graduated trust model — Tiers 1-4"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-1G-trust-tiers"
+    manifest_path: "manifests/KAN-01G_trust_tiers_manifest.md"
+    gitlab_path: "config/graduated_trust_tiers.yaml"
+    purpose: "Governance is a ramp, not a wall. Journey owners earn expanded capabilities through demonstrated competence."
+    inputs:
+      - "KAN-17"
+    outputs:
+      - "config/graduated_trust_tiers.yaml"
+    dependencies: ["KAN-17"]
+    acceptance_criteria:
+      - "Tier 1 — Read Only: view findings, read queue, read briefing"
+      - "Tier 2 — Hypothesis Approver: approve investigation queue items, submit hypotheses"
+      - "Tier 3 — Validated Operator: approve agent outputs, close queue items, adjust priority weights"
+      - "Tier 4 — Controlled Deployer: approve manifest changes, trigger controlled agent rebuild"
+      - "Each tier lists: permissions, how to earn it, what is still restricted"
+      - "Phase 1 maximum: Tier 3 for journey owners, Tier 4 for analytics lead only"
+    validation_command: "python scripts/validate_KAN-01G.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_config", "write_config"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Journey owner needs Tier 4 action urgently"
+          action: "Escalate to analytics lead. Analytics lead takes action. Document in governance_run_fact. No self-upgrade of trust tier."
+      retry_logic: "Escalation path is the recovery"
+      fallback_strategy: "Analytics lead performs all Tier 4 actions in Phase 1"
+      escalation_criteria: "Tier 4 action required and analytics lead unavailable"
+    interfaces:
+      inputs_expected:
+        - schema: "Governance requirements"
+          format: "unstructured"
+          source: "Programme principles"
+      outputs_promised:
+        - schema: "Trust tier definitions"
+          format: "yaml"
+          destination: "config/graduated_trust_tiers.yaml"
+      breaking_change_protocol: "Tier permission changes require analytics lead approval and manifest update"
+    traceability: "Programme principle: Governance as a ramp, not a wall"
+
+  - id: KAN-1H
+    name: "Scaffold hypothesis library — seed with known patterns"
+    sprint: 1
+    days: "1-7"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-1H-hypothesis-library"
+    manifest_path: "manifests/KAN-01H_hypothesis_library_manifest.md"
+    gitlab_path: "manifests/hypothesis_library.yaml"
+    purpose: "The hypothesis library is the intelligence core of the conversational query interface."
+    inputs:
+      - "KAN-17"
+    outputs:
+      - "manifests/hypothesis_library.yaml"
+    dependencies: ["KAN-17"]
+    acceptance_criteria:
+      - "manifests/hypothesis_library.yaml with minimum 10 seed entries"
+      - "Each entry: hypothesis_id, hypothesis_text, journey_type, evidence_tier, response_mode, supporting_metrics, recommended_action (three-part), date_added, status"
+      - "evidence_tier values: EVIDENCED/DIRECTIONAL/UNKNOWN"
+      - "recommended_action three-part: what_is_happening, why_it_matters, suggested_first_action"
+      - "Schema validated"
+    validation_command: "python scripts/validate_KAN-01H.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Insufficient seed entries"
+          action: "Use canonical statements from brief v2.8 as hypotheses. Minimum viable is 5 if 10 not achievable in Sprint 1."
+      retry_logic: "Add entries from canonical statements and known failure patterns"
+      fallback_strategy: "5 entries minimum viable for Sprint 1"
+      escalation_criteria: "Cannot create minimum 5 entries without domain expert input"
+    interfaces:
+      inputs_expected:
+        - schema: "Canonical statements"
+          format: "unstructured"
+          source: "Brief v2.8 and plan document"
+      outputs_promised:
+        - schema: "Hypothesis library"
+          format: "yaml"
+          destination: "manifests/hypothesis_library.yaml"
+      breaking_change_protocol: "Schema changes to hypothesis entries require re-validation of all entries"
+    traceability: "Intelligence core — enables Ask CJI conversational interface"
+
+# ============================================================
+# SPRINT 2: Audit Completion & Data Contract Baseline (Days 8-14)
+# ============================================================
+
+  - id: KAN-20
+    name: "Write data contract YAML for MA_D"
+    sprint: 2
+    days: "8-14"
+    type: "Data Contract"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-20-ma-d-contract"
+    manifest_path: "manifests/KAN-020_ma_d_contract_manifest.md"
+    gitlab_path: "contracts/ma_d.yaml"
+    purpose: "MA_D is the primary source of app session events. Every downstream pipeline depends on this contract."
+    inputs:
+      - "KAN-17"
+      - "KAN-13"
+    outputs:
+      - "contracts/ma_d.yaml"
+    dependencies: ["KAN-17", "KAN-13"]
+    acceptance_criteria:
+      - "contracts/ma_d.yaml with every field mapped"
+      - "Fields: field_name, data_type, grain, nullable, null_rate_observed, cji_canonical_name, degradation_mode, quality_check, source_system, latency, owner"
+      - "governance_attributes: sensitivity_classification, purpose_limitation, retention_period, data_minimisation_notes"
+      - "Known issues documented: cust_id -99 sentinel rate"
+      - "Data owner sign-off recorded"
+    validation_command: "python scripts/validate_KAN-020.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_contracts"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Field meaning unclear"
+          action: "Document as UNKNOWN in contract. Do not assume. Escalate to data owner."
+      retry_logic: "One field at a time. Escalate unknowns immediately."
+      fallback_strategy: "Mark unclear fields as UNKNOWN with escalation date"
+      escalation_criteria: "Critical field meaning unknown — block pipeline build"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_D table schema"
+          format: "data dictionary"
+          source: "Data owner"
+      outputs_promised:
+        - schema: "Data contract"
+          format: "yaml"
+          destination: "contracts/ma_d.yaml"
+      breaking_change_protocol: "MA_D schema changes require contract update before pipeline execution"
+    governance_attributes:
+      sensitivity_classification: "CONFIDENTIAL"
+      purpose_limitation: "CJI journey intelligence only"
+      retention_period: "Per data retention policy"
+      data_minimisation_notes: "Session events only — no PII fields in pipeline outputs"
+    traceability: "Foundation data source for all pipeline components"
+
+  - id: KAN-21
+    name: "Write data contract YAML for SE (dim_evnt)"
+    sprint: 2
+    days: "8-14"
+    type: "Data Contract"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-21-se-contract"
+    manifest_path: "manifests/KAN-021_se_contract_manifest.md"
+    gitlab_path: "contracts/se.yaml"
+    purpose: "SE is the event dimension that maps raw event codes to journey context."
+    inputs:
+      - "KAN-20"
+    outputs:
+      - "contracts/se.yaml"
+    dependencies: ["KAN-20"]
+    acceptance_criteria:
+      - "contracts/se.yaml same structure as MA_D contract plus governance_attributes"
+      - "Join key to MA_D documented with observed join rate"
+      - "evnt_grp_nm NULL rate noted and documented"
+      - "fnl_step_ind reliability status documented — flagged as UNRELIABLE if confirmed"
+      - "Data owner sign-off recorded"
+    validation_command: "python scripts/validate_KAN-021.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_contracts"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Join rate below 98%"
+          action: "Document actual join rate. Investigate cause. If systematic, escalate as new audit finding before building pipeline."
+      retry_logic: "Investigate join key format match before escalating"
+      fallback_strategy: "Document as DEGRADED join with rate documented"
+      escalation_criteria: "Join rate below 90%"
+    interfaces:
+      inputs_expected:
+        - schema: "SE table schema"
+          format: "data dictionary"
+          source: "Data owner"
+        - schema: "MA_D contract"
+          format: "yaml"
+          source: "contracts/ma_d.yaml"
+      outputs_promised:
+        - schema: "SE data contract"
+          format: "yaml"
+          destination: "contracts/se.yaml"
+      breaking_change_protocol: "Join key changes require MA_S pipeline rebuild"
+    governance_attributes:
+      sensitivity_classification: "INTERNAL"
+      purpose_limitation: "Event classification for journey intelligence"
+      retention_period: "Per data retention policy"
+      data_minimisation_notes: "Event codes only — no customer identifiers"
+    traceability: "Required for journey classification in MA_S pipeline"
+
+  - id: KAN-22
+    name: "Write data contract YAML for OPS_CD"
+    sprint: 2
+    days: "8-14"
+    type: "Data Contract"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-22-ops-cd-contract"
+    manifest_path: "manifests/KAN-022_ops_cd_contract_manifest.md"
+    gitlab_path: "contracts/ops_cd.yaml"
+    purpose: "OPS_CD is the feature taxonomy that classifies every event into journey context."
+    inputs:
+      - "KAN-20"
+      - "KAN-14"
+    outputs:
+      - "contracts/ops_cd.yaml"
+    dependencies: ["KAN-20", "KAN-14"]
+    acceptance_criteria:
+      - "contracts/ops_cd.yaml covers: op_cd, page, pod, sub_pod, feature, op_class, channel flags"
+      - "Feature field confirmed as primary journey classifier"
+      - "Native flag status documented"
+      - "Governance_attributes complete"
+      - "Data owner sign-off recorded"
+    validation_command: "python scripts/validate_KAN-022.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_contracts"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Feature taxonomy incomplete for a journey type"
+          action: "Document the gap. Use UNKNOWN classification for unmapped op_codes. Do not invent mappings."
+      retry_logic: "Escalate unmapped op_codes to data owner"
+      fallback_strategy: "UNKNOWN classification for unmapped codes"
+      escalation_criteria: "Major journey type has no op_code coverage"
+    interfaces:
+      inputs_expected:
+        - schema: "OPS_CD table schema"
+          format: "data dictionary"
+          source: "Data owner"
+      outputs_promised:
+        - schema: "OPS_CD contract"
+          format: "yaml"
+          destination: "contracts/ops_cd.yaml"
+      breaking_change_protocol: "Feature taxonomy changes require re-derivation of all behavioural signals"
+    governance_attributes:
+      sensitivity_classification: "INTERNAL"
+      purpose_limitation: "Feature classification for journey intelligence"
+      retention_period: "Per data retention policy"
+      data_minimisation_notes: "Feature codes only — no customer data"
+    traceability: "Vocabulary for all journey classification and behavioural signal derivation"
+
+  - id: KAN-23
+    name: "Write MA_S output field specification"
+    sprint: 2
+    days: "8-14"
+    type: "Data Contract"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-23-mas-spec"
+    manifest_path: "manifests/KAN-023_ma_s_spec_manifest.md"
+    gitlab_path: "contracts/ma_s_spec.yaml"
+    purpose: "MA_S is the session spine that everything reads from. Its output spec is the contract between pipeline and all downstream consumers."
+    inputs:
+      - "KAN-20"
+      - "KAN-21"
+      - "KAN-22"
+    outputs:
+      - "contracts/ma_s_spec.yaml"
+    dependencies: ["KAN-20", "KAN-21", "KAN-22"]
+    acceptance_criteria:
+      - "contracts/ma_s_spec.yaml every output field defined"
+      - "Each field: source_field, derivation_logic (exact), nullability, quality_flag, cji_canonical_name, physical_table"
+      - "20+ fields covered per MVP Required bucket"
+      - "Behavioural signals with explicit derivation logic: ghost_intent_flag, silent_exit_flag, partial_op_sequence_flag, help_access_during_journey"
+      - "Governance_attributes complete"
+    validation_command: "python scripts/validate_KAN-023.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_contracts", "write_contracts"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Derivation logic ambiguous for a field"
+          action: "Mark as DIRECTIONAL in spec. Document the ambiguity. Do not build undefined logic."
+      retry_logic: "Escalate ambiguous derivation logic to analytics lead"
+      fallback_strategy: "DIRECTIONAL label for ambiguous fields"
+      escalation_criteria: "Core field derivation logic cannot be defined"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_D, SE, OPS_CD contracts"
+          format: "yaml"
+          source: "contracts/"
+      outputs_promised:
+        - schema: "MA_S output specification"
+          format: "yaml"
+          destination: "contracts/ma_s_spec.yaml"
+      breaking_change_protocol: "MA_S spec changes require pipeline rebuild and downstream consumer notification"
+    governance_attributes:
+      sensitivity_classification: "INTERNAL"
+      purpose_limitation: "Session intelligence for CJI Pulse only"
+      retention_period: "90 days rolling"
+      data_minimisation_notes: "Session aggregates only — individual events not retained in MA_S"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read contracts/ma_d.yaml, contracts/se.yaml, contracts/ops_cd.yaml. List all available source fields."
+        - step: 2
+          description: "Map each MA_S required output field to its source field(s) and derivation logic."
+        - step: 3
+          description: "Define behavioural signal derivation logic using OPS_CD feature taxonomy."
+        - step: 4
+          description: "Write contracts/ma_s_spec.yaml. Run validate_KAN-023.py. Fix all errors."
+    traceability: "The contract between session pipeline and all downstream consumers"
+
+  - id: KAN-24
+    name: "Design simulation schema — 5 journey types"
+    sprint: 2
+    days: "8-14"
+    type: "Data Contract"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-24-simulation-schema"
+    manifest_path: "manifests/KAN-024_simulation_schema_manifest.md"
+    gitlab_path: "config/simulation_config.yaml"
+    purpose: "Simulation is the safety net that lets us test the entire system before touching 330M real sessions."
+    inputs:
+      - "KAN-22"
+      - "KAN-23"
+    outputs:
+      - "config/simulation_config.yaml"
+    dependencies: ["KAN-22", "KAN-23"]
+    acceptance_criteria:
+      - "config/simulation_config.yaml defines 5 journey types: Login, Payments, Servicing, Loans, Onboarding"
+      - "op_code_sequences per journey using real OPS_CD taxonomy"
+      - "happy_path + 3 failure modes per journey"
+      - "failure_injection_rates (configurable)"
+      - "volume_parameters (default 100k sessions/day)"
+      - "customer_segment_mix (5 segments)"
+      - "vulnerable_customer_rate (default 0.15)"
+      - "cust_id_sentinel_rate (default 0.001 matching Finding 001)"
+    validation_command: "python scripts/validate_KAN-024.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_contracts", "write_config"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Op code sequences for a journey not known"
+          action: "Use LOGIN journey sequences as template. Mark simulated sequences as SYNTHETIC."
+      retry_logic: "Use LOGIN as fallback template for any unknown journey"
+      fallback_strategy: "SYNTHETIC sequences based on LOGIN pattern"
+      escalation_criteria: "No op code sequences available for any journey type"
+    interfaces:
+      inputs_expected:
+        - schema: "OPS_CD feature taxonomy"
+          format: "yaml"
+          source: "contracts/ops_cd.yaml"
+        - schema: "MA_S output spec"
+          format: "yaml"
+          source: "contracts/ma_s_spec.yaml"
+      outputs_promised:
+        - schema: "Simulation configuration"
+          format: "yaml"
+          destination: "config/simulation_config.yaml"
+      breaking_change_protocol: "Simulation config changes require re-run of validate_simulation.py"
+    governance_attributes:
+      sensitivity_classification: "INTERNAL"
+      purpose_limitation: "Simulation and testing only — no production data"
+      retention_period: "Programme lifetime"
+      data_minimisation_notes: "Synthetic data only — no real customer data in simulation config"
+    traceability: "Safety net before any real data pipeline is built"
+
+  - id: KAN-25
+    name: "Audit CC_D — describe, sample, join key confirmation"
+    sprint: 2
+    days: "8-14"
+    type: "Data Contract"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 2
+    tool: "Investigation"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-25-ccd-audit"
+    manifest_path: "manifests/KAN-025_cc_d_audit_manifest.md"
+    gitlab_path: "contracts/cc_d.yaml"
+    purpose: "Cross-channel leakage (customers calling after app failure) is a key signal. Confirm feasibility before Sprint 6."
+    inputs:
+      - "KAN-20"
+    outputs:
+      - "contracts/cc_d.yaml (skeleton)"
+    dependencies: ["KAN-20"]
+    acceptance_criteria:
+      - "cust_id join to MA_S confirmed or formally blocked"
+      - "call_timestamp field identified"
+      - "reason_code / contact_type mapped to CJI Pulse canonical"
+      - "Contract skeleton contracts/cc_d.yaml written"
+      - "24h window join feasibility confirmed"
+      - "Data owner sign-off recorded"
+    validation_command: "python scripts/validate_KAN-025.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_contracts"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "cust_id join not feasible within 24h window"
+          action: "Document as BLOCKED. Flag contact_centre_contact_24h as unavailable in MA_S spec. Update all downstream components."
+      retry_logic: "Investigate alternative join keys before declaring blocked"
+      fallback_strategy: "Synthetic CC_D generator (KAN-60) as fallback"
+      escalation_criteria: "Join not feasible — escalate to analytics lead for Phase 1 scope decision"
+    interfaces:
+      inputs_expected:
+        - schema: "CC_D table schema"
+          format: "data dictionary"
+          source: "Data owner"
+      outputs_promised:
+        - schema: "CC_D contract skeleton"
+          format: "yaml"
+          destination: "contracts/cc_d.yaml"
+      breaking_change_protocol: "Join feasibility decision gates Sprint 6 KAN-61"
+    governance_attributes:
+      sensitivity_classification: "CONFIDENTIAL"
+      purpose_limitation: "Cross-channel leakage detection only"
+      retention_period: "Per data retention policy"
+      data_minimisation_notes: "Call metadata only — no call recording content"
+    traceability: "Required for Day 90 vision — contact_centre_contact_24h signal"
+
+# ============================================================
+# SPRINT 3: Simulation Data Generator (Days 15-21)
+# ============================================================
+
+  - id: KAN-30
+    name: "Build synthetic MA_D event generator"
+    sprint: 3
+    days: "15-21"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-30-ma-d-simulator"
+    manifest_path: "manifests/KAN-030_ma_d_simulator_manifest.md"
+    gitlab_path: "data/simulate_data.py"
+    purpose: "Generate realistic MA_D events that exercise every downstream pipeline without touching production data."
+    inputs:
+      - "KAN-20"
+      - "KAN-24"
+    outputs:
+      - "data/simulate_data.py"
+    dependencies: ["KAN-20", "KAN-24"]
+    acceptance_criteria:
+      - "data/simulate_data.py generates rows matching MA_D schema per contracts/ma_d.yaml"
+      - "All MVP Required fields populated realistically"
+      - "Configurable via simulation_config.yaml — no hardcoded values"
+      - "cust_id -99 sentinel injected at configured rate"
+      - "100k sessions in under 60 seconds"
+    validation_command: "python scripts/validate_KAN-030.py && python data/validate_simulation.py --date 2026-03-10 --sessions 1000"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Volume too slow"
+          action: "Use vectorised generation (numpy/pandas) instead of row-by-row. Target 100k rows in under 30 seconds."
+        - condition: "Contract validation fails"
+          action: "Read validation error. Fix generator for that specific field. Fix one field at a time."
+      retry_logic: "Fix one field at a time. Re-run contract validation after each fix."
+      fallback_strategy: "Reduce volume to 10k for development, scale to 100k before Sprint 4"
+      escalation_criteria: "Cannot generate valid data matching MA_D contract"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_D contract"
+          format: "yaml"
+          source: "contracts/ma_d.yaml"
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+      outputs_promised:
+        - schema: "Synthetic MA_D events"
+          format: "parquet"
+          destination: "data/synthetic/"
+      breaking_change_protocol: "MA_D contract changes require generator update and re-validation"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read contracts/ma_d.yaml. List every required field with type and constraints."
+        - step: 2
+          description: "Read config/simulation_config.yaml. Extract volume parameters and injection rates."
+        - step: 3
+          description: "Implement vectorised generator using numpy/pandas. One field at a time."
+        - step: 4
+          description: "Implement sentinel injection at configured rate."
+        - step: 5
+          description: "Run contract validation. Fix each violation. Re-run until clean."
+        - step: 6
+          description: "Performance test: 100k rows in under 60 seconds. Optimise if needed."
+    traceability: "Foundation of simulation environment — gates all Sprint 4+ development"
+
+  - id: KAN-31
+    name: "Inject realistic op code sequences from OPS_CD"
+    sprint: 3
+    days: "15-21"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-31-opcode-sequences"
+    manifest_path: "manifests/KAN-031_opcode_sim_manifest.md"
+    gitlab_path: "data/simulate_data.py"
+    purpose: "Sessions must follow realistic op_code sequences per journey type. Random sequences are useless for testing journey intelligence."
+    inputs:
+      - "KAN-30"
+      - "KAN-22"
+    outputs:
+      - "Updated data/simulate_data.py with realistic sequences"
+    dependencies: ["KAN-30", "KAN-22"]
+    acceptance_criteria:
+      - "Each session follows realistic op_code sequence per journey type using OPS_CD taxonomy"
+      - "Happy path + 3 failure modes per journey per simulation_config.yaml"
+      - "Sequences produce realistic feature_string for downstream signal derivation"
+      - "Partial op sequences injected at configured rate"
+    validation_command: "python scripts/validate_KAN-031.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "read_contracts", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "OPS_CD taxonomy missing sequences for journey type"
+          action: "Use LOGIN sequences as fallback template. Mark as SYNTHETIC in output metadata."
+      retry_logic: "Use LOGIN as template fallback"
+      fallback_strategy: "SYNTHETIC sequences from LOGIN template"
+      escalation_criteria: "Cannot create realistic sequences for Loans journey (Day 90 vision critical)"
+    interfaces:
+      inputs_expected:
+        - schema: "OPS_CD contract"
+          format: "yaml"
+          source: "contracts/ops_cd.yaml"
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+      outputs_promised:
+        - schema: "Synthetic sessions with realistic sequences"
+          format: "parquet"
+          destination: "data/synthetic/"
+      breaking_change_protocol: "OPS_CD taxonomy changes require sequence re-generation"
+    traceability: "Required for behavioural signal derivation accuracy"
+
+  - id: KAN-32
+    name: "Inject failure modes — nulls, sentinels, schema drift, join gaps"
+    sprint: 3
+    days: "15-21"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-32-failure-injection"
+    manifest_path: "manifests/KAN-032_failure_injection_manifest.md"
+    gitlab_path: "data/simulate_data.py"
+    purpose: "Failure injection validates that quality gates actually catch real problems."
+    inputs:
+      - "KAN-30"
+    outputs:
+      - "Updated simulate_data.py with failure injection modes"
+    dependencies: ["KAN-30"]
+    acceptance_criteria:
+      - "Configurable rates in simulation_config.yaml: null_rate, sentinel_rate (-99), join_key_missing_rate, schema_drift_flag"
+      - "Each failure mode independently togglable"
+      - "Default rates match known production patterns"
+      - "validate_simulation.py with failures injected must fire quality gate"
+    validation_command: "python data/simulate_data.py --inject-failures && python data/validate_simulation.py --expect-failures"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Quality gate does not catch injected failure"
+          action: "This is a quality gate bug, not a simulation bug. Log as new audit finding. Fix quality gate logic."
+      retry_logic: "Fix quality gate logic — never mask the failure"
+      fallback_strategy: "Manual quality gate check as fallback"
+      escalation_criteria: "Quality gate cannot detect injected failures"
+    interfaces:
+      inputs_expected:
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+      outputs_promised:
+        - schema: "Synthetic data with injected failures"
+          format: "parquet"
+          destination: "data/synthetic/"
+      breaking_change_protocol: "New failure modes require quality gate update and re-validation"
+    traceability: "Validates quality gates before production data touches the pipeline"
+
+  - id: KAN-33
+    name: "Add app_version synthetic field — legacy vs refreshed split"
+    sprint: 3
+    days: "15-21"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-33-app-version-synthetic"
+    manifest_path: "manifests/KAN-033_appversion_sim_manifest.md"
+    gitlab_path: "data/simulate_data.py"
+    purpose: "Finding 002 means we may not have real app_version data. Synthetic field lets us build and test refreshed vs legacy comparison."
+    inputs:
+      - "KAN-30"
+      - "KAN-14"
+    outputs:
+      - "app_version synthetic field in simulate_data.py"
+    dependencies: ["KAN-30", "KAN-14"]
+    acceptance_criteria:
+      - "app_version field added as synthetic column"
+      - "legacy/refreshed split parameterised in simulation_config.yaml"
+      - "Flagged as SYNTHETIC in output metadata"
+      - "If KAN-14 found real source, synthetic field replaced before production"
+    validation_command: "python scripts/validate_KAN-033.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "KAN-14 found real source but differs from synthetic"
+          action: "Update generator to use real field logic. Remove SYNTHETIC flag. Re-run validate_simulation.py."
+      retry_logic: "Update generator to match real source logic"
+      fallback_strategy: "SYNTHETIC flag ensures no false EVIDENCED classifications"
+      escalation_criteria: "Real source conflicts with synthetic assumptions"
+    interfaces:
+      inputs_expected:
+        - schema: "KAN-14 resolution"
+          format: "yaml"
+          source: "manifests/audit_findings.yaml"
+      outputs_promised:
+        - schema: "Synthetic data with app_version"
+          format: "parquet"
+          destination: "data/synthetic/"
+      breaking_change_protocol: "When real app_version source found, SYNTHETIC flag must be removed"
+    traceability: "Enables refreshed vs legacy comparison — core Phase 1 mission"
+
+  - id: KAN-34
+    name: "Build accuracy benchmark dataset — 50 known journey patterns"
+    sprint: 3
+    days: "15-21"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-34-benchmark-dataset"
+    manifest_path: "manifests/KAN-034_benchmark_manifest.md"
+    gitlab_path: "tests/benchmark_dataset.yaml"
+    purpose: "50 known patterns with correct labelled outcomes to measure precision and recall objectively. Target: Sprint 7 EVIDENCED precision >90%, recall >80%."
+    inputs:
+      - "KAN-24"
+    outputs:
+      - "tests/benchmark_dataset.yaml"
+    dependencies: ["KAN-24"]
+    acceptance_criteria:
+      - "tests/benchmark_dataset.yaml with 50 known journey patterns across all 5 journey types"
+      - "Each pattern: pattern_id, journey_type, description, input_signals, expected_response_mode, expected_finding, expected_recommended_action"
+      - "Covers all 5 response modes: EVIDENCED, CONTRADICTED, GUARDED, UNKNOWN, DIRECTIONAL"
+      - "Monthly accuracy audit process documented"
+    validation_command: "python scripts/validate_KAN-034.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_tests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Cannot create 50 patterns without production data"
+          action: "Create minimum 20 patterns from canonical statements. Document as PARTIAL. Expand to 50 in Sprint 9."
+      retry_logic: "Use canonical statements as minimum viable patterns"
+      fallback_strategy: "20 patterns minimum for Sprint 7 testing"
+      escalation_criteria: "Cannot create minimum 20 meaningful patterns"
+    interfaces:
+      inputs_expected:
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+      outputs_promised:
+        - schema: "Benchmark dataset"
+          format: "yaml"
+          destination: "tests/benchmark_dataset.yaml"
+      breaking_change_protocol: "Response mode definition changes require full benchmark re-labelling"
+    traceability: "Enables objective accuracy measurement for intelligence layer"
+
+  - id: KAN-35
+    name: "Validate simulation output against all data contracts"
+    sprint: 3
+    days: "15-21"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-35-simulation-validation"
+    manifest_path: "manifests/KAN-035_validation_manifest.md"
+    gitlab_path: "data/validate_simulation.py"
+    purpose: "Contract validation proves simulation is a valid proxy for production data. Gate before any real pipeline work."
+    inputs:
+      - "KAN-30"
+      - "KAN-31"
+      - "KAN-32"
+      - "KAN-33"
+      - "KAN-20"
+      - "KAN-21"
+      - "KAN-22"
+    outputs:
+      - "data/validate_simulation.py"
+    dependencies: ["KAN-30", "KAN-31", "KAN-32", "KAN-33", "KAN-20", "KAN-21", "KAN-22"]
+    acceptance_criteria:
+      - "data/validate_simulation.py checks every generated field against contract YAML"
+      - "Checks: type, nullability, value range, governance_attributes"
+      - "Zero violations on clean run"
+      - "Violations logged with contract reference and field name on failure"
+      - "Script is AI-generated as part of this ticket"
+    validation_command: "python data/validate_simulation.py --date today --sessions 10000"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_contracts", "read_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Validation fails on a field"
+          action: "Read the specific field error. Fix generator for that field only. Never relax validation rules."
+      retry_logic: "Fix generator for specific field. Re-run. One field at a time."
+      fallback_strategy: "Document violations as known gaps, fix before Sprint 4 begins"
+      escalation_criteria: "Core MA_S fields cannot be generated to contract specification"
+    interfaces:
+      inputs_expected:
+        - schema: "Data contracts"
+          format: "yaml"
+          source: "contracts/"
+        - schema: "Synthetic data"
+          format: "parquet"
+          source: "data/synthetic/"
+      outputs_promised:
+        - schema: "Validation report"
+          format: "console output + log"
+          destination: "scripts/generation_log.yaml"
+      breaking_change_protocol: "New contract fields require validator update"
+    traceability: "Gate before Sprint 4 pipeline development begins"
+
+# ============================================================
+# SPRINT 4: MA_S Rebuild — Session Pipeline (Days 22-28)
+# ============================================================
+
+  - id: KAN-40
+    name: "Build MA_S sessionisation pipeline in PySpark"
+    sprint: 4
+    days: "22-28"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 8
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-40-ma-s-pipeline"
+    manifest_path: "manifests/KAN-040_ma_s_pipeline_manifest.md"
+    gitlab_path: "pipelines/build_ma_s.py"
+    purpose: "The session spine is the foundation of every downstream intelligence. Must be correct, idempotent, produce all required fields."
+    inputs:
+      - "KAN-20"
+      - "KAN-21"
+      - "KAN-22"
+      - "KAN-23"
+      - "KAN-34"
+      - "KAN-35"
+    outputs:
+      - "pipelines/build_ma_s.py"
+      - "MA_S parquet partitioned by session_dt"
+    dependencies: ["KAN-20", "KAN-21", "KAN-22", "KAN-23", "KAN-34", "KAN-35"]
+    acceptance_criteria:
+      - "pipelines/build_ma_s.py groups by sesn_id ordered by evnt_ts"
+      - "Derives: session_start, session_end, session_duration_sec, event_count, event_string, feature_string, final_event_code, final_journey_status, first_error_code, journey_map"
+      - "Reads table names from TABLE_CONFIG"
+      - "Writes parquet partitioned by session_dt"
+      - "Idempotent (delete partition before write)"
+      - "All fields per contracts/ma_s_spec.yaml"
+    validation_command: "pytest tests/test_ma_s.py -v && python scripts/validate_KAN-040.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data", "spark_submit"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Sessionisation grouping wrong"
+          action: "Read contracts/ma_s_spec.yaml sessionisation logic. Verify GROUP BY is sesn_id only."
+        - condition: "Memory error on volume"
+          action: "Add repartition(200). Add broadcast hint for OPS_CD join. Increase driver memory in deployment_config.yaml."
+        - condition: "Output missing fields"
+          action: "Run python scripts/validate_KAN-040.py — it lists missing fields. Fix one field at a time."
+      retry_logic: "Fix one error at a time. Re-run validation after each fix."
+      fallback_strategy: "Reduce volume to 1M sessions for development testing"
+      escalation_criteria: "Memory insufficient even after optimisation"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_D events"
+          format: "parquet"
+          source: "data/synthetic/"
+        - schema: "SE events"
+          format: "parquet"
+          source: "data/synthetic/"
+        - schema: "OPS_CD taxonomy"
+          format: "parquet or yaml"
+          source: "contracts/ops_cd.yaml"
+      outputs_promised:
+        - schema: "MA_S sessions"
+          format: "parquet partitioned by session_dt"
+          destination: "data/ma_s/"
+      breaking_change_protocol: "MA_S schema changes require mart rebuild and agent context update"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read contracts/ma_s_spec.yaml. List all output fields with derivation logic."
+        - step: 2
+          description: "Read contracts/ma_d.yaml, se.yaml, ops_cd.yaml. Map source fields to output fields."
+        - step: 3
+          description: "Implement sessionisation: GROUP BY sesn_id, ORDER BY evnt_ts."
+        - step: 4
+          description: "Implement event_string and feature_string concatenation."
+        - step: 5
+          description: "Implement OPS_CD join with broadcast hint."
+        - step: 6
+          description: "Implement idempotent partition write."
+        - step: 7
+          description: "Run pytest tests/test_ma_s.py -v. Fix all failures."
+    traceability: "Foundation component — all downstream intelligence reads from MA_S"
+
+  - id: KAN-41
+    name: "Build pre-ingestion quality gate validator"
+    sprint: 4
+    days: "22-28"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-41-pre-ingestion-validator"
+    manifest_path: "manifests/KAN-041_pre_ingestion_manifest.md"
+    gitlab_path: "pipelines/pre_ingestion_validator.py"
+    purpose: "Validate data quality before pipeline begins — not after. First line of defence."
+    inputs:
+      - "KAN-19"
+      - "KAN-20"
+      - "KAN-40"
+    outputs:
+      - "pipelines/pre_ingestion_validator.py"
+    dependencies: ["KAN-19", "KAN-20", "KAN-40"]
+    acceptance_criteria:
+      - "Runs before any pipeline step"
+      - "Checks: row count, null rates on critical fields, sentinel value rates, schema field presence, join key existence"
+      - "On failure: emits semantic telemetry, logs to governance_run_fact, halts pipeline with DEGRADED status"
+      - "Thresholds in circuit_breaker_config.yaml — not hardcoded"
+    validation_command: "python pipelines/pre_ingestion_validator.py --date today --simulate-bad-data"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "read_config", "write_logs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Pre-ingestion failure on production day"
+          action: "Do not proceed with pipeline. Publish DEGRADED banner. Log to governance_run_fact. Alert analytics lead."
+      retry_logic: "Investigate cause before next run. Do not bypass validator."
+      fallback_strategy: "DEGRADED mode report — headline only, no detailed findings"
+      escalation_criteria: "Pre-ingestion failure on 3+ consecutive days"
+    interfaces:
+      inputs_expected:
+        - schema: "Raw data"
+          format: "parquet"
+          source: "data/raw/"
+        - schema: "Telemetry spec"
+          format: "yaml"
+          source: "manifests/telemetry_spec.yaml"
+        - schema: "Circuit breaker config"
+          format: "yaml"
+          source: "config/circuit_breaker_config.yaml"
+      outputs_promised:
+        - schema: "Validation result"
+          format: "semantic telemetry JSON"
+          destination: "governance_run_fact"
+      breaking_change_protocol: "Threshold changes must be in circuit_breaker_config.yaml — never in code"
+    traceability: "Programme principle: Protect customer outcomes — first line of defence"
+
+  - id: KAN-42
+    name: "Derive behavioural signal fields from ordered event sequence"
+    sprint: 4
+    days: "22-28"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-42-behavioural-signals"
+    manifest_path: "manifests/KAN-042_behavioural_signals_manifest.md"
+    gitlab_path: "pipelines/build_ma_s.py"
+    purpose: "Behavioural signals are what make CJI Pulse distinctive. Each signal has exact derivation logic."
+    inputs:
+      - "KAN-40"
+      - "KAN-22"
+      - "KAN-34"
+    outputs:
+      - "Behavioural signal fields in MA_S"
+    dependencies: ["KAN-40", "KAN-22", "KAN-34"]
+    acceptance_criteria:
+      - "ghost_intent_flag: intent event present but no terminal success op_code"
+      - "silent_exit_flag: final event is mid-journey op_code not terminal"
+      - "partial_op_sequence_flag: expected sequence starts but never completes"
+      - "help_access_during_journey: help/search feature appears mid-session"
+      - "back_navigation_count, repeat_attempt_count, rage_tap_count (if available)"
+      - "Unit test per signal using known sequences from benchmark dataset"
+    validation_command: "pytest tests/test_ma_s.py::test_behavioural_signals -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data", "spark_submit"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Signal logic ambiguous for a journey type"
+          action: "Set signal to NULL for that journey type. Document in contracts/ma_s_spec.yaml. Do not guess."
+      retry_logic: "One signal at a time. Test against benchmark before moving to next."
+      fallback_strategy: "NULL signal for ambiguous journey types with documentation"
+      escalation_criteria: "Ghost intent flag cannot be derived for Loans journey (Day 90 vision critical)"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_S with event_string and feature_string"
+          format: "parquet"
+          source: "data/ma_s/"
+        - schema: "OPS_CD taxonomy"
+          format: "yaml"
+          source: "contracts/ops_cd.yaml"
+        - schema: "Benchmark dataset"
+          format: "yaml"
+          source: "tests/benchmark_dataset.yaml"
+      outputs_promised:
+        - schema: "MA_S with behavioural signals"
+          format: "parquet"
+          destination: "data/ma_s/"
+      breaking_change_protocol: "Signal derivation changes require full benchmark re-run"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read contracts/ops_cd.yaml. Identify terminal op_codes, help feature codes, intent op_codes per journey type."
+        - step: 2
+          description: "Implement ghost_intent_flag derivation. Unit test against benchmark."
+        - step: 3
+          description: "Implement silent_exit_flag derivation. Unit test against benchmark."
+        - step: 4
+          description: "Implement partial_op_sequence_flag. Unit test against benchmark."
+        - step: 5
+          description: "Implement help_access_during_journey. Unit test against benchmark."
+        - step: 6
+          description: "Run full test suite. Fix all failures."
+    traceability: "Behavioural signals are the distinctive intelligence of CJI Pulse"
+
+  - id: KAN-43
+    name: "Build quality gate with full semantic telemetry"
+    sprint: 4
+    days: "22-28"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-43-quality-gate"
+    manifest_path: "manifests/KAN-043_quality_gate_manifest.md"
+    gitlab_path: "pipelines/build_quality_gate.py"
+    purpose: "Every pipeline failure must emit machine-readable telemetry. The quality gate is the enforcement mechanism."
+    inputs:
+      - "KAN-19"
+      - "KAN-40"
+    outputs:
+      - "pipelines/build_quality_gate.py"
+    dependencies: ["KAN-19", "KAN-40"]
+    acceptance_criteria:
+      - "Checks: null rates per critical field, join rates, session volume, schema drift flags"
+      - "On failure emits complete telemetry per manifests/telemetry_spec.yaml"
+      - "All telemetry fields: step_id, input_reference, output_summary, error_code, error_class, retryability, business_impact_tier, downstream_dependency_impact, manifest_spec_reference"
+      - "Degraded mode triggers automatically on 3+ critical failures"
+    validation_command: "python pipelines/build_quality_gate.py --inject-failures && python scripts/validate_KAN-043.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_logs", "trigger_degraded_mode"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Quality gate too strict"
+          action: "Adjust thresholds in circuit_breaker_config.yaml. Never change threshold in code."
+        - condition: "Telemetry JSON invalid"
+          action: "Read telemetry_spec.yaml. Each field is mandatory. Add missing field. Re-run validate_KAN-043.py."
+      retry_logic: "Fix telemetry output. Re-run inject-failures test."
+      fallback_strategy: "Manual quality check if automated gate fails to fire"
+      escalation_criteria: "Quality gate does not fire on known bad data"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_S output"
+          format: "parquet"
+          source: "data/ma_s/"
+        - schema: "Telemetry spec"
+          format: "yaml"
+          source: "manifests/telemetry_spec.yaml"
+      outputs_promised:
+        - schema: "Quality gate telemetry"
+          format: "JSON"
+          destination: "governance_run_fact"
+      breaking_change_protocol: "Telemetry spec changes require all quality gate outputs to be re-validated"
+    traceability: "Programme principle: Semantic telemetry on every failure"
+
+  - id: KAN-44
+    name: "MA_S pipeline unit test suite"
+    sprint: 4
+    days: "22-28"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-44-ma-s-tests"
+    manifest_path: "manifests/KAN-044_pipeline_tests_manifest.md"
+    gitlab_path: "tests/test_ma_s.py"
+    purpose: "AI-generated tests prove correctness and serve as regression protection."
+    inputs:
+      - "KAN-40"
+      - "KAN-42"
+      - "KAN-43"
+      - "KAN-34"
+    outputs:
+      - "tests/test_ma_s.py"
+    dependencies: ["KAN-40", "KAN-42", "KAN-43", "KAN-34"]
+    acceptance_criteria:
+      - "Covers: sessionisation grouping, OPS_CD join rate, each behavioural signal, quality gate threshold behaviour, semantic telemetry format"
+      - "Coverage >80%"
+      - "All tests pass"
+      - "Tests are AI-generated as part of this ticket"
+    validation_command: "pytest tests/test_ma_s.py -v --cov=pipelines/build_ma_s --cov-report=term-missing"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "read_tests", "write_tests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Coverage below 80%"
+          action: "Run coverage report. Identify uncovered branches. Add targeted tests. Do not add trivial tests."
+      retry_logic: "Add targeted tests for uncovered branches only"
+      fallback_strategy: "Document coverage gap and plan for Sprint 5"
+      escalation_criteria: "Core signal derivation paths have zero coverage"
+    interfaces:
+      inputs_expected:
+        - schema: "Pipeline code"
+          format: "python"
+          source: "pipelines/build_ma_s.py"
+        - schema: "Benchmark dataset"
+          format: "yaml"
+          source: "tests/benchmark_dataset.yaml"
+      outputs_promised:
+        - schema: "Test suite"
+          format: "pytest"
+          destination: "tests/test_ma_s.py"
+      breaking_change_protocol: "Pipeline changes require test suite update before merge"
+    traceability: "Programme principle: Dual closure rule — AI-ready done requires validation script passing"
+
+# ============================================================
+# SPRINT 5: Daily Journey Mart (Days 29-35)
+# ============================================================
+
+  - id: KAN-50
+    name: "Build daily_journey_mart aggregation"
+    sprint: 5
+    days: "29-35"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-50-daily-mart"
+    manifest_path: "manifests/KAN-050_daily_mart_manifest.md"
+    gitlab_path: "pipelines/build_daily_mart.py"
+    purpose: "The mart is what every downstream consumer reads. Raw data is never touched by agents or dashboard."
+    inputs:
+      - "KAN-40"
+      - "KAN-41"
+      - "KAN-42"
+      - "KAN-43"
+    outputs:
+      - "pipelines/build_daily_mart.py"
+      - "daily_journey_mart parquet"
+    dependencies: ["KAN-40", "KAN-41", "KAN-42", "KAN-43"]
+    acceptance_criteria:
+      - "Groups MA_S by journey_type, app_version (legacy/refreshed), session_dt"
+      - "Computes: session_count, completion_rate, ghost_intent_rate, error_rate, avg_session_duration, funnel_leakage, help_access_rate, silent_exit_rate, contact_centre_contact_24h_rate"
+      - "All metric definitions in config/metric_definitions.yaml — not hardcoded"
+      - "Writes parquet partitioned by session_dt"
+    validation_command: "pytest tests/test_daily_mart.py -v && python scripts/validate_KAN-050.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data", "spark_submit"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Metric definition unclear"
+          action: "Read config/metric_definitions.yaml. If not defined, add definition first. Never implement undefined metrics."
+        - condition: "Performance too slow"
+          action: "Add session_dt partition filter. Add .cache() after MA_S load."
+      retry_logic: "Define metric first, implement second"
+      fallback_strategy: "Reduce metric set to core 5 for first pass"
+      escalation_criteria: "Core metrics cannot be derived from MA_S"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_S sessions"
+          format: "parquet"
+          source: "data/ma_s/"
+        - schema: "Metric definitions"
+          format: "yaml"
+          source: "config/metric_definitions.yaml"
+      outputs_promised:
+        - schema: "Daily journey mart"
+          format: "parquet partitioned by session_dt"
+          destination: "data/daily_journey_mart/"
+      breaking_change_protocol: "Metric definition changes require mart rebuild"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read config/metric_definitions.yaml. List all metrics with formulas."
+        - step: 2
+          description: "Read contracts/ma_s_spec.yaml. Map metric inputs to MA_S fields."
+        - step: 3
+          description: "Implement aggregation by journey_type, app_version, session_dt."
+        - step: 4
+          description: "Implement each metric. Test one at a time against benchmark."
+        - step: 5
+          description: "Implement idempotent partition write."
+        - step: 6
+          description: "Run pytest tests/test_daily_mart.py -v. Fix all failures."
+    traceability: "Intelligence surface for all agents and dashboard — never raw data"
+
+  - id: KAN-51
+    name: "Add refreshed vs legacy raw comparison layer"
+    sprint: 5
+    days: "29-35"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-51-comparison-layer"
+    manifest_path: "manifests/KAN-051_comparison_layer_manifest.md"
+    gitlab_path: "pipelines/build_daily_mart.py"
+    purpose: "Refreshed vs legacy comparison is the core Phase 1 mission. Raw comparison must be labelled DIRECTIONAL-only."
+    inputs:
+      - "KAN-50"
+    outputs:
+      - "Comparison fields in daily_journey_mart"
+    dependencies: ["KAN-50"]
+    acceptance_criteria:
+      - "Raw comparison computed: refreshed_value, legacy_value, raw_gap, raw_direction"
+      - "All comparison fields labelled raw_comparison=true"
+      - "DIRECTIONAL classification enforced — no EVIDENCED from raw comparison alone"
+      - "propensity_adjusted=false flag visible until Phase 2"
+    validation_command: "pytest tests/test_daily_mart.py::test_comparison_labels -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Comparison produces EVIDENCED on raw data"
+          action: "CRITICAL bug. Halt. Fix response_mode logic to enforce DIRECTIONAL for raw comparisons. Re-test."
+      retry_logic: "Fix classification logic. Re-run comparison label test."
+      fallback_strategy: "Always default to DIRECTIONAL — never EVIDENCED without propensity adjustment"
+      escalation_criteria: "EVIDENCED classification appearing on raw comparison output"
+    interfaces:
+      inputs_expected:
+        - schema: "Daily mart by app_version"
+          format: "parquet"
+          source: "data/daily_journey_mart/"
+      outputs_promised:
+        - schema: "Mart with comparison fields"
+          format: "parquet"
+          destination: "data/daily_journey_mart/"
+      breaking_change_protocol: "DIRECTIONAL label enforcement is non-negotiable — any change requires analytics lead sign-off"
+    traceability: "Core Phase 1 mission: refreshed vs legacy comparison"
+
+  - id: KAN-52
+    name: "Add delta fields — today vs yesterday vs 7-day baseline"
+    sprint: 5
+    days: "29-35"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-52-delta-fields"
+    manifest_path: "manifests/KAN-052_delta_fields_manifest.md"
+    gitlab_path: "pipelines/build_daily_mart.py"
+    purpose: "Delta fields answer: is today worse than yesterday?"
+    inputs:
+      - "KAN-50"
+    outputs:
+      - "Delta fields in daily_journey_mart"
+    dependencies: ["KAN-50"]
+    acceptance_criteria:
+      - "delta_vs_yesterday and delta_vs_7day_baseline computed per metric per journey"
+      - "Direction flag: improving/worsening/stable per configurable threshold"
+      - "Baseline window defined in config/metric_definitions.yaml — not hardcoded"
+      - "Mart includes yesterday's partition as lookback input"
+    validation_command: "pytest tests/test_daily_mart.py::test_delta_fields -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Yesterday partition missing"
+          action: "Set delta_vs_yesterday to NULL with flag delta_unavailable=true. Do not fabricate yesterday's values."
+      retry_logic: "NULL with flag is the correct response — do not fabricate"
+      fallback_strategy: "delta_unavailable=true flag with NULL values"
+      escalation_criteria: "Multiple consecutive days of missing partitions"
+    interfaces:
+      inputs_expected:
+        - schema: "Today and yesterday mart partitions"
+          format: "parquet"
+          source: "data/daily_journey_mart/"
+        - schema: "Metric definitions"
+          format: "yaml"
+          source: "config/metric_definitions.yaml"
+      outputs_promised:
+        - schema: "Mart with delta fields"
+          format: "parquet"
+          destination: "data/daily_journey_mart/"
+      breaking_change_protocol: "Baseline window changes require metric_definitions.yaml update"
+    traceability: "Journey owners need directional signals — is today better or worse?"
+
+  - id: KAN-53
+    name: "Add circuit breaker threshold checks"
+    sprint: 5
+    days: "29-35"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-53-circuit-breaker"
+    manifest_path: "manifests/KAN-053_circuit_breaker_manifest.md"
+    gitlab_path: "config/circuit_breaker_config.yaml"
+    purpose: "The circuit breaker prevents bad data or genuine customer harm from being normalised. Do Not Break journeys must never be silently downgraded."
+    inputs:
+      - "KAN-50"
+    outputs:
+      - "config/circuit_breaker_config.yaml"
+      - "circuit_breaker_level field in daily_journey_mart"
+    dependencies: ["KAN-50"]
+    acceptance_criteria:
+      - "Thresholds in config/circuit_breaker_config.yaml per metric per journey: GREEN/AMBER/RED/CRITICAL"
+      - "Mart output includes circuit_breaker_level per journey"
+      - "Do Not Break journeys (Payments, Authentication) trigger GUARDED regardless of metric level"
+      - "CRITICAL level triggers degraded mode automatically"
+    validation_command: "pytest tests/test_daily_mart.py::test_circuit_breaker -v"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_config", "write_config", "trigger_degraded_mode"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Do Not Break override not triggering"
+          action: "CRITICAL bug. Halt all downstream processing. Fix override logic. Do not release without passing this test."
+      retry_logic: "Fix override logic. Re-run Do Not Break test before any other action."
+      fallback_strategy: "Manual GUARDED override by analytics lead if automated override fails"
+      escalation_criteria: "Do Not Break override failure — immediate escalation"
+    interfaces:
+      inputs_expected:
+        - schema: "Daily mart metrics"
+          format: "parquet"
+          source: "data/daily_journey_mart/"
+      outputs_promised:
+        - schema: "Mart with circuit breaker level"
+          format: "parquet"
+          destination: "data/daily_journey_mart/"
+        - schema: "Circuit breaker config"
+          format: "yaml"
+          destination: "config/circuit_breaker_config.yaml"
+      breaking_change_protocol: "Do Not Break journey list changes require analytics lead approval"
+    traceability: "Programme principle: Protect customer outcomes — Do Not Break is first-class"
+
+# ============================================================
+# SPRINT 6: Cross-Channel & Customer Context (Days 36-42)
+# ============================================================
+
+  - id: KAN-60
+    name: "Build CC_D synthetic data generator"
+    sprint: 6
+    days: "36-42"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-60-ccd-simulator"
+    manifest_path: "manifests/KAN-060_cc_d_sim_manifest.md"
+    gitlab_path: "data/simulate_cc_d.py"
+    purpose: "Synthetic contact centre data lets us build and test cross-channel stitching before real CC_D join feasibility is confirmed."
+    inputs:
+      - "KAN-30"
+      - "KAN-25"
+    outputs:
+      - "data/simulate_cc_d.py"
+    dependencies: ["KAN-30", "KAN-25"]
+    acceptance_criteria:
+      - "data/simulate_cc_d.py generates: cust_id, call_timestamp, reason_code, call_duration, journey_type_inferred"
+      - "~5% of failed app sessions generate a call within 24h"
+      - "reason_code distribution realistic per journey failure type"
+      - "Volume realistic per day (50-200 calls)"
+    validation_command: "python data/simulate_cc_d.py --date today && python scripts/validate_KAN-060.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "KAN-25 blocked real CC_D join"
+          action: "Use synthetic generator only for Phase 1. Flag contact_centre_contact_24h as SYNTHETIC in mart output."
+      retry_logic: "Synthetic is the fallback — always available"
+      fallback_strategy: "SYNTHETIC flag on all contact centre signals"
+      escalation_criteria: "Cannot generate realistic call patterns for Loans journey"
+    interfaces:
+      inputs_expected:
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+        - schema: "Failed session data"
+          format: "parquet"
+          source: "data/ma_s/"
+      outputs_promised:
+        - schema: "Synthetic CC_D events"
+          format: "parquet"
+          destination: "data/synthetic_cc_d/"
+      breaking_change_protocol: "CC_D schema changes require contract update (contracts/cc_d.yaml) before generator update"
+    traceability: "Required for Day 90 vision — contact_centre_contact_24h signal"
+
+  - id: KAN-61
+    name: "Build cross-channel stitching pipeline"
+    sprint: 6
+    days: "36-42"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 5
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-61-cross-channel-stitch"
+    manifest_path: "manifests/KAN-061_cross_channel_manifest.md"
+    gitlab_path: "pipelines/build_cross_channel.py"
+    purpose: "Stitching app sessions to contact centre calls — the highest-confidence leakage signal."
+    inputs:
+      - "KAN-50"
+      - "KAN-60"
+    outputs:
+      - "pipelines/build_cross_channel.py"
+      - "contact_centre_contact_24h field in daily_journey_mart"
+    dependencies: ["KAN-50", "KAN-60"]
+    acceptance_criteria:
+      - "Joins CC_D to MA_S on cust_id where call_timestamp BETWEEN session_end AND session_end + 24h"
+      - "contact_centre_contact_24h flag added to daily_journey_mart"
+      - "Stitching confidence documented: synthetic=SYNTHETIC, real join >90%=DIRECTIONAL, real join >98%=EVIDENCED candidate"
+      - "Join rate logged in governance_run_fact"
+    validation_command: "pytest tests/test_cross_channel.py -v && python scripts/validate_KAN-061.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Join rate unexpectedly low on real data"
+          action: "Check cust_id format match. Check timestamp timezone alignment. Log actual join rate. Do not label EVIDENCED below 90%."
+      retry_logic: "Investigate join key format and timezone before escalating"
+      fallback_strategy: "DIRECTIONAL label if join rate between 90-98%"
+      escalation_criteria: "Join rate below 70% on real data"
+    interfaces:
+      inputs_expected:
+        - schema: "MA_S sessions"
+          format: "parquet"
+          source: "data/ma_s/"
+        - schema: "CC_D events"
+          format: "parquet"
+          source: "data/synthetic_cc_d/"
+      outputs_promised:
+        - schema: "Cross-channel signal"
+          format: "field in daily_journey_mart"
+          destination: "data/daily_journey_mart/"
+      breaking_change_protocol: "24h window change requires analytics lead approval — customer harm threshold"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read contracts/cc_d.yaml. Identify cust_id and call_timestamp fields."
+        - step: 2
+          description: "Read contracts/ma_s_spec.yaml. Identify session_end field."
+        - step: 3
+          description: "Implement 24h window join: call_timestamp BETWEEN session_end AND session_end + INTERVAL 24 HOURS."
+        - step: 4
+          description: "Implement confidence labelling based on join rate."
+        - step: 5
+          description: "Log join rate to governance_run_fact."
+        - step: 6
+          description: "Run pytest tests/test_cross_channel.py -v. Fix all failures."
+    traceability: "Day 90 vision: contact_centre_contact_24h is the leakage signal"
+
+  - id: KAN-62
+    name: "Build CUST_DIM synthetic data + join to MA_S"
+    sprint: 6
+    days: "36-42"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-62-cust-dim"
+    manifest_path: "manifests/KAN-062_cust_dim_manifest.md"
+    gitlab_path: "data/simulate_cust_dim.py"
+    purpose: "Customer context transforms aggregate statistics into customer outcomes. Enables identification of 45+ vulnerable customers."
+    inputs:
+      - "KAN-50"
+      - "KAN-15"
+    outputs:
+      - "data/simulate_cust_dim.py"
+      - "Customer context fields in daily_journey_mart"
+    dependencies: ["KAN-50", "KAN-15"]
+    acceptance_criteria:
+      - "data/simulate_cust_dim.py: customer_segment (5 types, 45+ low digital engagement = vulnerable), customer_tenure, historical_completion_rate, historical_digital_engagement_score"
+      - "Joined to MA_S on cust_id"
+      - "All cohort adjustment fields available in daily_journey_mart"
+      - "Vulnerable customer cohort identifiable by query"
+    validation_command: "pytest tests/test_cust_dim.py -v && python scripts/validate_KAN-062.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "KAN-15 blocked real CUST_DIM join"
+          action: "Use synthetic CUST_DIM only. Flag all customer context fields as SYNTHETIC. Vulnerable detection still functional but labelled SYNTHETIC-COHORT."
+      retry_logic: "Synthetic is the fallback — always available"
+      fallback_strategy: "SYNTHETIC-COHORT flag on all customer segment fields"
+      escalation_criteria: "Cannot identify vulnerable cohort in synthetic data"
+    interfaces:
+      inputs_expected:
+        - schema: "CUST_DIM audit results"
+          format: "yaml"
+          source: "manifests/audit_findings.yaml"
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+      outputs_promised:
+        - schema: "Customer context fields"
+          format: "fields in daily_journey_mart"
+          destination: "data/daily_journey_mart/"
+      breaking_change_protocol: "Vulnerable customer definition changes require analytics lead approval"
+    traceability: "Day 90 vision: 45+ vulnerable customers on Step 3 Loans journey"
+
+# ============================================================
+# SPRINT 7: Core Intelligence Layer (Days 43-49)
+# ============================================================
+
+  - id: KAN-70
+    name: "Set up Qwen 2.5-Coder:14b via Ollama in Docker + model config"
+    sprint: 7
+    days: "43-49"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-70-qwen-setup"
+    manifest_path: "manifests/KAN-070_qwen_setup_manifest.md"
+    gitlab_path: "config/model_config.yaml"
+    purpose: "The LLM is the interpretive engine. Must run reliably. Model must be swappable via config — never hardcoded."
+    inputs:
+      - "KAN-12"
+    outputs:
+      - "Ollama running in Docker with Qwen 2.5-Coder:14b"
+      - "config/model_config.yaml"
+    dependencies: ["KAN-12"]
+    acceptance_criteria:
+      - "ollama run qwen2.5-coder:14b responds from Docker container"
+      - "Model service in docker-compose.yml"
+      - "Health check endpoint tested"
+      - "config/model_config.yaml: preferred_model, fallback_model (qwen2.5:7b), model_endpoint, timeout_seconds, max_tokens"
+      - "All agent code reads model config — never hardcoded model name"
+    validation_command: "curl http://localhost:11434/api/tags | grep qwen && python scripts/validate_KAN-070.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["docker_exec", "model_serve"]
+    preferred_model:
+      model: "qwen2.5-coder:14b"
+      fallback: "qwen2.5:7b"
+    recovery_patterns:
+      failure_modes:
+        - condition: "14b model too slow or memory issue"
+          action: "Switch to 7b variant in model_config.yaml. Document capability impact. No code change required."
+        - condition: "Ollama service not responding"
+          action: "Check docker-compose logs ollama. Restart service. If persistent, document in hosting_decision.md."
+      retry_logic: "Config change only — never code change for model swap"
+      fallback_strategy: "7b model variant via model_config.yaml"
+      escalation_criteria: "7b model also fails memory requirements"
+    interfaces:
+      inputs_expected:
+        - schema: "Docker environment"
+          format: "docker-compose"
+          source: "docker-compose.yml"
+      outputs_promised:
+        - schema: "Model config"
+          format: "yaml"
+          destination: "config/model_config.yaml"
+        - schema: "Running model service"
+          format: "HTTP endpoint"
+          destination: "http://localhost:11434"
+      breaking_change_protocol: "Model endpoint changes require all agent manifests to be updated"
+    traceability: "Intelligence engine — all agents depend on this service"
+
+  - id: KAN-71
+    name: "Build Narrative Agent prompt template with context injection + tone guardrails + pre-flight validation"
+    sprint: 7
+    days: "43-49"
+    type: "Agent"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-71-narrative-agent"
+    manifest_path: "manifests/KAN-071_narrative_prompt_manifest.md"
+    gitlab_path: "agents/narrative_agent.py"
+    purpose: "The prompt template is the governance layer of the intelligence output. Controls what the model sees, in what order, and what it is permitted to say."
+    inputs:
+      - "KAN-70"
+      - "KAN-50"
+      - "KAN-1H"
+    outputs:
+      - "agents/narrative_agent.py"
+    dependencies: ["KAN-70", "KAN-50", "KAN-1H"]
+    acceptance_criteria:
+      - "Tiered context injection: Tier 1 (canonical statements, tone guardrails, quality gate status, circuit breaker level), Tier 2 (hypothesis subset, friction taxonomy), Tier 3 (expectation register fragments)"
+      - "Token budget enforced — omissions logged with reason"
+      - "Context pre-flight validation: freshness check, consistency check, completeness check"
+      - "Tone guardrails: never suggest customer behaviour is the problem, never dismiss low-volume findings, never imply vulnerable customers should use a different channel"
+      - "Guardrails tested adversarially"
+    validation_command: "pytest tests/test_narrative_agent.py::test_context_injection -v && pytest tests/test_narrative_agent.py::test_tone_guardrails -v && pytest tests/test_narrative_agent.py::test_preflight_validation -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "read_manifests", "model_inference"]
+    preferred_model:
+      model: "qwen2.5-coder:14b"
+      fallback: "qwen2.5:7b"
+    recovery_patterns:
+      failure_modes:
+        - condition: "Token budget exceeded"
+          action: "Reduce Tier 2 context first. Never reduce Tier 1. Log which Tier 2 items were omitted."
+        - condition: "Pre-flight detects stale context"
+          action: "Set response_mode to GUARDED. Include stale context warning. Do not suppress."
+      retry_logic: "Reduce Tier 2 context and retry. Never reduce Tier 1."
+      fallback_strategy: "Tier 1 only context with GUARDED response mode"
+      escalation_criteria: "Tone guardrail test fails — release blocked until fixed"
+    interfaces:
+      inputs_expected:
+        - schema: "Daily mart output"
+          format: "parquet"
+          source: "data/daily_journey_mart/"
+        - schema: "Hypothesis library"
+          format: "yaml"
+          source: "manifests/hypothesis_library.yaml"
+      outputs_promised:
+        - schema: "Narrative briefing"
+          format: "JSON with response_mode, headline, findings[], recommended_action"
+          destination: "orchestrator report JSON"
+      breaking_change_protocol: "Tone guardrail changes require adversarial test re-run before any release"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Define Tier 1 context: canonical statements, response mode definitions, tone guardrails. Write as system prompt section."
+        - step: 2
+          description: "Define Tier 2 context: hypothesis subset per journey, friction taxonomy. Write as dynamic context section."
+        - step: 3
+          description: "Define Tier 3 context: expectation register fragments. Write as optional context section."
+        - step: 4
+          description: "Implement token budget enforcement. Log omissions."
+        - step: 5
+          description: "Implement pre-flight validation: freshness, consistency, completeness checks."
+        - step: 6
+          description: "Run adversarial tone tests. Fix guardrail violations. Re-run until all pass."
+    traceability: "Governance layer of all intelligence output"
+
+  - id: KAN-72
+    name: "Build response mode classification + recommended action (three-part)"
+    sprint: 7
+    days: "43-49"
+    type: "Agent"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-72-response-modes"
+    manifest_path: "manifests/KAN-072_response_modes_manifest.md"
+    gitlab_path: "agents/narrative_agent.py"
+    purpose: "Response mode is the honesty signal. Recommended action transforms diagnosis into decision."
+    inputs:
+      - "KAN-71"
+    outputs:
+      - "Response mode classification in narrative agent"
+    dependencies: ["KAN-71"]
+    acceptance_criteria:
+      - "response_mode always included: EVIDENCED/DIRECTIONAL/UNKNOWN/GUARDED/CONTRADICTED"
+      - "CONTRADICTED cannot be suppressed or overridden"
+      - "recommended_action mandatory on every finding — three-part: what_is_happening, why_it_matters, suggested_first_action"
+      - "Unit tests for all 5 response modes"
+      - "CONTRADICTED test: metrics improve but NPS drops — must produce CONTRADICTED not EVIDENCED"
+    validation_command: "pytest tests/test_narrative_agent.py::test_response_modes -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["model_inference", "read_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Model produces EVIDENCED where CONTRADICTED expected"
+          action: "Classification failure. Strengthen CONTRADICTED rule in Tier 1 prompt. Re-run adversarial test. Never release until this test passes."
+        - condition: "Recommended action missing or incomplete"
+          action: "Add output validation that rejects findings without all three recommended_action parts."
+      retry_logic: "Fix classification logic. Re-run adversarial test."
+      fallback_strategy: "Reject output and retry with stronger CONTRADICTED instruction"
+      escalation_criteria: "CONTRADICTED cannot be made to fire correctly after 3 attempts"
+    interfaces:
+      inputs_expected:
+        - schema: "Mart metrics"
+          format: "parquet"
+          source: "data/daily_journey_mart/"
+      outputs_promised:
+        - schema: "Classified findings with response modes"
+          format: "JSON"
+          destination: "orchestrator report JSON"
+      breaking_change_protocol: "Response mode definition changes require full benchmark re-run"
+    traceability: "Honesty signal — CONTRADICTED is non-suppressible"
+
+  - id: KAN-73
+    name: "Build investigation queue generator"
+    sprint: 7
+    days: "43-49"
+    type: "Agent"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-73-investigation-queue"
+    manifest_path: "manifests/KAN-073_inv_queue_manifest.md"
+    gitlab_path: "agents/narrative_agent.py"
+    purpose: "The queue is the action layer. Translates intelligence into prioritised work items."
+    inputs:
+      - "KAN-72"
+    outputs:
+      - "investigation_queue JSON"
+    dependencies: ["KAN-72"]
+    acceptance_criteria:
+      - "Ranked investigation_queue JSON output"
+      - "Each item: queue_id, triage_band (P1/P2/P3), journey_type, finding_summary, evidence_source_tier, response_mode, priority_score, promise_breach_flag, recommended_action (three-part), user_priority_weight"
+      - "P1 auto-override for: Do Not Break violations, CONTRADICTED payment/auth findings, vulnerable customer findings with ghost_intent + contact_centre within 24h"
+      - "User priority weights configurable per journey owner without code change"
+    validation_command: "pytest tests/test_narrative_agent.py::test_queue_generator -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["model_inference", "read_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "P1 auto-override not triggering for Do Not Break"
+          action: "CRITICAL bug. Halt. Fix override logic. Re-test. Do not release queue without passing this test."
+      retry_logic: "Fix override logic. Re-run P1 auto-override test immediately."
+      fallback_strategy: "Manual P1 assignment by analytics lead if automated override fails"
+      escalation_criteria: "P1 override cannot be made to fire — immediate escalation"
+    interfaces:
+      inputs_expected:
+        - schema: "Classified findings"
+          format: "JSON"
+          source: "KAN-72 output"
+      outputs_promised:
+        - schema: "Investigation queue"
+          format: "JSON"
+          destination: "orchestrator report JSON"
+      breaking_change_protocol: "P1 auto-override rules require analytics lead approval to change"
+    traceability: "Transforms intelligence into prioritised action — Do Not Break is P1"
+
+  - id: KAN-74
+    name: "Build hypothesis query interface — library-grounded conversational search"
+    sprint: 7
+    days: "43-49"
+    type: "Agent"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 5
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-74-hypothesis-query"
+    manifest_path: "manifests/KAN-074_hypothesis_query_manifest.md"
+    gitlab_path: "agents/hypothesis_query_agent.py"
+    purpose: "Journey owners think in questions. The hypothesis query interface lets them type what they think is happening and get an evidence-grounded answer."
+    inputs:
+      - "KAN-70"
+      - "KAN-72"
+      - "KAN-1H"
+    outputs:
+      - "agents/hypothesis_query_agent.py"
+    dependencies: ["KAN-70", "KAN-72", "KAN-1H"]
+    acceptance_criteria:
+      - "Accepts free-text hypothesis, interprets intent, retrieves closest match using semantic similarity"
+      - "Returns: matched_hypothesis, evidence_tier, response_mode, recommended_action, supporting_kpis, confidence_score"
+      - "If confidence_score < 0.7 (configurable): log as candidate hypothesis, return honest 'not in library' response"
+      - "Session memory: maintains conversation context within single session"
+      - "Fallback always honest: never generates findings not in library"
+      - "Source always visible"
+    validation_command: "pytest tests/test_hypothesis_query.py -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["model_inference", "read_manifests", "write_manifests"]
+    preferred_model:
+      model: "qwen2.5-coder:14b"
+      fallback: "qwen2.5:7b"
+    recovery_patterns:
+      failure_modes:
+        - condition: "Confidence threshold too high"
+          action: "Lower threshold in config. Never below 0.5 — below that is guesswork."
+        - condition: "Model generates findings not in library"
+          action: "Hallucination. Strengthen grounding instruction. Add output validation that rejects responses without library reference."
+      retry_logic: "Strengthen grounding. Retry. If still hallucinating after 3 attempts — escalate."
+      fallback_strategy: "Reject any response without library reference — honest 'not in library' is always correct"
+      escalation_criteria: "Cannot prevent hallucination after prompt strengthening"
+    interfaces:
+      inputs_expected:
+        - schema: "Free-text hypothesis"
+          format: "string"
+          source: "Journey owner input"
+        - schema: "Hypothesis library"
+          format: "yaml"
+          source: "manifests/hypothesis_library.yaml"
+      outputs_promised:
+        - schema: "Library-grounded response"
+          format: "JSON"
+          destination: "app/cji_app.py Ask CJI page"
+      breaking_change_protocol: "Confidence threshold changes require test re-run and analytics lead approval"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read manifests/hypothesis_library.yaml. Implement semantic similarity search."
+        - step: 2
+          description: "Implement intent interpretation: LLM maps free-text to closest hypothesis."
+        - step: 3
+          description: "Implement confidence scoring and threshold check."
+        - step: 4
+          description: "Implement unknown hypothesis logging with KAN reference generation."
+        - step: 5
+          description: "Implement session memory for follow-up questions."
+        - step: 6
+          description: "Run pytest tests/test_hypothesis_query.py -v. Fix all failures."
+    traceability: "Ask CJI — intelligence interface for journey owners who think in questions"
+
+  - id: KAN-75
+    name: "Adversarial test suite — response modes + tone + benchmark accuracy first run"
+    sprint: 7
+    days: "43-49"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-75-adversarial-tests"
+    manifest_path: "manifests/KAN-075_adversarial_manifest.md"
+    gitlab_path: "tests/test_adversarial.py"
+    purpose: "The adversarial suite is the proof that the intelligence layer is trustworthy. Precondition for Sprint 10 demo."
+    inputs:
+      - "KAN-71"
+      - "KAN-72"
+      - "KAN-73"
+      - "KAN-34"
+    outputs:
+      - "tests/test_adversarial.py"
+      - "Benchmark accuracy first run results"
+    dependencies: ["KAN-71", "KAN-72", "KAN-73", "KAN-34"]
+    acceptance_criteria:
+      - "7 adversarial scenarios: clean improvement→EVIDENCED, metrics+NPS drop→CONTRADICTED, Do Not Break→GUARDED P1, low data→UNKNOWN, directional→DIRECTIONAL, tone test, vulnerable customer→P1"
+      - "Benchmark accuracy first run: precision >90%, recall >80% targets documented"
+      - "Actual results documented honestly"
+      - "Monthly audit cadence established"
+    validation_command: "pytest tests/test_adversarial.py -v && python scripts/run_accuracy_benchmark.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_tests", "write_tests", "model_inference"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Benchmark precision below 90%"
+          action: "Do not suppress result. Document actual precision. Identify which scenarios failed. Fix. Re-run. Do not release until >80% minimum."
+      retry_logic: "Fix specific failing scenarios. Re-run benchmark."
+      fallback_strategy: ">80% precision is minimum for Phase 1 release. >90% is target."
+      escalation_criteria: "Precision below 80% and cannot be fixed within Sprint 7"
+    interfaces:
+      inputs_expected:
+        - schema: "Intelligence layer agents"
+          format: "python"
+          source: "agents/"
+        - schema: "Benchmark dataset"
+          format: "yaml"
+          source: "tests/benchmark_dataset.yaml"
+      outputs_promised:
+        - schema: "Adversarial test results"
+          format: "pytest output"
+          destination: "CI/CD pipeline"
+        - schema: "Accuracy benchmark results"
+          format: "yaml"
+          destination: "docs/accuracy_results.yaml"
+      breaking_change_protocol: "All 7 adversarial scenarios must pass before any agent release"
+    traceability: "Gate before any journey owner sees the intelligence layer"
+
+# ============================================================
+# SPRINT 8: Voice, Promise & Expectation Intelligence (Days 50-56)
+# ============================================================
+
+  - id: KAN-80
+    name: "Build synthetic app store review and NPS generator"
+    sprint: 8
+    days: "50-56"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-80-review-simulator"
+    manifest_path: "manifests/KAN-080_review_sim_manifest.md"
+    gitlab_path: "data/simulate_reviews.py"
+    purpose: "Synthetic voice data lets us build and test the voice intelligence pipeline."
+    inputs:
+      - "KAN-30"
+    outputs:
+      - "data/simulate_reviews.py"
+    dependencies: ["KAN-30"]
+    acceptance_criteria:
+      - "Realistic reviews: rating (1-5), text, app_version, review_date"
+      - "NPS verbatims with score, journey_type, realistic text referencing Day 90 vision"
+      - "Negative review spike correlates with failure injection rate"
+      - "Volume: 50-200 reviews per day"
+    validation_command: "python data/simulate_reviews.py --date today && python scripts/validate_KAN-080.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_config", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Review text not realistic enough"
+          action: "Use example_clusters from simulation_config.yaml as seed vocabulary."
+      retry_logic: "Use seed vocabulary from config"
+      fallback_strategy: "Template-based review generation from seed vocabulary"
+      escalation_criteria: "Cannot generate reviews that correlate with failure injection"
+    interfaces:
+      inputs_expected:
+        - schema: "Simulation config"
+          format: "yaml"
+          source: "config/simulation_config.yaml"
+        - schema: "Failed session data"
+          format: "parquet"
+          source: "data/ma_s/"
+      outputs_promised:
+        - schema: "Synthetic reviews"
+          format: "parquet"
+          destination: "data/synthetic_reviews/"
+      breaking_change_protocol: "Review schema changes require voice agent update"
+    traceability: "Voice evidence pipeline — Day 90 vision: 5 customers said App journey sucks"
+
+  - id: KAN-81
+    name: "Build keyword clustering pipeline — OPS_CD seeded, k-means n=5"
+    sprint: 8
+    days: "50-56"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-81-keyword-clustering"
+    manifest_path: "manifests/KAN-081_clustering_manifest.md"
+    gitlab_path: "agents/voice_agent.py"
+    purpose: "Clustering reviews by journey type: here are the top 3 things customers are saying about the Loans journey."
+    inputs:
+      - "KAN-80"
+      - "KAN-22"
+    outputs:
+      - "agents/voice_agent.py (clustering function)"
+    dependencies: ["KAN-80", "KAN-22"]
+    acceptance_criteria:
+      - "k-means with n=5 clusters per journey type (n=5 exactly)"
+      - "Seed vocabulary from OPS_CD feature taxonomy"
+      - "Outputs per cluster: cluster_id, journey_type, top_terms (5), volume, avg_rating, sentiment_score"
+      - "App store rating velocity (rolling 24h and 7d) computed"
+      - "Journey type mapped from top_terms using OPS_CD taxonomy — not free-form"
+    validation_command: "pytest tests/test_voice_agent.py::test_clustering -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "read_contracts", "model_inference"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Clusters not mapping to journey types"
+          action: "Review OPS_CD seed vocabulary. Add journey-specific terms if missing. Re-run. Do not manually assign labels."
+      retry_logic: "Update seed vocabulary from OPS_CD. Re-run clustering."
+      fallback_strategy: "UNKNOWN journey type for unmapped clusters"
+      escalation_criteria: "Loans journey cluster cannot be identified"
+    interfaces:
+      inputs_expected:
+        - schema: "Synthetic reviews"
+          format: "parquet"
+          source: "data/synthetic_reviews/"
+        - schema: "OPS_CD taxonomy"
+          format: "yaml"
+          source: "contracts/ops_cd.yaml"
+      outputs_promised:
+        - schema: "Cluster results"
+          format: "JSON"
+          destination: "agents/voice_agent.py output"
+      breaking_change_protocol: "OPS_CD taxonomy changes require cluster seed vocabulary update"
+    traceability: "Voice intelligence — journey-level customer sentiment"
+
+  - id: KAN-82
+    name: "Build Voice Agent — retrieval and narrative injection with source tier label"
+    sprint: 8
+    days: "50-56"
+    type: "Agent"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-82-voice-agent"
+    manifest_path: "manifests/KAN-082_voice_agent_manifest.md"
+    gitlab_path: "agents/voice_agent.py"
+    purpose: "Retrieves voice evidence and injects into Narrative Agent context with explicit source labelling."
+    inputs:
+      - "KAN-81"
+      - "KAN-71"
+    outputs:
+      - "agents/voice_agent.py (retrieval function)"
+    dependencies: ["KAN-81", "KAN-71"]
+    acceptance_criteria:
+      - "Retrieves top 3 clusters per flagged journey"
+      - "Injects into Narrative Agent context with source_tier=VOICE label"
+      - "Corroboration logged or contradiction logged"
+      - "Voice alone cannot change DIRECTIONAL to EVIDENCED — tested adversarially"
+      - "VOICE label visible in all narrative output that cites voice evidence"
+    validation_command: "pytest tests/test_voice_agent.py::test_tier_enforcement -v && pytest tests/test_voice_agent.py::test_source_label -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "model_inference"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Voice evidence upgrading DIRECTIONAL to EVIDENCED"
+          action: "CRITICAL bug. Fix source tier enforcement in narrative agent. Voice is corroborative only. Re-run adversarial test."
+      retry_logic: "Fix tier enforcement. Re-run immediately."
+      fallback_strategy: "Reject any EVIDENCED classification from voice-only evidence"
+      escalation_criteria: "Voice upgrading DIRECTIONAL — immediate escalation and release block"
+    interfaces:
+      inputs_expected:
+        - schema: "Cluster results"
+          format: "JSON"
+          source: "KAN-81 output"
+        - schema: "Narrative agent context"
+          format: "python object"
+          source: "agents/narrative_agent.py"
+      outputs_promised:
+        - schema: "Voice evidence with VOICE label"
+          format: "Narrative agent Tier 2 context"
+          destination: "agents/narrative_agent.py"
+      breaking_change_protocol: "VOICE label enforcement is non-negotiable — cannot be weakened"
+    traceability: "Voice is corroborative only — DIRECTIONAL stays DIRECTIONAL with voice support"
+
+  - id: KAN-83
+    name: "Build expectation and promise registry"
+    sprint: 8
+    days: "50-56"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-83-expectation-registry"
+    manifest_path: "manifests/KAN-083_expectation_registry_manifest.md"
+    gitlab_path: "manifests/expectation_register.yaml"
+    purpose: "Customer expectations are first-class evidence. CONTRADICTED fires when promise_to_outcome_status=BROKEN."
+    inputs:
+      - "KAN-71"
+    outputs:
+      - "manifests/expectation_register.yaml"
+      - "manifests/promise_register.yaml"
+    dependencies: ["KAN-71"]
+    acceptance_criteria:
+      - "manifests/expectation_register.yaml: pre-refresh customer expectations per journey"
+      - "manifests/promise_register.yaml: testable promise statements from product teams"
+      - "Both injected into Narrative Agent Tier 3 context"
+      - "promise_to_outcome_status tracked: KEPT/BROKEN/UNKNOWN"
+      - "CONTRADICTED required if promise_to_outcome_status=BROKEN"
+    validation_command: "pytest tests/test_voice_agent.py::test_expectation_injection -v && pytest tests/test_narrative_agent.py::test_promise_contradicted -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Promise register empty at Sprint 8"
+          action: "Populate with at least 3 promises from brief v2.8. Use canonical statements as promise proxies."
+      retry_logic: "Use canonical statements as minimum viable promises"
+      fallback_strategy: "3 promises minimum — CONTRADICTED from promise breach requires at least this"
+      escalation_criteria: "Cannot define any testable promises for Loans journey"
+    interfaces:
+      inputs_expected:
+        - schema: "Product team promises"
+          format: "unstructured"
+          source: "Brief v2.8 and plan document"
+      outputs_promised:
+        - schema: "Promise and expectation registries"
+          format: "yaml"
+          destination: "manifests/"
+      breaking_change_protocol: "Promise changes require analytics lead approval — affects CONTRADICTED classification"
+    traceability: "CONTRADICTED fires when promises are broken — customer protection mechanism"
+
+  - id: KAN-84
+    name: "Build app store rating velocity signal"
+    sprint: 8
+    days: "50-56"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-84-rating-velocity"
+    manifest_path: "manifests/KAN-084_rating_velocity_manifest.md"
+    gitlab_path: "agents/voice_agent.py"
+    purpose: "Rating velocity is the earliest operational signal of a bad release."
+    inputs:
+      - "KAN-80"
+      - "KAN-53"
+    outputs:
+      - "app_store_velocity_signal in daily_journey_mart"
+    dependencies: ["KAN-80", "KAN-53"]
+    acceptance_criteria:
+      - "Rolling 24h and 7d rating change computed"
+      - "Review volume per hour post-expansion tracked"
+      - "AMBER circuit_breaker_level triggered if 1-star spike exceeds threshold within 90 min of rollout"
+      - "Threshold configurable in circuit_breaker_config.yaml"
+    validation_command: "pytest tests/test_voice_agent.py::test_rating_velocity -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Spike threshold too sensitive"
+          action: "Adjust threshold in circuit_breaker_config.yaml. Document reason. Never change in code."
+      retry_logic: "Config change only"
+      fallback_strategy: "Manual velocity monitoring if automated signal fails"
+      escalation_criteria: "Cannot detect simulated 1-star spike at configured threshold"
+    interfaces:
+      inputs_expected:
+        - schema: "Synthetic reviews"
+          format: "parquet"
+          source: "data/synthetic_reviews/"
+        - schema: "Circuit breaker config"
+          format: "yaml"
+          source: "config/circuit_breaker_config.yaml"
+      outputs_promised:
+        - schema: "Rating velocity signal"
+          format: "field in daily_journey_mart"
+          destination: "data/daily_journey_mart/"
+      breaking_change_protocol: "90-minute threshold is a business decision — requires analytics lead approval to change"
+    traceability: "Earliest signal of bad release — before session data accumulates"
+
+# ============================================================
+# SPRINT 9: Daily Orchestrator & Semantic Telemetry (Days 57-63)
+# ============================================================
+
+  - id: KAN-90
+    name: "Build orchestrator pipeline runner"
+    sprint: 9
+    days: "57-63"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-90-orchestrator"
+    manifest_path: "manifests/KAN-090_orchestrator_manifest.md"
+    gitlab_path: "orchestrator/run_daily.py"
+    purpose: "One command runs everything in the correct order. No human orchestration. No manual steps."
+    inputs:
+      - "KAN-41"
+      - "KAN-43"
+      - "KAN-50"
+      - "KAN-61"
+      - "KAN-62"
+      - "KAN-72"
+      - "KAN-73"
+    outputs:
+      - "orchestrator/run_daily.py"
+      - "governance_run_fact parquet"
+    dependencies: ["KAN-41", "KAN-43", "KAN-50", "KAN-61", "KAN-62", "KAN-72", "KAN-73"]
+    acceptance_criteria:
+      - "Runs all pipeline steps in dependency order"
+      - "Each step logs: step_id, start_ts, end_ts, status, rows_processed, semantic_telemetry_reference"
+      - "governance_run_fact written per run: run_id, date, steps_passed, steps_failed, quality_gate_status, circuit_breaker_level, duration_sec, degraded_mode_flag"
+      - "Single entry point: python orchestrator/run_daily.py --date YYYY-MM-DD"
+    validation_command: "python orchestrator/run_daily.py --date today --dry-run && python scripts/validate_KAN-090.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["spark_submit", "model_inference", "write_data", "write_logs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "A pipeline step fails mid-run"
+          action: "Log failure to governance_run_fact. Emit semantic telemetry. Continue if retryability=yes. Halt if retryability=no. Never skip silently."
+        - condition: "Run takes too long"
+          action: "Add --parallel flag for independent steps. Steps 3, 4, 5 can run in parallel after MA_S completes."
+      retry_logic: "Retryability determined by telemetry_spec.yaml — not hardcoded"
+      fallback_strategy: "DEGRADED mode report if critical steps fail"
+      escalation_criteria: "Core pipeline steps fail for 3+ consecutive days"
+    interfaces:
+      inputs_expected:
+        - schema: "All pipeline components"
+          format: "python modules"
+          source: "pipelines/ and agents/"
+      outputs_promised:
+        - schema: "Structured daily report"
+          format: "JSON"
+          destination: "orchestrator/reports/"
+        - schema: "Governance run fact"
+          format: "parquet"
+          destination: "data/governance_run_fact/"
+      breaking_change_protocol: "Pipeline step order changes require dependency graph review"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read system_manifest.yaml. Build dependency graph for all pipeline components."
+        - step: 2
+          description: "Implement step runner: execute each step, log start/end/status."
+        - step: 3
+          description: "Implement governance_run_fact writer."
+        - step: 4
+          description: "Implement --dry-run mode: validates all components can be imported, no actual execution."
+        - step: 5
+          description: "Implement --parallel flag for independent steps."
+        - step: 6
+          description: "Run 7-day integration test. Fix all failures."
+    traceability: "Programme principle: One command to run everything"
+
+  - id: KAN-91
+    name: "Build degraded mode handler + mid-execution escalation"
+    sprint: 9
+    days: "57-63"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-91-degraded-mode"
+    manifest_path: "manifests/KAN-091_degraded_mode_manifest.md"
+    gitlab_path: "orchestrator/degraded_mode.py"
+    purpose: "Degraded mode ensures the system never publishes partial or misleading intelligence. Mid-execution escalation notifies humans when confidence drops."
+    inputs:
+      - "KAN-90"
+      - "KAN-43"
+    outputs:
+      - "orchestrator/degraded_mode.py"
+    dependencies: ["KAN-90", "KAN-43"]
+    acceptance_criteria:
+      - "If quality gate fails 3+ critical fields: suppress detailed findings, publish headline-only with DEGRADED banner, create P2 queue item, notify analytics lead"
+      - "No improvised interpretation on partial data"
+      - "Mid-execution escalation: if confidence_score < 0.6 mid-run → pause, send alert, wait for approval or auto-publish GUARDED after 30 min"
+    validation_command: "pytest tests/test_orchestrator.py::test_degraded_mode -v && pytest tests/test_orchestrator.py::test_mid_execution_escalation -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "write_logs", "send_notifications"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Notification channel not configured"
+          action: "Log to governance_run_fact. Do not fail the run. Flag as NOTIFICATIONS_UNCONFIGURED in operating_model.md."
+      retry_logic: "Notification failure does not halt pipeline — log and continue"
+      fallback_strategy: "Log to governance_run_fact if notification channel unavailable"
+      escalation_criteria: "DEGRADED mode persists for 3+ consecutive days"
+    interfaces:
+      inputs_expected:
+        - schema: "Quality gate output"
+          format: "semantic telemetry JSON"
+          source: "pipelines/build_quality_gate.py"
+        - schema: "Confidence score"
+          format: "float"
+          source: "agents/narrative_agent.py"
+      outputs_promised:
+        - schema: "DEGRADED mode report"
+          format: "JSON"
+          destination: "orchestrator/reports/"
+        - schema: "P2 queue item"
+          format: "JSON"
+          destination: "investigation_queue"
+      breaking_change_protocol: "DEGRADED threshold changes require analytics lead approval"
+    traceability: "Programme principle: Protect customer outcomes — never publish misleading intelligence"
+
+  - id: KAN-92
+    name: "Implement full semantic telemetry on all failures"
+    sprint: 9
+    days: "57-63"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-92-semantic-telemetry"
+    manifest_path: "manifests/KAN-092_telemetry_impl_manifest.md"
+    gitlab_path: "orchestrator/run_daily.py"
+    purpose: "Machine-readable telemetry on every failure makes the system self-diagnosable."
+    inputs:
+      - "KAN-19"
+      - "KAN-90"
+    outputs:
+      - "Complete telemetry on all pipeline failures"
+    dependencies: ["KAN-19", "KAN-90"]
+    acceptance_criteria:
+      - "Every pipeline failure emits complete telemetry per manifests/telemetry_spec.yaml"
+      - "All fields: step_id, input_reference, output_summary, error_code, error_class, retryability, business_impact_tier, downstream_dependency_impact, manifest_spec_reference, recovery_strategy_reference"
+      - "Output as machine-readable JSON"
+      - "Agent self-diagnosis test: given failure JSON, agent identifies correct recovery strategy"
+    validation_command: "python scripts/validate_KAN-092.py && pytest tests/test_orchestrator.py::test_agent_self_diagnosis -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_logs", "write_logs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Self-diagnosis test fails"
+          action: "Add more specific manifest_spec_reference and recovery_strategy_reference. Richer telemetry = better self-diagnosis."
+      retry_logic: "Enrich telemetry fields. Re-run self-diagnosis test."
+      fallback_strategy: "Manual diagnosis from telemetry JSON if agent self-diagnosis fails"
+      escalation_criteria: "Cannot produce self-diagnosable telemetry for core pipeline failures"
+    interfaces:
+      inputs_expected:
+        - schema: "Telemetry spec"
+          format: "yaml"
+          source: "manifests/telemetry_spec.yaml"
+        - schema: "Pipeline failure events"
+          format: "exceptions"
+          source: "All pipeline components"
+      outputs_promised:
+        - schema: "Semantic telemetry"
+          format: "JSON"
+          destination: "governance_run_fact"
+      breaking_change_protocol: "Telemetry spec changes require all pipeline telemetry outputs to be re-validated"
+    traceability: "Programme principle: Semantic telemetry on every failure — enables self-diagnosis"
+
+  - id: KAN-93
+    name: "End-to-end integration test — 7 days synthetic + push notification stubs + monthly review process"
+    sprint: 9
+    days: "57-63"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-93-integration-test"
+    manifest_path: "manifests/KAN-093_integration_test_manifest.md"
+    gitlab_path: "scripts/run_7day_integration_test.py"
+    purpose: "Seven days of successful synthetic runs proves the orchestrator works reliably before any journey owner sees the system."
+    inputs:
+      - "KAN-90"
+      - "KAN-91"
+      - "KAN-92"
+    outputs:
+      - "scripts/run_7day_integration_test.py"
+      - "7 rows in governance_run_fact"
+      - "docs/operating_model.md (monthly review process)"
+    dependencies: ["KAN-90", "KAN-91", "KAN-92"]
+    acceptance_criteria:
+      - "7 days of synthetic data processed"
+      - "All pipeline steps pass on each day"
+      - "Degraded mode test passes (Day 4 with injected failures)"
+      - "governance_run_fact has 7 rows"
+      - "Push notification stubs fire on Days 1 and 4"
+      - "Monthly agent output review process documented in operating_model.md"
+    validation_command: "python scripts/run_7day_integration_test.py && python scripts/validate_KAN-093.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["spark_submit", "model_inference", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Day N fails in 7-day test"
+          action: "Investigate governance_run_fact for Day N. Read semantic telemetry. Apply recovery strategy. Fix and re-run from Day N."
+      retry_logic: "Read telemetry. Apply recovery strategy from manifest. Re-run from failed day."
+      fallback_strategy: "Document failure and fix before 30-day run in Sprint 13"
+      escalation_criteria: "Same day fails repeatedly with same error"
+    interfaces:
+      inputs_expected:
+        - schema: "All pipeline components"
+          format: "python modules"
+          source: "orchestrator/run_daily.py"
+      outputs_promised:
+        - schema: "7-day test results"
+          format: "console output + governance_run_fact"
+          destination: "data/governance_run_fact/"
+      breaking_change_protocol: "7-day test must pass before Sprint 10 begins"
+    traceability: "Gate before any journey owner sees the system"
+
+# ============================================================
+# SPRINT 10: Streamlit Frontend (Days 64-70)
+# ============================================================
+
+  - id: KAN-100
+    name: "Build Streamlit app scaffold with login and navigation"
+    sprint: 10
+    days: "64-70"
+    type: "UI Component"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-100-app-scaffold"
+    manifest_path: "manifests/KAN-100_app_scaffold_manifest.md"
+    gitlab_path: "app/cji_app.py"
+    purpose: "The scaffold is the container for every subsequent UI ticket. Login, navigation, and data loading must be solid."
+    inputs:
+      - "KAN-93"
+    outputs:
+      - "app/cji_app.py (scaffold)"
+    dependencies: ["KAN-93"]
+    acceptance_criteria:
+      - "Login screen with session state"
+      - "Navigation between 5 pages: Daily Briefing, Journey Scorecard, Investigation Queue, Voice Panel, Ask CJI"
+      - "Reads from orchestrator report JSON (not mart directly)"
+      - "No hardcoded data anywhere"
+      - "Manifest path and version visible in footer"
+    validation_command: "python -m streamlit run app/cji_app.py --headless && python scripts/validate_KAN-100.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "streamlit_serve"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Report JSON missing or malformed"
+          action: "Show DEGRADED banner with last successful run date. Never show empty dashboard."
+      retry_logic: "Show last valid report — never empty dashboard"
+      fallback_strategy: "DEGRADED banner with last successful run date"
+      escalation_criteria: "No valid report for >3 days"
+    interfaces:
+      inputs_expected:
+        - schema: "Orchestrator report JSON"
+          format: "JSON"
+          source: "orchestrator/reports/"
+      outputs_promised:
+        - schema: "Streamlit app"
+          format: "web interface"
+          destination: "http://localhost:8501"
+      breaking_change_protocol: "Page navigation changes require journey owner onboarding guide update"
+    traceability: "Container for all journey owner intelligence interactions"
+
+  - id: KAN-101
+    name: "Build daily briefing page + email stub"
+    sprint: 10
+    days: "64-70"
+    type: "UI Component"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 5
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-101-briefing-page"
+    manifest_path: "manifests/KAN-101_briefing_page_manifest.md"
+    gitlab_path: "app/cji_app.py"
+    purpose: "What journey owners see first every morning. Answers in 30 seconds: is today good or bad, what do I need to do?"
+    inputs:
+      - "KAN-100"
+    outputs:
+      - "Daily briefing page in app/cji_app.py"
+      - "Email stub"
+    dependencies: ["KAN-100"]
+    acceptance_criteria:
+      - "response_mode badge (colour-coded, large, top of page)"
+      - "Qwen executive headline"
+      - "Circuit breaker status with colour"
+      - "Top 3 findings each with evidence tier + recommended_action (three-part visible)"
+      - "Day 90 vision sentence displayed when Loans journey flagged with vulnerable customer finding"
+      - "Email stub: generates HTML version of briefing delivered 7am"
+    validation_command: "python scripts/validate_KAN-101.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "streamlit_serve"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Response mode badge not prominent enough"
+          action: "Increase font size to H1. Add colour background. Badge is the most important element."
+      retry_logic: "Make badge more prominent. Re-validate."
+      fallback_strategy: "Full-width colour banner if badge styling fails"
+      escalation_criteria: "Journey owner pilot feedback: cannot identify response mode quickly"
+    interfaces:
+      inputs_expected:
+        - schema: "Orchestrator report JSON"
+          format: "JSON"
+          source: "orchestrator/reports/"
+      outputs_promised:
+        - schema: "Daily briefing page"
+          format: "Streamlit page"
+          destination: "app/cji_app.py"
+        - schema: "Email HTML"
+          format: "HTML"
+          destination: "email stub output"
+      breaking_change_protocol: "Briefing layout changes require journey owner sign-off"
+    traceability: "Day 90 vision: sentence must be visible when Loans journey flagged"
+
+  - id: KAN-102
+    name: "Build journey scorecard page with user priority weighting"
+    sprint: 10
+    days: "64-70"
+    type: "UI Component"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-102-scorecard"
+    manifest_path: "manifests/KAN-102_scorecard_manifest.md"
+    gitlab_path: "app/cji_app.py"
+    purpose: "At-a-glance view of all journeys. User-configurable priority weights let journey owners apply their own judgment."
+    inputs:
+      - "KAN-100"
+      - "KAN-73"
+    outputs:
+      - "Journey scorecard page in app/cji_app.py"
+    dependencies: ["KAN-100", "KAN-73"]
+    acceptance_criteria:
+      - "Table per journey: session_count, completion_rate, ghost_intent_rate, error_rate, contact_centre_24h_rate, delta_vs_yesterday, circuit_breaker_level"
+      - "Colour coded GREEN/AMBER/RED"
+      - "Accessibility cohort shown as named cut: 'Vulnerable customers: 45+ low engagement — abandonment rate 3x average'"
+      - "User priority weights: slider per journey, default 1.0, range 0.5-2.0"
+    validation_command: "python scripts/validate_KAN-102.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "streamlit_serve"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Accessibility cohort not visible as named cut"
+          action: "UX failure. Add explicit named cohort row before release. Vulnerable customers must never be buried in aggregate."
+      retry_logic: "Add named cohort row. Re-validate."
+      fallback_strategy: "Prominent warning banner if named cohort cannot be displayed"
+      escalation_criteria: "Vulnerable customer cohort cannot be identified from scorecard"
+    interfaces:
+      inputs_expected:
+        - schema: "Daily mart metrics"
+          format: "parquet via report JSON"
+          source: "orchestrator/reports/"
+      outputs_promised:
+        - schema: "Scorecard page"
+          format: "Streamlit page"
+          destination: "app/cji_app.py"
+      breaking_change_protocol: "Vulnerable customer definition in scorecard requires analytics lead approval"
+    traceability: "Programme principle: Protect customer outcomes — vulnerable cohorts are first-class"
+
+  - id: KAN-103
+    name: "Build investigation queue page + Slack P1 alert stub"
+    sprint: 10
+    days: "64-70"
+    type: "UI Component"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-103-queue-page"
+    manifest_path: "manifests/KAN-103_queue_page_manifest.md"
+    gitlab_path: "app/cji_app.py"
+    purpose: "Where intelligence becomes action. P1 items must be impossible to miss."
+    inputs:
+      - "KAN-100"
+      - "KAN-73"
+    outputs:
+      - "Investigation queue page in app/cji_app.py"
+      - "Slack P1 alert stub"
+    dependencies: ["KAN-100", "KAN-73"]
+    acceptance_criteria:
+      - "Queue table: queue_id, triage_band, journey_type, finding_summary, response_mode badge, age_days, status, promise_breach_flag, recommended_action on expand"
+      - "P1 items highlighted red"
+      - "Items older than 14 days flagged amber"
+      - "Slack alert stub fires P1 items to configured webhook"
+    validation_command: "python scripts/validate_KAN-103.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "streamlit_serve", "webhook_post"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Slack webhook not configured"
+          action: "Log alert to governance_run_fact. Do not fail the run. Flag SLACK_UNCONFIGURED in operating_model.md."
+      retry_logic: "Log failure. Continue run. Configure webhook before production."
+      fallback_strategy: "Email alert if Slack not configured"
+      escalation_criteria: "P1 item older than 14 days — governance failure"
+    interfaces:
+      inputs_expected:
+        - schema: "Investigation queue JSON"
+          format: "JSON"
+          source: "orchestrator/reports/"
+      outputs_promised:
+        - schema: "Queue page"
+          format: "Streamlit page"
+          destination: "app/cji_app.py"
+        - schema: "Slack alert"
+          format: "webhook POST"
+          destination: "Slack channel"
+      breaking_change_protocol: "14-day governance SLA is a business rule — requires senior manager approval to change"
+    traceability: "SLA: P1 findings = 4h response, P2/P3 = 14 day closure target"
+
+  - id: KAN-104
+    name: "Build Ask CJI — conversational hypothesis query interface"
+    sprint: 10
+    days: "64-70"
+    type: "UI Component"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 5
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-104-ask-cji"
+    manifest_path: "manifests/KAN-104_ask_cji_manifest.md"
+    gitlab_path: "app/cji_app.py"
+    purpose: "Journey owners type what they think is happening. The system interprets, searches the library, answers from evidence."
+    inputs:
+      - "KAN-100"
+      - "KAN-74"
+    outputs:
+      - "Ask CJI page in app/cji_app.py"
+    dependencies: ["KAN-100", "KAN-74"]
+    acceptance_criteria:
+      - "Text input with example hypothesis visible before typing"
+      - "Response shows: matched hypothesis, response_mode badge, recommended_action (three-part), supporting KPIs, confidence_score, source label"
+      - "Below confidence threshold: honest 'not in library' response with KAN reference"
+      - "Session memory: follow-up questions maintain context"
+      - "All responses show source — never sourceless claims"
+    validation_command: "python scripts/validate_KAN-104.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_manifests", "model_inference", "streamlit_serve"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "LLM response time too slow"
+          action: "Add spinner with 'Searching hypothesis library...' message. Target <5s. If >10s investigate model config."
+        - condition: "Unknown hypothesis not logging correctly"
+          action: "Check hypothesis_query_agent.py logging function. Verify KAN reference generated and visible in response."
+      retry_logic: "Fix logging. Re-run unknown hypothesis test."
+      fallback_strategy: "Longer spinner timeout before showing response"
+      escalation_criteria: "Unknown hypotheses not being logged — library cannot grow"
+    interfaces:
+      inputs_expected:
+        - schema: "Hypothesis query agent"
+          format: "python module"
+          source: "agents/hypothesis_query_agent.py"
+      outputs_promised:
+        - schema: "Ask CJI page"
+          format: "Streamlit page"
+          destination: "app/cji_app.py"
+      breaking_change_protocol: "Source visibility is non-negotiable — all responses must cite library source"
+    prompt_breakdown:
+      steps:
+        - step: 1
+          description: "Read agents/hypothesis_query_agent.py. Understand input/output contract."
+        - step: 2
+          description: "Implement text input with example hypothesis placeholder."
+        - step: 3
+          description: "Implement response display: all required fields with source label."
+        - step: 4
+          description: "Implement session memory using Streamlit session state."
+        - step: 5
+          description: "Implement unknown hypothesis display with KAN reference."
+        - step: 6
+          description: "Run validate_KAN-104.py. Fix all failures."
+    traceability: "Day 90 vision: journey owners interact with intelligence in natural language"
+
+  - id: KAN-105
+    name: "Build voice signal panel"
+    sprint: 10
+    days: "64-70"
+    type: "UI Component"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-105-voice-panel"
+    manifest_path: "manifests/KAN-105_voice_panel_manifest.md"
+    gitlab_path: "app/cji_app.py"
+    purpose: "Voice evidence shown separately with source label — journey owners always know they are reading voice data, not operational data."
+    inputs:
+      - "KAN-100"
+      - "KAN-82"
+    outputs:
+      - "Voice signal panel in app/cji_app.py"
+    dependencies: ["KAN-100", "KAN-82"]
+    acceptance_criteria:
+      - "Top 3 voice clusters per flagged journey: 'In last N days, X customers said [top_terms]'"
+      - "Rating velocity indicator"
+      - "Source tier label VOICE visible and prominent"
+      - "Explicit caveat: 'Voice evidence is corroborative. It supports but does not replace operational data. DIRECTIONAL findings with voice support remain DIRECTIONAL.'"
+    validation_command: "python scripts/validate_KAN-105.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_data", "streamlit_serve"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Caveat not visible"
+          action: "Move caveat to top of voice panel. It must be seen before the data, not after."
+      retry_logic: "Move caveat position. Re-validate."
+      fallback_strategy: "Full-width warning banner above voice data"
+      escalation_criteria: "Journey owner pilot feedback: voice data mistaken for operational data"
+    interfaces:
+      inputs_expected:
+        - schema: "Voice agent output"
+          format: "JSON"
+          source: "orchestrator/reports/"
+      outputs_promised:
+        - schema: "Voice panel page"
+          format: "Streamlit page"
+          destination: "app/cji_app.py"
+      breaking_change_protocol: "VOICE label and caveat cannot be removed — governance requirement"
+    traceability: "Voice is corroborative only — caveat is mandatory governance"
+
+# ============================================================
+# SPRINT 11: Deployment, Security & Operating Model (Days 71-77)
+# ============================================================
+
+  - id: KAN-110
+    name: "Choose and document hosting decision + deployment config"
+    sprint: 11
+    days: "71-77"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Research"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-110-hosting-decision"
+    manifest_path: "manifests/KAN-110_hosting_decision_manifest.md"
+    gitlab_path: "config/hosting_decision.md"
+    purpose: "Hosting decision is infrastructure policy. Must be documented, versioned, machine-readable."
+    inputs:
+      - "KAN-10"
+    outputs:
+      - "config/hosting_decision.md"
+      - "config/deployment_config.yaml"
+    dependencies: ["KAN-10"]
+    acceptance_criteria:
+      - "config/hosting_decision.md: Streamlit Cloud preferred, VPS fallback documented"
+      - "Security posture documented"
+      - "config/deployment_config.yaml: environment, streamlit_app_url, data_path, model_endpoint, notification_webhooks, log_level"
+      - "All components read from deployment_config.yaml — zero hardcoded URLs"
+    validation_command: "python scripts/validate_KAN-110.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_config", "write_config"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Streamlit Cloud data volume limit hit"
+          action: "Switch to VPS as documented fallback. Update deployment_config.yaml. No code change required."
+      retry_logic: "Config change only — never code change for hosting switch"
+      fallback_strategy: "VPS hosting as documented fallback"
+      escalation_criteria: "Both Streamlit Cloud and VPS unavailable"
+    interfaces:
+      inputs_expected:
+        - schema: "Infrastructure requirements"
+          format: "unstructured"
+          source: "Programme principles"
+      outputs_promised:
+        - schema: "Deployment configuration"
+          format: "yaml"
+          destination: "config/deployment_config.yaml"
+      breaking_change_protocol: "Hosting changes require all components to be re-validated against new deployment_config.yaml"
+    traceability: "Infrastructure policy — gates deployment sprint"
+
+  - id: KAN-111
+    name: "Deploy to Streamlit Cloud"
+    sprint: 11
+    days: "71-77"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-111-streamlit-deploy"
+    manifest_path: "manifests/KAN-111_deployment_manifest.md"
+    gitlab_path: ".streamlit/secrets.toml"
+    purpose: "Live deployment with a real URL transforms the project from a local experiment to a working system."
+    inputs:
+      - "KAN-110"
+      - "KAN-100"
+    outputs:
+      - "Live Streamlit app URL"
+    dependencies: ["KAN-110", "KAN-100"]
+    acceptance_criteria:
+      - "App live at streamlit.app URL (or cji.pro after KAN-113)"
+      - "Login works"
+      - "Daily report loads from latest synthetic run"
+      - "No errors"
+      - "HTTPS active"
+      - "Secrets managed via Streamlit secrets.toml (not committed to repo)"
+    validation_command: "curl -s https://[app-url]/healthz | grep 'ok' && python scripts/validate_KAN-111.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["streamlit_deploy", "secrets_manage"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Deployment fails"
+          action: "Check Streamlit Cloud logs. Most common: missing requirements.txt entry, missing secret, path error. Fix one issue at a time."
+      retry_logic: "Fix one error at a time. Re-deploy."
+      fallback_strategy: "VPS deployment if Streamlit Cloud fails repeatedly"
+      escalation_criteria: "Cannot deploy after 3 attempts"
+    interfaces:
+      inputs_expected:
+        - schema: "Streamlit app"
+          format: "python"
+          source: "app/cji_app.py"
+        - schema: "Deployment config"
+          format: "yaml"
+          source: "config/deployment_config.yaml"
+      outputs_promised:
+        - schema: "Live app"
+          format: "HTTPS URL"
+          destination: "streamlit.app or cji.pro"
+      breaking_change_protocol: "Secrets must never be committed to repo — use Streamlit secrets management"
+    traceability: "A URL is credibility — transforms experiment to working system"
+
+  - id: KAN-112
+    name: "Set up GitLab CI/CD pipeline"
+    sprint: 11
+    days: "71-77"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-112-cicd"
+    manifest_path: "manifests/KAN-112_cicd_manifest.md"
+    gitlab_path: ".gitlab-ci.yml"
+    purpose: "CI/CD makes every merged commit safe. Tests run automatically. Bad code does not reach production."
+    inputs:
+      - "KAN-111"
+    outputs:
+      - ".gitlab-ci.yml"
+    dependencies: ["KAN-111"]
+    acceptance_criteria:
+      - ".gitlab-ci.yml: run all tests on every push to main"
+      - "Deploy to Streamlit on merge to main"
+      - "Pipeline badge visible in repo"
+      - "Rollback procedure documented: git revert [commit], push to main, auto-deploys previous version"
+      - "Test stage must pass before deploy stage"
+    validation_command: "Push a test commit. Confirm pipeline runs. Confirm deploy triggers on merge."
+    graduated_trust_tier: 4
+    runtime_permissions: ["gitlab_cicd", "streamlit_deploy"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "CI/CD pipeline fails unexpectedly"
+          action: "Check GitLab pipeline logs. Most common: environment variable missing, test timeout. Fix environment first."
+      retry_logic: "Fix environment variable. Re-trigger pipeline."
+      fallback_strategy: "Manual deployment if CI/CD fails"
+      escalation_criteria: "CI/CD consistently failing for >24h"
+    interfaces:
+      inputs_expected:
+        - schema: "Test suite"
+          format: "pytest"
+          source: "tests/"
+        - schema: "Deployment config"
+          format: "yaml"
+          source: "config/deployment_config.yaml"
+      outputs_promised:
+        - schema: "CI/CD pipeline"
+          format: "yaml"
+          destination: ".gitlab-ci.yml"
+      breaking_change_protocol: "CI/CD changes require test pipeline run before merge"
+    traceability: "Programme principle: Every Friday — something deployed"
+
+  - id: KAN-113
+    name: "Configure custom domain cji.pro"
+    sprint: 11
+    days: "71-77"
+    type: "Deployment Config"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 2
+    tool: "Manual"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-113-domain"
+    manifest_path: "manifests/KAN-113_domain_manifest.md"
+    gitlab_path: "config/deployment_config.yaml"
+    purpose: "cji.pro is the identity. A professional domain communicates that this is a real system, not an experiment."
+    inputs:
+      - "KAN-111"
+    outputs:
+      - "cji.pro resolving to deployed app"
+    dependencies: ["KAN-111"]
+    acceptance_criteria:
+      - "cji.pro resolves to deployed app"
+      - "HTTPS certificate active"
+      - "DNS configuration documented in deployment_config.yaml"
+      - "Smoke test from mobile device"
+    validation_command: "curl -s https://cji.pro | grep '<title>' && openssl s_client -connect cji.pro:443 -brief 2>&1 | grep 'Verification: OK'"
+    graduated_trust_tier: 4
+    runtime_permissions: ["dns_config"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "DNS propagation slow"
+          action: "Verify nameserver update at registrar. Check propagation with dig cji.pro. Wait for propagation."
+      retry_logic: "Wait for DNS propagation — up to 48h"
+      fallback_strategy: "Use streamlit.app URL until cji.pro propagates"
+      escalation_criteria: "DNS propagation fails after 48h"
+    interfaces:
+      inputs_expected:
+        - schema: "Domain registrar access"
+          format: "web interface"
+          source: "Domain registrar"
+        - schema: "Streamlit app URL"
+          format: "URL"
+          source: "KAN-111 output"
+      outputs_promised:
+        - schema: "cji.pro HTTPS"
+          format: "DNS record"
+          destination: "Domain registrar"
+      breaking_change_protocol: "Domain changes require team notification"
+    traceability: "Professional identity for the programme"
+
+  - id: KAN-114
+    name: "Publish operating model — full governance document"
+    sprint: 11
+    days: "71-77"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-114-operating-model"
+    manifest_path: "manifests/KAN-114_operating_model_manifest.md"
+    gitlab_path: "docs/operating_model.md"
+    purpose: "The operating model makes CJI Pulse trustworthy to regulators, senior managers, and journey owners."
+    inputs:
+      - "KAN-17"
+      - "KAN-1G"
+    outputs:
+      - "docs/operating_model.md"
+    dependencies: ["KAN-17", "KAN-1G"]
+    acceptance_criteria:
+      - "Named owner per decision area"
+      - "SLAs: P1 findings=4h response, daily report=7am, P2/P3=14 day closure"
+      - "Escalation paths per severity"
+      - "Controlled agent path: approved tools, test requirements, merge review, rollback, auditability"
+      - "SM&CR accountability column"
+      - "Graduated trust tiers: how journey owners earn permissions"
+      - "Collaboration cadence: weekly sync (Mondays 9am), monthly governance review, quarterly steering"
+      - "Monthly agent output review process"
+      - "Data governance: DSAR handling, retention, purpose limitation"
+    validation_command: "python scripts/validate_KAN-114.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["write_docs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Named owner not yet identified for a decision area"
+          action: "Mark as TBC with escalation date. Do not publish with blank owners — document the gap."
+      retry_logic: "Escalate unidentified owners before publishing"
+      fallback_strategy: "TBC with escalation date — never blank owners"
+      escalation_criteria: "Senior manager unavailable to be named as SM&CR accountable owner"
+    interfaces:
+      inputs_expected:
+        - schema: "Programme governance requirements"
+          format: "unstructured"
+          source: "Programme principles and plan"
+      outputs_promised:
+        - schema: "Operating model document"
+          format: "markdown"
+          destination: "docs/operating_model.md"
+      breaking_change_protocol: "SLA changes require senior manager approval"
+    traceability: "Governance layer — makes every agent action traceable to a named human"
+
+  - id: KAN-115
+    name: "Write journey owner onboarding guide"
+    sprint: 11
+    days: "71-77"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-115-onboarding"
+    manifest_path: "manifests/KAN-115_onboarding_manifest.md"
+    gitlab_path: "docs/journey_owner_onboarding.md"
+    purpose: "The onboarding guide determines whether journey owners trust the system and use it daily, or dismiss it."
+    inputs:
+      - "KAN-114"
+    outputs:
+      - "docs/journey_owner_onboarding.md"
+    dependencies: ["KAN-114"]
+    acceptance_criteria:
+      - "9 sections: what CJI does/doesn't do, how to read response modes, recommended actions, investigation queue, Ask CJI (5 examples), priority weights, system limitations, how to raise concerns, trust tiers"
+      - "Estimated reading time: 15 minutes"
+    validation_command: "python scripts/validate_KAN-115.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["write_docs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Journey owners confused by response modes in pilot"
+          action: "Update onboarding guide based on feedback. CONTRADICTED especially needs plain-language explanation."
+      retry_logic: "Update guide based on pilot feedback"
+      fallback_strategy: "1-page quick reference card as supplementary material"
+      escalation_criteria: "Journey owner cannot use system after reading guide"
+    interfaces:
+      inputs_expected:
+        - schema: "Operating model"
+          format: "markdown"
+          source: "docs/operating_model.md"
+        - schema: "App UI"
+          format: "Streamlit"
+          source: "app/cji_app.py"
+      outputs_promised:
+        - schema: "Onboarding guide"
+          format: "markdown"
+          destination: "docs/journey_owner_onboarding.md"
+      breaking_change_protocol: "UI changes require onboarding guide update before next pilot session"
+    traceability: "Journey owner adoption is the measure of Phase 1 success"
+
+# ============================================================
+# SPRINT 12: Reconstruction Readiness (Days 78-84)
+# ============================================================
+
+  - id: KAN-120
+    name: "Audit and complete system_manifest.yaml — all components"
+    sprint: 12
+    days: "78-84"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-120-manifest-audit"
+    manifest_path: "manifests/KAN-120_manifest_audit_manifest.md"
+    gitlab_path: "manifests/system_manifest.yaml"
+    purpose: "The manifest is only as good as its accuracy. Sprint 12 verifies every component matches what was actually built."
+    inputs:
+      - "All previous BUILT components"
+    outputs:
+      - "Complete accurate system_manifest.yaml"
+    dependencies: []
+    acceptance_criteria:
+      - "Every component present with accurate status (BUILT, PARTIAL-Pn, or NOT_STARTED with reason)"
+      - "All v5 fields complete for every component"
+      - "Zero components with missing required fields"
+      - "system_manifest.yaml validates without errors"
+    validation_command: "python scripts/validate_KAN-017.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Component built differently from manifest spec"
+          action: "Update manifest to reflect reality — not the other way round. Manifest must be truth, not aspiration."
+      retry_logic: "Update manifest field-by-field. Re-validate after each update."
+      fallback_strategy: "Mark as PARTIAL-Pn with documented deviation"
+      escalation_criteria: "Critical component has zero manifest coverage"
+    interfaces:
+      inputs_expected:
+        - schema: "All built components"
+          format: "python + yaml"
+          source: "Entire repo"
+      outputs_promised:
+        - schema: "Complete accurate manifest"
+          format: "yaml"
+          destination: "manifests/system_manifest.yaml"
+      breaking_change_protocol: "Manifest is truth — code deviations documented, not hidden"
+    traceability: "Gate before clean-room reconstruction proof"
+
+  - id: KAN-121
+    name: "Complete system_manifest_index.md — rebuild entry point"
+    sprint: 12
+    days: "78-84"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-121-manifest-index"
+    manifest_path: "manifests/KAN-121_index_manifest.md"
+    gitlab_path: "manifests/system_manifest_index.md"
+    purpose: "The index is what an AI agent reads to understand how to rebuild the entire system from scratch."
+    inputs:
+      - "KAN-120"
+    outputs:
+      - "manifests/system_manifest_index.md"
+    dependencies: ["KAN-120"]
+    acceptance_criteria:
+      - "Index of every component: KAN-ID, name, type, manifest path, status"
+      - "Rebuild instructions: (1) clone repo (2) read index (3) for each component read manifest in dependency order (4) run build_from_manifest.py per component (5) system rebuilds"
+      - "Instructions executable by Claude Code without clarification"
+      - "No ambiguity permitted"
+    validation_command: "python scripts/validate_KAN-121.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_manifests", "write_manifests"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "A component manifest is missing"
+          action: "Create the missing manifest from the component's ticket spec. Never close this ticket without every component indexed."
+      retry_logic: "Create missing manifest. Re-run index validation."
+      fallback_strategy: "Document missing manifests as gaps — do not omit from index"
+      escalation_criteria: "Core component has no manifest — blocks reconstruction proof"
+    interfaces:
+      inputs_expected:
+        - schema: "Complete system_manifest.yaml"
+          format: "yaml"
+          source: "manifests/system_manifest.yaml"
+      outputs_promised:
+        - schema: "Rebuild index"
+          format: "markdown"
+          destination: "manifests/system_manifest_index.md"
+      breaking_change_protocol: "New components require index update before they are considered complete"
+    traceability: "Rebuild entry point — the promise of manifest-first architecture"
+
+  - id: KAN-122
+    name: "Zero hardcoding audit"
+    sprint: 12
+    days: "78-84"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-122-hardcoding-audit"
+    manifest_path: "manifests/KAN-122_hardcoding_audit_manifest.md"
+    gitlab_path: "scripts/zero_hardcoding_audit.sh"
+    purpose: "Hardcoded values are the enemy of reconstruction. A rebuild that requires searching for magic strings is not a real rebuild."
+    inputs:
+      - "KAN-120"
+    outputs:
+      - "scripts/zero_hardcoding_audit.sh"
+      - "PASS result: zero hardcoded values outside config files"
+    dependencies: ["KAN-120"]
+    acceptance_criteria:
+      - "grep -r for hardcoded table names, URLs, thresholds, model names, file paths, port numbers returns zero results outside config files"
+      - "Everything references TABLE_CONFIG, deployment_config.yaml, model_config.yaml, circuit_breaker_config.yaml, or simulation_config.yaml"
+      - "grep command documented so any agent can run it"
+    validation_command: "bash scripts/zero_hardcoding_audit.sh"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_code"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Hardcoded values found"
+          action: "Extract to appropriate config file. Update all references. Re-run audit. Do not suppress findings."
+      retry_logic: "Fix one hardcoded value at a time. Re-run audit after each fix."
+      fallback_strategy: "Document remaining hardcoded values as known technical debt"
+      escalation_criteria: "Core pipeline has hardcoded production database names"
+    interfaces:
+      inputs_expected:
+        - schema: "Entire codebase"
+          format: "python + yaml"
+          source: "Repo root"
+      outputs_promised:
+        - schema: "Audit result"
+          format: "PASS or FAIL with violation list"
+          destination: "console"
+      breaking_change_protocol: "New code additions must pass hardcoding audit before merge"
+    traceability: "Programme principle: Build for future agents — all config machine-readable YAML"
+
+  - id: KAN-123
+    name: "Controlled rebuild proof — Voice Agent from manifest"
+    sprint: 12
+    days: "78-84"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-123-rebuild-proof"
+    manifest_path: "manifests/KAN-123_rebuild_proof_manifest.md"
+    gitlab_path: "scripts/controlled_rebuild_test.py"
+    purpose: "If an AI agent can rebuild the Voice Agent from its manifest alone, the manifest-first architecture is proven."
+    inputs:
+      - "KAN-121"
+      - "KAN-122"
+    outputs:
+      - "scripts/controlled_rebuild_test.py"
+      - "Rebuild gap log: manifests/rebuild_gaps.yaml"
+    dependencies: ["KAN-121", "KAN-122"]
+    acceptance_criteria:
+      - "Test: read manifests/KAN-082_voice_agent_manifest.md only"
+      - "Rebuild agents/voice_agent.py from scratch using build_from_manifest.py"
+      - "New file must pass pytest tests/test_voice_agent.py -v"
+      - "Gaps documented in rebuild_gaps.yaml"
+      - "Target: zero gaps requiring human interpretation"
+    validation_command: "python scripts/controlled_rebuild_test.py --component KAN-082"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_manifests", "write_code", "delete_code"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Tests fail after rebuild"
+          action: "Document which tests fail. Add missing detail to manifest. Re-run rebuild. Every failure improves the manifest."
+      retry_logic: "Document gap. Add to manifest. Re-run rebuild."
+      fallback_strategy: "Gaps are acceptable — document them, they improve the manifest for Phase 2"
+      escalation_criteria: "Rebuild produces completely non-functional code"
+    interfaces:
+      inputs_expected:
+        - schema: "Voice agent manifest"
+          format: "markdown"
+          source: "manifests/KAN-082_voice_agent_manifest.md"
+      outputs_promised:
+        - schema: "Rebuilt voice agent"
+          format: "python"
+          destination: "agents/voice_agent.py"
+        - schema: "Gap log"
+          format: "yaml"
+          destination: "manifests/rebuild_gaps.yaml"
+      breaking_change_protocol: "Rebuild proof is the final validation — gaps must be closed before Phase 2"
+    traceability: "The promise of manifest-first: any agent can rebuild any component"
+
+  - id: KAN-124
+    name: "Full adversarial test suite — response modes + tone + security + pre-ingestion"
+    sprint: 12
+    days: "78-84"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-124-full-adversarial"
+    manifest_path: "manifests/KAN-124_adversarial_full_manifest.md"
+    gitlab_path: "tests/test_adversarial_full.py"
+    purpose: "The adversarial suite is the final validation that CJI Pulse is trustworthy. Must pass before any journey owner sees production data."
+    inputs:
+      - "KAN-75"
+      - "KAN-74"
+      - "KAN-91"
+      - "KAN-71"
+    outputs:
+      - "tests/test_adversarial_full.py"
+    dependencies: ["KAN-75", "KAN-74", "KAN-91", "KAN-71"]
+    acceptance_criteria:
+      - "All 7 Sprint 7 adversarial scenarios pass"
+      - "Tone test: step 3 failure for vulnerable customer → tone guardrail enforced"
+      - "Pre-ingestion test: inject bad data → validator halts, no misleading output"
+      - "Security test: SQL injection via hypothesis query → input sanitised, no execution"
+      - "Unknown hypothesis logging: 10 unknowns logged → all visible with KAN references"
+      - "Confidence threshold test: low-confidence run → GUARDED banner not suppressed"
+      - "Any single failure is a release blocker"
+    validation_command: "pytest tests/test_adversarial_full.py -v"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_tests", "write_tests", "model_inference"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Tone guardrail test fails"
+          action: "Release BLOCKED. Strengthen tone guardrail in narrative agent Tier 1 prompt. Re-test. Accurate-but-harmful is not acceptable."
+      retry_logic: "Fix specific failing test. Re-run full suite. Cannot release until all pass."
+      fallback_strategy: "No fallback — all 6 test groups must pass"
+      escalation_criteria: "Any single failure blocks release — immediate escalation"
+    interfaces:
+      inputs_expected:
+        - schema: "All intelligence layer agents"
+          format: "python"
+          source: "agents/"
+        - schema: "Pre-ingestion validator"
+          format: "python"
+          source: "pipelines/pre_ingestion_validator.py"
+      outputs_promised:
+        - schema: "Full adversarial test results"
+          format: "pytest output"
+          destination: "CI/CD pipeline"
+      breaking_change_protocol: "Any agent change requires full adversarial re-run before release"
+    traceability: "Final gate — trustworthy intelligence before journey owners see production data"
+
+# ============================================================
+# SPRINT 13: End-to-End Proof & Handover (Days 85-90)
+# ============================================================
+
+  - id: KAN-130
+    name: "Run 30-day synthetic evidence pack"
+    sprint: 13
+    days: "85-90"
+    type: "Pipeline"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-130-evidence-pack"
+    manifest_path: "manifests/KAN-130_evidence_pack_manifest.md"
+    gitlab_path: "scripts/run_30day_evidence_pack.py"
+    purpose: "30 days of consistent output proves the system works reliably, not just on a good day."
+    inputs:
+      - "KAN-93"
+    outputs:
+      - "scripts/run_30day_evidence_pack.py"
+      - "30 rows in governance_run_fact"
+    dependencies: ["KAN-93"]
+    acceptance_criteria:
+      - "30 days of synthetic data processed"
+      - "governance_run_fact has 30 rows"
+      - "Accuracy benchmark run on each day — results logged"
+      - "At least 3 CONTRADICTED findings in 30 days"
+      - "At least 1 DEGRADED day (Day 15 injected failures)"
+      - "All results honest — do not cherry-pick"
+    validation_command: "python scripts/run_30day_evidence_pack.py && python scripts/validate_KAN-130.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["spark_submit", "model_inference", "write_data"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Run fails on a day"
+          action: "Investigate governance_run_fact. Fix cause. Document the failure and fix in evidence pack — transparency is more credible."
+      retry_logic: "Fix cause. Re-run from failed day."
+      fallback_strategy: "Document failure honestly — transparency builds more trust than a clean run"
+      escalation_criteria: "Cannot complete 30-day run with failures on >5 days"
+    interfaces:
+      inputs_expected:
+        - schema: "Orchestrator"
+          format: "python"
+          source: "orchestrator/run_daily.py"
+      outputs_promised:
+        - schema: "30-day evidence"
+          format: "governance_run_fact parquet"
+          destination: "data/governance_run_fact/"
+      breaking_change_protocol: "Evidence pack must not be cherry-picked — all failures documented"
+    traceability: "Day 90 is a shipping proof, not a demo — 30 days of evidence"
+
+  - id: KAN-131
+    name: "Clean-room reconstruction test"
+    sprint: 13
+    days: "85-90"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 5
+    tool: "Claude Code"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-131-clean-room"
+    manifest_path: "manifests/KAN-131_clean_room_manifest.md"
+    gitlab_path: "scripts/clean_room_reconstruction_test.py"
+    purpose: "Clean-room reconstruction is the ultimate proof that the manifest-first architecture works."
+    inputs:
+      - "KAN-121"
+      - "KAN-124"
+    outputs:
+      - "scripts/clean_room_reconstruction_test.py"
+      - "Documented reconstruction results"
+    dependencies: ["KAN-121", "KAN-124"]
+    acceptance_criteria:
+      - "Delete agents/narrative_agent.py"
+      - "Provide Claude Code with system_manifest_index.md and KAN-071_narrative_prompt_manifest.md only"
+      - "Claude Code rebuilds narrative_agent.py"
+      - "pytest tests/test_narrative_agent.py -v must pass"
+      - "Adversarial suite must pass on rebuilt agent"
+      - "Every step, every gap, every deviation documented"
+    validation_command: "python scripts/clean_room_reconstruction_test.py --component KAN-071"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_manifests", "write_code", "delete_code"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Rebuilt agent fails tests"
+          action: "Document which tests fail. Add missing information to manifest. This is success — the test revealed a manifest gap. Fix manifest, re-run."
+      retry_logic: "Fix manifest gap. Re-run reconstruction. Repeat."
+      fallback_strategy: "Document gaps honestly — they improve manifest for Phase 2"
+      escalation_criteria: "Cannot reconstruct a working agent after 3 manifest improvements"
+    interfaces:
+      inputs_expected:
+        - schema: "Manifest index"
+          format: "markdown"
+          source: "manifests/system_manifest_index.md"
+        - schema: "Component manifest"
+          format: "markdown"
+          source: "manifests/KAN-071_narrative_prompt_manifest.md"
+      outputs_promised:
+        - schema: "Reconstructed agent"
+          format: "python"
+          destination: "agents/narrative_agent.py"
+        - schema: "Reconstruction documentation"
+          format: "markdown"
+          destination: "docs/reconstruction_results.md"
+      breaking_change_protocol: "THIS IS THE RECONSTRUCTION PROOF — the ultimate test of manifest-first"
+    traceability: "Day 90 deliverable: manifest-first architecture proven"
+
+  - id: KAN-132
+    name: "Document final accuracy benchmark vs targets"
+    sprint: 13
+    days: "85-90"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-132-accuracy-benchmark"
+    manifest_path: "manifests/KAN-132_accuracy_manifest.md"
+    gitlab_path: "docs/accuracy_benchmark_final.md"
+    purpose: "Honest accuracy documentation builds more trust than a clean benchmark."
+    inputs:
+      - "KAN-34"
+      - "KAN-75"
+    outputs:
+      - "docs/accuracy_benchmark_final.md"
+    dependencies: ["KAN-34", "KAN-75"]
+    acceptance_criteria:
+      - "Actual precision and recall vs targets (EVIDENCED precision >90%, recall >80%)"
+      - "Per-response-mode breakdown"
+      - "Analysis of benchmark scenarios that failed: why, what would fix them"
+      - "Phase 2 accuracy improvement plan with specific actions"
+      - "Monthly audit cadence confirmed"
+    validation_command: "python scripts/validate_KAN-132.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_tests", "write_docs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Precision below 80%"
+          action: "Document honestly. Identify specific failure scenarios. Write Phase 2 improvement plan. Below 80% is not a Phase 1 release blocker — it is a Phase 2 priority."
+      retry_logic: "Document honestly — transparency over impression management"
+      fallback_strategy: "Phase 2 improvement plan is mandatory regardless of accuracy"
+      escalation_criteria: "Precision below 60% — fundamental intelligence layer review required"
+    interfaces:
+      inputs_expected:
+        - schema: "Benchmark dataset"
+          format: "yaml"
+          source: "tests/benchmark_dataset.yaml"
+        - schema: "Intelligence layer output"
+          format: "JSON"
+          source: "orchestrator/reports/"
+      outputs_promised:
+        - schema: "Accuracy benchmark document"
+          format: "markdown"
+          destination: "docs/accuracy_benchmark_final.md"
+      breaking_change_protocol: "Accuracy results must not be modified after first run — document changes separately"
+    traceability: "AI is easy to demo, hard to ship — honest accuracy is the proof"
+
+  - id: KAN-133
+    name: "Document Phase 2 gate decisions"
+    sprint: 13
+    days: "85-90"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-133-phase2-gate"
+    manifest_path: "manifests/KAN-133_phase2_gate_manifest.md"
+    gitlab_path: "docs/phase_2_gate_decisions.md"
+    purpose: "Phase 2 decisions made without Phase 1 evidence are guesses. These six decisions can only be made honestly now."
+    inputs:
+      - "KAN-130"
+      - "KAN-132"
+    outputs:
+      - "docs/phase_2_gate_decisions.md"
+    dependencies: ["KAN-130", "KAN-132"]
+    acceptance_criteria:
+      - "Decision 1: accuracy justifies customer-facing use (yes/no with evidence)"
+      - "Decision 2: Phase 2 resourcing model (2-3 humans + AI SELECTED per expert panel)"
+      - "Decision 3: Consumer Duty outcome metrics for Phase 2 (3 metrics, how measured)"
+      - "Decision 4: third-party manifest standard (adopt/defer/waive with reason)"
+      - "Decision 5: Phase 2 scope (which features to build first)"
+      - "Decision 6: full financial ROI model (build in Phase 2 gate yes/no)"
+      - "All decisions signed by named senior manager"
+    validation_command: "python scripts/validate_KAN-133.py"
+    graduated_trust_tier: 4
+    runtime_permissions: ["read_docs", "write_docs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Senior manager unavailable to sign"
+          action: "Document as PENDING-SIGNATURE with date. Phase 2 cannot begin without signed decisions. Not optional."
+      retry_logic: "Escalate to next available senior manager"
+      fallback_strategy: "No fallback — signed decisions are required for Phase 2 gate"
+      escalation_criteria: "Senior manager unavailable for >1 week"
+    interfaces:
+      inputs_expected:
+        - schema: "30-day evidence pack"
+          format: "governance_run_fact"
+          source: "data/governance_run_fact/"
+        - schema: "Accuracy benchmark"
+          format: "markdown"
+          source: "docs/accuracy_benchmark_final.md"
+      outputs_promised:
+        - schema: "Phase 2 gate decisions"
+          format: "markdown"
+          destination: "docs/phase_2_gate_decisions.md"
+      breaking_change_protocol: "Signed decisions cannot be modified — amendments are separate documents"
+    traceability: "Phase 2 requires Phase 1 evidence — decisions made with data, not guesses"
+
+  - id: KAN-134
+    name: "Day 90 handover — evidence pack + clean-room results + open items + programme principles"
+    sprint: 13
+    days: "85-90"
+    type: "Control Artefact"
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 3
+    tool: "Cursor"
+    jira_id: ""
+    gitlab_branch: "feature/KAN-134-day90-handover"
+    manifest_path: "manifests/KAN-134_handover_manifest.md"
+    gitlab_path: "docs/day_90_handover.md"
+    purpose: "Day 90 is not the end. It is the proof that earns Phase 2."
+    inputs:
+      - "KAN-131"
+      - "KAN-132"
+      - "KAN-133"
+    outputs:
+      - "docs/day_90_handover.md"
+    dependencies: ["KAN-131", "KAN-132", "KAN-133"]
+    acceptance_criteria:
+      - "10 sections: Day 90 vision sentence status, 30-day summary, clean-room results, final accuracy, open audit findings, open tickets, Phase 2 decisions, manifests status, 12 programme principles, prompt retrospective"
+      - "Day 90 vision sentence explicitly addressed"
+      - "Prompt retrospective: what worked in AI-assisted building, what to improve for Phase 2"
+    validation_command: "python scripts/validate_KAN-134.py"
+    graduated_trust_tier: 3
+    runtime_permissions: ["read_docs", "write_docs"]
+    recovery_patterns:
+      failure_modes:
+        - condition: "Day 90 vision sentence not working"
+          action: "Document honestly. Identify which component in the chain failed. Do not claim success if the vision is not realised."
+      retry_logic: "Document honestly — an honest failure with clear diagnosis is more valuable than misleading success"
+      fallback_strategy: "Document partial vision achievement with specific gap analysis"
+      escalation_criteria: "Core Day 90 vision sentence cannot be produced at all"
+    interfaces:
+      inputs_expected:
+        - schema: "All programme outputs"
+          format: "various"
+          source: "docs/ + data/governance_run_fact/"
+      outputs_promised:
+        - schema: "Day 90 handover document"
+          format: "markdown"
+          destination: "docs/day_90_handover.md"
+      breaking_change_protocol: "This is the final deliverable — cannot be modified after submission"
+    traceability: "AI is easy to demo, hard to ship — Day 90 is the shipping proof"
