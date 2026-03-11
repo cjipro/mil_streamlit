@@ -483,7 +483,7 @@ components:
     days: "1-7"
     type: "Pipeline"
     owner: "Hussain Ahmed"
-    status: "NEEDS_REBUILD"
+    status: "BUILT"
     priority: P1
     estimated_effort_hours: 5
     tool: "Claude Code"

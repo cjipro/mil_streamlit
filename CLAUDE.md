@@ -26,17 +26,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Sprint Status
 
-Sprint 1 — 6 tickets BUILT:
+Sprint 1 — 7 tickets BUILT:
 - KAN-10: GitLab repo (BUILT)
 - KAN-17: system_manifest.yaml (BUILT, commit 377a4be)
 - KAN-19: telemetry_spec.yaml (BUILT, commit 021a8a9)
 - KAN-1G: graduated_trust_tiers.yaml (BUILT, commit d630986)
 - KAN-1H: hypothesis_library.yaml (BUILT, commit dd89e32)
 - KAN-13: audit_findings.yaml (BUILT, commit fe492e2)
+- KAN-18: build_from_manifest.py (BUILT, commit bb47a21)
 
-WARNING: KAN-18 — build_from_manifest.py — listed as BUILT but files missing from disk. Do not mark as BUILT. Status: NEEDS_REBUILD.
-
-**Next ticket:** KAN-14 — Resolve Finding 002 (CRITICAL)
+**Next ticket:** KAN-12 — Docker environment (infrastructure already running, needs manifest update)
 
 ## Key Manifests
 
@@ -53,6 +52,14 @@ WARNING: KAN-18 — build_from_manifest.py — listed as BUILT but files missing
 - **Local:** `qwen2.5-coder:14b` via Ollama at `http://localhost:11434`
 - **Use local for:** yaml generation, file creation, validation scripts
 - **Use Claude for:** architecture decisions, governance review, complex reasoning
+
+## Model Routing Rules
+
+- Use Sonnet (claude-sonnet-4-6) for: multi-file logic, CLI tools with flags,
+  telemetry compliance, anything reading multiple manifests
+- Use Qwen (local) for: simple YAML scaffolds, single-file templates,
+  validation scripts under 50 lines
+- Default to Sonnet when in doubt — switch to Qwen only for clearly simple tasks
 
 ## Programme Principles
 
