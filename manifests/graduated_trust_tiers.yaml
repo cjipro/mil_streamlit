@@ -13,6 +13,44 @@ last_updated: "2026-03-11"
 manifest_reference: "manifests/system_manifest.yaml#KAN-1G"
 traceability: "Programme principle: Governance as a ramp, not a wall"
 
+# law_for — agents that MUST reference this config before taking any action.
+# Any agent not listed here that attempts a trust-tier-gated action emits
+# GOVERNANCE-TRUST-001 and is blocked.
+law_for:
+  - "narrative-agent"
+  - "governance-agent"
+
+# ============================================================
+# IDENTITY MODEL
+# principal_id is the generic key for all operator references.
+# Identity-agnostic: no distinction between human operators and service accounts.
+# Permissions are scoped to component ID level to enforce least privilege.
+# ============================================================
+
+identity_model:
+  principal_id_key: "principal_id"
+  description: >
+    Every actor in the system — human or service account — is identified by a
+    principal_id. The trust tier system makes no distinction between a human
+    operator and an agent service account. Both must satisfy the same tier
+    conditions and component-scoped permission checks before acting.
+  format: "<identity_provider>:<unique_id>"
+  examples:
+    - "ldap:hussain.ahmed"
+    - "service:narrative-agent-v1"
+    - "service:governance-agent-v1"
+    - "service:pipeline-runner"
+  privilege_escalation_policy: >
+    Any principal that attempts an action beyond its assigned operator_tier,
+    or outside its component_scope, MUST be blocked and MUST emit a
+    GOVERNANCE-TRUST-001 telemetry event (error_code: GOVERNANCE-004,
+    error_class: GOVERNANCE). No self-escalation. No silent failure.
+  component_scope_key: "component_scope"
+  component_scope_description: >
+    Each operator tier defines component_scope — the list of KAN component IDs
+    and permitted actions at that component. Global wildcards (*) are permitted
+    for read-only access. Write or approve actions must name the component explicitly.
+
 # ============================================================
 # PART A — OPERATOR TRUST TIERS (Human Permissions)
 # Tier 1 is entry level. Tier 4 is maximum authority.
@@ -44,6 +82,8 @@ operator_tiers:
       - "No additional criteria required"
     phase_1_maximum_for: []
     approval_required_from: "N/A — read-only, no approvals"
+    component_scope:
+      - "KAN-*:read"
 
   - tier: 2
     name: "Hypothesis Approver"
@@ -69,6 +109,11 @@ operator_tiers:
       - "Analytics lead sign-off recorded in governance_run_fact"
     phase_1_maximum_for: []
     approval_required_from: "Analytics lead for tier upgrade"
+    component_scope:
+      - "KAN-*:read"
+      - "KAN-*:hypothesis_submit"
+      - "KAN-*:investigation_queue_flag"
+      - "KAN-*:investigation_queue_reject"
 
   - tier: 3
     name: "Validated Operator"
@@ -97,6 +142,18 @@ operator_tiers:
       - "Journey owners"
       - "All non-analytics-lead participants"
     approval_required_from: "Analytics lead for tier upgrade. Programme owner notified."
+    component_scope:
+      - "KAN-*:read"
+      - "KAN-*:hypothesis_submit"
+      - "KAN-*:investigation_queue_flag"
+      - "KAN-*:investigation_queue_reject"
+      - "KAN-*:queue_close"
+      - "KAN-023:output_approve"
+      - "KAN-030:output_approve"
+      - "KAN-040:output_approve"
+      - "KAN-042:output_approve"
+      - "KAN-*:priority_weight_adjust"
+      - "KAN-*:pipeline_rerun_request"
 
   - tier: 4
     name: "Controlled Deployer"
@@ -123,6 +180,8 @@ operator_tiers:
     phase_1_maximum_for:
       - "Analytics lead only"
     approval_required_from: "Programme owner (Hussain Ahmed)"
+    component_scope:
+      - "KAN-*:full"
 
 # ============================================================
 # PART B — FINDING TRUST TIERS (Agent Output Confidence)
@@ -369,6 +428,42 @@ interaction_matrix:
       can_promote: ["UNVERIFIED → PROVISIONAL", "PROVISIONAL → VALIDATED", "VALIDATED → TRUSTED"]
       can_demote: ["Any tier → any lower tier with documented justification"]
       can_override_demotion: true
+
+# ============================================================
+# PRIVILEGE ESCALATION TELEMETRY EVENT
+# Structured exactly per manifests/telemetry_spec.yaml schema.
+# This event MUST be emitted whenever any principal attempts an action
+# outside their operator_tier or component_scope.
+# ============================================================
+
+privilege_escalation_event:
+  logical_id: "GOVERNANCE-TRUST-001"
+  description: >
+    Canonical telemetry event for any privilege escalation attempt.
+    Emitted by the trust enforcement layer whenever a principal_id attempts
+    an action not permitted by their operator_tier or component_scope.
+    Structured to satisfy all required fields of telemetry_spec.yaml.
+  telemetry_spec_reference: "manifests/telemetry_spec.yaml"
+  # --- Fields per telemetry_spec.yaml required field schema ---
+  step_id: "trust_tier_enforcement.escalation_check"
+  input_reference: "graduated_trust_tiers.yaml@principal_id:<principal_id>"
+  output_summary: >
+    Privilege escalation attempted by <principal_id> — action blocked.
+    Attempted action: <action>. Principal tier: <tier>. Required tier: <required_tier>.
+  error_code: "GOVERNANCE-004"
+  error_class: "GOVERNANCE"
+  retryability: "no"
+  business_impact_tier: "P1"
+  downstream_dependency_impact: >
+    All agent actions requiring elevated tier are blocked for this principal
+    until the escalation attempt is reviewed and resolved by a Tier 4 operator.
+  manifest_spec_reference: "manifests/system_manifest.yaml#KAN-1G"
+  recovery_strategy_reference: "manifests/graduated_trust_tiers.yaml#usage_contract"
+  # --- Runtime population note ---
+  runtime_population: >
+    Fields containing <placeholders> must be populated at runtime by the
+    trust enforcement layer before emitting the telemetry event.
+    timestamp_utc and run_id are always set at runtime.
 
 # ============================================================
 # USAGE CONTRACT
