@@ -1,6 +1,6 @@
 """
-validate_KAN-1H.py
-Validates manifests/hypothesis_library.yaml against KAN-1H acceptance criteria.
+validate_KAN-01H.py
+Validates manifests/hypothesis_library.yaml against KAN-01H acceptance criteria.
 
 Checks:
   - Minimum 10 entries present (task: 22 total)
@@ -18,7 +18,7 @@ Checks:
   - recommended_action has three required parts
   - No duplicate IDs
 
-Run: python scripts/validate_KAN-1H.py
+Run: python scripts/validate_KAN-01H.py
 """
 
 import yaml
@@ -72,7 +72,7 @@ MIN_ENTRIES = 10
 
 def validate_spec(spec_path: str) -> bool:
     print(f"\n{'='*60}")
-    print(f"CJI Pulse — validate_KAN-1H.py")
+    print(f"CJI Pulse — validate_KAN-01H.py")
     print(f"Validating: {spec_path}")
     print(f"{'='*60}\n")
 
@@ -249,11 +249,11 @@ def _print_summary(errors, warnings, hypotheses):
         for e in errors:
             print(f"  ERROR: {e}")
         print(f"\n{'='*60}")
-        print("RESULT: FAILED — hypothesis_library.yaml does not meet KAN-1H acceptance criteria.")
+        print("RESULT: FAILED — hypothesis_library.yaml does not meet KAN-01H acceptance criteria.")
         print(f"{'='*60}\n")
     else:
         print(f"\n{'='*60}")
-        print("RESULT: PASSED — hypothesis_library.yaml meets all KAN-1H acceptance criteria.")
+        print("RESULT: PASSED — hypothesis_library.yaml meets all KAN-01H acceptance criteria.")
         print("The Ask CJI intelligence engine has a validated seed library.")
         print(f"{'='*60}\n")
 

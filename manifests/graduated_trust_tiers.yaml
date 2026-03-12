@@ -10,7 +10,7 @@ description: >
 owner: "Hussain Ahmed"
 created: "2026-03-11"
 last_updated: "2026-03-11"
-manifest_reference: "manifests/system_manifest.yaml#KAN-1G"
+manifest_reference: "manifests/system_manifest.yaml#KAN-01G"
 traceability: "Programme principle: Governance as a ramp, not a wall"
 
 # law_for — agents that MUST reference this config before taking any action.
@@ -457,7 +457,7 @@ privilege_escalation_event:
   downstream_dependency_impact: >
     All agent actions requiring elevated tier are blocked for this principal
     until the escalation attempt is reviewed and resolved by a Tier 4 operator.
-  manifest_spec_reference: "manifests/system_manifest.yaml#KAN-1G"
+  manifest_spec_reference: "manifests/system_manifest.yaml#KAN-01G"
   recovery_strategy_reference: "manifests/graduated_trust_tiers.yaml#usage_contract"
   # --- Runtime population note ---
   runtime_population: >
@@ -514,7 +514,7 @@ usage_contract:
         owner sign-off. All changes must be committed to this file and to system_manifest.yaml.
 
   enforcement:
-    validation_command: "python scripts/validate_KAN-1G.py"
+    validation_command: "python scripts/validate_KAN-01G.py"
     review_cadence: "Every sprint — review demotion events and tier distribution"
     sign_off_required: "Hussain Ahmed"
     non_compliance_action: >

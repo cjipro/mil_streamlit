@@ -592,7 +592,7 @@ components:
       breaking_change_protocol: "Adding new error_class values is non-breaking. Removing values is breaking — requires pipeline audit."
     traceability: "Programme principle: Semantic telemetry on every failure"
 
-  - id: KAN-1G
+  - id: KAN-01G
     name: "Scaffold graduated trust model — Tiers 1-4"
     sprint: 1
     days: "1-7"
@@ -604,7 +604,7 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-1G-trust-tiers"
+    gitlab_branch: "feature/KAN-01G-trust-tiers"
     manifest_path: "manifests/KAN-01G_trust_tiers_manifest.md"
     gitlab_path: "config/graduated_trust_tiers.yaml"
     purpose: "Governance is a ramp, not a wall. Journey owners earn expanded capabilities through demonstrated competence."
@@ -642,7 +642,7 @@ components:
       breaking_change_protocol: "Tier permission changes require analytics lead approval and manifest update"
     traceability: "Programme principle: Governance as a ramp, not a wall"
 
-  - id: KAN-1H
+  - id: KAN-01H
     name: "Scaffold hypothesis library — seed with known patterns"
     sprint: 1
     days: "1-7"
@@ -654,7 +654,7 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-1H-hypothesis-library"
+    gitlab_branch: "feature/KAN-01H-hypothesis-library"
     manifest_path: "manifests/KAN-01H_hypothesis_library_manifest.md"
     gitlab_path: "manifests/hypothesis_library.yaml"
     purpose: "The hypothesis library is the intelligence core of the conversational query interface."
@@ -2151,10 +2151,10 @@ components:
     inputs:
       - "KAN-70"
       - "KAN-50"
-      - "KAN-1H"
+      - "KAN-01H"
     outputs:
       - "agents/narrative_agent.py"
-    dependencies: ["KAN-70", "KAN-50", "KAN-1H"]
+    dependencies: ["KAN-70", "KAN-50", "KAN-01H"]
     acceptance_criteria:
       - "Tiered context injection: Tier 1 (canonical statements, tone guardrails, quality gate status, circuit breaker level), Tier 2 (hypothesis subset, friction taxonomy), Tier 3 (expectation register fragments)"
       - "Token budget enforced — omissions logged with reason"
@@ -2320,10 +2320,10 @@ components:
     inputs:
       - "KAN-70"
       - "KAN-72"
-      - "KAN-1H"
+      - "KAN-01H"
     outputs:
       - "agents/hypothesis_query_agent.py"
-    dependencies: ["KAN-70", "KAN-72", "KAN-1H"]
+    dependencies: ["KAN-70", "KAN-72", "KAN-01H"]
     acceptance_criteria:
       - "Accepts free-text hypothesis, interprets intent, retrieves closest match using semantic similarity"
       - "Returns: matched_hypothesis, evidence_tier, response_mode, recommended_action, supporting_kpis, confidence_score"
@@ -3465,10 +3465,10 @@ components:
     purpose: "The operating model makes CJI Pulse trustworthy to regulators, senior managers, and journey owners."
     inputs:
       - "KAN-17"
-      - "KAN-1G"
+      - "KAN-01G"
     outputs:
       - "docs/operating_model.md"
-    dependencies: ["KAN-17", "KAN-1G"]
+    dependencies: ["KAN-17", "KAN-01G"]
     acceptance_criteria:
       - "Named owner per decision area"
       - "SLAs: P1 findings=4h response, daily report=7am, P2/P3=14 day closure"
