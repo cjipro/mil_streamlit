@@ -25,6 +25,10 @@ programme_principles:
 
 dual_closure_rule: "Every ticket requires two independent closure conditions. Human done AND AI-ready done. Neither alone is sufficient. This rule applies to every ticket without exception."
 
+adoption_hooks:
+  slack_webhook: "LATENT — configure at KAN-103"
+  teams_channel: "LATENT — configure at KAN-103"
+
 # ============================================================
 # SPRINT 1: Foundation, Manifest Model & Audit (Days 1-7)
 # ============================================================
@@ -641,6 +645,15 @@ components:
           destination: "config/graduated_trust_tiers.yaml"
       breaking_change_protocol: "Tier permission changes require analytics lead approval and manifest update"
     traceability: "Programme principle: Governance as a ramp, not a wall"
+    permitted_storage_targets:
+      - local
+      - databricks
+      - snowflake
+      - clickhouse_poc
+    identity_agnostic: true
+    tier_5:
+      status: LOCKED_PHASE_2
+      description: "Autonomous Migration — locked until Phase 2 gate decision KAN-133"
 
   - id: KAN-01H
     name: "Scaffold hypothesis library — seed with known patterns"
@@ -1482,6 +1495,11 @@ components:
       retry_logic: "Investigate cause before next run. Do not bypass validator."
       fallback_strategy: "DEGRADED mode report — headline only, no detailed findings"
       escalation_criteria: "Pre-ingestion failure on 3+ consecutive days"
+      patterns:
+        - pattern: edge_aware_sampling
+          description: "1% stratified sample gate at source edge before full Hadoop ingestion"
+          trigger: "Hadoop partition response > 300s"
+          fallback: "Route to Databricks federated query via Snowflake if unavailable"
     interfaces:
       inputs_expected:
         - schema: "Raw data"

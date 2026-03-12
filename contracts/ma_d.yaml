@@ -1,0 +1,19 @@
+id: KAN-020
+source: MA_D
+metadata_lookup_only: true
+federation_mount_point: "TBD — Databricks Unity Catalog onboarding in progress"
+write_inhibit: true
+permitted_storage_targets:
+  - databricks
+  - snowflake
+fairness_audit_hooks:
+  enabled: true
+  protected_cohorts:
+    - vulnerable_customers
+    - age_45_plus
+  status: "LATENT — not active until KAN-062"
+infrastructure_context:
+  hadoop_status: "Legacy source — slow, blocking KAN-014"
+  databricks_status: "Contract signed, onboarding in progress"
+  snowflake_status: "Onboarded and available"
+  clickhouse_status: "POC in place — analytics layer candidate"
