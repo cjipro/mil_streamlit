@@ -1,15 +1,95 @@
 ---
-schema_version: "1.0"
+schema_version: "2.0"
 created: "2026-03-12"
 sponsor: "TAQ Bank"
 classification: "CONSTITUTIONAL — immutable without governance override"
 total_principles: 21
-violation_policy: "WARN_NOT_FAIL — violations emit WARN_P codes, never block builds"
+violation_policy: "WARN_NOT_FAIL"
+violation_policy_detail: >
+  Principle violations never block builds. They emit structured WARN_P codes,
+  log permanently to provenance system, notify responsible owner, and must be
+  resolved or formally overridden with documented governance approval before
+  next release. No third option exists.
+
+substitution_registry:
+  policy: "Original terms never stored inside system. Safe equivalents only."
+  entries:
+    - cji_pulse_term: "Habib Bank"
+      reason: "Client identity — original name sealed"
+      principle_ref: client_identity_sealed_taq_only
+    - cji_pulse_term: "APP"
+      reason: "Internal brand code — original code sealed"
+      principle_ref: raw_name_sealed_never_surface
+    - cji_pulse_term: "TAQ Bank"
+      reason: "Sponsor — only organisational name that ever surfaces"
+      principle_ref: client_identity_sealed_taq_only
+
+table_registry:
+  naming_convention:
+    human_name: "Full descriptive plain English name"
+    agentic_name: "Initials of human name — 4-5 characters maximum"
+    source_hash: "HMAC-SHA256 of original name — generated outside codebase only"
+    hash_algorithm: "HMAC-SHA256"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+  tables:
+    - human_name: "Mobile_App_Events_Raw"
+      agentic_name: "MAER"
+      type: "raw_source"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "AUDITED"
+    - human_name: "Mobile_App_Events_Ref"
+      agentic_name: "MAER_F"
+      type: "reference"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "AUDITED"
+    - human_name: "Operation_Codes_Ref"
+      agentic_name: "OCR"
+      type: "reference"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "AUDITED"
+    - human_name: "Mobile_App_Events_Session"
+      agentic_name: "MAES"
+      type: "derived"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "REBUILD"
+    - human_name: "Mobile_App_Events_Session_Bucketed"
+      agentic_name: "MAESB"
+      type: "derived"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "REBUILD"
+    - human_name: "Customer_Profile_Dim"
+      agentic_name: "CPD"
+      type: "dimension"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "PENDING_AUDIT"
+      audit_note: "Must be audited before DPIA special category question can be answered"
+    - human_name: "Call_Centre_Events_Raw"
+      agentic_name: "CCER"
+      type: "raw_source"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "PENDING"
+    - human_name: "Branch_Visit_Events_Raw"
+      agentic_name: "BVER"
+      type: "raw_source"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "PENDING"
+    - human_name: "Customer_Satisfaction_Raw"
+      agentic_name: "CSR"
+      type: "raw_source"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "PENDING"
+    - human_name: "Web_App_Events_Raw"
+      agentic_name: "WAER"
+      type: "raw_source"
+      source_hash: "HASH_PENDING_ORIGINAL"
+      status: "DEFERRED"
 
 principles:
   - id: P1
+    agent_name: "pii_mask_never_ignore"
     name: "PII Is Recorded but Masked — Never Ignored"
-    summary: "Every PII field recorded with real name, flagged pii=true, values replaced with mask token. Never dropped."
+    summary: "Every PII field recorded with real display name, flagged pii=true, values replaced with ANONYMISED_STRING. Never dropped. Zero permitted purposes for agent consumption."
     implementation_phase: Foundation
     dictionary_fields_required: [pii, masked_as]
     violation_code: WARN_P1
@@ -17,35 +97,39 @@ principles:
     principle_interactions: [P16, P18]
 
   - id: P2
-    name: "Dual Naming — Friendly for Humans, Agent_Name for Agents"
-    summary: "Every field has raw_name (sealed), friendly_name (human), agent_name (agents). Agents never see raw or friendly."
+    agent_name: "triple_name_raw_friendly_agent"
+    name: "Dual Naming — Human Name, Agentic Name, Source Hash"
+    summary: "Every table and field has human name (plain English), agentic name (initials), source hash (HMAC-SHA256 of original — generated outside system only). Agents never see original names or hashes."
     implementation_phase: Foundation
-    dictionary_fields_required: [raw_name, friendly_name, agent_name]
+    dictionary_fields_required: [human_name, agentic_name, source_hash]
     violation_code: WARN_P2
     regulatory_refs: []
     principle_interactions: [P3, P11]
 
   - id: P3
+    agent_name: "dict_human_gold_agent_context"
     name: "Two Dictionaries — Human Gold vs Agentic Context"
-    summary: "Human dictionary: curated gold fields, friendly names. Agentic dictionary: all fields, context-rich, agent names only. Generated from single master source."
+    summary: "Human dictionary: gold fields only, human names, signed off by business owners. Agentic dictionary: all fields, agentic names, enriched with context, journey relevance, permitted purposes, quality tier, freshness, versioning, fairness metadata. Both generated from one master source."
     implementation_phase: Foundation
-    dictionary_fields_required: [is_gold, context, journey_relevance]
+    dictionary_fields_required: [is_gold, context, journey_relevance, permitted_purposes]
     violation_code: WARN_P3
     regulatory_refs: []
     principle_interactions: [P11, P12]
 
   - id: P4
-    name: "Raw Names Are Sealed — Never Surfaced"
-    summary: "Source system column names stored for traceability only. Never in dashboards, logs, agent prompts, or any output. Access requires governance approval and is always logged."
+    agent_name: "raw_name_sealed_never_surface"
+    name: "Original Names Are Sealed — Never Surfaced"
+    summary: "Original table and field names never enter the system. HMAC-SHA256 hash stored in master dictionary only. Never in human dictionary, agentic dictionary, code, logs, prompts, or outputs. Hash generated outside codebase by original system only."
     implementation_phase: Foundation
-    dictionary_fields_required: [sealed]
+    dictionary_fields_required: [source_hash, hash_algorithm, hash_generated_outside_codebase]
     violation_code: WARN_P4
     regulatory_refs: []
     principle_interactions: [P11, P16]
 
   - id: P5
+    agent_name: "client_identity_sealed_taq_only"
     name: "Client Identity Is Sealed — TAQ Bank Is the Sponsor"
-    summary: "TAQ Bank is the named sponsor. All other client names sealed. Tenant IDs used internally. Agent outputs reference TAQ Bank only."
+    summary: "TAQ Bank is the named sponsor and only organisational name that surfaces. All other client names replaced with safe equivalents from Substitution Registry. Original client names never stored. Substitution Registry stores safe equivalents only."
     implementation_phase: Foundation
     dictionary_fields_required: []
     violation_code: WARN_P5
@@ -53,26 +137,29 @@ principles:
     principle_interactions: [P12, P11]
 
   - id: P6
+    agent_name: "data_observability_accuracy_rectify"
     name: "Data Observability, Accuracy, and Rectification"
-    summary: "Every field tracks freshness, quality, lineage, usage. Personal and decision data must be accurate and correctable. Rectification workflow with named owner and SLA."
+    summary: "Every field tracks freshness, quality, lineage, usage. Personal and decision data must be accurate and correctable. Rectification workflow with named owner and SLA. Demographic parity sampling for bias detection."
     implementation_phase: Foundation
-    dictionary_fields_required: [freshness, quality_tier, lineage, usage]
+    dictionary_fields_required: [freshness_requirement, quality_tier, lineage, usage]
     violation_code: WARN_P6
     regulatory_refs: [GDPR_Art5, UK_GDPR]
     principle_interactions: [P13, P14, P18, P20, P21]
 
   - id: P7
+    agent_name: "human_loop_audit_escalate_override"
     name: "Human-in-the-Loop Must Be Instrumented"
-    summary: "Every human-approval decision is auditable, escalatable, overridable. Confidence below 0.6 triggers pause and notify. Overrides logged and fed back."
+    summary: "Every human-approval decision is auditable, escalatable, overridable. Confidence below 0.6 triggers pause and notify. Overrides logged and fed back. No fully automated customer-outcome decisions."
     implementation_phase: Foundation
     dictionary_fields_required: []
     violation_code: WARN_P7
-    regulatory_refs: [FCA, EU_AI_Act]
+    regulatory_refs: [FCA, EU_AI_Act, UK_GDPR_Art22]
     principle_interactions: [P11, P13, P14, P21]
 
   - id: P8
+    agent_name: "agent_memory_persist_and_learn"
     name: "Knowledge Persistence Enables Learning"
-    summary: "Agents have persistent memory via RAG. Past queries, failure modes, interpretation mistakes accumulated in knowledge_base.yaml."
+    summary: "Agents have persistent memory via RAG. Past queries, failure modes, interpretation mistakes accumulated in knowledge_base.yaml. Institutional memory survives personnel changes."
     implementation_phase: Foundation
     dictionary_fields_required: []
     violation_code: WARN_P8
@@ -80,8 +167,9 @@ principles:
     principle_interactions: [P12, P9, P14]
 
   - id: P9
+    agent_name: "field_version_history_aware"
     name: "Semantic Versioning and Schema Compatibility"
-    summary: "Every field versioned with effective_start and effective_end. Historical analysis uses dictionary version active at data date. Breaking changes require migration plan."
+    summary: "Every field versioned with effective_start and effective_end. Historical analysis uses dictionary version active at data date. Breaking changes require migration plan. Deprecated fields accessible for defined grace period."
     implementation_phase: Foundation
     dictionary_fields_required: [versions, effective_start, effective_end]
     violation_code: WARN_P9
@@ -89,8 +177,9 @@ principles:
     principle_interactions: [P14, P18]
 
   - id: P10
+    agent_name: "purpose_bound_least_privilege"
     name: "Purpose Limitation and Right to Forget"
-    summary: "Every agentic query carries purpose_id. Each field has permitted_purposes. Agents access only fields matching their declared purpose."
+    summary: "Every agentic query carries purpose_id. Each field has permitted_purposes list. Agents access only fields matching declared purpose. Fields not listed are invisible to agents for that purpose. Implements GDPR data minimisation at field level."
     implementation_phase: Foundation
     dictionary_fields_required: [permitted_purposes]
     violation_code: WARN_P10
@@ -98,8 +187,9 @@ principles:
     principle_interactions: [P16, P15, P18]
 
   - id: P11
+    agent_name: "agent_identity_lifecycle_accountable"
     name: "Agent Identity, Lifecycle Sovereignty, and Human Accountability"
-    summary: "Every agent has agent_uuid, tenant_binding, risk_tier. Lifecycle: Design->Staged->Deployed->Suspended->Decommissioned. Named human owner per agent class."
+    summary: "Every agent has agent_uuid, tenant_binding, risk_tier. Lifecycle: Design to Staged to Deployed to Suspended to Decommissioned. Named human owner per agent class. AI literacy records maintained per EU AI Act."
     implementation_phase: Foundation
     dictionary_fields_required: []
     violation_code: WARN_P11
@@ -107,8 +197,9 @@ principles:
     principle_interactions: [P12, P13, P14, P15, P17, P19, P21]
 
   - id: P12
+    agent_name: "memory_tenant_isolated_wipe_on_move"
     name: "Agent Memory Compartmentalisation"
-    summary: "Agent memory cryptographically segmented by tenant_id. Certified Memory Wipe on tenant transition. Continuous scanning for data echoes."
+    summary: "Agent memory cryptographically segmented by tenant_id. Certified Memory Wipe on tenant transition — cryptographic proof logged to Agent Registry. Continuous scanning for data echoes."
     implementation_phase: Foundation
     dictionary_fields_required: []
     violation_code: WARN_P12
@@ -116,8 +207,9 @@ principles:
     principle_interactions: [P5, P8, P11]
 
   - id: P13
+    agent_name: "adversarial_guard_redteam_circuit"
     name: "Adversarial Resilience and Red Teaming"
-    summary: "Guardian Agent Layer monitors for prompt injection, tool poisoning, confidence degradation. Red team runs continuously in shadow mode. Circuit breaker suspends on threshold breach."
+    summary: "Guardian Agent Layer monitors for prompt injection, tool poisoning, confidence degradation, jailbreak patterns. Red team runs continuously in shadow mode. Circuit breaker suspends on threshold breach."
     implementation_phase: Resilience
     dictionary_fields_required: []
     violation_code: WARN_P13
@@ -125,8 +217,9 @@ principles:
     principle_interactions: [P7, P14, P20, P21]
 
   - id: P14
+    agent_name: "decision_glass_box_tamper_evident"
     name: "Decision Provenance and Model Lineage"
-    summary: "Every agentic decision generates immutable provenance record. Glass box: model snapshot, prompt template, retrieved context, tool invocations, confidence trajectory. Tamper-evident, 7-year retention."
+    summary: "Every agentic decision generates immutable provenance record. Model snapshot, prompt template, retrieved context, tool invocations, confidence trajectory, human interactions, fairness metrics. Tamper-evident, 7-year retention. Dual output: machine-readable hash and natural language decision narrative."
     implementation_phase: Foundation
     dictionary_fields_required: []
     violation_code: WARN_P14
@@ -134,8 +227,9 @@ principles:
     principle_interactions: [P6, P7, P8, P11, P13, P15, P16, P18, P19, P20, P21]
 
   - id: P15
+    agent_name: "agent_handoff_authenticated_logged"
     name: "Inter-Agent Contract and Authentication"
-    summary: "All inter-agent communication requires mutual TLS with agent_uuid attestation. Capability contracts published to registry. Topology pre-declared. Handoffs logged with lineage."
+    summary: "All inter-agent communication requires mutual TLS with agent_uuid attestation. Capability contracts published to registry. Topology pre-declared. Handoffs logged with lineage and purpose verification."
     implementation_phase: Resilience
     dictionary_fields_required: []
     violation_code: WARN_P15
@@ -143,8 +237,9 @@ principles:
     principle_interactions: [P10, P14, P11]
 
   - id: P16
+    agent_name: "consent_realtime_minimise_on_withdraw"
     name: "Dynamic Consent and Automated Data Minimisation"
-    summary: "Real-time consent registry. Agents check consent before every query. If withdrawn mid-journey, PII processing ceases immediately and intermediate computations purged."
+    summary: "Real-time consent registry. Agents check consent before every query. If withdrawn mid-journey, PII processing ceases immediately and intermediate computations purged. Cross-border consent arbitration via geofenced processing rules."
     implementation_phase: Differentiation
     dictionary_fields_required: [consent_required, consent_scope]
     violation_code: WARN_P16
@@ -152,8 +247,9 @@ principles:
     principle_interactions: [P1, P10, P14, P18]
 
   - id: P17
+    agent_name: "validate_independent_tevv_fallback"
     name: "Independent Validation, TEVV, and Safe Fallback"
-    summary: "No agent moves Staged->Deployed without independent validation proportionate to risk tier. Material changes trigger revalidation. Pre-approved fallback or kill switch mandatory for Tier 2 and Tier 3."
+    summary: "No agent moves Staged to Deployed without independent validation proportionate to risk tier. Material changes trigger revalidation. Pre-approved fallback or kill switch mandatory for Tier 2 and Tier 3. TEVV documented for each deployment."
     implementation_phase: Resilience
     dictionary_fields_required: []
     violation_code: WARN_P17
@@ -161,8 +257,9 @@ principles:
     principle_interactions: [P11, P19, P14, P21]
 
   - id: P18
+    agent_name: "artifact_retain_delete_hold"
     name: "Retention, Deletion, Legal Hold, and Evidence Schedule"
-    summary: "Every artifact carries retention class, deletion rule, legal-hold status, accountable owner. Deletion events are themselves auditable."
+    summary: "Every artifact carries retention class, deletion rule, legal-hold status, accountable owner. Deletion events are themselves auditable. Data not needed for declared purpose deleted on schedule unless regulatory retention or litigation hold applies."
     implementation_phase: Foundation
     dictionary_fields_required: [retention_class, deletion_rule, legal_hold]
     violation_code: WARN_P18
@@ -170,8 +267,9 @@ principles:
     principle_interactions: [P1, P3, P6, P9, P10, P11, P14, P16]
 
   - id: P19
+    agent_name: "vendor_sbom_registered_exit_ready"
     name: "Third-Party, Vendor, and Open-Source Supply Chain Governance"
-    summary: "No external model, tool, package, or API in production without SBOM registration: provenance, data-use restrictions, SLA, assurance evidence, exit strategy."
+    summary: "No external model, tool, package, or API in production without SBOM registration: provenance, data-use restrictions, residency constraints, SLA, assurance evidence, exit strategy. Vendor changes treated as change events subject to risk assessment."
     implementation_phase: Resilience
     dictionary_fields_required: []
     violation_code: WARN_P19
@@ -179,8 +277,9 @@ principles:
     principle_interactions: [P11, P14, P17]
 
   - id: P20
+    agent_name: "outcome_harm_monitor_circuit_break"
     name: "Customer Outcome Guardrails and Foreseeable Harm Monitoring"
-    summary: "Continuous monitoring for comprehension failure, support failure, poor-outcome signals. Threshold breaches trigger pause, rollback, or human escalation. FCA Consumer Duty compliance."
+    summary: "Continuous monitoring for comprehension failure, support failure, poor-outcome signals. Threshold breaches trigger pause, rollback, or human escalation. FCA Consumer Duty compliance. Do Not Break list is first-class governance artifact."
     implementation_phase: Differentiation
     dictionary_fields_required: []
     violation_code: WARN_P20
@@ -188,8 +287,9 @@ principles:
     principle_interactions: [P6, P7, P13, P14, P15, P16, P21]
 
   - id: P21
+    agent_name: "fairness_protected_chars_mandatory"
     name: "Fairness, Equity, and Bias-Mitigation Guardrails"
-    summary: "Every agent influencing customer journeys computes fairness metrics across Equality Act 2010 protected characteristics. Metrics mandatory in provenance records. Threshold breaches auto-escalate."
+    summary: "Every agent influencing customer journeys computes fairness metrics across Equality Act 2010 protected characteristics. Metrics mandatory in provenance records. Threshold breaches auto-escalate via Guardian Agent Layer."
     implementation_phase: Resilience
     dictionary_fields_required: [fairness_metadata]
     violation_code: WARN_P21
@@ -198,17 +298,108 @@ principles:
 
 violation_framework:
   policy: WARN_NOT_FAIL
-  description: "Principle violations never block builds. They emit structured warnings, log to audit, and notify owners."
+  description: >
+    Principle violations never block builds. They emit structured warnings,
+    log permanently to provenance system, notify responsible owner. Must be
+    resolved or formally overridden with documented governance approval before
+    next release. No third option.
   severity_levels:
     WARN_P:
       description: "Principle warning — field or artifact violates a principle"
       action: "Log + flag in observability dashboard"
       blocks_build: false
+      expires: false
+      resolution_required_before: "next_release"
     ESCALATE_P:
       description: "Human must review before next run"
       action: "Notify named owner + pause that component only"
       blocks_build: false
+      expires: false
+      resolution_required_before: "next_release"
     AUDIT_P:
       description: "Permanent audit event generated"
-      action: "Log to provenance system (P14). No further action required."
+      action: "Log to provenance system P14. No further action required."
       blocks_build: false
+      expires: false
+
+regulatory_open_items:
+  - id: REG-001
+    description: "Register formal DPIA with data protection function"
+    severity: CRITICAL
+    status: OPEN
+    blocking: "Live customer data processing"
+    owner: TBD
+  - id: REG-002
+    description: "Complete audit of Customer_Profile_Dim — special category data question cannot be answered until complete"
+    severity: CRITICAL
+    status: OPEN
+    blocking: "DPIA Q3 completion"
+    owner: TBD
+    table: CPD
+  - id: REG-003
+    description: "Publish formal vulnerability data processing statement as governed artifact"
+    severity: HIGH
+    status: OPEN
+    blocking: "Live customer data processing"
+    owner: TBD
+  - id: REG-004
+    description: "Publish explicit customer rights statement covering right to contest automated decisions. Document legal basis for each new derived field type."
+    severity: HIGH
+    status: OPEN
+    blocking: "Live customer data processing"
+    owner: TBD
+
+three_layer_governance:
+  layer_1_marker_library:
+    description: "One row per marker only. Master catalogue of all governance markers."
+    primary_owner: "Data Governance Lead"
+    mandatory_reviewers: ["Privacy Lead", "AI Governance Lead", "Architecture Lead"]
+    review_cycle: "Quarterly scheduled + event-driven"
+    annual_attestation: true
+    status: PENDING_BUILD
+
+  layer_2_applicability_profiles:
+    description: "One row per table type. Default governance decisions by profile."
+    profiles:
+      - raw_event_table
+      - session_table
+      - dimension_table
+      - reference_table
+      - output_table
+      - pii_table
+      - cross_border_table
+    decision_basis_options:
+      - Client Directed
+      - Policy Required
+      - Standard Default
+      - Governance Assessed
+    taq_bank_signoff_required_for:
+      - business risk appetite decisions
+      - exceptions to agreed defaults
+      - high-risk use cases
+      - customer-impacting overrides
+      - material scope changes
+    status: PENDING_BUILD
+
+  layer_3_table_exceptions_register:
+    description: "Used only when a specific table departs from its profile."
+    expected_volume: LOW
+    high_volume_signal: "Profiles need updating, not exceptions proliferating"
+    status: PENDING_BUILD
+
+reassessment_triggers:
+  event_driven:
+    - new constitutional principle adopted
+    - regulation changes
+    - new data source or field class appears
+    - PII newly discovered in a table
+    - purpose identifier changes
+    - table changes type or grain
+    - table becomes customer-facing or decision-influencing
+    - cross-border processing introduced
+    - risk tier increases
+    - data quality issue crosses defined threshold
+    - incident or near-miss or override trend or audit finding
+  scheduled:
+    - quarterly: Marker Library and profiles review
+    - annual: Full attestation of all inherited defaults
