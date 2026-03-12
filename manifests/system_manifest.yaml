@@ -29,6 +29,33 @@ adoption_hooks:
   slack_webhook: "LATENT — configure at KAN-103"
   teams_channel: "LATENT — configure at KAN-103"
 
+governance_principles:
+  total: 21
+  violation_policy: "WARN_NOT_FAIL — violations emit WARN_P codes, never block builds"
+  file: "manifests/governance_principles.yaml"
+  principles:
+    P1: "PII recorded, masked, never ignored"
+    P2: "Triple naming — raw (sealed), friendly (human), agent_name (agents)"
+    P3: "Two dictionaries — human gold, agentic context — from one master source"
+    P4: "Raw names sealed — stored for traceability, never surfaced at any price"
+    P5: "Client identity sealed — TAQ Bank is sponsor, all other client names sealed"
+    P6: "Observability — freshness, quality, lineage, usage tracked per field"
+    P7: "Human-in-the-loop instrumented — auditable, escalatable, overridable"
+    P8: "Knowledge persistence — agents learn, institutional memory survives"
+    P9: "Semantic versioning — field meanings versioned, historical analysis uses correct version"
+    P10: "Purpose limitation — agents access only fields permitted for their declared purpose"
+    P11: "Agent identity and lifecycle — sovereign identity, governed lifecycle, named human owner"
+    P12: "Memory compartmentalisation — tenant isolation, certified memory wipe on transition"
+    P13: "Adversarial resilience — Guardian Agent Layer, red teaming, circuit breakers"
+    P14: "Decision provenance — glass box, tamper-evident, 7-year retention"
+    P15: "Inter-agent contracts — authenticated, topology declared, handoffs logged"
+    P16: "Dynamic consent — real-time consent registry, field filtering, cross-border arbitration"
+    P17: "Independent validation and TEVV — staged to deployed gate, fallback tested"
+    P18: "Retention and legal hold — every artifact has retention class and deletion rule"
+    P19: "Third-party supply chain — SBOM, vendor registry, exit strategy"
+    P20: "Customer outcome guardrails — foreseeable harm monitoring, circuit breakers"
+    P21: "Fairness and bias mitigation — protected characteristics, fairness metrics mandatory"
+
 # ============================================================
 # SPRINT 1: Foundation, Manifest Model & Audit (Days 1-7)
 # ============================================================
@@ -86,7 +113,7 @@ components:
     traceability: "Programme principle: Manifest is source of truth from Day 1"
 
   - id: KAN-11
-    name: "Create TABLE_CONFIG — all source table names as config"
+    name: "Living Data Dictionary — Constitutional Foundation"
     sprint: 1
     days: "1-7"
     type: "Deployment Config"
@@ -99,14 +126,16 @@ components:
     gitlab_branch: "feature/KAN-11-table-config"
     manifest_path: "manifests/KAN-011_table_config_manifest.md"
     gitlab_path: "config/table_config.yaml"
-    purpose: "Zero hardcoded table names anywhere in codebase. Every pipeline reads from TABLE_CONFIG."
+    purpose: "Single source of truth for all tables, fields, and data contracts. Generates data_dictionary_human.yaml (curated gold, human-readable) and data_dictionary_agentic.yaml (context-rich, agent-consumable). Governed by 21 constitutional principles."
     inputs:
       - "KAN-10 (repo must exist)"
     outputs:
-      - "config/table_config.yaml"
+      - "manifests/data_dictionary_master.yaml"
+      - "manifests/data_dictionary_human.yaml"
+      - "manifests/data_dictionary_agentic.yaml"
     dependencies: ["KAN-10"]
     acceptance_criteria:
-      - "config/table_config.yaml with keys for MA_D, SE, OPS_CD, CC_D, CUST_DIM"
+      - "manifests/data_dictionary_master.yaml — single source of truth for all fields"
       - "Output tables: MA_S, daily_journey_mart, voice_evidence_fact, governance_run_fact"
       - "Every pipeline reads table names from this config"
       - "grep -r for hardcoded table names returns zero results outside this file"
@@ -131,6 +160,36 @@ components:
           destination: "config/table_config.yaml"
       breaking_change_protocol: "Any table rename requires update to TABLE_CONFIG and full grep audit"
     traceability: "Programme principle: Build for future agents — all config machine-readable YAML"
+
+  - id: data_dictionary_master
+    name: "Master Data Dictionary"
+    file: "manifests/data_dictionary_master.yaml"
+    status: "IN_PROGRESS"
+    description: "Single source of truth. Never read directly by humans or agents."
+    principle_refs: [P1, P2, P3, P4, P5, P9, P10, P18]
+
+  - id: data_dictionary_human
+    name: "Human Data Dictionary"
+    file: "manifests/data_dictionary_human.yaml"
+    status: "IN_PROGRESS"
+    description: "Curated gold fields only. Friendly names. Signed off by business owner."
+    audience: human
+    principle_refs: [P2, P3, P4]
+
+  - id: data_dictionary_agentic
+    name: "Agentic Data Dictionary"
+    file: "manifests/data_dictionary_agentic.yaml"
+    status: "IN_PROGRESS"
+    description: "All fields. Agent names only. Enriched with context, observability, purpose, consent, versioning, fairness metadata."
+    audience: agent
+    principle_refs: [P2, P3, P6, P8, P9, P10, P16, P21]
+
+  - id: governance_principles
+    name: "Governance Principles"
+    file: "manifests/governance_principles.yaml"
+    status: "IN_PROGRESS"
+    description: "21 constitutional principles. Machine-readable. Referenced by all manifests."
+    principle_refs: [P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18, P19, P20, P21]
 
   - id: KAN-12
     name: "Set up local Docker environment"
