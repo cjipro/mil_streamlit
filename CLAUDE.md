@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Sprint Status
 
-Sprint 1 — 8 tickets BUILT:
+Sprint 1 — 8 tickets BUILT, 1 IN_PROGRESS:
 - KAN-10: GitLab repo (BUILT)
 - KAN-17: system_manifest.yaml (BUILT, commit 377a4be)
 - KAN-19: telemetry_spec.yaml (BUILT, commit 021a8a9)
@@ -35,9 +35,16 @@ Sprint 1 — 8 tickets BUILT:
 - KAN-13: audit_findings.yaml (BUILT, commit fe492e2)
 - KAN-18: build_from_manifest.py (BUILT, commit bb47a21)
 - KAN-12: Docker environment (BUILT)
+- KAN-011: Living Data Dictionary (IN_PROGRESS — tracks 1A–1D complete, awaiting master dict population)
 
-**In progress:** KAN-011 — Living Data Dictionary (constitutional foundation, tracks 1A–1D)
+**In progress:** KAN-011 — Tracks 1A–1D complete. Awaiting Track 2 (human provides raw table records).
 **Next after KAN-011:** KAN-16 — Create all Jira tickets
+
+KAN-011 tracks complete (2026-03-12):
+- Track 1A: system_manifest.yaml — KAN-011 updated, 4 components added, 21 principles registered (commit 8c5b904)
+- Track 1B: CLAUDE.md — KAN-011 redefined, 21 principles embedded, warn-not-fail rule (commit f7d636c)
+- Track 1C: manifests/governance_principles.yaml — 21 constitutional principles created (commit eace6c5)
+- Track 1D: scripts/validate_principles.py + validate_KAN-011.py — PASS 6/6, 0 warnings (commit cf0d7fb)
 
 Manifest hardening complete (2026-03-12):
 - KAN-01G: permitted_storage_targets added, Tier 5 LOCKED_PHASE_2
@@ -50,7 +57,7 @@ Manifest hardening complete (2026-03-12):
 
 | File | Purpose |
 |------|---------|
-| `manifests/system_manifest.yaml` | 73+ components, source of truth |
+| `manifests/system_manifest.yaml` | 77 components, source of truth |
 | `manifests/telemetry_spec.yaml` | Error spec — all pipelines must use |
 | `manifests/graduated_trust_tiers.yaml` | Trust model, `law_for: narrative-agent, governance-agent` |
 | `manifests/hypothesis_library.yaml` | 23 hypotheses — 16 APPROVED, 7 PENDING |
