@@ -38,6 +38,13 @@ Sprint 1 — 8 tickets BUILT:
 
 **Next ticket:** KAN-16 — Create all Jira tickets
 
+Manifest hardening complete (2026-03-12):
+- KAN-01G: permitted_storage_targets added, Tier 5 LOCKED_PHASE_2
+- KAN-041: edge_aware_sampling recovery pattern added
+- contracts/ma_d.yaml: KAN-020 skeleton created, write_inhibit=true
+- adoption_hooks: Slack/Teams placeholders added to global schema
+- Infrastructure reality: Databricks onboarding, Snowflake live, ClickHouse POC
+
 ## Key Manifests
 
 | File | Purpose |
