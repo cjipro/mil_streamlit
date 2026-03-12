@@ -1,0 +1,331 @@
+---
+schema_version: "2.0"
+created: "2026-03-12"
+sponsor: "TAQ Bank"
+classification: "MASTER SOURCE — never read directly by humans or agents"
+generated_outputs:
+  - manifests/data_dictionary_human.yaml
+  - manifests/data_dictionary_agentic.yaml
+governance_ref: manifests/governance_principles.yaml
+strategy_ref: manifests/data_strategy_v2.md
+
+mandatory_core_fields:
+  description: "These fields must appear in every table contract regardless of type"
+  fields:
+    - table_purpose
+    - business_owner
+    - technical_owner
+    - grain
+    - keys
+    - source_hash
+    - hash_algorithm
+    - data_classification
+    - permitted_purposes
+    - freshness_sla
+    - quality_expectations
+    - retention_class
+    - contract_version
+
+conditional_fields:
+  description: "These fields appear only where materially relevant"
+  fields:
+    - pii_masking_rules
+    - consent_dependency
+    - cross_border_restrictions
+    - fairness_metadata
+    - scd_rules
+    - human_approval_gates
+    - write_back_controls
+    - customer_facing_output_controls
+    - actionability_rules
+    - special_legal_restrictions
+
+tables:
+
+  - human_name: "Mobile_App_Events_Raw"
+    agentic_name: "MAER"
+    type: "raw_source"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "1.0"
+    status: "AUDITED"
+    table_purpose: "Raw mobile app event log. Every user interaction captured from the mobile app. Primary source for journey intelligence, abandonment detection, and behavioural signal derivation."
+    grain: "One row per event fired"
+    business_owner: "TAQ Bank Data Engineering"
+    technical_owner: "TAQ Bank Data Engineering"
+    data_classification: "SENSITIVE"
+    mobile_channel_key: 10333002
+    estimated_volume: "330M sessions/month"
+    retention_class: "REGULATORY_7Y"
+    deletion_rule: "Anonymise after 7 years"
+    legal_hold: false
+    freshness_sla: "Real-time"
+    quality_expectations:
+      session_id_null_rate: 0.0
+      event_timestamp_null_rate: 0.0
+      operation_code_null_rate: 0.0
+    permitted_purposes:
+      - journey_analytics
+      - abandonment_detection
+      - behavioural_signals
+      - session_reconstruction
+      - cohort_analysis
+    principle_refs:
+      - pii_mask_never_ignore
+      - triple_name_raw_friendly_agent
+      - dict_human_gold_agent_context
+      - raw_name_sealed_never_surface
+      - data_observability_accuracy_rectify
+      - field_version_history_aware
+      - purpose_bound_least_privilege
+      - artifact_retain_delete_hold
+    audit_findings:
+      - finding_id: AF-001
+        description: "cust_id = -99 volume unknown at scale. Needs count query on recent partition."
+        severity: MEDIUM
+        status: FLAGGED
+        ticket: KAN-014
+      - finding_id: AF-002
+        description: "App version / experience cohort not found in MAER. app_type reflects brand not version. Blocks refresh vs legacy comparison."
+        severity: CRITICAL
+        status: OPEN
+        ticket: KAN-014
+      - finding_id: AF-003
+        description: "Native flag meaning in OCR unknown. Could be app experience identifier."
+        severity: MEDIUM
+        status: FLAGGED
+        ticket: KAN-014
+    fields: []  # Fields to be populated as data audit progresses
+
+  - human_name: "Mobile_App_Events_Ref"
+    agentic_name: "MAER_F"
+    type: "reference"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "1.0"
+    status: "AUDITED"
+    table_purpose: "Event dimension lookup. Maps event keys to human-readable event names and group names. Enriches MAER events via join on event_key."
+    grain: "One row per event definition"
+    business_owner: "TAQ Bank Data Engineering"
+    technical_owner: "TAQ Bank Data Engineering"
+    data_classification: "INTERNAL"
+    retention_class: "OPERATIONAL"
+    legal_hold: false
+    freshness_sla: "Daily"
+    permitted_purposes:
+      - journey_analytics
+      - session_reconstruction
+    principle_refs:
+      - raw_name_sealed_never_surface
+      - purpose_bound_least_privilege
+    fields: []  # Fields to be populated as data audit progresses
+
+  - human_name: "Operation_Codes_Ref"
+    agentic_name: "OCR"
+    type: "reference"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "1.0"
+    status: "AUDITED"
+    table_purpose: "Operation code reference. 465 known codes. Maps operation codes to step-level detail, feature classification, business area, and journey taxonomy. Primary journey classifier for CJI Pulse."
+    grain: "One row per operation code"
+    business_owner: "TAQ Bank Data Engineering"
+    technical_owner: "TAQ Bank Data Engineering"
+    data_classification: "INTERNAL"
+    retention_class: "OPERATIONAL"
+    legal_hold: false
+    freshness_sla: "Weekly"
+    primary_classifier: "feature_name"
+    total_known_codes: 465
+    permitted_purposes:
+      - journey_analytics
+      - session_reconstruction
+      - abandonment_detection
+    principle_refs:
+      - raw_name_sealed_never_surface
+      - purpose_bound_least_privilege
+    audit_findings:
+      - finding_id: AF-003
+        description: "Native flag meaning unknown. Could be app experience identifier."
+        severity: MEDIUM
+        status: FLAGGED
+        ticket: KAN-014
+    fields: []  # Fields to be populated as data audit progresses
+
+  - human_name: "Mobile_App_Events_Session"
+    agentic_name: "MAES"
+    type: "derived"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "1.0"
+    status: "REBUILD"
+    table_purpose: "Sessionised mobile app events. One row per session. Derived from MAER enriched by MAER_F and OCR. Core session spine for all CJI Pulse journey intelligence."
+    grain: "One row per session"
+    business_owner: "TAQ Bank Data Engineering"
+    technical_owner: "TAQ Bank Data Engineering"
+    data_classification: "SENSITIVE"
+    retention_class: "REGULATORY_7Y"
+    legal_hold: false
+    freshness_sla: "Daily"
+    source_tables: [MAER, MAER_F, OCR]
+    rebuild_note: "Must be rebuilt to include CJI Pulse required fields. Original pipeline logic used as reference only."
+    permitted_purposes:
+      - journey_analytics
+      - abandonment_detection
+      - behavioural_signals
+      - cohort_analysis
+    principle_refs:
+      - pii_mask_never_ignore
+      - raw_name_sealed_never_surface
+      - purpose_bound_least_privilege
+      - artifact_retain_delete_hold
+    fields: []  # Fields to be defined during rebuild
+
+  - human_name: "Mobile_App_Events_Session_Bucketed"
+    agentic_name: "MAESB"
+    type: "derived"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "DRAFT"
+    status: "REBUILD"
+    table_purpose: "Bucketed session data for cohort and performance band analysis. Derived from MAES. Rebuild required."
+    grain: "One row per session bucket"
+    business_owner: "TAQ Bank Data Engineering"
+    technical_owner: "TAQ Bank Data Engineering"
+    data_classification: "SENSITIVE"
+    retention_class: "REGULATORY_7Y"
+    legal_hold: false
+    freshness_sla: "Daily"
+    source_tables: [MAES]
+    permitted_purposes:
+      - cohort_analysis
+      - behavioural_signals
+    principle_refs:
+      - raw_name_sealed_never_surface
+      - purpose_bound_least_privilege
+    fields: []  # Fields to be defined during rebuild
+
+  - human_name: "Customer_Profile_Dim"
+    agentic_name: "CPD"
+    type: "dimension"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "DRAFT"
+    status: "PENDING_AUDIT"
+    table_purpose: "Customer demographics and profile data. PENDING AUDIT — structure and content unknown until audit complete."
+    grain: "TBC"
+    business_owner: "TBC"
+    technical_owner: "TBC"
+    data_classification: "SENSITIVE — PII LIKELY"
+    retention_class: "TBC"
+    legal_hold: false
+    freshness_sla: "TBC"
+    permitted_purposes: []
+    regulatory_note: "DPIA special category data question (Q3) cannot be answered until this table is audited. REG-002 open."
+    principle_refs:
+      - pii_mask_never_ignore
+      - raw_name_sealed_never_surface
+      - fairness_protected_chars_mandatory
+    fields: []  # Unknown until audit complete
+
+  - human_name: "Call_Centre_Events_Raw"
+    agentic_name: "CCER"
+    type: "raw_source"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "DRAFT"
+    status: "PENDING"
+    table_purpose: "Call centre interaction data. Cross-channel leakage signal — customers who failed in app and called instead."
+    grain: "TBC"
+    business_owner: "TBC"
+    technical_owner: "TBC"
+    data_classification: "TBC"
+    retention_class: "TBC"
+    legal_hold: false
+    freshness_sla: "TBC"
+    permitted_purposes: []
+    fields: []
+
+  - human_name: "Branch_Visit_Events_Raw"
+    agentic_name: "BVER"
+    type: "raw_source"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "DRAFT"
+    status: "PENDING"
+    table_purpose: "Branch visit data. 48-hour cross-channel leakage signal."
+    grain: "TBC"
+    business_owner: "TBC"
+    technical_owner: "TBC"
+    data_classification: "TBC"
+    retention_class: "TBC"
+    legal_hold: false
+    freshness_sla: "TBC"
+    permitted_purposes: []
+    fields: []
+
+  - human_name: "Customer_Satisfaction_Raw"
+    agentic_name: "CSR"
+    type: "raw_source"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "DRAFT"
+    status: "PENDING"
+    table_purpose: "NPS and customer satisfaction data. Separate discussion required before audit."
+    grain: "TBC"
+    business_owner: "TBC"
+    technical_owner: "TBC"
+    data_classification: "TBC"
+    retention_class: "TBC"
+    legal_hold: false
+    freshness_sla: "TBC"
+    permitted_purposes: []
+    fields: []
+
+  - human_name: "Web_App_Events_Raw"
+    agentic_name: "WAER"
+    type: "raw_source"
+    source_hash: "HASH_PENDING_ORIGINAL"
+    hash_algorithm: "HMAC-SHA256"
+    hash_scope: "fully_qualified_table_name"
+    hash_generated_by: "original_system"
+    hash_generated_outside_codebase: true
+    contract_version: "DRAFT"
+    status: "DEFERRED"
+    table_purpose: "Web channel raw data. Separate ecosystem — different instrumentation, different grain, different pipeline. Audit deferred."
+    grain: "TBC"
+    business_owner: "TBC"
+    technical_owner: "TBC"
+    data_classification: "TBC"
+    retention_class: "TBC"
+    legal_hold: false
+    freshness_sla: "TBC"
+    permitted_purposes: []
+    fields: []
