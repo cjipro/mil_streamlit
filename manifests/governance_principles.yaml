@@ -1,0 +1,214 @@
+---
+schema_version: "1.0"
+created: "2026-03-12"
+sponsor: "TAQ Bank"
+classification: "CONSTITUTIONAL — immutable without governance override"
+total_principles: 21
+violation_policy: "WARN_NOT_FAIL — violations emit WARN_P codes, never block builds"
+
+principles:
+  - id: P1
+    name: "PII Is Recorded but Masked — Never Ignored"
+    summary: "Every PII field recorded with real name, flagged pii=true, values replaced with mask token. Never dropped."
+    implementation_phase: Foundation
+    dictionary_fields_required: [pii, masked_as]
+    violation_code: WARN_P1
+    regulatory_refs: [GDPR, UK_GDPR, CCPA]
+    principle_interactions: [P16, P18]
+
+  - id: P2
+    name: "Dual Naming — Friendly for Humans, Agent_Name for Agents"
+    summary: "Every field has raw_name (sealed), friendly_name (human), agent_name (agents). Agents never see raw or friendly."
+    implementation_phase: Foundation
+    dictionary_fields_required: [raw_name, friendly_name, agent_name]
+    violation_code: WARN_P2
+    regulatory_refs: []
+    principle_interactions: [P3, P11]
+
+  - id: P3
+    name: "Two Dictionaries — Human Gold vs Agentic Context"
+    summary: "Human dictionary: curated gold fields, friendly names. Agentic dictionary: all fields, context-rich, agent names only. Generated from single master source."
+    implementation_phase: Foundation
+    dictionary_fields_required: [is_gold, context, journey_relevance]
+    violation_code: WARN_P3
+    regulatory_refs: []
+    principle_interactions: [P11, P12]
+
+  - id: P4
+    name: "Raw Names Are Sealed — Never Surfaced"
+    summary: "Source system column names stored for traceability only. Never in dashboards, logs, agent prompts, or any output. Access requires governance approval and is always logged."
+    implementation_phase: Foundation
+    dictionary_fields_required: [sealed]
+    violation_code: WARN_P4
+    regulatory_refs: []
+    principle_interactions: [P11, P16]
+
+  - id: P5
+    name: "Client Identity Is Sealed — TAQ Bank Is the Sponsor"
+    summary: "TAQ Bank is the named sponsor. All other client names sealed. Tenant IDs used internally. Agent outputs reference TAQ Bank only."
+    implementation_phase: Foundation
+    dictionary_fields_required: []
+    violation_code: WARN_P5
+    regulatory_refs: []
+    principle_interactions: [P12, P11]
+
+  - id: P6
+    name: "Data Observability, Accuracy, and Rectification"
+    summary: "Every field tracks freshness, quality, lineage, usage. Personal and decision data must be accurate and correctable. Rectification workflow with named owner and SLA."
+    implementation_phase: Foundation
+    dictionary_fields_required: [freshness, quality_tier, lineage, usage]
+    violation_code: WARN_P6
+    regulatory_refs: [GDPR_Art5, UK_GDPR]
+    principle_interactions: [P13, P14, P18, P20, P21]
+
+  - id: P7
+    name: "Human-in-the-Loop Must Be Instrumented"
+    summary: "Every human-approval decision is auditable, escalatable, overridable. Confidence below 0.6 triggers pause and notify. Overrides logged and fed back."
+    implementation_phase: Foundation
+    dictionary_fields_required: []
+    violation_code: WARN_P7
+    regulatory_refs: [FCA, EU_AI_Act]
+    principle_interactions: [P11, P13, P14, P21]
+
+  - id: P8
+    name: "Knowledge Persistence Enables Learning"
+    summary: "Agents have persistent memory via RAG. Past queries, failure modes, interpretation mistakes accumulated in knowledge_base.yaml."
+    implementation_phase: Foundation
+    dictionary_fields_required: []
+    violation_code: WARN_P8
+    regulatory_refs: []
+    principle_interactions: [P12, P9, P14]
+
+  - id: P9
+    name: "Semantic Versioning and Schema Compatibility"
+    summary: "Every field versioned with effective_start and effective_end. Historical analysis uses dictionary version active at data date. Breaking changes require migration plan."
+    implementation_phase: Foundation
+    dictionary_fields_required: [versions, effective_start, effective_end]
+    violation_code: WARN_P9
+    regulatory_refs: []
+    principle_interactions: [P14, P18]
+
+  - id: P10
+    name: "Purpose Limitation and Right to Forget"
+    summary: "Every agentic query carries purpose_id. Each field has permitted_purposes. Agents access only fields matching their declared purpose."
+    implementation_phase: Foundation
+    dictionary_fields_required: [permitted_purposes]
+    violation_code: WARN_P10
+    regulatory_refs: [GDPR_Art5, UK_GDPR]
+    principle_interactions: [P16, P15, P18]
+
+  - id: P11
+    name: "Agent Identity, Lifecycle Sovereignty, and Human Accountability"
+    summary: "Every agent has agent_uuid, tenant_binding, risk_tier. Lifecycle: Design->Staged->Deployed->Suspended->Decommissioned. Named human owner per agent class."
+    implementation_phase: Foundation
+    dictionary_fields_required: []
+    violation_code: WARN_P11
+    regulatory_refs: [FCA, ECB, EU_AI_Act]
+    principle_interactions: [P12, P13, P14, P15, P17, P19, P21]
+
+  - id: P12
+    name: "Agent Memory Compartmentalisation"
+    summary: "Agent memory cryptographically segmented by tenant_id. Certified Memory Wipe on tenant transition. Continuous scanning for data echoes."
+    implementation_phase: Foundation
+    dictionary_fields_required: []
+    violation_code: WARN_P12
+    regulatory_refs: []
+    principle_interactions: [P5, P8, P11]
+
+  - id: P13
+    name: "Adversarial Resilience and Red Teaming"
+    summary: "Guardian Agent Layer monitors for prompt injection, tool poisoning, confidence degradation. Red team runs continuously in shadow mode. Circuit breaker suspends on threshold breach."
+    implementation_phase: Resilience
+    dictionary_fields_required: []
+    violation_code: WARN_P13
+    regulatory_refs: [EU_AI_Act, NIST_AI_RMF]
+    principle_interactions: [P7, P14, P20, P21]
+
+  - id: P14
+    name: "Decision Provenance and Model Lineage"
+    summary: "Every agentic decision generates immutable provenance record. Glass box: model snapshot, prompt template, retrieved context, tool invocations, confidence trajectory. Tamper-evident, 7-year retention."
+    implementation_phase: Foundation
+    dictionary_fields_required: []
+    violation_code: WARN_P14
+    regulatory_refs: [FCA, PRA_SS1_23]
+    principle_interactions: [P6, P7, P8, P11, P13, P15, P16, P18, P19, P20, P21]
+
+  - id: P15
+    name: "Inter-Agent Contract and Authentication"
+    summary: "All inter-agent communication requires mutual TLS with agent_uuid attestation. Capability contracts published to registry. Topology pre-declared. Handoffs logged with lineage."
+    implementation_phase: Resilience
+    dictionary_fields_required: []
+    violation_code: WARN_P15
+    regulatory_refs: []
+    principle_interactions: [P10, P14, P11]
+
+  - id: P16
+    name: "Dynamic Consent and Automated Data Minimisation"
+    summary: "Real-time consent registry. Agents check consent before every query. If withdrawn mid-journey, PII processing ceases immediately and intermediate computations purged."
+    implementation_phase: Differentiation
+    dictionary_fields_required: [consent_required, consent_scope]
+    violation_code: WARN_P16
+    regulatory_refs: [GDPR_Art5, UK_GDPR]
+    principle_interactions: [P1, P10, P14, P18]
+
+  - id: P17
+    name: "Independent Validation, TEVV, and Safe Fallback"
+    summary: "No agent moves Staged->Deployed without independent validation proportionate to risk tier. Material changes trigger revalidation. Pre-approved fallback or kill switch mandatory for Tier 2 and Tier 3."
+    implementation_phase: Resilience
+    dictionary_fields_required: []
+    violation_code: WARN_P17
+    regulatory_refs: [PRA_Model_Risk, NIST_GenAI]
+    principle_interactions: [P11, P19, P14, P21]
+
+  - id: P18
+    name: "Retention, Deletion, Legal Hold, and Evidence Schedule"
+    summary: "Every artifact carries retention class, deletion rule, legal-hold status, accountable owner. Deletion events are themselves auditable."
+    implementation_phase: Foundation
+    dictionary_fields_required: [retention_class, deletion_rule, legal_hold]
+    violation_code: WARN_P18
+    regulatory_refs: [UK_GDPR, NIST]
+    principle_interactions: [P1, P3, P6, P9, P10, P11, P14, P16]
+
+  - id: P19
+    name: "Third-Party, Vendor, and Open-Source Supply Chain Governance"
+    summary: "No external model, tool, package, or API in production without SBOM registration: provenance, data-use restrictions, SLA, assurance evidence, exit strategy."
+    implementation_phase: Resilience
+    dictionary_fields_required: []
+    violation_code: WARN_P19
+    regulatory_refs: [PRA_Model_Risk, NIST_GenAI]
+    principle_interactions: [P11, P14, P17]
+
+  - id: P20
+    name: "Customer Outcome Guardrails and Foreseeable Harm Monitoring"
+    summary: "Continuous monitoring for comprehension failure, support failure, poor-outcome signals. Threshold breaches trigger pause, rollback, or human escalation. FCA Consumer Duty compliance."
+    implementation_phase: Differentiation
+    dictionary_fields_required: []
+    violation_code: WARN_P20
+    regulatory_refs: [FCA_Consumer_Duty]
+    principle_interactions: [P6, P7, P13, P14, P15, P16, P21]
+
+  - id: P21
+    name: "Fairness, Equity, and Bias-Mitigation Guardrails"
+    summary: "Every agent influencing customer journeys computes fairness metrics across Equality Act 2010 protected characteristics. Metrics mandatory in provenance records. Threshold breaches auto-escalate."
+    implementation_phase: Resilience
+    dictionary_fields_required: [fairness_metadata]
+    violation_code: WARN_P21
+    regulatory_refs: [EU_AI_Act, FCA_Consumer_Duty, Equality_Act_2010]
+    principle_interactions: [P6, P7, P11, P13, P14, P17, P20]
+
+violation_framework:
+  policy: WARN_NOT_FAIL
+  description: "Principle violations never block builds. They emit structured warnings, log to audit, and notify owners."
+  severity_levels:
+    WARN_P:
+      description: "Principle warning — field or artifact violates a principle"
+      action: "Log + flag in observability dashboard"
+      blocks_build: false
+    ESCALATE_P:
+      description: "Human must review before next run"
+      action: "Notify named owner + pause that component only"
+      blocks_build: false
+    AUDIT_P:
+      description: "Permanent audit event generated"
+      action: "Log to provenance system (P14). No further action required."
+      blocks_build: false
