@@ -46,7 +46,8 @@ KAN-011 v2.0 tracks complete (2026-03-12):
 - Track C: data_dictionary_master.yaml — skeleton 10 tables, HASH_PENDING_ORIGINAL (commit 8fb05ed)
 - Track D: system_manifest.yaml — KAN-011 v2.0, 82 components, REG-001 to REG-004 (commit 6e0cf82)
 - Track E: CLAUDE.md — data strategy v2.0 embedded (this commit)
-- Track F: validate_KAN-011.py v2.0 — all checks passing (pending)
+- Track F: validate_KAN-011.py v2.0 — 16/16 PASS, 1 WARN_P4 informational (commit cce12bd)
+- Track G: system_manifest.yaml final sync + HANDOVER.md (this commit)
 
 Manifest hardening complete (2026-03-12):
 - KAN-01G: permitted_storage_targets added, Tier 5 LOCKED_PHASE_2
