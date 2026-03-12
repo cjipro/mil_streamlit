@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Sprint Status
 
-Sprint 1 — 7 tickets BUILT:
+Sprint 1 — 8 tickets BUILT:
 - KAN-10: GitLab repo (BUILT)
 - KAN-17: system_manifest.yaml (BUILT, commit 377a4be)
 - KAN-19: telemetry_spec.yaml (BUILT, commit 021a8a9)
@@ -34,8 +34,9 @@ Sprint 1 — 7 tickets BUILT:
 - KAN-1H: hypothesis_library.yaml (BUILT, commit dd89e32)
 - KAN-13: audit_findings.yaml (BUILT, commit fe492e2)
 - KAN-18: build_from_manifest.py (BUILT, commit bb47a21)
+- KAN-12: Docker environment (BUILT)
 
-**Next ticket:** KAN-12 — Docker environment (infrastructure already running, needs manifest update)
+**Next ticket:** KAN-16 — Create all Jira tickets
 
 ## Key Manifests
 
