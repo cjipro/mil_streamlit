@@ -113,7 +113,7 @@ components:
     traceability: "Programme principle: Manifest is source of truth from Day 1"
 
   - id: KAN-11
-    name: "Living Data Dictionary — Constitutional Foundation"
+    name: "Living Data Dictionary — Constitutional Foundation v2.0"
     sprint: 1
     days: "1-7"
     type: "Deployment Config"
@@ -121,15 +121,17 @@ components:
     status: "IN_PROGRESS"
     priority: P1
     estimated_effort_hours: 2
-    tool: "Cursor"
+    tool: "Claude Code"
     jira_id: ""
     gitlab_branch: "feature/KAN-11-table-config"
     manifest_path: "manifests/KAN-011_table_config_manifest.md"
-    gitlab_path: "config/table_config.yaml"
-    purpose: "Single source of truth for all tables, fields, and data contracts. Generates data_dictionary_human.yaml (curated gold, human-readable) and data_dictionary_agentic.yaml (context-rich, agent-consumable). Governed by 21 constitutional principles."
+    gitlab_path: "manifests/data_dictionary_master.yaml"
+    purpose: "Single source of truth for all tables and fields. Governed by 21 constitutional principles and Version 2.0 data strategy. Generates data_dictionary_human.yaml and data_dictionary_agentic.yaml. Three-layer governance model. HMAC-SHA256 hash strategy for original name protection. Full regulatory compliance framework including DPIA, vulnerability processing, automated decision rights."
     inputs:
       - "KAN-10 (repo must exist)"
     outputs:
+      - "manifests/data_strategy_v2.md"
+      - "manifests/governance_principles.yaml"
       - "manifests/data_dictionary_master.yaml"
       - "manifests/data_dictionary_human.yaml"
       - "manifests/data_dictionary_agentic.yaml"
@@ -139,7 +141,7 @@ components:
       - "Output tables: MA_S, daily_journey_mart, voice_evidence_fact, governance_run_fact"
       - "Every pipeline reads table names from this config"
       - "grep -r for hardcoded table names returns zero results outside this file"
-    validation_command: "python scripts/validate_KAN-011.py"
+    validation_command: "py scripts/validate_KAN-011.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_config"]
     recovery_patterns:
@@ -161,35 +163,75 @@ components:
       breaking_change_protocol: "Any table rename requires update to TABLE_CONFIG and full grep audit"
     traceability: "Programme principle: Build for future agents — all config machine-readable YAML"
 
+  - id: data_strategy_v2
+    name: "Data Strategy v2.0"
+    file: "manifests/data_strategy_v2.md"
+    status: "BUILT"
+    description: "Complete data strategy document. Three names per table, hash strategy, two dictionaries from one source, three-layer governance model, regulatory compliance framework."
+    principle_refs: [P1, P2, P3, P4, P5, P6, P7, P10, P14, P16, P18, P19, P20, P21]
+
+  - id: governance_principles
+    name: "Governance Principles"
+    file: "manifests/governance_principles.yaml"
+    status: "BUILT"
+    description: "21 constitutional principles v2.0. Machine-readable. Includes table registry, substitution registry, three-layer governance, regulatory open items."
+    principle_refs: [P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18, P19, P20, P21]
+
   - id: data_dictionary_master
     name: "Master Data Dictionary"
     file: "manifests/data_dictionary_master.yaml"
     status: "IN_PROGRESS"
-    description: "Single source of truth. Never read directly by humans or agents."
+    description: "Single source of truth. Never read directly by humans or agents. 10 tables. Fields to be populated as data audit progresses."
     principle_refs: [P1, P2, P3, P4, P5, P9, P10, P18]
 
   - id: data_dictionary_human
     name: "Human Data Dictionary"
     file: "manifests/data_dictionary_human.yaml"
-    status: "IN_PROGRESS"
-    description: "Curated gold fields only. Friendly names. Signed off by business owner."
+    status: "NOT_STARTED"
+    description: "Curated gold fields only. Human names. Signed off by business owner. Generated from master source."
     audience: human
     principle_refs: [P2, P3, P4]
 
   - id: data_dictionary_agentic
     name: "Agentic Data Dictionary"
     file: "manifests/data_dictionary_agentic.yaml"
-    status: "IN_PROGRESS"
-    description: "All fields. Agent names only. Enriched with context, observability, purpose, consent, versioning, fairness metadata."
+    status: "NOT_STARTED"
+    description: "All fields. Agent names only. Enriched with context, observability, purpose, consent, versioning, fairness metadata. Generated from master source."
     audience: agent
     principle_refs: [P2, P3, P6, P8, P9, P10, P16, P21]
 
-  - id: governance_principles
-    name: "Governance Principles"
-    file: "manifests/governance_principles.yaml"
-    status: "IN_PROGRESS"
-    description: "21 constitutional principles. Machine-readable. Referenced by all manifests."
-    principle_refs: [P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18, P19, P20, P21]
+  - id: REG-001
+    name: "Register DPIA"
+    type: "Regulatory"
+    status: "OPEN"
+    blocking: "live_customer_data_processing"
+    description: "Register formal DPIA with data protection function before CJI Pulse processes live customer data."
+    owner: "TBD"
+
+  - id: REG-002
+    name: "Audit Customer_Profile_Dim for special category data"
+    type: "Regulatory"
+    status: "OPEN"
+    blocking: "DPIA_Q3"
+    description: "Complete audit of Customer_Profile_Dim. DPIA special category data question cannot be answered until complete."
+    owner: "TBD"
+    table: "CPD"
+
+  - id: REG-003
+    name: "Publish vulnerability data processing statement"
+    type: "Regulatory"
+    status: "OPEN"
+    blocking: "live_customer_data_processing"
+    description: "Publish formal vulnerability data processing statement as a governed artifact."
+    owner: "TBD"
+
+  - id: REG-004
+    name: "Publish customer rights statement and legal basis for derived fields"
+    type: "Regulatory"
+    status: "OPEN"
+    blocking: "live_customer_data_processing"
+    description: "Publish explicit customer rights statement covering right to contest automated decisions. Document legal basis for each new derived field type."
+    owner: "TBD"
 
   - id: KAN-12
     name: "Set up local Docker environment"
