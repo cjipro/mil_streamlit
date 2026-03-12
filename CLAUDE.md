@@ -37,14 +37,16 @@ Sprint 1 — 8 tickets BUILT, 1 IN_PROGRESS:
 - KAN-12: Docker environment (BUILT)
 - KAN-011: Living Data Dictionary (IN_PROGRESS — tracks 1A–1D complete, awaiting master dict population)
 
-**In progress:** KAN-011 — Tracks 1A–1D complete. Awaiting Track 2 (human provides raw table records).
+**In progress:** KAN-011 v2.0 — Tracks A–E complete. Awaiting field population from human.
 **Next after KAN-011:** KAN-16 — Create all Jira tickets
 
-KAN-011 tracks complete (2026-03-12):
-- Track 1A: system_manifest.yaml — KAN-011 updated, 4 components added, 21 principles registered (commit 8c5b904)
-- Track 1B: CLAUDE.md — KAN-011 redefined, 21 principles embedded, warn-not-fail rule (commit f7d636c)
-- Track 1C: manifests/governance_principles.yaml — 21 constitutional principles created (commit eace6c5)
-- Track 1D: scripts/validate_principles.py + validate_KAN-011.py — PASS 6/6, 0 warnings (commit cf0d7fb)
+KAN-011 v2.0 tracks complete (2026-03-12):
+- Track A: data_strategy_v2.md — complete data strategy v2.0 (commit 846a306)
+- Track B: governance_principles.yaml v2.0 — 21 principles, table registry, substitution registry, 3-layer governance, 4 regulatory items (commit ba19e96)
+- Track C: data_dictionary_master.yaml — skeleton 10 tables, HASH_PENDING_ORIGINAL (commit 8fb05ed)
+- Track D: system_manifest.yaml — KAN-011 v2.0, 82 components, REG-001 to REG-004 (commit 6e0cf82)
+- Track E: CLAUDE.md — data strategy v2.0 embedded (this commit)
+- Track F: validate_KAN-011.py v2.0 — all checks passing (pending)
 
 Manifest hardening complete (2026-03-12):
 - KAN-01G: permitted_storage_targets added, Tier 5 LOCKED_PHASE_2
@@ -57,12 +59,13 @@ Manifest hardening complete (2026-03-12):
 
 | File | Purpose |
 |------|---------|
-| `manifests/system_manifest.yaml` | 77 components, source of truth |
+| `manifests/system_manifest.yaml` | 82 components, source of truth |
 | `manifests/telemetry_spec.yaml` | Error spec — all pipelines must use |
 | `manifests/graduated_trust_tiers.yaml` | Trust model, `law_for: narrative-agent, governance-agent` |
 | `manifests/hypothesis_library.yaml` | 23 hypotheses — 16 APPROVED, 7 PENDING |
-| `manifests/governance_principles.yaml` | 21 constitutional principles — WARN_NOT_FAIL framework |
-| `manifests/data_dictionary_master.yaml` | KAN-011 — Living Data Dictionary — constitutional foundation. Generates human + agentic dictionaries from single master source. Governed by 21 principles. |
+| `manifests/data_strategy_v2.md` | KAN-011 v2.0 — complete data strategy. Three names, hash strategy, two dictionaries, three-layer governance, regulatory framework. |
+| `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 — WARN_NOT_FAIL, table registry, substitution registry, REG-001–004 |
+| `manifests/data_dictionary_master.yaml` | KAN-011 — master source, 10 tables, HASH_PENDING_ORIGINAL, never read directly by humans or agents |
 
 ## Model Config
 
@@ -89,29 +92,29 @@ Manifest hardening complete (2026-03-12):
 6. One command to run everything: `python run_daily.py --date YYYY-MM-DD`
 7. AI is easy to demo. It is hard to ship. Day 90 is a shipping proof, not a demo.
 
-## Governance Principles (The 21)
+## Governance Principles (The 21) — agent_names
 
-P1: PII recorded, masked, never ignored
-P2: Triple naming — raw (sealed), friendly (human), agent_name (agents)
-P3: Two dictionaries — human gold, agentic context — from one master source
-P4: Raw names sealed — stored for traceability, never surfaced at any price
-P5: Client identity sealed — TAQ Bank is sponsor, all other client names sealed
-P6: Observability — freshness, quality, lineage, usage tracked per field
-P7: Human-in-the-loop instrumented — auditable, escalatable, overridable
-P8: Knowledge persistence — agents learn, institutional memory survives
-P9: Semantic versioning — field meanings versioned, historical analysis uses correct version
-P10: Purpose limitation — agents access only fields permitted for their declared purpose
-P11: Agent identity and lifecycle — sovereign identity, governed lifecycle, named human owner
-P12: Memory compartmentalisation — tenant isolation, certified memory wipe on transition
-P13: Adversarial resilience — Guardian Agent Layer, red teaming, circuit breakers
-P14: Decision provenance — glass box, tamper-evident, 7-year retention
-P15: Inter-agent contracts — authenticated, topology declared, handoffs logged
-P16: Dynamic consent — real-time consent registry, field filtering, cross-border arbitration
-P17: Independent validation and TEVV — staged to deployed gate, fallback tested
-P18: Retention and legal hold — every artifact has retention class and deletion rule
-P19: Third-party supply chain — SBOM, vendor registry, exit strategy
-P20: Customer outcome guardrails — foreseeable harm monitoring, circuit breakers
-P21: Fairness and bias mitigation — protected characteristics, fairness metrics mandatory
+P1:  pii_mask_never_ignore
+P2:  triple_name_raw_friendly_agent
+P3:  dict_human_gold_agent_context
+P4:  raw_name_sealed_never_surface
+P5:  client_identity_sealed_taq_only
+P6:  data_observability_accuracy_rectify
+P7:  human_loop_audit_escalate_override
+P8:  agent_memory_persist_and_learn
+P9:  field_version_history_aware
+P10: purpose_bound_least_privilege
+P11: agent_identity_lifecycle_accountable
+P12: memory_tenant_isolated_wipe_on_move
+P13: adversarial_guard_redteam_circuit
+P14: decision_glass_box_tamper_evident
+P15: agent_handoff_authenticated_logged
+P16: consent_realtime_minimise_on_withdraw
+P17: validate_independent_tevv_fallback
+P18: artifact_retain_delete_hold
+P19: vendor_sbom_registered_exit_ready
+P20: outcome_harm_monitor_circuit_break
+P21: fairness_protected_chars_mandatory
 
 ## Critical Rules
 
@@ -119,3 +122,37 @@ P21: Fairness and bias mitigation — protected characteristics, fairness metric
 - WARN_P codes emitted with principle reference, severity, and audit_logged flag
 - P4 — raw field names never printed, logged, or passed to any agent under any circumstance
 - P5 — TAQ Bank is the only client name that may appear in any output
+
+## Critical Rules — DATA STRATEGY v2.0
+
+- Original table and field names NEVER enter any file, log, prompt, or output.
+  Only HMAC-SHA256 hashes stored. Hashes generated outside codebase by
+  original system only. Never by Claude Code. Never by any script here.
+
+- Source hashes stored in data_dictionary_master.yaml ONLY. Never in human
+  dictionary, agentic dictionary, code, logs, prompts, dashboards, or reports.
+
+- Substitution registry is active and mandatory:
+  * Any reference to original client name → replace with Habib Bank
+  * Any reference to BMB → replace with APP
+  * Only TAQ Bank ever surfaces as organisational name
+
+- Principle violations are WARN not ERROR. Builds never fail on principle
+  checks. Violations logged permanently to provenance system. Must be resolved
+  or formally overridden before next release. No third option.
+
+- DPIA required before live customer data is processed. Four regulatory open
+  items (REG-001 through REG-004) tracked in system_manifest.yaml.
+
+- Table naming convention: human name (plain English) + agentic name (initials)
+  Raw: {Channel}_{Type}_Raw | Ref: {Domain}_Ref | Derived: {Channel}_{Type}_Session
+  Dim: {Domain}_Dim | Output: {Domain}_Output
+
+- Table contracts are intentionally lean. Mandatory core always present.
+  Conditional fields only where materially relevant. Nothing silently omitted —
+  non-applicable markers recorded in applicability register as Not Applicable.
+
+- Two dictionaries generated from one master source:
+  * data_dictionary_human.yaml — gold fields only, human names, no hashes
+  * data_dictionary_agentic.yaml — all fields, agentic names, context-rich
+  * data_dictionary_master.yaml — single source, never read directly
