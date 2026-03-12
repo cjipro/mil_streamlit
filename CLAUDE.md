@@ -36,7 +36,8 @@ Sprint 1 — 8 tickets BUILT:
 - KAN-18: build_from_manifest.py (BUILT, commit bb47a21)
 - KAN-12: Docker environment (BUILT)
 
-**Next ticket:** KAN-16 — Create all Jira tickets
+**In progress:** KAN-011 — Living Data Dictionary (constitutional foundation, tracks 1A–1D)
+**Next after KAN-011:** KAN-16 — Create all Jira tickets
 
 Manifest hardening complete (2026-03-12):
 - KAN-01G: permitted_storage_targets added, Tier 5 LOCKED_PHASE_2
@@ -49,10 +50,12 @@ Manifest hardening complete (2026-03-12):
 
 | File | Purpose |
 |------|---------|
-| `manifests/system_manifest.yaml` | 73 components, source of truth |
+| `manifests/system_manifest.yaml` | 73+ components, source of truth |
 | `manifests/telemetry_spec.yaml` | Error spec — all pipelines must use |
 | `manifests/graduated_trust_tiers.yaml` | Trust model, `law_for: narrative-agent, governance-agent` |
 | `manifests/hypothesis_library.yaml` | 23 hypotheses — 16 APPROVED, 7 PENDING |
+| `manifests/governance_principles.yaml` | 21 constitutional principles — WARN_NOT_FAIL framework |
+| `manifests/data_dictionary_master.yaml` | KAN-011 — Living Data Dictionary — constitutional foundation. Generates human + agentic dictionaries from single master source. Governed by 21 principles. |
 
 ## Model Config
 
@@ -78,3 +81,34 @@ Manifest hardening complete (2026-03-12):
 5. Build for future agents — all config machine-readable YAML
 6. One command to run everything: `python run_daily.py --date YYYY-MM-DD`
 7. AI is easy to demo. It is hard to ship. Day 90 is a shipping proof, not a demo.
+
+## Governance Principles (The 21)
+
+P1: PII recorded, masked, never ignored
+P2: Triple naming — raw (sealed), friendly (human), agent_name (agents)
+P3: Two dictionaries — human gold, agentic context — from one master source
+P4: Raw names sealed — stored for traceability, never surfaced at any price
+P5: Client identity sealed — TAQ Bank is sponsor, all other client names sealed
+P6: Observability — freshness, quality, lineage, usage tracked per field
+P7: Human-in-the-loop instrumented — auditable, escalatable, overridable
+P8: Knowledge persistence — agents learn, institutional memory survives
+P9: Semantic versioning — field meanings versioned, historical analysis uses correct version
+P10: Purpose limitation — agents access only fields permitted for their declared purpose
+P11: Agent identity and lifecycle — sovereign identity, governed lifecycle, named human owner
+P12: Memory compartmentalisation — tenant isolation, certified memory wipe on transition
+P13: Adversarial resilience — Guardian Agent Layer, red teaming, circuit breakers
+P14: Decision provenance — glass box, tamper-evident, 7-year retention
+P15: Inter-agent contracts — authenticated, topology declared, handoffs logged
+P16: Dynamic consent — real-time consent registry, field filtering, cross-border arbitration
+P17: Independent validation and TEVV — staged to deployed gate, fallback tested
+P18: Retention and legal hold — every artifact has retention class and deletion rule
+P19: Third-party supply chain — SBOM, vendor registry, exit strategy
+P20: Customer outcome guardrails — foreseeable harm monitoring, circuit breakers
+P21: Fairness and bias mitigation — protected characteristics, fairness metrics mandatory
+
+## Critical Rules
+
+- Principle violations are WARN not ERROR — builds never fail on principle checks
+- WARN_P codes emitted with principle reference, severity, and audit_logged flag
+- P4 — raw field names never printed, logged, or passed to any agent under any circumstance
+- P5 — TAQ Bank is the only client name that may appear in any output
