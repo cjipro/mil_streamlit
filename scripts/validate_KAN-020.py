@@ -1,6 +1,6 @@
 """
-validate_KAN-020.py — KAN-20 data contract validator
-Validates contracts/ma_d.yaml against KAN-20 acceptance criteria.
+validate_PULSE-20.py — PULSE-20 data contract validator
+Validates contracts/ma_d.yaml against PULSE-20 acceptance criteria.
 """
 import sys
 import yaml
@@ -21,7 +21,7 @@ def check(label, result, detail=""):
 
 def main():
     print()
-    print("validate_KAN-020.py — contracts/ma_d.yaml")
+    print("validate_PULSE-20.py — contracts/ma_d.yaml")
     print("=" * 50)
     print()
 
@@ -78,7 +78,7 @@ def main():
         print()
         sys.exit(1)
     else:
-        print("  RESULT: PASS — contracts/ma_d.yaml meets all KAN-20 acceptance criteria")
+        print("  RESULT: PASS — contracts/ma_d.yaml meets all PULSE-20 acceptance criteria")
         print()
         sys.exit(0)
 

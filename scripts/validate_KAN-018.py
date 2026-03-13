@@ -1,6 +1,6 @@
 """
-validate_KAN-018.py — validator for KAN-18 build_from_manifest.py
-Runs: py scripts/build_from_manifest.py --component KAN-013 --dry-run
+validate_PULSE-18.py — validator for PULSE-18 build_from_manifest.py
+Runs: py scripts/build_from_manifest.py --component PULSE-13 --dry-run
 Validates: exit code 0, output contains expected fields.
 """
 import subprocess
@@ -10,11 +10,11 @@ import sys
 def main():
     errors = []
 
-    print("validate_KAN-018.py — running build_from_manifest.py --component KAN-13 --dry-run")
+    print("validate_PULSE-18.py — running build_from_manifest.py --component PULSE-13 --dry-run")
     print()
 
     result = subprocess.run(
-        [sys.executable, "scripts/build_from_manifest.py", "--component", "KAN-13", "--dry-run"],
+        [sys.executable, "scripts/build_from_manifest.py", "--component", "PULSE-13", "--dry-run"],
         capture_output=True,
         text=True,
     )
@@ -37,11 +37,11 @@ def main():
     else:
         print("PASS: exit code 0")
 
-    # Check 2: KAN-013 appears in stdout
-    if "KAN-13" not in stdout:
-        errors.append("FAIL: 'KAN-13' not found in stdout")
+    # Check 2: PULSE-13 appears in stdout
+    if "PULSE-13" not in stdout:
+        errors.append("FAIL: 'PULSE-13' not found in stdout")
     else:
-        print("PASS: KAN-13 found in output")
+        print("PASS: PULSE-13 found in output")
 
     # Check 3: key fields present
     for field in ["Status", "Sprint", "GitLab Path", "DRY RUN"]:
@@ -63,7 +63,7 @@ def main():
             print(f"  {e}")
         sys.exit(1)
     else:
-        print("RESULT: PASS — validate_KAN-018.py all checks passed")
+        print("RESULT: PASS — validate_PULSE-18.py all checks passed")
         sys.exit(0)
 
 

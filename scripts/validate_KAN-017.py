@@ -1,8 +1,8 @@
 """
-validate_KAN-017.py
+validate_PULSE-17.py
 Validates system_manifest.yaml against the v5 schema.
 Every component must have all required fields.
-Run: python scripts/validate_KAN-017.py
+Run: python scripts/validate_PULSE-17.py
 """
 
 import yaml
@@ -34,9 +34,9 @@ VALID_SPRINTS = list(range(1, 14))
 
 # Tickets that should have prompt_breakdown (>4h complex tickets)
 COMPLEX_TICKET_IDS = [
-    "KAN-14", "KAN-17", "KAN-18", "KAN-23", "KAN-30", "KAN-40",
-    "KAN-42", "KAN-50", "KAN-61", "KAN-71", "KAN-74", "KAN-90",
-    "KAN-104"
+    "PULSE-14", "PULSE-17", "PULSE-18", "PULSE-23", "PULSE-30", "PULSE-40",
+    "PULSE-42", "PULSE-50", "PULSE-61", "PULSE-71", "PULSE-74", "PULSE-90",
+    "PULSE-104"
 ]
 
 DATA_CONTRACT_TYPES = ["Data Contract"]
@@ -44,7 +44,7 @@ DATA_CONTRACT_TYPES = ["Data Contract"]
 
 def validate_manifest(manifest_path: str) -> bool:
     print(f"\n{'='*60}")
-    print(f"CJI Pulse — validate_KAN-017.py")
+    print(f"CJI Pulse — validate_PULSE-17.py")
     print(f"Validating: {manifest_path}")
     print(f"{'='*60}\n")
 

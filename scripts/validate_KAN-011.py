@@ -1,5 +1,5 @@
 """
-validate_KAN-011.py — KAN-011 Living Data Dictionary v2.0 validator
+validate_PULSE-11.py — PULSE-11 Living Data Dictionary v2.0 validator
 
 Checks governance_principles.yaml v2.0 and data_dictionary_master.yaml.
 Exit code is ALWAYS 0 — builds never fail on principle checks.
@@ -52,7 +52,7 @@ def warn(code, message):
 def write_log():
     Path(LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
     with open(LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(f"\n--- validate_KAN-011.py v2.0 run: {datetime.now(timezone.utc).isoformat()} ---\n")
+        f.write(f"\n--- validate_PULSE-11.py v2.0 run: {datetime.now(timezone.utc).isoformat()} ---\n")
         if not WARNINGS:
             f.write("  No WARN_P codes raised.\n")
         else:
@@ -62,7 +62,7 @@ def write_log():
 
 def main():
     print()
-    print("validate_KAN-011.py v2.0 -- Living Data Dictionary validator")
+    print("validate_PULSE-11.py v2.0 -- Living Data Dictionary validator")
     print("=" * 62)
     print()
 
@@ -257,7 +257,7 @@ def main():
     print("  " + "-" * 58)
 
     if fails == 0 and not any(w["code"].startswith("WARN_P") and "PASS" not in w["message"] for w in WARNINGS):
-        print("  RESULT: PASS -- all KAN-011 v2.0 checks passed")
+        print("  RESULT: PASS -- all PULSE-11 v2.0 checks passed")
     else:
         print(f"  RESULT: PASS_WITH_WARNINGS -- {fails} check(s) failed or warnings raised")
         print(f"  See {LOG_PATH}")

@@ -8,7 +8,7 @@ description: >
 owner: "Hussain Ahmed"
 created: "2026-03-11"
 last_updated: "2026-03-11"
-manifest_reference: "manifests/system_manifest.yaml#KAN-19"
+manifest_reference: "manifests/system_manifest.yaml#PULSE-19"
 traceability: "Programme principle: Semantic telemetry on every failure"
 
 # ============================================================
@@ -133,7 +133,7 @@ fields:
       Path and anchor to the component entry in system_manifest.yaml that
       owns the failing step. Enables agents to look up recovery instructions.
     format: "manifests/system_manifest.yaml#<component_id>"
-    example: "manifests/system_manifest.yaml#KAN-23"
+    example: "manifests/system_manifest.yaml#PULSE-23"
 
   recovery_strategy_reference:
     type: string
@@ -141,7 +141,7 @@ fields:
     description: >
       Path to the recovery runbook, fallback config, or manifest section
       that defines the remediation steps for this failure type.
-    example: "manifests/system_manifest.yaml#KAN-23.recovery_patterns"
+    example: "manifests/system_manifest.yaml#PULSE-23.recovery_patterns"
 
   timestamp_utc:
     type: string
@@ -298,7 +298,7 @@ usage_contract:
         telemetry emission logic.
 
   enforcement:
-    validation_command: "python scripts/validate_KAN-019.py"
+    validation_command: "python scripts/validate_PULSE-19.py"
     review_cadence: "Every sprint — spec must be reviewed against any new pipeline failure modes"
     sign_off_required: "Hussain Ahmed"
     non_compliance_action: >

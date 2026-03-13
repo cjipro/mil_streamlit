@@ -1,6 +1,6 @@
 """
-validate_KAN-019.py
-Validates manifests/telemetry_spec.yaml against the KAN-19 acceptance criteria.
+validate_PULSE-19.py
+Validates manifests/telemetry_spec.yaml against the PULSE-19 acceptance criteria.
 
 Checks:
   - Required fields present: step_id, input_reference, output_summary,
@@ -13,7 +13,7 @@ Checks:
   - usage_contract section present and mandatory=true
   - usage_contract applies to ALL pipelines
 
-Run: python scripts/validate_KAN-019.py
+Run: python scripts/validate_PULSE-19.py
 """
 
 import yaml
@@ -44,7 +44,7 @@ REQUIRED_FIELD_KEYS = ["type", "required", "description"]
 
 def validate_spec(spec_path: str) -> bool:
     print(f"\n{'='*60}")
-    print(f"CJI Pulse — validate_KAN-019.py")
+    print(f"CJI Pulse — validate_PULSE-19.py")
     print(f"Validating: {spec_path}")
     print(f"{'='*60}\n")
 
@@ -234,12 +234,12 @@ def validate_spec(spec_path: str) -> bool:
         for e in errors:
             print(f"  ERROR: {e}")
         print(f"\n{'='*60}")
-        print("RESULT: FAILED — telemetry_spec.yaml does not meet KAN-19 acceptance criteria.")
+        print("RESULT: FAILED — telemetry_spec.yaml does not meet PULSE-19 acceptance criteria.")
         print(f"{'='*60}\n")
         return False
     else:
         print(f"\n{'='*60}")
-        print("RESULT: PASSED — telemetry_spec.yaml meets all KAN-19 acceptance criteria.")
+        print("RESULT: PASSED — telemetry_spec.yaml meets all PULSE-19 acceptance criteria.")
         print("Every pipeline in the programme must import and use this spec.")
         print(f"{'='*60}\n")
         return True

@@ -38,8 +38,8 @@ def load_manifest():
             retryability="yes",
             business_impact_tier="P1",
             downstream_dependency_impact="All builds blocked — manifest is required",
-            manifest_spec_reference="manifests/system_manifest.yaml#KAN-17",
-            recovery_strategy_reference="manifests/system_manifest.yaml#KAN-18.recovery_patterns",
+            manifest_spec_reference="manifests/system_manifest.yaml#PULSE-17",
+            recovery_strategy_reference="manifests/system_manifest.yaml#PULSE-18.recovery_patterns",
         )
         print(f"ERROR: Manifest not found: {MANIFEST_PATH}", file=sys.stderr)
         sys.exit(1)
@@ -53,8 +53,8 @@ def load_manifest():
             retryability="no",
             business_impact_tier="P1",
             downstream_dependency_impact="All builds blocked — manifest is unparseable",
-            manifest_spec_reference="manifests/system_manifest.yaml#KAN-17",
-            recovery_strategy_reference="manifests/system_manifest.yaml#KAN-18.recovery_patterns",
+            manifest_spec_reference="manifests/system_manifest.yaml#PULSE-17",
+            recovery_strategy_reference="manifests/system_manifest.yaml#PULSE-18.recovery_patterns",
         )
         print(f"ERROR: YAML parse error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -106,7 +106,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="CJI Pulse — build_from_manifest.py — executable manifest runner"
     )
-    parser.add_argument("--component", type=str, help="Target a specific component by ID (e.g. KAN-013)")
+    parser.add_argument("--component", type=str, help="Target a specific component by ID (e.g. PULSE-13)")
     parser.add_argument("--dry-run", action="store_true", help="Report what would be built without executing")
     parser.add_argument("--status", type=str, help="Filter components by status (e.g. BUILT, NOT_STARTED)")
     parser.add_argument("--sprint", type=int, help="Filter components by sprint number (e.g. 1)")
@@ -125,8 +125,8 @@ def main():
             retryability="no",
             business_impact_tier="P1",
             downstream_dependency_impact="All builds blocked — no components to process",
-            manifest_spec_reference="manifests/system_manifest.yaml#KAN-17",
-            recovery_strategy_reference="manifests/system_manifest.yaml#KAN-18.recovery_patterns",
+            manifest_spec_reference="manifests/system_manifest.yaml#PULSE-17",
+            recovery_strategy_reference="manifests/system_manifest.yaml#PULSE-18.recovery_patterns",
         )
         print("ERROR: No components found in manifest.", file=sys.stderr)
         sys.exit(1)
@@ -147,7 +147,7 @@ def main():
                 business_impact_tier="P2",
                 downstream_dependency_impact=f"Build of {args.component} cannot proceed",
                 manifest_spec_reference=f"manifests/system_manifest.yaml#{args.component}",
-                recovery_strategy_reference="manifests/system_manifest.yaml#KAN-18.recovery_patterns",
+                recovery_strategy_reference="manifests/system_manifest.yaml#PULSE-18.recovery_patterns",
             )
             print(f"ERROR: Component '{args.component}' not found in manifest.", file=sys.stderr)
             sys.exit(1)

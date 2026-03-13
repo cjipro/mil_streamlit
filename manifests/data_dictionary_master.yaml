@@ -1,6 +1,6 @@
 # ============================================================
 # CJI Pulse — Living Data Dictionary v2.0
-# KAN-011 | Sprint 1
+# PULSE-11 | Sprint 1
 # Last updated: 2026-03-12
 # Maintained by: Hussain Ahmed
 #
@@ -2693,7 +2693,7 @@ tables:
       - event_date
     notes: >
       Most aggregated branch events table. Pre-enriched with CPD attributes.
-      Partially unblocks KAN-015 without direct CPD access.
+      Partially unblocks PULSE-15 without direct CPD access.
       post_code confirmed PII — real postcodes in sample.
       accessibility_and_vulnerability and vulnerability_markers are key Day 90 signals.
       affluence_band, tier, portfolio_segment are segmentation attributes from CPD.
@@ -2902,7 +2902,7 @@ tables:
     primary_join_keys:
       - scv_id
     notes: >
-      ACCESS PENDING — KAN-015 and REG-002 blocked.
+      ACCESS PENDING — PULSE-15 and REG-002 blocked.
       CPD attributes partially available via BVER1 pre-enrichment.
       Full access needed for direct SCV_ID based enrichment.
       Join pattern when available: SCVC.scv_id -> CPD.scv_id

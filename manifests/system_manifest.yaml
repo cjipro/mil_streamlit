@@ -26,8 +26,8 @@ programme_principles:
 dual_closure_rule: "Every ticket requires two independent closure conditions. Human done AND AI-ready done. Neither alone is sufficient. This rule applies to every ticket without exception."
 
 adoption_hooks:
-  slack_webhook: "LATENT — configure at KAN-103"
-  teams_channel: "LATENT — configure at KAN-103"
+  slack_webhook: "LATENT — configure at PULSE-103"
+  teams_channel: "LATENT — configure at PULSE-103"
 
 governance_principles:
   total: 21
@@ -62,7 +62,7 @@ governance_principles:
 
 components:
 
-  - id: KAN-10
+  - id: PULSE-10
     jira_key: PULSE-1
     name: "Initialise GitLab mono-repo"
     sprint: 1
@@ -74,8 +74,8 @@ components:
     estimated_effort_hours: 2
     tool: "Manual"
     jira_id: ""
-    gitlab_branch: "feat/KAN-10-initialise-repo"
-    manifest_path: "manifests/KAN-010_repo_manifest.md"
+    gitlab_branch: "feat/PULSE-10-initialise-repo"
+    manifest_path: "manifests/PULSE-10_repo_manifest.md"
     gitlab_path: "/"
     purpose: "Create the canonical repository that all agents read from. Every component, config, and manifest lives here."
     inputs:
@@ -113,7 +113,7 @@ components:
       breaking_change_protocol: "Document any directory renames in manifest before renaming"
     traceability: "Programme principle: Manifest is source of truth from Day 1"
 
-  - id: KAN-11
+  - id: PULSE-11
     jira_key: PULSE-2
     name: "Living Data Dictionary — Constitutional Foundation v2.0"
     sprint: 1
@@ -125,31 +125,31 @@ components:
     estimated_effort_hours: 2
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-11-table-config"
-    manifest_path: "manifests/KAN-011_table_config_manifest.md"
+    gitlab_branch: "feature/PULSE-11-table-config"
+    manifest_path: "manifests/PULSE-11_table_config_manifest.md"
     gitlab_path: "manifests/data_dictionary_master.yaml"
     purpose: "Single source of truth for all tables and fields. Governed by 21 constitutional principles and Version 2.0 data strategy. Generates data_dictionary_human.yaml and data_dictionary_agentic.yaml. Three-layer governance model. HMAC-SHA256 hash strategy for original name protection. Full regulatory compliance framework including DPIA, vulnerability processing, automated decision rights."
     inputs:
-      - "KAN-10 (repo must exist)"
+      - "PULSE-10 (repo must exist)"
     outputs:
       - "manifests/data_strategy_v2.md"
       - "manifests/governance_principles.yaml"
       - "manifests/data_dictionary_master.yaml"
       - "manifests/data_dictionary_human.yaml"
       - "manifests/data_dictionary_agentic.yaml"
-    dependencies: ["KAN-10"]
+    dependencies: ["PULSE-10"]
     acceptance_criteria:
       - "manifests/data_dictionary_master.yaml — single source of truth for all fields"
       - "Output tables: MA_S, daily_journey_mart, voice_evidence_fact, governance_run_fact"
       - "Every pipeline reads table names from this config"
       - "grep -r for hardcoded table names returns zero results outside this file"
-    validation_command: "py scripts/validate_KAN-011.py"
+    validation_command: "py scripts/validate_PULSE-11.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_config"]
     recovery_patterns:
       failure_modes:
         - condition: "Table name format changes"
-          action: "Update TABLE_CONFIG only. Run grep audit to confirm zero hardcoded references remain. Re-run validate_KAN-011.py."
+          action: "Update TABLE_CONFIG only. Run grep audit to confirm zero hardcoded references remain. Re-run validate_PULSE-11.py."
       retry_logic: "Update config and re-run validation"
       fallback_strategy: "Document any unresolvable table name conflicts"
       escalation_criteria: "If table names cannot be confirmed by data owner"
@@ -242,7 +242,7 @@ components:
     description: "Publish explicit customer rights statement covering right to contest automated decisions. Document legal basis for each new derived field type."
     owner: "TBD"
 
-  - id: KAN-12
+  - id: PULSE-12
     jira_key: PULSE-12
     name: "Set up local Docker environment"
     sprint: 1
@@ -254,16 +254,16 @@ components:
     estimated_effort_hours: 3
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-12-docker-environment"
-    manifest_path: "manifests/KAN-012_docker_manifest.md"
+    gitlab_branch: "feature/PULSE-12-docker-environment"
+    manifest_path: "manifests/PULSE-12_docker_manifest.md"
     gitlab_path: "docker-compose.yml"
     purpose: "Single command starts entire local environment. No manual setup steps."
     inputs:
-      - "KAN-10"
+      - "PULSE-10"
     outputs:
       - "docker-compose.yml"
       - "config/deployment_config.yaml"
-    dependencies: ["KAN-10"]
+    dependencies: ["PULSE-10"]
     acceptance_criteria:
       - "docker-compose.yml runs PySpark + Postgres + Streamlit + Ollama locally"
       - "docker-compose up starts everything"
@@ -297,7 +297,7 @@ components:
       fallback: "qwen2.5:7b"
     traceability: "Programme principle: One command to run everything"
 
-  - id: KAN-13
+  - id: PULSE-13
     jira_key: PULSE-13
     name: "Document all audit findings in structured YAML"
     sprint: 1
@@ -309,22 +309,22 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-13-audit-findings"
-    manifest_path: "manifests/KAN-013_audit_register_manifest.md"
+    gitlab_branch: "feature/PULSE-13-audit-findings"
+    manifest_path: "manifests/PULSE-13_audit_register_manifest.md"
     gitlab_path: "manifests/audit_findings.yaml"
     purpose: "Every data quality risk is named, owned, and machine-readable before any pipeline is built."
     inputs:
-      - "KAN-10"
+      - "PULSE-10"
     outputs:
       - "manifests/audit_findings.yaml"
-    dependencies: ["KAN-10"]
+    dependencies: ["PULSE-10"]
     acceptance_criteria:
       - "manifests/audit_findings.yaml with Finding 001 (cust_id -99 volume unknown)"
       - "Finding 002 (app version missing in MA_D — CRITICAL, blocks Phase 1 mission)"
       - "Finding 003 (Native flag in OPS_CD meaning unknown)"
       - "Each entry: id, severity, status, description, business_impact, action_required, owner, data_owner_signoff_required, resolution, fallback_if_unresolved"
       - "Data owner sign-off obtained before marking any finding RESOLVED"
-    validation_command: "python scripts/validate_KAN-013.py"
+    validation_command: "python scripts/validate_PULSE-13.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_manifests", "write_manifests"]
     recovery_patterns:
@@ -351,33 +351,33 @@ components:
       data_minimisation_notes: "Document findings only, not raw data samples"
     traceability: "Programme principle: Audit before architecture — Canonical Statement 04 is law"
 
-  - id: KAN-14
+  - id: PULSE-14
     jira_key: PULSE-14
     name: "Resolve Finding 002 — app version / experience source"
     sprint: 1
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "COMPLETE"
     priority: P1
     estimated_effort_hours: 4
     tool: "Investigation"
     jira_id: ""
-    gitlab_branch: "feature/KAN-14-finding-002"
-    manifest_path: "manifests/KAN-014_appversion_manifest.md"
+    gitlab_branch: "feature/PULSE-14-finding-002"
+    manifest_path: "manifests/PULSE-14_appversion_manifest.md"
     gitlab_path: "manifests/audit_findings.yaml"
     purpose: "Finding 002 is CRITICAL. It blocks the entire Phase 1 mission — refreshed vs legacy comparison."
     inputs:
-      - "KAN-13"
+      - "PULSE-13"
     outputs:
       - "Finding 002 marked RESOLVED or ACCEPTED-WITH-FALLBACK"
       - "config/timing_based_fallback.yaml (if fallback path)"
-    dependencies: ["KAN-13"]
+    dependencies: ["PULSE-13"]
     acceptance_criteria:
       - "Path A: Source table identified, field name confirmed, join key to MA_D documented, TABLE_CONFIG updated, Finding 002 RESOLVED with data owner sign-off"
       - "Path B: No reliable source — timing_based_fallback.yaml documents fallback, downstream comparisons labelled DIRECTIONAL-only, Finding 002 ACCEPTED-WITH-FALLBACK"
       - "No third option"
-    validation_command: "python scripts/validate_KAN-014.py"
+    validation_command: "python scripts/validate_PULSE-14.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_manifests"]
     recovery_patterns:
@@ -411,35 +411,35 @@ components:
           description: "Make resolution decision: Path A or Path B. Document with evidence. Write to audit_findings.yaml."
     traceability: "CRITICAL — blocks entire Phase 1 mission"
 
-  - id: KAN-15
+  - id: PULSE-15
     jira_key: PULSE-15
     name: "Audit CUST_DIM — describe, sample, join key confirmation"
     sprint: 1
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "IN_PROGRESS"
     priority: P2
     estimated_effort_hours: 2
     tool: "Investigation"
     jira_id: ""
-    gitlab_branch: "feature/KAN-15-custdim-audit"
-    manifest_path: "manifests/KAN-015_custdim_audit_manifest.md"
+    gitlab_branch: "feature/PULSE-15-custdim-audit"
+    manifest_path: "manifests/PULSE-15_custdim_audit_manifest.md"
     gitlab_path: "manifests/audit_findings.yaml"
     purpose: "Customer segmentation is core to vulnerable customer detection. Confirm what we actually have."
     inputs:
-      - "KAN-13"
+      - "PULSE-13"
     outputs:
       - "CUST_DIM field mapping documented"
       - "Join key status confirmed"
-    dependencies: ["KAN-13"]
+    dependencies: ["PULSE-13"]
     acceptance_criteria:
       - "CUST_DIM fields mapped to CJI canonical names: customer_segment, customer_tenure, historical_completion_rate, historical_digital_engagement_score"
       - "Join key to MA_S confirmed or formally blocked"
       - "Gaps logged in audit_findings.yaml"
       - "Data owner sign-off obtained"
       - "Null rates documented per field"
-    validation_command: "python scripts/validate_KAN-015.py"
+    validation_command: "python scripts/validate_PULSE-15.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_manifests"]
     recovery_patterns:
@@ -466,29 +466,29 @@ components:
       data_minimisation_notes: "Aggregate segment only — no individual customer data in audit"
     traceability: "Day 90 vision: vulnerable customers must be identifiable"
 
-  - id: KAN-16
+  - id: PULSE-16
     jira_key: PULSE-16
     name: "Create all 90-day epics and tickets in Jira"
     sprint: 1
     days: "1-7"
     type: "Control Artefact"
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "BUILT"
     priority: P1
     estimated_effort_hours: 3
     tool: "generate_jira_tickets.py"
     jira_id: ""
-    gitlab_branch: "feature/KAN-16-jira-setup"
-    manifest_path: "manifests/KAN-016_jira_setup_manifest.md"
+    gitlab_branch: "feature/PULSE-16-jira-setup"
+    manifest_path: "manifests/PULSE-16_jira_setup_manifest.md"
     gitlab_path: "scripts/generate_jira_tickets.py"
     purpose: "Jira is a view of the manifest — not the source of truth. Tickets are created from the manifest."
     inputs:
-      - "KAN-17 (manifest must be committed first)"
+      - "PULSE-17 (manifest must be committed first)"
     outputs:
       - "All epics created in Jira"
       - "All tickets with descriptions, acceptance criteria, manifest path linked"
       - "scripts/generate_jira_tickets.py"
-    dependencies: ["KAN-17"]
+    dependencies: ["PULSE-17"]
     acceptance_criteria:
       - "All epics created"
       - "All tickets with descriptions, acceptance criteria, and manifest path linked"
@@ -531,7 +531,7 @@ components:
       breaking_change_protocol: "Any manifest schema change requires regeneration of all tickets"
     traceability: "Programme principle: Manifest is source of truth — Jira is a view"
 
-  - id: KAN-17
+  - id: PULSE-17
     jira_key: PULSE-17
     name: "Scaffold system_manifest.yaml — complete schema with all v5 fields"
     sprint: 1
@@ -543,29 +543,29 @@ components:
     estimated_effort_hours: 6
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-17-system-manifest"
+    gitlab_branch: "feature/PULSE-17-system-manifest"
     manifest_path: "manifests/system_manifest.yaml"
     gitlab_path: "manifests/system_manifest.yaml"
     purpose: "Entry point for every AI agent building this system. Complete, correct, machine-readable from Day 1."
     inputs:
-      - "KAN-10"
+      - "PULSE-10"
       - "CJI_Pulse_90Day_Plan_v5.docx"
     outputs:
       - "manifests/system_manifest.yaml"
-    dependencies: ["KAN-10"]
+    dependencies: ["PULSE-10"]
     acceptance_criteria:
       - "manifests/system_manifest.yaml committed Day 1"
       - "Every component listed with ALL required fields"
       - "All v5 additions: recovery_patterns, interfaces, preferred_model, vendor, graduated_trust_tier, runtime_permissions, prompt_breakdown"
       - "Data contract manifests include governance_attributes"
       - "Validates with zero errors"
-    validation_command: "python scripts/validate_KAN-017.py"
+    validation_command: "python scripts/validate_PULSE-17.py"
     graduated_trust_tier: 4
     runtime_permissions: ["read_manifests", "write_manifests"]
     recovery_patterns:
       failure_modes:
         - condition: "Schema validation fails"
-          action: "Read validate_KAN-017.py error output. Fix field-by-field. Re-run validation. Do not proceed until validation passes."
+          action: "Read validate_PULSE-17.py error output. Fix field-by-field. Re-run validation. Do not proceed until validation passes."
         - condition: "Component dependency cycle detected"
           action: "Review dependency graph. Cycles are architecture errors. Resolve by introducing intermediate contract."
       retry_logic: "Fix one validation error at a time. Re-run after each fix."
@@ -594,10 +594,10 @@ components:
         - step: 5
           description: "Add Sprint 8-13 components with all required fields."
         - step: 6
-          description: "Run validate_KAN-017.py. Fix all errors. Re-run until clean."
+          description: "Run validate_PULSE-17.py. Fix all errors. Re-run until clean."
     traceability: "THIS IS THE MANIFEST. Every other component references this as root."
 
-  - id: KAN-18
+  - id: PULSE-18
     jira_key: PULSE-18
     name: "Build build_from_manifest.py — executable manifest runner"
     sprint: 1
@@ -609,23 +609,23 @@ components:
     estimated_effort_hours: 5
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-18-build-from-manifest"
-    manifest_path: "manifests/KAN-018_buildscript_manifest.md"
+    gitlab_branch: "feature/PULSE-18-build-from-manifest"
+    manifest_path: "manifests/PULSE-18_buildscript_manifest.md"
     gitlab_path: "scripts/build_from_manifest.py"
     purpose: "The manifest is not just documentation — it is executable. Bridge between manifest definition and code scaffolding."
     inputs:
-      - "KAN-17"
+      - "PULSE-17"
     outputs:
       - "scripts/build_from_manifest.py"
-    dependencies: ["KAN-17"]
+    dependencies: ["PULSE-17"]
     acceptance_criteria:
       - "scripts/build_from_manifest.py reads component spec from system_manifest.yaml"
       - "Scaffolds code structure via Claude Code API"
       - "Updates component status to IN_PROGRESS during build and BUILT on success"
       - "Context injection: reads all dependency manifests before scaffolding"
-      - "Tested successfully on KAN-11 as proof of concept"
+      - "Tested successfully on PULSE-11 as proof of concept"
       - "Retrospective field updated after each build"
-    validation_command: "python scripts/build_from_manifest.py --component KAN-011 --dry-run"
+    validation_command: "python scripts/build_from_manifest.py --component PULSE-11 --dry-run"
     graduated_trust_tier: 4
     runtime_permissions: ["read_manifests", "write_code", "update_manifest_status"]
     recovery_patterns:
@@ -660,10 +660,10 @@ components:
         - step: 5
           description: "Implement status updater — writes IN_PROGRESS then BUILT to system_manifest.yaml."
         - step: 6
-          description: "Test on KAN-011 with --dry-run flag. Validate manifest parsing and dependency resolution."
+          description: "Test on PULSE-11 with --dry-run flag. Validate manifest parsing and dependency resolution."
     traceability: "Enables manifest-first architecture to be truly executable"
 
-  - id: KAN-19
+  - id: PULSE-19
     jira_key: PULSE-19
     name: "Define semantic telemetry spec for all pipeline failures"
     sprint: 1
@@ -676,15 +676,15 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-19-telemetry-spec"
-    manifest_path: "manifests/KAN-019_telemetry_spec_manifest.md"
+    gitlab_branch: "feature/PULSE-19-telemetry-spec"
+    manifest_path: "manifests/PULSE-19_telemetry_spec_manifest.md"
     gitlab_path: "manifests/telemetry_spec.yaml"
     purpose: "Every failure anywhere in the system emits machine-readable telemetry."
     inputs:
-      - "KAN-17"
+      - "PULSE-17"
     outputs:
       - "manifests/telemetry_spec.yaml"
-    dependencies: ["KAN-17"]
+    dependencies: ["PULSE-17"]
     acceptance_criteria:
       - "manifests/telemetry_spec.yaml defines: step_id, input_reference, output_summary, error_code, error_class"
       - "error_class enum: DATA_QUALITY / PIPELINE / SCHEMA / DEPENDENCY / GOVERNANCE"
@@ -692,7 +692,7 @@ components:
       - "downstream_dependency_impact, manifest_spec_reference, recovery_strategy_reference"
       - "Committed before any pipeline is built"
       - "Every pipeline imports and uses this spec — no custom error formats"
-    validation_command: "python scripts/validate_KAN-019.py"
+    validation_command: "python scripts/validate_PULSE-19.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_manifests", "write_manifests"]
     recovery_patterns:
@@ -714,7 +714,7 @@ components:
       breaking_change_protocol: "Adding new error_class values is non-breaking. Removing values is breaking — requires pipeline audit."
     traceability: "Programme principle: Semantic telemetry on every failure"
 
-  - id: KAN-01G
+  - id: PULSE-1G
     jira_key: PULSE-20
     name: "Scaffold graduated trust model — Tiers 1-4"
     sprint: 1
@@ -727,15 +727,15 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-01G-trust-tiers"
-    manifest_path: "manifests/KAN-01G_trust_tiers_manifest.md"
+    gitlab_branch: "feature/PULSE-1G-trust-tiers"
+    manifest_path: "manifests/PULSE-1G_trust_tiers_manifest.md"
     gitlab_path: "config/graduated_trust_tiers.yaml"
     purpose: "Governance is a ramp, not a wall. Journey owners earn expanded capabilities through demonstrated competence."
     inputs:
-      - "KAN-17"
+      - "PULSE-17"
     outputs:
       - "config/graduated_trust_tiers.yaml"
-    dependencies: ["KAN-17"]
+    dependencies: ["PULSE-17"]
     acceptance_criteria:
       - "Tier 1 — Read Only: view findings, read queue, read briefing"
       - "Tier 2 — Hypothesis Approver: approve investigation queue items, submit hypotheses"
@@ -743,7 +743,7 @@ components:
       - "Tier 4 — Controlled Deployer: approve manifest changes, trigger controlled agent rebuild"
       - "Each tier lists: permissions, how to earn it, what is still restricted"
       - "Phase 1 maximum: Tier 3 for journey owners, Tier 4 for analytics lead only"
-    validation_command: "python scripts/validate_KAN-01G.py"
+    validation_command: "python scripts/validate_PULSE-1G.py"
     graduated_trust_tier: 4
     runtime_permissions: ["read_config", "write_config"]
     recovery_patterns:
@@ -772,9 +772,9 @@ components:
     identity_agnostic: true
     tier_5:
       status: LOCKED_PHASE_2
-      description: "Autonomous Migration — locked until Phase 2 gate decision KAN-133"
+      description: "Autonomous Migration — locked until Phase 2 gate decision PULSE-133"
 
-  - id: KAN-01H
+  - id: PULSE-1H
     jira_key: PULSE-21
     name: "Scaffold hypothesis library — seed with known patterns"
     sprint: 1
@@ -787,22 +787,22 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-01H-hypothesis-library"
-    manifest_path: "manifests/KAN-01H_hypothesis_library_manifest.md"
+    gitlab_branch: "feature/PULSE-1H-hypothesis-library"
+    manifest_path: "manifests/PULSE-1H_hypothesis_library_manifest.md"
     gitlab_path: "manifests/hypothesis_library.yaml"
     purpose: "The hypothesis library is the intelligence core of the conversational query interface."
     inputs:
-      - "KAN-17"
+      - "PULSE-17"
     outputs:
       - "manifests/hypothesis_library.yaml"
-    dependencies: ["KAN-17"]
+    dependencies: ["PULSE-17"]
     acceptance_criteria:
       - "manifests/hypothesis_library.yaml with minimum 10 seed entries"
       - "Each entry: hypothesis_id, hypothesis_text, journey_type, evidence_tier, response_mode, supporting_metrics, recommended_action (three-part), date_added, status"
       - "evidence_tier values: EVIDENCED/DIRECTIONAL/UNKNOWN"
       - "recommended_action three-part: what_is_happening, why_it_matters, suggested_first_action"
       - "Schema validated"
-    validation_command: "python scripts/validate_KAN-01H.py"
+    validation_command: "python scripts/validate_PULSE-1H.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_manifests", "write_manifests"]
     recovery_patterns:
@@ -828,7 +828,7 @@ components:
 # SPRINT 2: Audit Completion & Data Contract Baseline (Days 8-14)
 # ============================================================
 
-  - id: KAN-20
+  - id: PULSE-20
     jira_key: PULSE-22
     name: "Write data contract YAML for MA_D"
     sprint: 2
@@ -840,23 +840,23 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-20-ma-d-contract"
-    manifest_path: "manifests/KAN-020_ma_d_contract_manifest.md"
+    gitlab_branch: "feature/PULSE-20-ma-d-contract"
+    manifest_path: "manifests/PULSE-20_ma_d_contract_manifest.md"
     gitlab_path: "contracts/ma_d.yaml"
     purpose: "MA_D is the primary source of app session events. Every downstream pipeline depends on this contract."
     inputs:
-      - "KAN-17"
-      - "KAN-13"
+      - "PULSE-17"
+      - "PULSE-13"
     outputs:
       - "contracts/ma_d.yaml"
-    dependencies: ["KAN-17", "KAN-13"]
+    dependencies: ["PULSE-17", "PULSE-13"]
     acceptance_criteria:
       - "contracts/ma_d.yaml with every field mapped"
       - "Fields: field_name, data_type, grain, nullable, null_rate_observed, cji_canonical_name, degradation_mode, quality_check, source_system, latency, owner"
       - "governance_attributes: sensitivity_classification, purpose_limitation, retention_period, data_minimisation_notes"
       - "Known issues documented: cust_id -99 sentinel rate"
       - "Data owner sign-off recorded"
-    validation_command: "python scripts/validate_KAN-020.py"
+    validation_command: "python scripts/validate_PULSE-20.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_contracts"]
     recovery_patterns:
@@ -883,7 +883,7 @@ components:
       data_minimisation_notes: "Session events only — no PII fields in pipeline outputs"
     traceability: "Foundation data source for all pipeline components"
 
-  - id: KAN-21
+  - id: PULSE-21
     jira_key: PULSE-23
     name: "Write data contract YAML for SE (dim_evnt)"
     sprint: 2
@@ -895,22 +895,22 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-21-se-contract"
-    manifest_path: "manifests/KAN-021_se_contract_manifest.md"
+    gitlab_branch: "feature/PULSE-21-se-contract"
+    manifest_path: "manifests/PULSE-21_se_contract_manifest.md"
     gitlab_path: "contracts/se.yaml"
     purpose: "SE is the event dimension that maps raw event codes to journey context."
     inputs:
-      - "KAN-20"
+      - "PULSE-20"
     outputs:
       - "contracts/se.yaml"
-    dependencies: ["KAN-20"]
+    dependencies: ["PULSE-20"]
     acceptance_criteria:
       - "contracts/se.yaml same structure as MA_D contract plus governance_attributes"
       - "Join key to MA_D documented with observed join rate"
       - "evnt_grp_nm NULL rate noted and documented"
       - "fnl_step_ind reliability status documented — flagged as UNRELIABLE if confirmed"
       - "Data owner sign-off recorded"
-    validation_command: "python scripts/validate_KAN-021.py"
+    validation_command: "python scripts/validate_PULSE-21.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_contracts"]
     recovery_patterns:
@@ -940,7 +940,7 @@ components:
       data_minimisation_notes: "Event codes only — no customer identifiers"
     traceability: "Required for journey classification in MA_S pipeline"
 
-  - id: KAN-22
+  - id: PULSE-22
     jira_key: PULSE-24
     name: "Write data contract YAML for OPS_CD"
     sprint: 2
@@ -952,23 +952,23 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-22-ops-cd-contract"
-    manifest_path: "manifests/KAN-022_ops_cd_contract_manifest.md"
+    gitlab_branch: "feature/PULSE-22-ops-cd-contract"
+    manifest_path: "manifests/PULSE-22_ops_cd_contract_manifest.md"
     gitlab_path: "contracts/ops_cd.yaml"
     purpose: "OPS_CD is the feature taxonomy that classifies every event into journey context."
     inputs:
-      - "KAN-20"
-      - "KAN-14"
+      - "PULSE-20"
+      - "PULSE-14"
     outputs:
       - "contracts/ops_cd.yaml"
-    dependencies: ["KAN-20", "KAN-14"]
+    dependencies: ["PULSE-20", "PULSE-14"]
     acceptance_criteria:
       - "contracts/ops_cd.yaml covers: op_cd, page, pod, sub_pod, feature, op_class, channel flags"
       - "Feature field confirmed as primary journey classifier"
       - "Native flag status documented"
       - "Governance_attributes complete"
       - "Data owner sign-off recorded"
-    validation_command: "python scripts/validate_KAN-022.py"
+    validation_command: "python scripts/validate_PULSE-22.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_contracts"]
     recovery_patterns:
@@ -995,7 +995,7 @@ components:
       data_minimisation_notes: "Feature codes only — no customer data"
     traceability: "Vocabulary for all journey classification and behavioural signal derivation"
 
-  - id: KAN-23
+  - id: PULSE-23
     jira_key: PULSE-25
     name: "Write MA_S output field specification"
     sprint: 2
@@ -1007,24 +1007,24 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-23-mas-spec"
-    manifest_path: "manifests/KAN-023_ma_s_spec_manifest.md"
+    gitlab_branch: "feature/PULSE-23-mas-spec"
+    manifest_path: "manifests/PULSE-23_ma_s_spec_manifest.md"
     gitlab_path: "contracts/ma_s_spec.yaml"
     purpose: "MA_S is the session spine that everything reads from. Its output spec is the contract between pipeline and all downstream consumers."
     inputs:
-      - "KAN-20"
-      - "KAN-21"
-      - "KAN-22"
+      - "PULSE-20"
+      - "PULSE-21"
+      - "PULSE-22"
     outputs:
       - "contracts/ma_s_spec.yaml"
-    dependencies: ["KAN-20", "KAN-21", "KAN-22"]
+    dependencies: ["PULSE-20", "PULSE-21", "PULSE-22"]
     acceptance_criteria:
       - "contracts/ma_s_spec.yaml every output field defined"
       - "Each field: source_field, derivation_logic (exact), nullability, quality_flag, cji_canonical_name, physical_table"
       - "20+ fields covered per MVP Required bucket"
       - "Behavioural signals with explicit derivation logic: ghost_intent_flag, silent_exit_flag, partial_op_sequence_flag, help_access_during_journey"
       - "Governance_attributes complete"
-    validation_command: "python scripts/validate_KAN-023.py"
+    validation_command: "python scripts/validate_PULSE-23.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_contracts", "write_contracts"]
     recovery_patterns:
@@ -1058,10 +1058,10 @@ components:
         - step: 3
           description: "Define behavioural signal derivation logic using OPS_CD feature taxonomy."
         - step: 4
-          description: "Write contracts/ma_s_spec.yaml. Run validate_KAN-023.py. Fix all errors."
+          description: "Write contracts/ma_s_spec.yaml. Run validate_PULSE-23.py. Fix all errors."
     traceability: "The contract between session pipeline and all downstream consumers"
 
-  - id: KAN-24
+  - id: PULSE-24
     jira_key: PULSE-26
     name: "Design simulation schema — 5 journey types"
     sprint: 2
@@ -1073,16 +1073,16 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-24-simulation-schema"
-    manifest_path: "manifests/KAN-024_simulation_schema_manifest.md"
+    gitlab_branch: "feature/PULSE-24-simulation-schema"
+    manifest_path: "manifests/PULSE-24_simulation_schema_manifest.md"
     gitlab_path: "config/simulation_config.yaml"
     purpose: "Simulation is the safety net that lets us test the entire system before touching 330M real sessions."
     inputs:
-      - "KAN-22"
-      - "KAN-23"
+      - "PULSE-22"
+      - "PULSE-23"
     outputs:
       - "config/simulation_config.yaml"
-    dependencies: ["KAN-22", "KAN-23"]
+    dependencies: ["PULSE-22", "PULSE-23"]
     acceptance_criteria:
       - "config/simulation_config.yaml defines 5 journey types: Login, Payments, Servicing, Loans, Onboarding"
       - "op_code_sequences per journey using real OPS_CD taxonomy"
@@ -1092,7 +1092,7 @@ components:
       - "customer_segment_mix (5 segments)"
       - "vulnerable_customer_rate (default 0.15)"
       - "cust_id_sentinel_rate (default 0.001 matching Finding 001)"
-    validation_command: "python scripts/validate_KAN-024.py"
+    validation_command: "python scripts/validate_PULSE-24.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_contracts", "write_config"]
     recovery_patterns:
@@ -1122,7 +1122,7 @@ components:
       data_minimisation_notes: "Synthetic data only — no real customer data in simulation config"
     traceability: "Safety net before any real data pipeline is built"
 
-  - id: KAN-25
+  - id: PULSE-25
     jira_key: PULSE-27
     name: "Audit CC_D — describe, sample, join key confirmation"
     sprint: 2
@@ -1134,15 +1134,15 @@ components:
     estimated_effort_hours: 2
     tool: "Investigation"
     jira_id: ""
-    gitlab_branch: "feature/KAN-25-ccd-audit"
-    manifest_path: "manifests/KAN-025_cc_d_audit_manifest.md"
+    gitlab_branch: "feature/PULSE-25-ccd-audit"
+    manifest_path: "manifests/PULSE-25_cc_d_audit_manifest.md"
     gitlab_path: "contracts/cc_d.yaml"
     purpose: "Cross-channel leakage (customers calling after app failure) is a key signal. Confirm feasibility before Sprint 6."
     inputs:
-      - "KAN-20"
+      - "PULSE-20"
     outputs:
       - "contracts/cc_d.yaml (skeleton)"
-    dependencies: ["KAN-20"]
+    dependencies: ["PULSE-20"]
     acceptance_criteria:
       - "cust_id join to MA_S confirmed or formally blocked"
       - "call_timestamp field identified"
@@ -1150,7 +1150,7 @@ components:
       - "Contract skeleton contracts/cc_d.yaml written"
       - "24h window join feasibility confirmed"
       - "Data owner sign-off recorded"
-    validation_command: "python scripts/validate_KAN-025.py"
+    validation_command: "python scripts/validate_PULSE-25.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_contracts"]
     recovery_patterns:
@@ -1158,7 +1158,7 @@ components:
         - condition: "cust_id join not feasible within 24h window"
           action: "Document as BLOCKED. Flag contact_centre_contact_24h as unavailable in MA_S spec. Update all downstream components."
       retry_logic: "Investigate alternative join keys before declaring blocked"
-      fallback_strategy: "Synthetic CC_D generator (KAN-60) as fallback"
+      fallback_strategy: "Synthetic CC_D generator (PULSE-60) as fallback"
       escalation_criteria: "Join not feasible — escalate to analytics lead for Phase 1 scope decision"
     interfaces:
       inputs_expected:
@@ -1169,7 +1169,7 @@ components:
         - schema: "CC_D contract skeleton"
           format: "yaml"
           destination: "contracts/cc_d.yaml"
-      breaking_change_protocol: "Join feasibility decision gates Sprint 6 KAN-61"
+      breaking_change_protocol: "Join feasibility decision gates Sprint 6 PULSE-61"
     governance_attributes:
       sensitivity_classification: "CONFIDENTIAL"
       purpose_limitation: "Cross-channel leakage detection only"
@@ -1181,7 +1181,7 @@ components:
 # SPRINT 3: Simulation Data Generator (Days 15-21)
 # ============================================================
 
-  - id: KAN-30
+  - id: PULSE-30
     jira_key: PULSE-28
     name: "Build synthetic MA_D event generator"
     sprint: 3
@@ -1193,23 +1193,23 @@ components:
     estimated_effort_hours: 6
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-30-ma-d-simulator"
-    manifest_path: "manifests/KAN-030_ma_d_simulator_manifest.md"
+    gitlab_branch: "feature/PULSE-30-ma-d-simulator"
+    manifest_path: "manifests/PULSE-30_ma_d_simulator_manifest.md"
     gitlab_path: "data/simulate_data.py"
     purpose: "Generate realistic MA_D events that exercise every downstream pipeline without touching production data."
     inputs:
-      - "KAN-20"
-      - "KAN-24"
+      - "PULSE-20"
+      - "PULSE-24"
     outputs:
       - "data/simulate_data.py"
-    dependencies: ["KAN-20", "KAN-24"]
+    dependencies: ["PULSE-20", "PULSE-24"]
     acceptance_criteria:
       - "data/simulate_data.py generates rows matching MA_D schema per contracts/ma_d.yaml"
       - "All MVP Required fields populated realistically"
       - "Configurable via simulation_config.yaml — no hardcoded values"
       - "cust_id -99 sentinel injected at configured rate"
       - "100k sessions in under 60 seconds"
-    validation_command: "python scripts/validate_KAN-030.py && python data/validate_simulation.py --date 2026-03-10 --sessions 1000"
+    validation_command: "python scripts/validate_PULSE-30.py && python data/validate_simulation.py --date 2026-03-10 --sessions 1000"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_data"]
     recovery_patterns:
@@ -1250,7 +1250,7 @@ components:
           description: "Performance test: 100k rows in under 60 seconds. Optimise if needed."
     traceability: "Foundation of simulation environment — gates all Sprint 4+ development"
 
-  - id: KAN-31
+  - id: PULSE-31
     jira_key: PULSE-29
     name: "Inject realistic op code sequences from OPS_CD"
     sprint: 3
@@ -1262,22 +1262,22 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-31-opcode-sequences"
-    manifest_path: "manifests/KAN-031_opcode_sim_manifest.md"
+    gitlab_branch: "feature/PULSE-31-opcode-sequences"
+    manifest_path: "manifests/PULSE-31_opcode_sim_manifest.md"
     gitlab_path: "data/simulate_data.py"
     purpose: "Sessions must follow realistic op_code sequences per journey type. Random sequences are useless for testing journey intelligence."
     inputs:
-      - "KAN-30"
-      - "KAN-22"
+      - "PULSE-30"
+      - "PULSE-22"
     outputs:
       - "Updated data/simulate_data.py with realistic sequences"
-    dependencies: ["KAN-30", "KAN-22"]
+    dependencies: ["PULSE-30", "PULSE-22"]
     acceptance_criteria:
       - "Each session follows realistic op_code sequence per journey type using OPS_CD taxonomy"
       - "Happy path + 3 failure modes per journey per simulation_config.yaml"
       - "Sequences produce realistic feature_string for downstream signal derivation"
       - "Partial op sequences injected at configured rate"
-    validation_command: "python scripts/validate_KAN-031.py"
+    validation_command: "python scripts/validate_PULSE-31.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "read_contracts", "write_data"]
     recovery_patterns:
@@ -1302,7 +1302,7 @@ components:
       breaking_change_protocol: "OPS_CD taxonomy changes require sequence re-generation"
     traceability: "Required for behavioural signal derivation accuracy"
 
-  - id: KAN-32
+  - id: PULSE-32
     jira_key: PULSE-30
     name: "Inject failure modes — nulls, sentinels, schema drift, join gaps"
     sprint: 3
@@ -1314,15 +1314,15 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-32-failure-injection"
-    manifest_path: "manifests/KAN-032_failure_injection_manifest.md"
+    gitlab_branch: "feature/PULSE-32-failure-injection"
+    manifest_path: "manifests/PULSE-32_failure_injection_manifest.md"
     gitlab_path: "data/simulate_data.py"
     purpose: "Failure injection validates that quality gates actually catch real problems."
     inputs:
-      - "KAN-30"
+      - "PULSE-30"
     outputs:
       - "Updated simulate_data.py with failure injection modes"
-    dependencies: ["KAN-30"]
+    dependencies: ["PULSE-30"]
     acceptance_criteria:
       - "Configurable rates in simulation_config.yaml: null_rate, sentinel_rate (-99), join_key_missing_rate, schema_drift_flag"
       - "Each failure mode independently togglable"
@@ -1350,7 +1350,7 @@ components:
       breaking_change_protocol: "New failure modes require quality gate update and re-validation"
     traceability: "Validates quality gates before production data touches the pipeline"
 
-  - id: KAN-33
+  - id: PULSE-33
     jira_key: PULSE-31
     name: "Add app_version synthetic field — legacy vs refreshed split"
     sprint: 3
@@ -1362,34 +1362,34 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-33-app-version-synthetic"
-    manifest_path: "manifests/KAN-033_appversion_sim_manifest.md"
+    gitlab_branch: "feature/PULSE-33-app-version-synthetic"
+    manifest_path: "manifests/PULSE-33_appversion_sim_manifest.md"
     gitlab_path: "data/simulate_data.py"
     purpose: "Finding 002 means we may not have real app_version data. Synthetic field lets us build and test refreshed vs legacy comparison."
     inputs:
-      - "KAN-30"
-      - "KAN-14"
+      - "PULSE-30"
+      - "PULSE-14"
     outputs:
       - "app_version synthetic field in simulate_data.py"
-    dependencies: ["KAN-30", "KAN-14"]
+    dependencies: ["PULSE-30", "PULSE-14"]
     acceptance_criteria:
       - "app_version field added as synthetic column"
       - "legacy/refreshed split parameterised in simulation_config.yaml"
       - "Flagged as SYNTHETIC in output metadata"
-      - "If KAN-14 found real source, synthetic field replaced before production"
-    validation_command: "python scripts/validate_KAN-033.py"
+      - "If PULSE-14 found real source, synthetic field replaced before production"
+    validation_command: "python scripts/validate_PULSE-33.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_data"]
     recovery_patterns:
       failure_modes:
-        - condition: "KAN-14 found real source but differs from synthetic"
+        - condition: "PULSE-14 found real source but differs from synthetic"
           action: "Update generator to use real field logic. Remove SYNTHETIC flag. Re-run validate_simulation.py."
       retry_logic: "Update generator to match real source logic"
       fallback_strategy: "SYNTHETIC flag ensures no false EVIDENCED classifications"
       escalation_criteria: "Real source conflicts with synthetic assumptions"
     interfaces:
       inputs_expected:
-        - schema: "KAN-14 resolution"
+        - schema: "PULSE-14 resolution"
           format: "yaml"
           source: "manifests/audit_findings.yaml"
       outputs_promised:
@@ -1399,7 +1399,7 @@ components:
       breaking_change_protocol: "When real app_version source found, SYNTHETIC flag must be removed"
     traceability: "Enables refreshed vs legacy comparison — core Phase 1 mission"
 
-  - id: KAN-34
+  - id: PULSE-34
     jira_key: PULSE-32
     name: "Build accuracy benchmark dataset — 50 known journey patterns"
     sprint: 3
@@ -1411,21 +1411,21 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-34-benchmark-dataset"
-    manifest_path: "manifests/KAN-034_benchmark_manifest.md"
+    gitlab_branch: "feature/PULSE-34-benchmark-dataset"
+    manifest_path: "manifests/PULSE-34_benchmark_manifest.md"
     gitlab_path: "tests/benchmark_dataset.yaml"
     purpose: "50 known patterns with correct labelled outcomes to measure precision and recall objectively. Target: Sprint 7 EVIDENCED precision >90%, recall >80%."
     inputs:
-      - "KAN-24"
+      - "PULSE-24"
     outputs:
       - "tests/benchmark_dataset.yaml"
-    dependencies: ["KAN-24"]
+    dependencies: ["PULSE-24"]
     acceptance_criteria:
       - "tests/benchmark_dataset.yaml with 50 known journey patterns across all 5 journey types"
       - "Each pattern: pattern_id, journey_type, description, input_signals, expected_response_mode, expected_finding, expected_recommended_action"
       - "Covers all 5 response modes: EVIDENCED, CONTRADICTED, GUARDED, UNKNOWN, DIRECTIONAL"
       - "Monthly accuracy audit process documented"
-    validation_command: "python scripts/validate_KAN-034.py"
+    validation_command: "python scripts/validate_PULSE-34.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_tests"]
     recovery_patterns:
@@ -1447,7 +1447,7 @@ components:
       breaking_change_protocol: "Response mode definition changes require full benchmark re-labelling"
     traceability: "Enables objective accuracy measurement for intelligence layer"
 
-  - id: KAN-35
+  - id: PULSE-35
     jira_key: PULSE-33
     name: "Validate simulation output against all data contracts"
     sprint: 3
@@ -1459,21 +1459,21 @@ components:
     estimated_effort_hours: 2
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-35-simulation-validation"
-    manifest_path: "manifests/KAN-035_validation_manifest.md"
+    gitlab_branch: "feature/PULSE-35-simulation-validation"
+    manifest_path: "manifests/PULSE-35_validation_manifest.md"
     gitlab_path: "data/validate_simulation.py"
     purpose: "Contract validation proves simulation is a valid proxy for production data. Gate before any real pipeline work."
     inputs:
-      - "KAN-30"
-      - "KAN-31"
-      - "KAN-32"
-      - "KAN-33"
-      - "KAN-20"
-      - "KAN-21"
-      - "KAN-22"
+      - "PULSE-30"
+      - "PULSE-31"
+      - "PULSE-32"
+      - "PULSE-33"
+      - "PULSE-20"
+      - "PULSE-21"
+      - "PULSE-22"
     outputs:
       - "data/validate_simulation.py"
-    dependencies: ["KAN-30", "KAN-31", "KAN-32", "KAN-33", "KAN-20", "KAN-21", "KAN-22"]
+    dependencies: ["PULSE-30", "PULSE-31", "PULSE-32", "PULSE-33", "PULSE-20", "PULSE-21", "PULSE-22"]
     acceptance_criteria:
       - "data/validate_simulation.py checks every generated field against contract YAML"
       - "Checks: type, nullability, value range, governance_attributes"
@@ -1509,7 +1509,7 @@ components:
 # SPRINT 4: MA_S Rebuild — Session Pipeline (Days 22-28)
 # ============================================================
 
-  - id: KAN-40
+  - id: PULSE-40
     jira_key: PULSE-34
     name: "Build MA_S sessionisation pipeline in PySpark"
     sprint: 4
@@ -1521,21 +1521,21 @@ components:
     estimated_effort_hours: 8
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-40-ma-s-pipeline"
-    manifest_path: "manifests/KAN-040_ma_s_pipeline_manifest.md"
+    gitlab_branch: "feature/PULSE-40-ma-s-pipeline"
+    manifest_path: "manifests/PULSE-40_ma_s_pipeline_manifest.md"
     gitlab_path: "pipelines/build_ma_s.py"
     purpose: "The session spine is the foundation of every downstream intelligence. Must be correct, idempotent, produce all required fields."
     inputs:
-      - "KAN-20"
-      - "KAN-21"
-      - "KAN-22"
-      - "KAN-23"
-      - "KAN-34"
-      - "KAN-35"
+      - "PULSE-20"
+      - "PULSE-21"
+      - "PULSE-22"
+      - "PULSE-23"
+      - "PULSE-34"
+      - "PULSE-35"
     outputs:
       - "pipelines/build_ma_s.py"
       - "MA_S parquet partitioned by session_dt"
-    dependencies: ["KAN-20", "KAN-21", "KAN-22", "KAN-23", "KAN-34", "KAN-35"]
+    dependencies: ["PULSE-20", "PULSE-21", "PULSE-22", "PULSE-23", "PULSE-34", "PULSE-35"]
     acceptance_criteria:
       - "pipelines/build_ma_s.py groups by sesn_id ordered by evnt_ts"
       - "Derives: session_start, session_end, session_duration_sec, event_count, event_string, feature_string, final_event_code, final_journey_status, first_error_code, journey_map"
@@ -1543,7 +1543,7 @@ components:
       - "Writes parquet partitioned by session_dt"
       - "Idempotent (delete partition before write)"
       - "All fields per contracts/ma_s_spec.yaml"
-    validation_command: "pytest tests/test_ma_s.py -v && python scripts/validate_KAN-040.py"
+    validation_command: "pytest tests/test_ma_s.py -v && python scripts/validate_PULSE-40.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_data", "spark_submit"]
     recovery_patterns:
@@ -1553,7 +1553,7 @@ components:
         - condition: "Memory error on volume"
           action: "Add repartition(200). Add broadcast hint for OPS_CD join. Increase driver memory in deployment_config.yaml."
         - condition: "Output missing fields"
-          action: "Run python scripts/validate_KAN-040.py — it lists missing fields. Fix one field at a time."
+          action: "Run python scripts/validate_PULSE-40.py — it lists missing fields. Fix one field at a time."
       retry_logic: "Fix one error at a time. Re-run validation after each fix."
       fallback_strategy: "Reduce volume to 1M sessions for development testing"
       escalation_criteria: "Memory insufficient even after optimisation"
@@ -1591,7 +1591,7 @@ components:
           description: "Run pytest tests/test_ma_s.py -v. Fix all failures."
     traceability: "Foundation component — all downstream intelligence reads from MA_S"
 
-  - id: KAN-41
+  - id: PULSE-41
     jira_key: PULSE-35
     name: "Build pre-ingestion quality gate validator"
     sprint: 4
@@ -1603,17 +1603,17 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-41-pre-ingestion-validator"
-    manifest_path: "manifests/KAN-041_pre_ingestion_manifest.md"
+    gitlab_branch: "feature/PULSE-41-pre-ingestion-validator"
+    manifest_path: "manifests/PULSE-41_pre_ingestion_manifest.md"
     gitlab_path: "pipelines/pre_ingestion_validator.py"
     purpose: "Validate data quality before pipeline begins — not after. First line of defence."
     inputs:
-      - "KAN-19"
-      - "KAN-20"
-      - "KAN-40"
+      - "PULSE-19"
+      - "PULSE-20"
+      - "PULSE-40"
     outputs:
       - "pipelines/pre_ingestion_validator.py"
-    dependencies: ["KAN-19", "KAN-20", "KAN-40"]
+    dependencies: ["PULSE-19", "PULSE-20", "PULSE-40"]
     acceptance_criteria:
       - "Runs before any pipeline step"
       - "Checks: row count, null rates on critical fields, sentinel value rates, schema field presence, join key existence"
@@ -1652,7 +1652,7 @@ components:
       breaking_change_protocol: "Threshold changes must be in circuit_breaker_config.yaml — never in code"
     traceability: "Programme principle: Protect customer outcomes — first line of defence"
 
-  - id: KAN-42
+  - id: PULSE-42
     jira_key: PULSE-36
     name: "Derive behavioural signal fields from ordered event sequence"
     sprint: 4
@@ -1664,17 +1664,17 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-42-behavioural-signals"
-    manifest_path: "manifests/KAN-042_behavioural_signals_manifest.md"
+    gitlab_branch: "feature/PULSE-42-behavioural-signals"
+    manifest_path: "manifests/PULSE-42_behavioural_signals_manifest.md"
     gitlab_path: "pipelines/build_ma_s.py"
     purpose: "Behavioural signals are what make CJI Pulse distinctive. Each signal has exact derivation logic."
     inputs:
-      - "KAN-40"
-      - "KAN-22"
-      - "KAN-34"
+      - "PULSE-40"
+      - "PULSE-22"
+      - "PULSE-34"
     outputs:
       - "Behavioural signal fields in MA_S"
-    dependencies: ["KAN-40", "KAN-22", "KAN-34"]
+    dependencies: ["PULSE-40", "PULSE-22", "PULSE-34"]
     acceptance_criteria:
       - "ghost_intent_flag: intent event present but no terminal success op_code"
       - "silent_exit_flag: final event is mid-journey op_code not terminal"
@@ -1724,7 +1724,7 @@ components:
           description: "Run full test suite. Fix all failures."
     traceability: "Behavioural signals are the distinctive intelligence of CJI Pulse"
 
-  - id: KAN-43
+  - id: PULSE-43
     jira_key: PULSE-37
     name: "Build quality gate with full semantic telemetry"
     sprint: 4
@@ -1736,22 +1736,22 @@ components:
     estimated_effort_hours: 3
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-43-quality-gate"
-    manifest_path: "manifests/KAN-043_quality_gate_manifest.md"
+    gitlab_branch: "feature/PULSE-43-quality-gate"
+    manifest_path: "manifests/PULSE-43_quality_gate_manifest.md"
     gitlab_path: "pipelines/build_quality_gate.py"
     purpose: "Every pipeline failure must emit machine-readable telemetry. The quality gate is the enforcement mechanism."
     inputs:
-      - "KAN-19"
-      - "KAN-40"
+      - "PULSE-19"
+      - "PULSE-40"
     outputs:
       - "pipelines/build_quality_gate.py"
-    dependencies: ["KAN-19", "KAN-40"]
+    dependencies: ["PULSE-19", "PULSE-40"]
     acceptance_criteria:
       - "Checks: null rates per critical field, join rates, session volume, schema drift flags"
       - "On failure emits complete telemetry per manifests/telemetry_spec.yaml"
       - "All telemetry fields: step_id, input_reference, output_summary, error_code, error_class, retryability, business_impact_tier, downstream_dependency_impact, manifest_spec_reference"
       - "Degraded mode triggers automatically on 3+ critical failures"
-    validation_command: "python pipelines/build_quality_gate.py --inject-failures && python scripts/validate_KAN-043.py"
+    validation_command: "python pipelines/build_quality_gate.py --inject-failures && python scripts/validate_PULSE-43.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_logs", "trigger_degraded_mode"]
     recovery_patterns:
@@ -1759,7 +1759,7 @@ components:
         - condition: "Quality gate too strict"
           action: "Adjust thresholds in circuit_breaker_config.yaml. Never change threshold in code."
         - condition: "Telemetry JSON invalid"
-          action: "Read telemetry_spec.yaml. Each field is mandatory. Add missing field. Re-run validate_KAN-043.py."
+          action: "Read telemetry_spec.yaml. Each field is mandatory. Add missing field. Re-run validate_PULSE-43.py."
       retry_logic: "Fix telemetry output. Re-run inject-failures test."
       fallback_strategy: "Manual quality check if automated gate fails to fire"
       escalation_criteria: "Quality gate does not fire on known bad data"
@@ -1778,7 +1778,7 @@ components:
       breaking_change_protocol: "Telemetry spec changes require all quality gate outputs to be re-validated"
     traceability: "Programme principle: Semantic telemetry on every failure"
 
-  - id: KAN-44
+  - id: PULSE-44
     jira_key: PULSE-38
     name: "MA_S pipeline unit test suite"
     sprint: 4
@@ -1790,18 +1790,18 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-44-ma-s-tests"
-    manifest_path: "manifests/KAN-044_pipeline_tests_manifest.md"
+    gitlab_branch: "feature/PULSE-44-ma-s-tests"
+    manifest_path: "manifests/PULSE-44_pipeline_tests_manifest.md"
     gitlab_path: "tests/test_ma_s.py"
     purpose: "AI-generated tests prove correctness and serve as regression protection."
     inputs:
-      - "KAN-40"
-      - "KAN-42"
-      - "KAN-43"
-      - "KAN-34"
+      - "PULSE-40"
+      - "PULSE-42"
+      - "PULSE-43"
+      - "PULSE-34"
     outputs:
       - "tests/test_ma_s.py"
-    dependencies: ["KAN-40", "KAN-42", "KAN-43", "KAN-34"]
+    dependencies: ["PULSE-40", "PULSE-42", "PULSE-43", "PULSE-34"]
     acceptance_criteria:
       - "Covers: sessionisation grouping, OPS_CD join rate, each behavioural signal, quality gate threshold behaviour, semantic telemetry format"
       - "Coverage >80%"
@@ -1836,7 +1836,7 @@ components:
 # SPRINT 5: Daily Journey Mart (Days 29-35)
 # ============================================================
 
-  - id: KAN-50
+  - id: PULSE-50
     jira_key: PULSE-39
     name: "Build daily_journey_mart aggregation"
     sprint: 5
@@ -1848,25 +1848,25 @@ components:
     estimated_effort_hours: 6
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-50-daily-mart"
-    manifest_path: "manifests/KAN-050_daily_mart_manifest.md"
+    gitlab_branch: "feature/PULSE-50-daily-mart"
+    manifest_path: "manifests/PULSE-50_daily_mart_manifest.md"
     gitlab_path: "pipelines/build_daily_mart.py"
     purpose: "The mart is what every downstream consumer reads. Raw data is never touched by agents or dashboard."
     inputs:
-      - "KAN-40"
-      - "KAN-41"
-      - "KAN-42"
-      - "KAN-43"
+      - "PULSE-40"
+      - "PULSE-41"
+      - "PULSE-42"
+      - "PULSE-43"
     outputs:
       - "pipelines/build_daily_mart.py"
       - "daily_journey_mart parquet"
-    dependencies: ["KAN-40", "KAN-41", "KAN-42", "KAN-43"]
+    dependencies: ["PULSE-40", "PULSE-41", "PULSE-42", "PULSE-43"]
     acceptance_criteria:
       - "Groups MA_S by journey_type, app_version (legacy/refreshed), session_dt"
       - "Computes: session_count, completion_rate, ghost_intent_rate, error_rate, avg_session_duration, funnel_leakage, help_access_rate, silent_exit_rate, contact_centre_contact_24h_rate"
       - "All metric definitions in config/metric_definitions.yaml — not hardcoded"
       - "Writes parquet partitioned by session_dt"
-    validation_command: "pytest tests/test_daily_mart.py -v && python scripts/validate_KAN-050.py"
+    validation_command: "pytest tests/test_daily_mart.py -v && python scripts/validate_PULSE-50.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_data", "spark_submit"]
     recovery_patterns:
@@ -1907,7 +1907,7 @@ components:
           description: "Run pytest tests/test_daily_mart.py -v. Fix all failures."
     traceability: "Intelligence surface for all agents and dashboard — never raw data"
 
-  - id: KAN-51
+  - id: PULSE-51
     jira_key: PULSE-40
     name: "Add refreshed vs legacy raw comparison layer"
     sprint: 5
@@ -1919,15 +1919,15 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-51-comparison-layer"
-    manifest_path: "manifests/KAN-051_comparison_layer_manifest.md"
+    gitlab_branch: "feature/PULSE-51-comparison-layer"
+    manifest_path: "manifests/PULSE-51_comparison_layer_manifest.md"
     gitlab_path: "pipelines/build_daily_mart.py"
     purpose: "Refreshed vs legacy comparison is the core Phase 1 mission. Raw comparison must be labelled DIRECTIONAL-only."
     inputs:
-      - "KAN-50"
+      - "PULSE-50"
     outputs:
       - "Comparison fields in daily_journey_mart"
-    dependencies: ["KAN-50"]
+    dependencies: ["PULSE-50"]
     acceptance_criteria:
       - "Raw comparison computed: refreshed_value, legacy_value, raw_gap, raw_direction"
       - "All comparison fields labelled raw_comparison=true"
@@ -1955,7 +1955,7 @@ components:
       breaking_change_protocol: "DIRECTIONAL label enforcement is non-negotiable — any change requires analytics lead sign-off"
     traceability: "Core Phase 1 mission: refreshed vs legacy comparison"
 
-  - id: KAN-52
+  - id: PULSE-52
     jira_key: PULSE-41
     name: "Add delta fields — today vs yesterday vs 7-day baseline"
     sprint: 5
@@ -1967,15 +1967,15 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-52-delta-fields"
-    manifest_path: "manifests/KAN-052_delta_fields_manifest.md"
+    gitlab_branch: "feature/PULSE-52-delta-fields"
+    manifest_path: "manifests/PULSE-52_delta_fields_manifest.md"
     gitlab_path: "pipelines/build_daily_mart.py"
     purpose: "Delta fields answer: is today worse than yesterday?"
     inputs:
-      - "KAN-50"
+      - "PULSE-50"
     outputs:
       - "Delta fields in daily_journey_mart"
-    dependencies: ["KAN-50"]
+    dependencies: ["PULSE-50"]
     acceptance_criteria:
       - "delta_vs_yesterday and delta_vs_7day_baseline computed per metric per journey"
       - "Direction flag: improving/worsening/stable per configurable threshold"
@@ -2006,7 +2006,7 @@ components:
       breaking_change_protocol: "Baseline window changes require metric_definitions.yaml update"
     traceability: "Journey owners need directional signals — is today better or worse?"
 
-  - id: KAN-53
+  - id: PULSE-53
     jira_key: PULSE-42
     name: "Add circuit breaker threshold checks"
     sprint: 5
@@ -2018,16 +2018,16 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-53-circuit-breaker"
-    manifest_path: "manifests/KAN-053_circuit_breaker_manifest.md"
+    gitlab_branch: "feature/PULSE-53-circuit-breaker"
+    manifest_path: "manifests/PULSE-53_circuit_breaker_manifest.md"
     gitlab_path: "config/circuit_breaker_config.yaml"
     purpose: "The circuit breaker prevents bad data or genuine customer harm from being normalised. Do Not Break journeys must never be silently downgraded."
     inputs:
-      - "KAN-50"
+      - "PULSE-50"
     outputs:
       - "config/circuit_breaker_config.yaml"
       - "circuit_breaker_level field in daily_journey_mart"
-    dependencies: ["KAN-50"]
+    dependencies: ["PULSE-50"]
     acceptance_criteria:
       - "Thresholds in config/circuit_breaker_config.yaml per metric per journey: GREEN/AMBER/RED/CRITICAL"
       - "Mart output includes circuit_breaker_level per journey"
@@ -2062,7 +2062,7 @@ components:
 # SPRINT 6: Cross-Channel & Customer Context (Days 36-42)
 # ============================================================
 
-  - id: KAN-60
+  - id: PULSE-60
     jira_key: PULSE-43
     name: "Build CC_D synthetic data generator"
     sprint: 6
@@ -2074,27 +2074,27 @@ components:
     estimated_effort_hours: 3
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-60-ccd-simulator"
-    manifest_path: "manifests/KAN-060_cc_d_sim_manifest.md"
+    gitlab_branch: "feature/PULSE-60-ccd-simulator"
+    manifest_path: "manifests/PULSE-60_cc_d_sim_manifest.md"
     gitlab_path: "data/simulate_cc_d.py"
     purpose: "Synthetic contact centre data lets us build and test cross-channel stitching before real CC_D join feasibility is confirmed."
     inputs:
-      - "KAN-30"
-      - "KAN-25"
+      - "PULSE-30"
+      - "PULSE-25"
     outputs:
       - "data/simulate_cc_d.py"
-    dependencies: ["KAN-30", "KAN-25"]
+    dependencies: ["PULSE-30", "PULSE-25"]
     acceptance_criteria:
       - "data/simulate_cc_d.py generates: cust_id, call_timestamp, reason_code, call_duration, journey_type_inferred"
       - "~5% of failed app sessions generate a call within 24h"
       - "reason_code distribution realistic per journey failure type"
       - "Volume realistic per day (50-200 calls)"
-    validation_command: "python data/simulate_cc_d.py --date today && python scripts/validate_KAN-060.py"
+    validation_command: "python data/simulate_cc_d.py --date today && python scripts/validate_PULSE-60.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_data"]
     recovery_patterns:
       failure_modes:
-        - condition: "KAN-25 blocked real CC_D join"
+        - condition: "PULSE-25 blocked real CC_D join"
           action: "Use synthetic generator only for Phase 1. Flag contact_centre_contact_24h as SYNTHETIC in mart output."
       retry_logic: "Synthetic is the fallback — always available"
       fallback_strategy: "SYNTHETIC flag on all contact centre signals"
@@ -2114,7 +2114,7 @@ components:
       breaking_change_protocol: "CC_D schema changes require contract update (contracts/cc_d.yaml) before generator update"
     traceability: "Required for Day 90 vision — contact_centre_contact_24h signal"
 
-  - id: KAN-61
+  - id: PULSE-61
     jira_key: PULSE-44
     name: "Build cross-channel stitching pipeline"
     sprint: 6
@@ -2126,23 +2126,23 @@ components:
     estimated_effort_hours: 5
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-61-cross-channel-stitch"
-    manifest_path: "manifests/KAN-061_cross_channel_manifest.md"
+    gitlab_branch: "feature/PULSE-61-cross-channel-stitch"
+    manifest_path: "manifests/PULSE-61_cross_channel_manifest.md"
     gitlab_path: "pipelines/build_cross_channel.py"
     purpose: "Stitching app sessions to contact centre calls — the highest-confidence leakage signal."
     inputs:
-      - "KAN-50"
-      - "KAN-60"
+      - "PULSE-50"
+      - "PULSE-60"
     outputs:
       - "pipelines/build_cross_channel.py"
       - "contact_centre_contact_24h field in daily_journey_mart"
-    dependencies: ["KAN-50", "KAN-60"]
+    dependencies: ["PULSE-50", "PULSE-60"]
     acceptance_criteria:
       - "Joins CC_D to MA_S on cust_id where call_timestamp BETWEEN session_end AND session_end + 24h"
       - "contact_centre_contact_24h flag added to daily_journey_mart"
       - "Stitching confidence documented: synthetic=SYNTHETIC, real join >90%=DIRECTIONAL, real join >98%=EVIDENCED candidate"
       - "Join rate logged in governance_run_fact"
-    validation_command: "pytest tests/test_cross_channel.py -v && python scripts/validate_KAN-061.py"
+    validation_command: "pytest tests/test_cross_channel.py -v && python scripts/validate_PULSE-61.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_data"]
     recovery_patterns:
@@ -2181,7 +2181,7 @@ components:
           description: "Run pytest tests/test_cross_channel.py -v. Fix all failures."
     traceability: "Day 90 vision: contact_centre_contact_24h is the leakage signal"
 
-  - id: KAN-62
+  - id: PULSE-62
     jira_key: PULSE-45
     name: "Build CUST_DIM synthetic data + join to MA_S"
     sprint: 6
@@ -2193,28 +2193,28 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-62-cust-dim"
-    manifest_path: "manifests/KAN-062_cust_dim_manifest.md"
+    gitlab_branch: "feature/PULSE-62-cust-dim"
+    manifest_path: "manifests/PULSE-62_cust_dim_manifest.md"
     gitlab_path: "data/simulate_cust_dim.py"
     purpose: "Customer context transforms aggregate statistics into customer outcomes. Enables identification of 45+ vulnerable customers."
     inputs:
-      - "KAN-50"
-      - "KAN-15"
+      - "PULSE-50"
+      - "PULSE-15"
     outputs:
       - "data/simulate_cust_dim.py"
       - "Customer context fields in daily_journey_mart"
-    dependencies: ["KAN-50", "KAN-15"]
+    dependencies: ["PULSE-50", "PULSE-15"]
     acceptance_criteria:
       - "data/simulate_cust_dim.py: customer_segment (5 types, 45+ low digital engagement = vulnerable), customer_tenure, historical_completion_rate, historical_digital_engagement_score"
       - "Joined to MA_S on cust_id"
       - "All cohort adjustment fields available in daily_journey_mart"
       - "Vulnerable customer cohort identifiable by query"
-    validation_command: "pytest tests/test_cust_dim.py -v && python scripts/validate_KAN-062.py"
+    validation_command: "pytest tests/test_cust_dim.py -v && python scripts/validate_PULSE-62.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "write_data"]
     recovery_patterns:
       failure_modes:
-        - condition: "KAN-15 blocked real CUST_DIM join"
+        - condition: "PULSE-15 blocked real CUST_DIM join"
           action: "Use synthetic CUST_DIM only. Flag all customer context fields as SYNTHETIC. Vulnerable detection still functional but labelled SYNTHETIC-COHORT."
       retry_logic: "Synthetic is the fallback — always available"
       fallback_strategy: "SYNTHETIC-COHORT flag on all customer segment fields"
@@ -2238,7 +2238,7 @@ components:
 # SPRINT 7: Core Intelligence Layer (Days 43-49)
 # ============================================================
 
-  - id: KAN-70
+  - id: PULSE-70
     jira_key: PULSE-46
     name: "Set up Qwen 2.5-Coder:14b via Ollama in Docker + model config"
     sprint: 7
@@ -2250,23 +2250,23 @@ components:
     estimated_effort_hours: 3
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-70-qwen-setup"
-    manifest_path: "manifests/KAN-070_qwen_setup_manifest.md"
+    gitlab_branch: "feature/PULSE-70-qwen-setup"
+    manifest_path: "manifests/PULSE-70_qwen_setup_manifest.md"
     gitlab_path: "config/model_config.yaml"
     purpose: "The LLM is the interpretive engine. Must run reliably. Model must be swappable via config — never hardcoded."
     inputs:
-      - "KAN-12"
+      - "PULSE-12"
     outputs:
       - "Ollama running in Docker with Qwen 2.5-Coder:14b"
       - "config/model_config.yaml"
-    dependencies: ["KAN-12"]
+    dependencies: ["PULSE-12"]
     acceptance_criteria:
       - "ollama run qwen2.5-coder:14b responds from Docker container"
       - "Model service in docker-compose.yml"
       - "Health check endpoint tested"
       - "config/model_config.yaml: preferred_model, fallback_model (qwen2.5:7b), model_endpoint, timeout_seconds, max_tokens"
       - "All agent code reads model config — never hardcoded model name"
-    validation_command: "curl http://localhost:11434/api/tags | grep qwen && python scripts/validate_KAN-070.py"
+    validation_command: "curl http://localhost:11434/api/tags | grep qwen && python scripts/validate_PULSE-70.py"
     graduated_trust_tier: 4
     runtime_permissions: ["docker_exec", "model_serve"]
     preferred_model:
@@ -2296,7 +2296,7 @@ components:
       breaking_change_protocol: "Model endpoint changes require all agent manifests to be updated"
     traceability: "Intelligence engine — all agents depend on this service"
 
-  - id: KAN-71
+  - id: PULSE-71
     jira_key: PULSE-47
     name: "Build Narrative Agent prompt template with context injection + tone guardrails + pre-flight validation"
     sprint: 7
@@ -2308,17 +2308,17 @@ components:
     estimated_effort_hours: 6
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-71-narrative-agent"
-    manifest_path: "manifests/KAN-071_narrative_prompt_manifest.md"
+    gitlab_branch: "feature/PULSE-71-narrative-agent"
+    manifest_path: "manifests/PULSE-71_narrative_prompt_manifest.md"
     gitlab_path: "agents/narrative_agent.py"
     purpose: "The prompt template is the governance layer of the intelligence output. Controls what the model sees, in what order, and what it is permitted to say."
     inputs:
-      - "KAN-70"
-      - "KAN-50"
-      - "KAN-01H"
+      - "PULSE-70"
+      - "PULSE-50"
+      - "PULSE-1H"
     outputs:
       - "agents/narrative_agent.py"
-    dependencies: ["KAN-70", "KAN-50", "KAN-01H"]
+    dependencies: ["PULSE-70", "PULSE-50", "PULSE-1H"]
     acceptance_criteria:
       - "Tiered context injection: Tier 1 (canonical statements, tone guardrails, quality gate status, circuit breaker level), Tier 2 (hypothesis subset, friction taxonomy), Tier 3 (expectation register fragments)"
       - "Token budget enforced — omissions logged with reason"
@@ -2369,7 +2369,7 @@ components:
           description: "Run adversarial tone tests. Fix guardrail violations. Re-run until all pass."
     traceability: "Governance layer of all intelligence output"
 
-  - id: KAN-72
+  - id: PULSE-72
     jira_key: PULSE-48
     name: "Build response mode classification + recommended action (three-part)"
     sprint: 7
@@ -2381,15 +2381,15 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-72-response-modes"
-    manifest_path: "manifests/KAN-072_response_modes_manifest.md"
+    gitlab_branch: "feature/PULSE-72-response-modes"
+    manifest_path: "manifests/PULSE-72_response_modes_manifest.md"
     gitlab_path: "agents/narrative_agent.py"
     purpose: "Response mode is the honesty signal. Recommended action transforms diagnosis into decision."
     inputs:
-      - "KAN-71"
+      - "PULSE-71"
     outputs:
       - "Response mode classification in narrative agent"
-    dependencies: ["KAN-71"]
+    dependencies: ["PULSE-71"]
     acceptance_criteria:
       - "response_mode always included: EVIDENCED/DIRECTIONAL/UNKNOWN/GUARDED/CONTRADICTED"
       - "CONTRADICTED cannot be suppressed or overridden"
@@ -2420,7 +2420,7 @@ components:
       breaking_change_protocol: "Response mode definition changes require full benchmark re-run"
     traceability: "Honesty signal — CONTRADICTED is non-suppressible"
 
-  - id: KAN-73
+  - id: PULSE-73
     jira_key: PULSE-49
     name: "Build investigation queue generator"
     sprint: 7
@@ -2432,15 +2432,15 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-73-investigation-queue"
-    manifest_path: "manifests/KAN-073_inv_queue_manifest.md"
+    gitlab_branch: "feature/PULSE-73-investigation-queue"
+    manifest_path: "manifests/PULSE-73_inv_queue_manifest.md"
     gitlab_path: "agents/narrative_agent.py"
     purpose: "The queue is the action layer. Translates intelligence into prioritised work items."
     inputs:
-      - "KAN-72"
+      - "PULSE-72"
     outputs:
       - "investigation_queue JSON"
-    dependencies: ["KAN-72"]
+    dependencies: ["PULSE-72"]
     acceptance_criteria:
       - "Ranked investigation_queue JSON output"
       - "Each item: queue_id, triage_band (P1/P2/P3), journey_type, finding_summary, evidence_source_tier, response_mode, priority_score, promise_breach_flag, recommended_action (three-part), user_priority_weight"
@@ -2460,7 +2460,7 @@ components:
       inputs_expected:
         - schema: "Classified findings"
           format: "JSON"
-          source: "KAN-72 output"
+          source: "PULSE-72 output"
       outputs_promised:
         - schema: "Investigation queue"
           format: "JSON"
@@ -2468,7 +2468,7 @@ components:
       breaking_change_protocol: "P1 auto-override rules require analytics lead approval to change"
     traceability: "Transforms intelligence into prioritised action — Do Not Break is P1"
 
-  - id: KAN-74
+  - id: PULSE-74
     jira_key: PULSE-50
     name: "Build hypothesis query interface — library-grounded conversational search"
     sprint: 7
@@ -2480,17 +2480,17 @@ components:
     estimated_effort_hours: 5
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-74-hypothesis-query"
-    manifest_path: "manifests/KAN-074_hypothesis_query_manifest.md"
+    gitlab_branch: "feature/PULSE-74-hypothesis-query"
+    manifest_path: "manifests/PULSE-74_hypothesis_query_manifest.md"
     gitlab_path: "agents/hypothesis_query_agent.py"
     purpose: "Journey owners think in questions. The hypothesis query interface lets them type what they think is happening and get an evidence-grounded answer."
     inputs:
-      - "KAN-70"
-      - "KAN-72"
-      - "KAN-01H"
+      - "PULSE-70"
+      - "PULSE-72"
+      - "PULSE-1H"
     outputs:
       - "agents/hypothesis_query_agent.py"
-    dependencies: ["KAN-70", "KAN-72", "KAN-01H"]
+    dependencies: ["PULSE-70", "PULSE-72", "PULSE-1H"]
     acceptance_criteria:
       - "Accepts free-text hypothesis, interprets intent, retrieves closest match using semantic similarity"
       - "Returns: matched_hypothesis, evidence_tier, response_mode, recommended_action, supporting_kpis, confidence_score"
@@ -2542,7 +2542,7 @@ components:
           description: "Run pytest tests/test_hypothesis_query.py -v. Fix all failures."
     traceability: "Ask CJI — intelligence interface for journey owners who think in questions"
 
-  - id: KAN-75
+  - id: PULSE-75
     jira_key: PULSE-51
     name: "Adversarial test suite — response modes + tone + benchmark accuracy first run"
     sprint: 7
@@ -2554,19 +2554,19 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-75-adversarial-tests"
-    manifest_path: "manifests/KAN-075_adversarial_manifest.md"
+    gitlab_branch: "feature/PULSE-75-adversarial-tests"
+    manifest_path: "manifests/PULSE-75_adversarial_manifest.md"
     gitlab_path: "tests/test_adversarial.py"
     purpose: "The adversarial suite is the proof that the intelligence layer is trustworthy. Precondition for Sprint 10 demo."
     inputs:
-      - "KAN-71"
-      - "KAN-72"
-      - "KAN-73"
-      - "KAN-34"
+      - "PULSE-71"
+      - "PULSE-72"
+      - "PULSE-73"
+      - "PULSE-34"
     outputs:
       - "tests/test_adversarial.py"
       - "Benchmark accuracy first run results"
-    dependencies: ["KAN-71", "KAN-72", "KAN-73", "KAN-34"]
+    dependencies: ["PULSE-71", "PULSE-72", "PULSE-73", "PULSE-34"]
     acceptance_criteria:
       - "7 adversarial scenarios: clean improvement→EVIDENCED, metrics+NPS drop→CONTRADICTED, Do Not Break→GUARDED P1, low data→UNKNOWN, directional→DIRECTIONAL, tone test, vulnerable customer→P1"
       - "Benchmark accuracy first run: precision >90%, recall >80% targets documented"
@@ -2604,7 +2604,7 @@ components:
 # SPRINT 8: Voice, Promise & Expectation Intelligence (Days 50-56)
 # ============================================================
 
-  - id: KAN-80
+  - id: PULSE-80
     jira_key: PULSE-52
     name: "Build synthetic app store review and NPS generator"
     sprint: 8
@@ -2616,21 +2616,21 @@ components:
     estimated_effort_hours: 3
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-80-review-simulator"
-    manifest_path: "manifests/KAN-080_review_sim_manifest.md"
+    gitlab_branch: "feature/PULSE-80-review-simulator"
+    manifest_path: "manifests/PULSE-80_review_sim_manifest.md"
     gitlab_path: "data/simulate_reviews.py"
     purpose: "Synthetic voice data lets us build and test the voice intelligence pipeline."
     inputs:
-      - "KAN-30"
+      - "PULSE-30"
     outputs:
       - "data/simulate_reviews.py"
-    dependencies: ["KAN-30"]
+    dependencies: ["PULSE-30"]
     acceptance_criteria:
       - "Realistic reviews: rating (1-5), text, app_version, review_date"
       - "NPS verbatims with score, journey_type, realistic text referencing Day 90 vision"
       - "Negative review spike correlates with failure injection rate"
       - "Volume: 50-200 reviews per day"
-    validation_command: "python data/simulate_reviews.py --date today && python scripts/validate_KAN-080.py"
+    validation_command: "python data/simulate_reviews.py --date today && python scripts/validate_PULSE-80.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_config", "write_data"]
     recovery_patterns:
@@ -2655,7 +2655,7 @@ components:
       breaking_change_protocol: "Review schema changes require voice agent update"
     traceability: "Voice evidence pipeline — Day 90 vision: 5 customers said App journey sucks"
 
-  - id: KAN-81
+  - id: PULSE-81
     jira_key: PULSE-53
     name: "Build keyword clustering pipeline — OPS_CD seeded, k-means n=5"
     sprint: 8
@@ -2667,16 +2667,16 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-81-keyword-clustering"
-    manifest_path: "manifests/KAN-081_clustering_manifest.md"
+    gitlab_branch: "feature/PULSE-81-keyword-clustering"
+    manifest_path: "manifests/PULSE-81_clustering_manifest.md"
     gitlab_path: "agents/voice_agent.py"
     purpose: "Clustering reviews by journey type: here are the top 3 things customers are saying about the Loans journey."
     inputs:
-      - "KAN-80"
-      - "KAN-22"
+      - "PULSE-80"
+      - "PULSE-22"
     outputs:
       - "agents/voice_agent.py (clustering function)"
-    dependencies: ["KAN-80", "KAN-22"]
+    dependencies: ["PULSE-80", "PULSE-22"]
     acceptance_criteria:
       - "k-means with n=5 clusters per journey type (n=5 exactly)"
       - "Seed vocabulary from OPS_CD feature taxonomy"
@@ -2708,7 +2708,7 @@ components:
       breaking_change_protocol: "OPS_CD taxonomy changes require cluster seed vocabulary update"
     traceability: "Voice intelligence — journey-level customer sentiment"
 
-  - id: KAN-82
+  - id: PULSE-82
     jira_key: PULSE-54
     name: "Build Voice Agent — retrieval and narrative injection with source tier label"
     sprint: 8
@@ -2720,16 +2720,16 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-82-voice-agent"
-    manifest_path: "manifests/KAN-082_voice_agent_manifest.md"
+    gitlab_branch: "feature/PULSE-82-voice-agent"
+    manifest_path: "manifests/PULSE-82_voice_agent_manifest.md"
     gitlab_path: "agents/voice_agent.py"
     purpose: "Retrieves voice evidence and injects into Narrative Agent context with explicit source labelling."
     inputs:
-      - "KAN-81"
-      - "KAN-71"
+      - "PULSE-81"
+      - "PULSE-71"
     outputs:
       - "agents/voice_agent.py (retrieval function)"
-    dependencies: ["KAN-81", "KAN-71"]
+    dependencies: ["PULSE-81", "PULSE-71"]
     acceptance_criteria:
       - "Retrieves top 3 clusters per flagged journey"
       - "Injects into Narrative Agent context with source_tier=VOICE label"
@@ -2750,7 +2750,7 @@ components:
       inputs_expected:
         - schema: "Cluster results"
           format: "JSON"
-          source: "KAN-81 output"
+          source: "PULSE-81 output"
         - schema: "Narrative agent context"
           format: "python object"
           source: "agents/narrative_agent.py"
@@ -2761,7 +2761,7 @@ components:
       breaking_change_protocol: "VOICE label enforcement is non-negotiable — cannot be weakened"
     traceability: "Voice is corroborative only — DIRECTIONAL stays DIRECTIONAL with voice support"
 
-  - id: KAN-83
+  - id: PULSE-83
     jira_key: PULSE-55
     name: "Build expectation and promise registry"
     sprint: 8
@@ -2773,16 +2773,16 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-83-expectation-registry"
-    manifest_path: "manifests/KAN-083_expectation_registry_manifest.md"
+    gitlab_branch: "feature/PULSE-83-expectation-registry"
+    manifest_path: "manifests/PULSE-83_expectation_registry_manifest.md"
     gitlab_path: "manifests/expectation_register.yaml"
     purpose: "Customer expectations are first-class evidence. CONTRADICTED fires when promise_to_outcome_status=BROKEN."
     inputs:
-      - "KAN-71"
+      - "PULSE-71"
     outputs:
       - "manifests/expectation_register.yaml"
       - "manifests/promise_register.yaml"
-    dependencies: ["KAN-71"]
+    dependencies: ["PULSE-71"]
     acceptance_criteria:
       - "manifests/expectation_register.yaml: pre-refresh customer expectations per journey"
       - "manifests/promise_register.yaml: testable promise statements from product teams"
@@ -2811,7 +2811,7 @@ components:
       breaking_change_protocol: "Promise changes require analytics lead approval — affects CONTRADICTED classification"
     traceability: "CONTRADICTED fires when promises are broken — customer protection mechanism"
 
-  - id: KAN-84
+  - id: PULSE-84
     jira_key: PULSE-56
     name: "Build app store rating velocity signal"
     sprint: 8
@@ -2823,16 +2823,16 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-84-rating-velocity"
-    manifest_path: "manifests/KAN-084_rating_velocity_manifest.md"
+    gitlab_branch: "feature/PULSE-84-rating-velocity"
+    manifest_path: "manifests/PULSE-84_rating_velocity_manifest.md"
     gitlab_path: "agents/voice_agent.py"
     purpose: "Rating velocity is the earliest operational signal of a bad release."
     inputs:
-      - "KAN-80"
-      - "KAN-53"
+      - "PULSE-80"
+      - "PULSE-53"
     outputs:
       - "app_store_velocity_signal in daily_journey_mart"
-    dependencies: ["KAN-80", "KAN-53"]
+    dependencies: ["PULSE-80", "PULSE-53"]
     acceptance_criteria:
       - "Rolling 24h and 7d rating change computed"
       - "Review volume per hour post-expansion tracked"
@@ -2867,7 +2867,7 @@ components:
 # SPRINT 9: Daily Orchestrator & Semantic Telemetry (Days 57-63)
 # ============================================================
 
-  - id: KAN-90
+  - id: PULSE-90
     jira_key: PULSE-57
     name: "Build orchestrator pipeline runner"
     sprint: 9
@@ -2879,28 +2879,28 @@ components:
     estimated_effort_hours: 6
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-90-orchestrator"
-    manifest_path: "manifests/KAN-090_orchestrator_manifest.md"
+    gitlab_branch: "feature/PULSE-90-orchestrator"
+    manifest_path: "manifests/PULSE-90_orchestrator_manifest.md"
     gitlab_path: "orchestrator/run_daily.py"
     purpose: "One command runs everything in the correct order. No human orchestration. No manual steps."
     inputs:
-      - "KAN-41"
-      - "KAN-43"
-      - "KAN-50"
-      - "KAN-61"
-      - "KAN-62"
-      - "KAN-72"
-      - "KAN-73"
+      - "PULSE-41"
+      - "PULSE-43"
+      - "PULSE-50"
+      - "PULSE-61"
+      - "PULSE-62"
+      - "PULSE-72"
+      - "PULSE-73"
     outputs:
       - "orchestrator/run_daily.py"
       - "governance_run_fact parquet"
-    dependencies: ["KAN-41", "KAN-43", "KAN-50", "KAN-61", "KAN-62", "KAN-72", "KAN-73"]
+    dependencies: ["PULSE-41", "PULSE-43", "PULSE-50", "PULSE-61", "PULSE-62", "PULSE-72", "PULSE-73"]
     acceptance_criteria:
       - "Runs all pipeline steps in dependency order"
       - "Each step logs: step_id, start_ts, end_ts, status, rows_processed, semantic_telemetry_reference"
       - "governance_run_fact written per run: run_id, date, steps_passed, steps_failed, quality_gate_status, circuit_breaker_level, duration_sec, degraded_mode_flag"
       - "Single entry point: python orchestrator/run_daily.py --date YYYY-MM-DD"
-    validation_command: "python orchestrator/run_daily.py --date today --dry-run && python scripts/validate_KAN-090.py"
+    validation_command: "python orchestrator/run_daily.py --date today --dry-run && python scripts/validate_PULSE-90.py"
     graduated_trust_tier: 3
     runtime_permissions: ["spark_submit", "model_inference", "write_data", "write_logs"]
     recovery_patterns:
@@ -2941,7 +2941,7 @@ components:
           description: "Run 7-day integration test. Fix all failures."
     traceability: "Programme principle: One command to run everything"
 
-  - id: KAN-91
+  - id: PULSE-91
     jira_key: PULSE-58
     name: "Build degraded mode handler + mid-execution escalation"
     sprint: 9
@@ -2953,16 +2953,16 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-91-degraded-mode"
-    manifest_path: "manifests/KAN-091_degraded_mode_manifest.md"
+    gitlab_branch: "feature/PULSE-91-degraded-mode"
+    manifest_path: "manifests/PULSE-91_degraded_mode_manifest.md"
     gitlab_path: "orchestrator/degraded_mode.py"
     purpose: "Degraded mode ensures the system never publishes partial or misleading intelligence. Mid-execution escalation notifies humans when confidence drops."
     inputs:
-      - "KAN-90"
-      - "KAN-43"
+      - "PULSE-90"
+      - "PULSE-43"
     outputs:
       - "orchestrator/degraded_mode.py"
-    dependencies: ["KAN-90", "KAN-43"]
+    dependencies: ["PULSE-90", "PULSE-43"]
     acceptance_criteria:
       - "If quality gate fails 3+ critical fields: suppress detailed findings, publish headline-only with DEGRADED banner, create P2 queue item, notify analytics lead"
       - "No improvised interpretation on partial data"
@@ -2995,7 +2995,7 @@ components:
       breaking_change_protocol: "DEGRADED threshold changes require analytics lead approval"
     traceability: "Programme principle: Protect customer outcomes — never publish misleading intelligence"
 
-  - id: KAN-92
+  - id: PULSE-92
     jira_key: PULSE-59
     name: "Implement full semantic telemetry on all failures"
     sprint: 9
@@ -3007,22 +3007,22 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-92-semantic-telemetry"
-    manifest_path: "manifests/KAN-092_telemetry_impl_manifest.md"
+    gitlab_branch: "feature/PULSE-92-semantic-telemetry"
+    manifest_path: "manifests/PULSE-92_telemetry_impl_manifest.md"
     gitlab_path: "orchestrator/run_daily.py"
     purpose: "Machine-readable telemetry on every failure makes the system self-diagnosable."
     inputs:
-      - "KAN-19"
-      - "KAN-90"
+      - "PULSE-19"
+      - "PULSE-90"
     outputs:
       - "Complete telemetry on all pipeline failures"
-    dependencies: ["KAN-19", "KAN-90"]
+    dependencies: ["PULSE-19", "PULSE-90"]
     acceptance_criteria:
       - "Every pipeline failure emits complete telemetry per manifests/telemetry_spec.yaml"
       - "All fields: step_id, input_reference, output_summary, error_code, error_class, retryability, business_impact_tier, downstream_dependency_impact, manifest_spec_reference, recovery_strategy_reference"
       - "Output as machine-readable JSON"
       - "Agent self-diagnosis test: given failure JSON, agent identifies correct recovery strategy"
-    validation_command: "python scripts/validate_KAN-092.py && pytest tests/test_orchestrator.py::test_agent_self_diagnosis -v"
+    validation_command: "python scripts/validate_PULSE-92.py && pytest tests/test_orchestrator.py::test_agent_self_diagnosis -v"
     graduated_trust_tier: 3
     runtime_permissions: ["read_logs", "write_logs"]
     recovery_patterns:
@@ -3047,7 +3047,7 @@ components:
       breaking_change_protocol: "Telemetry spec changes require all pipeline telemetry outputs to be re-validated"
     traceability: "Programme principle: Semantic telemetry on every failure — enables self-diagnosis"
 
-  - id: KAN-93
+  - id: PULSE-93
     jira_key: PULSE-60
     name: "End-to-end integration test — 7 days synthetic + push notification stubs + monthly review process"
     sprint: 9
@@ -3059,19 +3059,19 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-93-integration-test"
-    manifest_path: "manifests/KAN-093_integration_test_manifest.md"
+    gitlab_branch: "feature/PULSE-93-integration-test"
+    manifest_path: "manifests/PULSE-93_integration_test_manifest.md"
     gitlab_path: "scripts/run_7day_integration_test.py"
     purpose: "Seven days of successful synthetic runs proves the orchestrator works reliably before any journey owner sees the system."
     inputs:
-      - "KAN-90"
-      - "KAN-91"
-      - "KAN-92"
+      - "PULSE-90"
+      - "PULSE-91"
+      - "PULSE-92"
     outputs:
       - "scripts/run_7day_integration_test.py"
       - "7 rows in governance_run_fact"
       - "docs/operating_model.md (monthly review process)"
-    dependencies: ["KAN-90", "KAN-91", "KAN-92"]
+    dependencies: ["PULSE-90", "PULSE-91", "PULSE-92"]
     acceptance_criteria:
       - "7 days of synthetic data processed"
       - "All pipeline steps pass on each day"
@@ -3079,7 +3079,7 @@ components:
       - "governance_run_fact has 7 rows"
       - "Push notification stubs fire on Days 1 and 4"
       - "Monthly agent output review process documented in operating_model.md"
-    validation_command: "python scripts/run_7day_integration_test.py && python scripts/validate_KAN-093.py"
+    validation_command: "python scripts/run_7day_integration_test.py && python scripts/validate_PULSE-93.py"
     graduated_trust_tier: 3
     runtime_permissions: ["spark_submit", "model_inference", "write_data"]
     recovery_patterns:
@@ -3105,7 +3105,7 @@ components:
 # SPRINT 10: Streamlit Frontend (Days 64-70)
 # ============================================================
 
-  - id: KAN-100
+  - id: PULSE-100
     jira_key: PULSE-61
     name: "Build Streamlit app scaffold with login and navigation"
     sprint: 10
@@ -3117,22 +3117,22 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-100-app-scaffold"
-    manifest_path: "manifests/KAN-100_app_scaffold_manifest.md"
+    gitlab_branch: "feature/PULSE-100-app-scaffold"
+    manifest_path: "manifests/PULSE-100_app_scaffold_manifest.md"
     gitlab_path: "app/cji_app.py"
     purpose: "The scaffold is the container for every subsequent UI ticket. Login, navigation, and data loading must be solid."
     inputs:
-      - "KAN-93"
+      - "PULSE-93"
     outputs:
       - "app/cji_app.py (scaffold)"
-    dependencies: ["KAN-93"]
+    dependencies: ["PULSE-93"]
     acceptance_criteria:
       - "Login screen with session state"
       - "Navigation between 5 pages: Daily Briefing, Journey Scorecard, Investigation Queue, Voice Panel, Ask CJI"
       - "Reads from orchestrator report JSON (not mart directly)"
       - "No hardcoded data anywhere"
       - "Manifest path and version visible in footer"
-    validation_command: "python -m streamlit run app/cji_app.py --headless && python scripts/validate_KAN-100.py"
+    validation_command: "python -m streamlit run app/cji_app.py --headless && python scripts/validate_PULSE-100.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "streamlit_serve"]
     recovery_patterns:
@@ -3154,7 +3154,7 @@ components:
       breaking_change_protocol: "Page navigation changes require journey owner onboarding guide update"
     traceability: "Container for all journey owner intelligence interactions"
 
-  - id: KAN-101
+  - id: PULSE-101
     jira_key: PULSE-62
     name: "Build daily briefing page + email stub"
     sprint: 10
@@ -3166,16 +3166,16 @@ components:
     estimated_effort_hours: 5
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-101-briefing-page"
-    manifest_path: "manifests/KAN-101_briefing_page_manifest.md"
+    gitlab_branch: "feature/PULSE-101-briefing-page"
+    manifest_path: "manifests/PULSE-101_briefing_page_manifest.md"
     gitlab_path: "app/cji_app.py"
     purpose: "What journey owners see first every morning. Answers in 30 seconds: is today good or bad, what do I need to do?"
     inputs:
-      - "KAN-100"
+      - "PULSE-100"
     outputs:
       - "Daily briefing page in app/cji_app.py"
       - "Email stub"
-    dependencies: ["KAN-100"]
+    dependencies: ["PULSE-100"]
     acceptance_criteria:
       - "response_mode badge (colour-coded, large, top of page)"
       - "Qwen executive headline"
@@ -3183,7 +3183,7 @@ components:
       - "Top 3 findings each with evidence tier + recommended_action (three-part visible)"
       - "Day 90 vision sentence displayed when Loans journey flagged with vulnerable customer finding"
       - "Email stub: generates HTML version of briefing delivered 7am"
-    validation_command: "python scripts/validate_KAN-101.py"
+    validation_command: "python scripts/validate_PULSE-101.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "streamlit_serve"]
     recovery_patterns:
@@ -3208,7 +3208,7 @@ components:
       breaking_change_protocol: "Briefing layout changes require journey owner sign-off"
     traceability: "Day 90 vision: sentence must be visible when Loans journey flagged"
 
-  - id: KAN-102
+  - id: PULSE-102
     jira_key: PULSE-63
     name: "Build journey scorecard page with user priority weighting"
     sprint: 10
@@ -3220,22 +3220,22 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-102-scorecard"
-    manifest_path: "manifests/KAN-102_scorecard_manifest.md"
+    gitlab_branch: "feature/PULSE-102-scorecard"
+    manifest_path: "manifests/PULSE-102_scorecard_manifest.md"
     gitlab_path: "app/cji_app.py"
     purpose: "At-a-glance view of all journeys. User-configurable priority weights let journey owners apply their own judgment."
     inputs:
-      - "KAN-100"
-      - "KAN-73"
+      - "PULSE-100"
+      - "PULSE-73"
     outputs:
       - "Journey scorecard page in app/cji_app.py"
-    dependencies: ["KAN-100", "KAN-73"]
+    dependencies: ["PULSE-100", "PULSE-73"]
     acceptance_criteria:
       - "Table per journey: session_count, completion_rate, ghost_intent_rate, error_rate, contact_centre_24h_rate, delta_vs_yesterday, circuit_breaker_level"
       - "Colour coded GREEN/AMBER/RED"
       - "Accessibility cohort shown as named cut: 'Vulnerable customers: 45+ low engagement — abandonment rate 3x average'"
       - "User priority weights: slider per journey, default 1.0, range 0.5-2.0"
-    validation_command: "python scripts/validate_KAN-102.py"
+    validation_command: "python scripts/validate_PULSE-102.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "streamlit_serve"]
     recovery_patterns:
@@ -3257,7 +3257,7 @@ components:
       breaking_change_protocol: "Vulnerable customer definition in scorecard requires analytics lead approval"
     traceability: "Programme principle: Protect customer outcomes — vulnerable cohorts are first-class"
 
-  - id: KAN-103
+  - id: PULSE-103
     jira_key: PULSE-64
     name: "Build investigation queue page + Slack P1 alert stub"
     sprint: 10
@@ -3269,23 +3269,23 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-103-queue-page"
-    manifest_path: "manifests/KAN-103_queue_page_manifest.md"
+    gitlab_branch: "feature/PULSE-103-queue-page"
+    manifest_path: "manifests/PULSE-103_queue_page_manifest.md"
     gitlab_path: "app/cji_app.py"
     purpose: "Where intelligence becomes action. P1 items must be impossible to miss."
     inputs:
-      - "KAN-100"
-      - "KAN-73"
+      - "PULSE-100"
+      - "PULSE-73"
     outputs:
       - "Investigation queue page in app/cji_app.py"
       - "Slack P1 alert stub"
-    dependencies: ["KAN-100", "KAN-73"]
+    dependencies: ["PULSE-100", "PULSE-73"]
     acceptance_criteria:
       - "Queue table: queue_id, triage_band, journey_type, finding_summary, response_mode badge, age_days, status, promise_breach_flag, recommended_action on expand"
       - "P1 items highlighted red"
       - "Items older than 14 days flagged amber"
       - "Slack alert stub fires P1 items to configured webhook"
-    validation_command: "python scripts/validate_KAN-103.py"
+    validation_command: "python scripts/validate_PULSE-103.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "streamlit_serve", "webhook_post"]
     recovery_patterns:
@@ -3310,7 +3310,7 @@ components:
       breaking_change_protocol: "14-day governance SLA is a business rule — requires senior manager approval to change"
     traceability: "SLA: P1 findings = 4h response, P2/P3 = 14 day closure target"
 
-  - id: KAN-104
+  - id: PULSE-104
     jira_key: PULSE-65
     name: "Build Ask CJI — conversational hypothesis query interface"
     sprint: 10
@@ -3322,23 +3322,23 @@ components:
     estimated_effort_hours: 5
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-104-ask-cji"
-    manifest_path: "manifests/KAN-104_ask_cji_manifest.md"
+    gitlab_branch: "feature/PULSE-104-ask-cji"
+    manifest_path: "manifests/PULSE-104_ask_cji_manifest.md"
     gitlab_path: "app/cji_app.py"
     purpose: "Journey owners type what they think is happening. The system interprets, searches the library, answers from evidence."
     inputs:
-      - "KAN-100"
-      - "KAN-74"
+      - "PULSE-100"
+      - "PULSE-74"
     outputs:
       - "Ask CJI page in app/cji_app.py"
-    dependencies: ["KAN-100", "KAN-74"]
+    dependencies: ["PULSE-100", "PULSE-74"]
     acceptance_criteria:
       - "Text input with example hypothesis visible before typing"
       - "Response shows: matched hypothesis, response_mode badge, recommended_action (three-part), supporting KPIs, confidence_score, source label"
       - "Below confidence threshold: honest 'not in library' response with KAN reference"
       - "Session memory: follow-up questions maintain context"
       - "All responses show source — never sourceless claims"
-    validation_command: "python scripts/validate_KAN-104.py"
+    validation_command: "python scripts/validate_PULSE-104.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_manifests", "model_inference", "streamlit_serve"]
     recovery_patterns:
@@ -3373,10 +3373,10 @@ components:
         - step: 5
           description: "Implement unknown hypothesis display with KAN reference."
         - step: 6
-          description: "Run validate_KAN-104.py. Fix all failures."
+          description: "Run validate_PULSE-104.py. Fix all failures."
     traceability: "Day 90 vision: journey owners interact with intelligence in natural language"
 
-  - id: KAN-105
+  - id: PULSE-105
     jira_key: PULSE-66
     name: "Build voice signal panel"
     sprint: 10
@@ -3388,22 +3388,22 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-105-voice-panel"
-    manifest_path: "manifests/KAN-105_voice_panel_manifest.md"
+    gitlab_branch: "feature/PULSE-105-voice-panel"
+    manifest_path: "manifests/PULSE-105_voice_panel_manifest.md"
     gitlab_path: "app/cji_app.py"
     purpose: "Voice evidence shown separately with source label — journey owners always know they are reading voice data, not operational data."
     inputs:
-      - "KAN-100"
-      - "KAN-82"
+      - "PULSE-100"
+      - "PULSE-82"
     outputs:
       - "Voice signal panel in app/cji_app.py"
-    dependencies: ["KAN-100", "KAN-82"]
+    dependencies: ["PULSE-100", "PULSE-82"]
     acceptance_criteria:
       - "Top 3 voice clusters per flagged journey: 'In last N days, X customers said [top_terms]'"
       - "Rating velocity indicator"
       - "Source tier label VOICE visible and prominent"
       - "Explicit caveat: 'Voice evidence is corroborative. It supports but does not replace operational data. DIRECTIONAL findings with voice support remain DIRECTIONAL.'"
-    validation_command: "python scripts/validate_KAN-105.py"
+    validation_command: "python scripts/validate_PULSE-105.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_data", "streamlit_serve"]
     recovery_patterns:
@@ -3429,7 +3429,7 @@ components:
 # SPRINT 11: Deployment, Security & Operating Model (Days 71-77)
 # ============================================================
 
-  - id: KAN-110
+  - id: PULSE-110
     jira_key: PULSE-67
     name: "Choose and document hosting decision + deployment config"
     sprint: 11
@@ -3441,22 +3441,22 @@ components:
     estimated_effort_hours: 2
     tool: "Research"
     jira_id: ""
-    gitlab_branch: "feature/KAN-110-hosting-decision"
-    manifest_path: "manifests/KAN-110_hosting_decision_manifest.md"
+    gitlab_branch: "feature/PULSE-110-hosting-decision"
+    manifest_path: "manifests/PULSE-110_hosting_decision_manifest.md"
     gitlab_path: "config/hosting_decision.md"
     purpose: "Hosting decision is infrastructure policy. Must be documented, versioned, machine-readable."
     inputs:
-      - "KAN-10"
+      - "PULSE-10"
     outputs:
       - "config/hosting_decision.md"
       - "config/deployment_config.yaml"
-    dependencies: ["KAN-10"]
+    dependencies: ["PULSE-10"]
     acceptance_criteria:
       - "config/hosting_decision.md: Streamlit Cloud preferred, VPS fallback documented"
       - "Security posture documented"
       - "config/deployment_config.yaml: environment, streamlit_app_url, data_path, model_endpoint, notification_webhooks, log_level"
       - "All components read from deployment_config.yaml — zero hardcoded URLs"
-    validation_command: "python scripts/validate_KAN-110.py"
+    validation_command: "python scripts/validate_PULSE-110.py"
     graduated_trust_tier: 4
     runtime_permissions: ["read_config", "write_config"]
     recovery_patterns:
@@ -3478,7 +3478,7 @@ components:
       breaking_change_protocol: "Hosting changes require all components to be re-validated against new deployment_config.yaml"
     traceability: "Infrastructure policy — gates deployment sprint"
 
-  - id: KAN-111
+  - id: PULSE-111
     jira_key: PULSE-68
     name: "Deploy to Streamlit Cloud"
     sprint: 11
@@ -3490,24 +3490,24 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-111-streamlit-deploy"
-    manifest_path: "manifests/KAN-111_deployment_manifest.md"
+    gitlab_branch: "feature/PULSE-111-streamlit-deploy"
+    manifest_path: "manifests/PULSE-111_deployment_manifest.md"
     gitlab_path: ".streamlit/secrets.toml"
     purpose: "Live deployment with a real URL transforms the project from a local experiment to a working system."
     inputs:
-      - "KAN-110"
-      - "KAN-100"
+      - "PULSE-110"
+      - "PULSE-100"
     outputs:
       - "Live Streamlit app URL"
-    dependencies: ["KAN-110", "KAN-100"]
+    dependencies: ["PULSE-110", "PULSE-100"]
     acceptance_criteria:
-      - "App live at streamlit.app URL (or cji.pro after KAN-113)"
+      - "App live at streamlit.app URL (or cji.pro after PULSE-113)"
       - "Login works"
       - "Daily report loads from latest synthetic run"
       - "No errors"
       - "HTTPS active"
       - "Secrets managed via Streamlit secrets.toml (not committed to repo)"
-    validation_command: "curl -s https://[app-url]/healthz | grep 'ok' && python scripts/validate_KAN-111.py"
+    validation_command: "curl -s https://[app-url]/healthz | grep 'ok' && python scripts/validate_PULSE-111.py"
     graduated_trust_tier: 4
     runtime_permissions: ["streamlit_deploy", "secrets_manage"]
     recovery_patterns:
@@ -3532,7 +3532,7 @@ components:
       breaking_change_protocol: "Secrets must never be committed to repo — use Streamlit secrets management"
     traceability: "A URL is credibility — transforms experiment to working system"
 
-  - id: KAN-112
+  - id: PULSE-112
     jira_key: PULSE-69
     name: "Set up GitLab CI/CD pipeline"
     sprint: 11
@@ -3544,15 +3544,15 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-112-cicd"
-    manifest_path: "manifests/KAN-112_cicd_manifest.md"
+    gitlab_branch: "feature/PULSE-112-cicd"
+    manifest_path: "manifests/PULSE-112_cicd_manifest.md"
     gitlab_path: ".gitlab-ci.yml"
     purpose: "CI/CD makes every merged commit safe. Tests run automatically. Bad code does not reach production."
     inputs:
-      - "KAN-111"
+      - "PULSE-111"
     outputs:
       - ".gitlab-ci.yml"
-    dependencies: ["KAN-111"]
+    dependencies: ["PULSE-111"]
     acceptance_criteria:
       - ".gitlab-ci.yml: run all tests on every push to main"
       - "Deploy to Streamlit on merge to main"
@@ -3584,7 +3584,7 @@ components:
       breaking_change_protocol: "CI/CD changes require test pipeline run before merge"
     traceability: "Programme principle: Every Friday — something deployed"
 
-  - id: KAN-113
+  - id: PULSE-113
     jira_key: PULSE-70
     name: "Configure custom domain cji.pro"
     sprint: 11
@@ -3596,15 +3596,15 @@ components:
     estimated_effort_hours: 2
     tool: "Manual"
     jira_id: ""
-    gitlab_branch: "feature/KAN-113-domain"
-    manifest_path: "manifests/KAN-113_domain_manifest.md"
+    gitlab_branch: "feature/PULSE-113-domain"
+    manifest_path: "manifests/PULSE-113_domain_manifest.md"
     gitlab_path: "config/deployment_config.yaml"
     purpose: "cji.pro is the identity. A professional domain communicates that this is a real system, not an experiment."
     inputs:
-      - "KAN-111"
+      - "PULSE-111"
     outputs:
       - "cji.pro resolving to deployed app"
-    dependencies: ["KAN-111"]
+    dependencies: ["PULSE-111"]
     acceptance_criteria:
       - "cji.pro resolves to deployed app"
       - "HTTPS certificate active"
@@ -3627,7 +3627,7 @@ components:
           source: "Domain registrar"
         - schema: "Streamlit app URL"
           format: "URL"
-          source: "KAN-111 output"
+          source: "PULSE-111 output"
       outputs_promised:
         - schema: "cji.pro HTTPS"
           format: "DNS record"
@@ -3635,7 +3635,7 @@ components:
       breaking_change_protocol: "Domain changes require team notification"
     traceability: "Professional identity for the programme"
 
-  - id: KAN-114
+  - id: PULSE-114
     jira_key: PULSE-71
     name: "Publish operating model — full governance document"
     sprint: 11
@@ -3647,16 +3647,16 @@ components:
     estimated_effort_hours: 6
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-114-operating-model"
-    manifest_path: "manifests/KAN-114_operating_model_manifest.md"
+    gitlab_branch: "feature/PULSE-114-operating-model"
+    manifest_path: "manifests/PULSE-114_operating_model_manifest.md"
     gitlab_path: "docs/operating_model.md"
     purpose: "The operating model makes CJI Pulse trustworthy to regulators, senior managers, and journey owners."
     inputs:
-      - "KAN-17"
-      - "KAN-01G"
+      - "PULSE-17"
+      - "PULSE-1G"
     outputs:
       - "docs/operating_model.md"
-    dependencies: ["KAN-17", "KAN-01G"]
+    dependencies: ["PULSE-17", "PULSE-1G"]
     acceptance_criteria:
       - "Named owner per decision area"
       - "SLAs: P1 findings=4h response, daily report=7am, P2/P3=14 day closure"
@@ -3667,7 +3667,7 @@ components:
       - "Collaboration cadence: weekly sync (Mondays 9am), monthly governance review, quarterly steering"
       - "Monthly agent output review process"
       - "Data governance: DSAR handling, retention, purpose limitation"
-    validation_command: "python scripts/validate_KAN-114.py"
+    validation_command: "python scripts/validate_PULSE-114.py"
     graduated_trust_tier: 4
     runtime_permissions: ["write_docs"]
     recovery_patterns:
@@ -3689,7 +3689,7 @@ components:
       breaking_change_protocol: "SLA changes require senior manager approval"
     traceability: "Governance layer — makes every agent action traceable to a named human"
 
-  - id: KAN-115
+  - id: PULSE-115
     jira_key: PULSE-72
     name: "Write journey owner onboarding guide"
     sprint: 11
@@ -3701,19 +3701,19 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-115-onboarding"
-    manifest_path: "manifests/KAN-115_onboarding_manifest.md"
+    gitlab_branch: "feature/PULSE-115-onboarding"
+    manifest_path: "manifests/PULSE-115_onboarding_manifest.md"
     gitlab_path: "docs/journey_owner_onboarding.md"
     purpose: "The onboarding guide determines whether journey owners trust the system and use it daily, or dismiss it."
     inputs:
-      - "KAN-114"
+      - "PULSE-114"
     outputs:
       - "docs/journey_owner_onboarding.md"
-    dependencies: ["KAN-114"]
+    dependencies: ["PULSE-114"]
     acceptance_criteria:
       - "9 sections: what CJI does/doesn't do, how to read response modes, recommended actions, investigation queue, Ask CJI (5 examples), priority weights, system limitations, how to raise concerns, trust tiers"
       - "Estimated reading time: 15 minutes"
-    validation_command: "python scripts/validate_KAN-115.py"
+    validation_command: "python scripts/validate_PULSE-115.py"
     graduated_trust_tier: 3
     runtime_permissions: ["write_docs"]
     recovery_patterns:
@@ -3742,7 +3742,7 @@ components:
 # SPRINT 12: Reconstruction Readiness (Days 78-84)
 # ============================================================
 
-  - id: KAN-120
+  - id: PULSE-120
     jira_key: PULSE-73
     name: "Audit and complete system_manifest.yaml — all components"
     sprint: 12
@@ -3754,8 +3754,8 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-120-manifest-audit"
-    manifest_path: "manifests/KAN-120_manifest_audit_manifest.md"
+    gitlab_branch: "feature/PULSE-120-manifest-audit"
+    manifest_path: "manifests/PULSE-120_manifest_audit_manifest.md"
     gitlab_path: "manifests/system_manifest.yaml"
     purpose: "The manifest is only as good as its accuracy. Sprint 12 verifies every component matches what was actually built."
     inputs:
@@ -3768,7 +3768,7 @@ components:
       - "All v5 fields complete for every component"
       - "Zero components with missing required fields"
       - "system_manifest.yaml validates without errors"
-    validation_command: "python scripts/validate_KAN-017.py"
+    validation_command: "python scripts/validate_PULSE-17.py"
     graduated_trust_tier: 4
     runtime_permissions: ["read_manifests", "write_manifests"]
     recovery_patterns:
@@ -3790,7 +3790,7 @@ components:
       breaking_change_protocol: "Manifest is truth — code deviations documented, not hidden"
     traceability: "Gate before clean-room reconstruction proof"
 
-  - id: KAN-121
+  - id: PULSE-121
     jira_key: PULSE-74
     name: "Complete system_manifest_index.md — rebuild entry point"
     sprint: 12
@@ -3802,21 +3802,21 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-121-manifest-index"
-    manifest_path: "manifests/KAN-121_index_manifest.md"
+    gitlab_branch: "feature/PULSE-121-manifest-index"
+    manifest_path: "manifests/PULSE-121_index_manifest.md"
     gitlab_path: "manifests/system_manifest_index.md"
     purpose: "The index is what an AI agent reads to understand how to rebuild the entire system from scratch."
     inputs:
-      - "KAN-120"
+      - "PULSE-120"
     outputs:
       - "manifests/system_manifest_index.md"
-    dependencies: ["KAN-120"]
+    dependencies: ["PULSE-120"]
     acceptance_criteria:
       - "Index of every component: KAN-ID, name, type, manifest path, status"
       - "Rebuild instructions: (1) clone repo (2) read index (3) for each component read manifest in dependency order (4) run build_from_manifest.py per component (5) system rebuilds"
       - "Instructions executable by Claude Code without clarification"
       - "No ambiguity permitted"
-    validation_command: "python scripts/validate_KAN-121.py"
+    validation_command: "python scripts/validate_PULSE-121.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_manifests", "write_manifests"]
     recovery_patterns:
@@ -3838,7 +3838,7 @@ components:
       breaking_change_protocol: "New components require index update before they are considered complete"
     traceability: "Rebuild entry point — the promise of manifest-first architecture"
 
-  - id: KAN-122
+  - id: PULSE-122
     jira_key: PULSE-75
     name: "Zero hardcoding audit"
     sprint: 12
@@ -3850,16 +3850,16 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-122-hardcoding-audit"
-    manifest_path: "manifests/KAN-122_hardcoding_audit_manifest.md"
+    gitlab_branch: "feature/PULSE-122-hardcoding-audit"
+    manifest_path: "manifests/PULSE-122_hardcoding_audit_manifest.md"
     gitlab_path: "scripts/zero_hardcoding_audit.sh"
     purpose: "Hardcoded values are the enemy of reconstruction. A rebuild that requires searching for magic strings is not a real rebuild."
     inputs:
-      - "KAN-120"
+      - "PULSE-120"
     outputs:
       - "scripts/zero_hardcoding_audit.sh"
       - "PASS result: zero hardcoded values outside config files"
-    dependencies: ["KAN-120"]
+    dependencies: ["PULSE-120"]
     acceptance_criteria:
       - "grep -r for hardcoded table names, URLs, thresholds, model names, file paths, port numbers returns zero results outside config files"
       - "Everything references TABLE_CONFIG, deployment_config.yaml, model_config.yaml, circuit_breaker_config.yaml, or simulation_config.yaml"
@@ -3886,7 +3886,7 @@ components:
       breaking_change_protocol: "New code additions must pass hardcoding audit before merge"
     traceability: "Programme principle: Build for future agents — all config machine-readable YAML"
 
-  - id: KAN-123
+  - id: PULSE-123
     jira_key: PULSE-76
     name: "Controlled rebuild proof — Voice Agent from manifest"
     sprint: 12
@@ -3898,24 +3898,24 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-123-rebuild-proof"
-    manifest_path: "manifests/KAN-123_rebuild_proof_manifest.md"
+    gitlab_branch: "feature/PULSE-123-rebuild-proof"
+    manifest_path: "manifests/PULSE-123_rebuild_proof_manifest.md"
     gitlab_path: "scripts/controlled_rebuild_test.py"
     purpose: "If an AI agent can rebuild the Voice Agent from its manifest alone, the manifest-first architecture is proven."
     inputs:
-      - "KAN-121"
-      - "KAN-122"
+      - "PULSE-121"
+      - "PULSE-122"
     outputs:
       - "scripts/controlled_rebuild_test.py"
       - "Rebuild gap log: manifests/rebuild_gaps.yaml"
-    dependencies: ["KAN-121", "KAN-122"]
+    dependencies: ["PULSE-121", "PULSE-122"]
     acceptance_criteria:
-      - "Test: read manifests/KAN-082_voice_agent_manifest.md only"
+      - "Test: read manifests/PULSE-82_voice_agent_manifest.md only"
       - "Rebuild agents/voice_agent.py from scratch using build_from_manifest.py"
       - "New file must pass pytest tests/test_voice_agent.py -v"
       - "Gaps documented in rebuild_gaps.yaml"
       - "Target: zero gaps requiring human interpretation"
-    validation_command: "python scripts/controlled_rebuild_test.py --component KAN-082"
+    validation_command: "python scripts/controlled_rebuild_test.py --component PULSE-82"
     graduated_trust_tier: 4
     runtime_permissions: ["read_manifests", "write_code", "delete_code"]
     recovery_patterns:
@@ -3929,7 +3929,7 @@ components:
       inputs_expected:
         - schema: "Voice agent manifest"
           format: "markdown"
-          source: "manifests/KAN-082_voice_agent_manifest.md"
+          source: "manifests/PULSE-82_voice_agent_manifest.md"
       outputs_promised:
         - schema: "Rebuilt voice agent"
           format: "python"
@@ -3940,7 +3940,7 @@ components:
       breaking_change_protocol: "Rebuild proof is the final validation — gaps must be closed before Phase 2"
     traceability: "The promise of manifest-first: any agent can rebuild any component"
 
-  - id: KAN-124
+  - id: PULSE-124
     jira_key: PULSE-77
     name: "Full adversarial test suite — response modes + tone + security + pre-ingestion"
     sprint: 12
@@ -3952,18 +3952,18 @@ components:
     estimated_effort_hours: 4
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-124-full-adversarial"
-    manifest_path: "manifests/KAN-124_adversarial_full_manifest.md"
+    gitlab_branch: "feature/PULSE-124-full-adversarial"
+    manifest_path: "manifests/PULSE-124_adversarial_full_manifest.md"
     gitlab_path: "tests/test_adversarial_full.py"
     purpose: "The adversarial suite is the final validation that CJI Pulse is trustworthy. Must pass before any journey owner sees production data."
     inputs:
-      - "KAN-75"
-      - "KAN-74"
-      - "KAN-91"
-      - "KAN-71"
+      - "PULSE-75"
+      - "PULSE-74"
+      - "PULSE-91"
+      - "PULSE-71"
     outputs:
       - "tests/test_adversarial_full.py"
-    dependencies: ["KAN-75", "KAN-74", "KAN-91", "KAN-71"]
+    dependencies: ["PULSE-75", "PULSE-74", "PULSE-91", "PULSE-71"]
     acceptance_criteria:
       - "All 7 Sprint 7 adversarial scenarios pass"
       - "Tone test: step 3 failure for vulnerable customer → tone guardrail enforced"
@@ -4001,7 +4001,7 @@ components:
 # SPRINT 13: End-to-End Proof & Handover (Days 85-90)
 # ============================================================
 
-  - id: KAN-130
+  - id: PULSE-130
     jira_key: PULSE-78
     name: "Run 30-day synthetic evidence pack"
     sprint: 13
@@ -4013,16 +4013,16 @@ components:
     estimated_effort_hours: 4
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-130-evidence-pack"
-    manifest_path: "manifests/KAN-130_evidence_pack_manifest.md"
+    gitlab_branch: "feature/PULSE-130-evidence-pack"
+    manifest_path: "manifests/PULSE-130_evidence_pack_manifest.md"
     gitlab_path: "scripts/run_30day_evidence_pack.py"
     purpose: "30 days of consistent output proves the system works reliably, not just on a good day."
     inputs:
-      - "KAN-93"
+      - "PULSE-93"
     outputs:
       - "scripts/run_30day_evidence_pack.py"
       - "30 rows in governance_run_fact"
-    dependencies: ["KAN-93"]
+    dependencies: ["PULSE-93"]
     acceptance_criteria:
       - "30 days of synthetic data processed"
       - "governance_run_fact has 30 rows"
@@ -4030,7 +4030,7 @@ components:
       - "At least 3 CONTRADICTED findings in 30 days"
       - "At least 1 DEGRADED day (Day 15 injected failures)"
       - "All results honest — do not cherry-pick"
-    validation_command: "python scripts/run_30day_evidence_pack.py && python scripts/validate_KAN-130.py"
+    validation_command: "python scripts/run_30day_evidence_pack.py && python scripts/validate_PULSE-130.py"
     graduated_trust_tier: 3
     runtime_permissions: ["spark_submit", "model_inference", "write_data"]
     recovery_patterns:
@@ -4052,7 +4052,7 @@ components:
       breaking_change_protocol: "Evidence pack must not be cherry-picked — all failures documented"
     traceability: "Day 90 is a shipping proof, not a demo — 30 days of evidence"
 
-  - id: KAN-131
+  - id: PULSE-131
     jira_key: PULSE-79
     name: "Clean-room reconstruction test"
     sprint: 13
@@ -4064,25 +4064,25 @@ components:
     estimated_effort_hours: 5
     tool: "Claude Code"
     jira_id: ""
-    gitlab_branch: "feature/KAN-131-clean-room"
-    manifest_path: "manifests/KAN-131_clean_room_manifest.md"
+    gitlab_branch: "feature/PULSE-131-clean-room"
+    manifest_path: "manifests/PULSE-131_clean_room_manifest.md"
     gitlab_path: "scripts/clean_room_reconstruction_test.py"
     purpose: "Clean-room reconstruction is the ultimate proof that the manifest-first architecture works."
     inputs:
-      - "KAN-121"
-      - "KAN-124"
+      - "PULSE-121"
+      - "PULSE-124"
     outputs:
       - "scripts/clean_room_reconstruction_test.py"
       - "Documented reconstruction results"
-    dependencies: ["KAN-121", "KAN-124"]
+    dependencies: ["PULSE-121", "PULSE-124"]
     acceptance_criteria:
       - "Delete agents/narrative_agent.py"
-      - "Provide Claude Code with system_manifest_index.md and KAN-071_narrative_prompt_manifest.md only"
+      - "Provide Claude Code with system_manifest_index.md and PULSE-71_narrative_prompt_manifest.md only"
       - "Claude Code rebuilds narrative_agent.py"
       - "pytest tests/test_narrative_agent.py -v must pass"
       - "Adversarial suite must pass on rebuilt agent"
       - "Every step, every gap, every deviation documented"
-    validation_command: "python scripts/clean_room_reconstruction_test.py --component KAN-071"
+    validation_command: "python scripts/clean_room_reconstruction_test.py --component PULSE-71"
     graduated_trust_tier: 4
     runtime_permissions: ["read_manifests", "write_code", "delete_code"]
     recovery_patterns:
@@ -4099,7 +4099,7 @@ components:
           source: "manifests/system_manifest_index.md"
         - schema: "Component manifest"
           format: "markdown"
-          source: "manifests/KAN-071_narrative_prompt_manifest.md"
+          source: "manifests/PULSE-71_narrative_prompt_manifest.md"
       outputs_promised:
         - schema: "Reconstructed agent"
           format: "python"
@@ -4110,7 +4110,7 @@ components:
       breaking_change_protocol: "THIS IS THE RECONSTRUCTION PROOF — the ultimate test of manifest-first"
     traceability: "Day 90 deliverable: manifest-first architecture proven"
 
-  - id: KAN-132
+  - id: PULSE-132
     jira_key: PULSE-80
     name: "Document final accuracy benchmark vs targets"
     sprint: 13
@@ -4122,23 +4122,23 @@ components:
     estimated_effort_hours: 2
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-132-accuracy-benchmark"
-    manifest_path: "manifests/KAN-132_accuracy_manifest.md"
+    gitlab_branch: "feature/PULSE-132-accuracy-benchmark"
+    manifest_path: "manifests/PULSE-132_accuracy_manifest.md"
     gitlab_path: "docs/accuracy_benchmark_final.md"
     purpose: "Honest accuracy documentation builds more trust than a clean benchmark."
     inputs:
-      - "KAN-34"
-      - "KAN-75"
+      - "PULSE-34"
+      - "PULSE-75"
     outputs:
       - "docs/accuracy_benchmark_final.md"
-    dependencies: ["KAN-34", "KAN-75"]
+    dependencies: ["PULSE-34", "PULSE-75"]
     acceptance_criteria:
       - "Actual precision and recall vs targets (EVIDENCED precision >90%, recall >80%)"
       - "Per-response-mode breakdown"
       - "Analysis of benchmark scenarios that failed: why, what would fix them"
       - "Phase 2 accuracy improvement plan with specific actions"
       - "Monthly audit cadence confirmed"
-    validation_command: "python scripts/validate_KAN-132.py"
+    validation_command: "python scripts/validate_PULSE-132.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_tests", "write_docs"]
     recovery_patterns:
@@ -4163,7 +4163,7 @@ components:
       breaking_change_protocol: "Accuracy results must not be modified after first run — document changes separately"
     traceability: "AI is easy to demo, hard to ship — honest accuracy is the proof"
 
-  - id: KAN-133
+  - id: PULSE-133
     jira_key: PULSE-81
     name: "Document Phase 2 gate decisions"
     sprint: 13
@@ -4175,16 +4175,16 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-133-phase2-gate"
-    manifest_path: "manifests/KAN-133_phase2_gate_manifest.md"
+    gitlab_branch: "feature/PULSE-133-phase2-gate"
+    manifest_path: "manifests/PULSE-133_phase2_gate_manifest.md"
     gitlab_path: "docs/phase_2_gate_decisions.md"
     purpose: "Phase 2 decisions made without Phase 1 evidence are guesses. These six decisions can only be made honestly now."
     inputs:
-      - "KAN-130"
-      - "KAN-132"
+      - "PULSE-130"
+      - "PULSE-132"
     outputs:
       - "docs/phase_2_gate_decisions.md"
-    dependencies: ["KAN-130", "KAN-132"]
+    dependencies: ["PULSE-130", "PULSE-132"]
     acceptance_criteria:
       - "Decision 1: accuracy justifies customer-facing use (yes/no with evidence)"
       - "Decision 2: Phase 2 resourcing model (2-3 humans + AI SELECTED per expert panel)"
@@ -4193,7 +4193,7 @@ components:
       - "Decision 5: Phase 2 scope (which features to build first)"
       - "Decision 6: full financial ROI model (build in Phase 2 gate yes/no)"
       - "All decisions signed by named senior manager"
-    validation_command: "python scripts/validate_KAN-133.py"
+    validation_command: "python scripts/validate_PULSE-133.py"
     graduated_trust_tier: 4
     runtime_permissions: ["read_docs", "write_docs"]
     recovery_patterns:
@@ -4218,7 +4218,7 @@ components:
       breaking_change_protocol: "Signed decisions cannot be modified — amendments are separate documents"
     traceability: "Phase 2 requires Phase 1 evidence — decisions made with data, not guesses"
 
-  - id: KAN-134
+  - id: PULSE-134
     jira_key: PULSE-82
     name: "Day 90 handover — evidence pack + clean-room results + open items + programme principles"
     sprint: 13
@@ -4230,22 +4230,22 @@ components:
     estimated_effort_hours: 3
     tool: "Cursor"
     jira_id: ""
-    gitlab_branch: "feature/KAN-134-day90-handover"
-    manifest_path: "manifests/KAN-134_handover_manifest.md"
+    gitlab_branch: "feature/PULSE-134-day90-handover"
+    manifest_path: "manifests/PULSE-134_handover_manifest.md"
     gitlab_path: "docs/day_90_handover.md"
     purpose: "Day 90 is not the end. It is the proof that earns Phase 2."
     inputs:
-      - "KAN-131"
-      - "KAN-132"
-      - "KAN-133"
+      - "PULSE-131"
+      - "PULSE-132"
+      - "PULSE-133"
     outputs:
       - "docs/day_90_handover.md"
-    dependencies: ["KAN-131", "KAN-132", "KAN-133"]
+    dependencies: ["PULSE-131", "PULSE-132", "PULSE-133"]
     acceptance_criteria:
       - "10 sections: Day 90 vision sentence status, 30-day summary, clean-room results, final accuracy, open audit findings, open tickets, Phase 2 decisions, manifests status, 12 programme principles, prompt retrospective"
       - "Day 90 vision sentence explicitly addressed"
       - "Prompt retrospective: what worked in AI-assisted building, what to improve for Phase 2"
-    validation_command: "python scripts/validate_KAN-134.py"
+    validation_command: "python scripts/validate_PULSE-134.py"
     graduated_trust_tier: 3
     runtime_permissions: ["read_docs", "write_docs"]
     recovery_patterns:

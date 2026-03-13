@@ -11,7 +11,7 @@ description: >
 owner: "Hussain Ahmed"
 created: "2026-03-11"
 last_updated: "2026-03-11"
-manifest_reference: "manifests/system_manifest.yaml#KAN-01H"
+manifest_reference: "manifests/system_manifest.yaml#PULSE-1H"
 traceability: "Intelligence core — enables Ask CJI conversational interface"
 
 entry_schema:
@@ -426,7 +426,7 @@ hypotheses:
       - "Abandonment rate by engagement score quartile"
       - "Engagement score vs age cohort correlation"
     evidence_requirements:
-      - "CUST_DIM join to MA_D confirmed (KAN-15)"
+      - "CUST_DIM join to MA_D confirmed (PULSE-15)"
       - "historical_digital_engagement_score populated for ≥70% of Step 3 sessions"
       - "Minimum 500 sessions per engagement quartile"
     minimum_effect_size: "Abandonment rate in lowest engagement quartile ≥2x highest quartile"

@@ -1,6 +1,6 @@
 """
-validate_KAN-01G.py
-Validates manifests/graduated_trust_tiers.yaml against KAN-01G acceptance criteria.
+validate_PULSE-1G.py
+Validates manifests/graduated_trust_tiers.yaml against PULSE-1G acceptance criteria.
 
 Pre-flight enhancements:
   1. TELEMETRY INTEGRATION — loads telemetry_spec.yaml, validates that
@@ -21,7 +21,7 @@ Core checks:
   - Interaction matrix covers all 4 operator tiers
   - usage_contract present, mandatory=true, applies to ALL
 
-Run: python scripts/validate_KAN-01G.py
+Run: python scripts/validate_PULSE-1G.py
 """
 
 import re
@@ -96,7 +96,7 @@ def load_yaml(path: str):
 
 def validate_spec(spec_path: str) -> bool:
     print(f"\n{'='*60}")
-    print(f"CJI Pulse — validate_KAN-01G.py")
+    print(f"CJI Pulse — validate_PULSE-1G.py")
     print(f"Validating: {spec_path}")
     print(f"{'='*60}\n")
 
@@ -542,7 +542,7 @@ def validate_spec(spec_path: str) -> bool:
         return False
     else:
         print(f"\n{'='*60}")
-        print("RESULT: PASSED — graduated_trust_tiers.yaml meets all KAN-01G acceptance criteria.")
+        print("RESULT: PASSED — graduated_trust_tiers.yaml meets all PULSE-1G acceptance criteria.")
         print("Pre-flight enhancements: telemetry integration, identity mapping, traceability law — all clear.")
         print("Governance is a ramp, not a wall.")
         print(f"{'='*60}\n")

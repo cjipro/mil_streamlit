@@ -1,5 +1,5 @@
 schema_version: "1.1"
-generated_by: "KAN-13"
+generated_by: "PULSE-13"
 purpose: "Machine-readable register of all data quality audit findings for CJI Pulse. No pipeline is built against an affected table until its findings are RESOLVED or DEFERRED."
 last_updated: "2026-03-12"
 
@@ -13,17 +13,17 @@ findings:
     impact: "Incomplete row counts will skew Step 3 abandonment metrics and undermine pipeline confidence."
     resolution_required: true
     owner: "Hussain Ahmed"
-    linked_ticket: KAN-13
+    linked_ticket: PULSE-13
 
   - id: FINDING-002
     title: "Schema Completeness — app_version Field Missing from MA_D"
     severity: CRITICAL
     status: OPEN
     description: "The app_version field is absent from MA_D, blocking the ability to split journeys by refreshed vs legacy app experience."
-    impact: "The Phase 1 mission (comparing app experience for Step 3 abandonment) cannot proceed until this field is present — blocks KAN-14."
+    impact: "The Phase 1 mission (comparing app experience for Step 3 abandonment) cannot proceed until this field is present — blocks PULSE-14."
     resolution_required: true
     owner: "Hussain Ahmed"
-    linked_ticket: KAN-14
+    linked_ticket: PULSE-14
 
   - id: FINDING-003
     title: "Join Rate Quality — MA_D to CUST_DIM Join Below 80%"
@@ -33,7 +33,7 @@ findings:
     impact: "Low join rate makes cohort-level analysis (age band, vulnerability flag) unreliable and inflates the unknowns population."
     resolution_required: true
     owner: "Hussain Ahmed"
-    linked_ticket: KAN-13
+    linked_ticket: PULSE-13
 
   - id: FINDING-004
     title: "Field Freshness — journey_date Lag Exceeds 24 Hours in MA_D"
@@ -43,7 +43,7 @@ findings:
     impact: "Stale journey dates cause the daily pipeline to process yesterday's events as today's, distorting trend analysis."
     resolution_required: true
     owner: "Hussain Ahmed"
-    linked_ticket: KAN-13
+    linked_ticket: PULSE-13
 
   - id: FINDING-005
     title: "CUST_DIM Availability — age_band and vulnerability_flag Columns Missing"
@@ -53,7 +53,7 @@ findings:
     impact: "Without these columns the Day 90 mission objective (identifying likely 45+, likely vulnerable customers on Step 3) cannot be met."
     resolution_required: true
     owner: "Hussain Ahmed"
-    linked_ticket: KAN-13
+    linked_ticket: PULSE-13
 
 # ============================================================
 # AF-series findings — data dictionary audit (Session 5, 2026-03-12)
@@ -71,7 +71,7 @@ findings:
       findings must carry DIRECTIONAL response mode until taxonomy confirmed.
     resolution_required: true
     owner: Hussain Ahmed
-    linked_ticket: KAN-14
+    linked_ticket: PULSE-14
     resolution: >
       Accepted as known limitation for Sprint 1. OCR remains as intentional
       fallback. Full resolution deferred to Sprint 2.
@@ -99,7 +99,7 @@ findings:
       app version. Resolved via DADTL join with documented coverage caveat.
     resolution_required: false
     owner: Hussain Ahmed
-    linked_ticket: KAN-14
+    linked_ticket: PULSE-14
     resolution: >
       Definitive source: e_bmb_db.bmb_device_attr_detail (DADTL).
       Field: applicationversion (not appversion — legacy alias, do not use).
@@ -129,7 +129,7 @@ findings:
       engagement rates will be inflated until root cause resolved.
     resolution_required: true
     owner: Hussain Ahmed
-    linked_ticket: KAN-11
+    linked_ticket: PULSE-11
     table: REGS
     action_required: Investigate root cause — likely SCD2 join issue in e-layer
 
@@ -146,6 +146,6 @@ findings:
       pass these fields downstream until audit complete.
     resolution_required: true
     owner: Hussain Ahmed
-    linked_ticket: KAN-11
+    linked_ticket: PULSE-11
     table: OBRE
     action_required: Audit all atrb_val columns 1-26 for PII content

@@ -1,0 +1,277 @@
+schema_version: "2.0"
+spec_id: "CJI-MODEL-ROUTER-001"
+name: "CJI Pulse — 3-Tier Model Routing Configuration"
+description: >
+  3-tier routing strategy:
+    Tier 1 (local/Qwen)  — boilerplate. Free, fast, local.
+    Tier 2 (sonnet)      — routine intelligence. Balanced cost/quality.
+    Tier 3 (opus)        — hardest problems. Expensive but precise.
+  Auto-escalation when confidence is low. Full audit trail per call.
+owner: "Hussain Ahmed"
+created: "2026-03-11"
+manifest_reference: "manifests/system_manifest.yaml"
+
+# ============================================================
+# MODELS
+# ============================================================
+
+models:
+
+  local:
+    id: "local"
+    tier: 1
+    name: "qwen2.5-coder:14b"
+    provider: "ollama"
+    base_url: "http://localhost:11434"
+    health_check_endpoint: "/api/tags"
+    timeout_seconds: 120
+    cost: "free"
+    description: "Boilerplate — YAML generation, file creation, validation scripts, templates."
+    system_prompt: |
+      You are Qwen, the local tier in a 3-tier hybrid system.
+      Your job: generate code, YAML, templates, and validation scripts.
+
+      CRITICAL RULES:
+      1. Always start your response with: CONFIDENCE: [0-10]
+      2. Never embed the confidence score inside code blocks
+      3. Confidence should reflect:
+         - 8-10: I fully understand this task and can complete it perfectly
+         - 5-7: I mostly understand but need human review
+         - 0-4: This should escalate to Sonnet
+
+      Format:
+      CONFIDENCE: [score]
+      [your actual response]
+
+  sonnet:
+    id: "sonnet"
+    tier: 2
+    name: "claude-sonnet-4-6"
+    provider: "anthropic"
+    timeout_seconds: 60
+    cost: "low"
+    description: "Routine intelligence — narrative, hypothesis evaluation, pattern detection, analysis."
+
+  opus:
+    id: "opus"
+    tier: 3
+    name: "claude-opus-4-6"
+    provider: "anthropic"
+    timeout_seconds: 120
+    cost: "high"
+    description: "Hardest problems — governance, architecture, vulnerable cohort, complex reasoning."
+
+# ============================================================
+# CONFIDENCE ESCALATION
+# ============================================================
+
+confidence:
+  enabled: true
+  low_threshold: 6          # score <= this triggers escalation (out of 10)
+  high_threshold: 7         # score >= this is accepted
+  escalation_path:
+    local: "sonnet"
+    sonnet: "opus"
+    opus: null              # opus is the ceiling — no further escalation
+  uncertainty_keywords:
+    - "I'm not sure"
+    - "I cannot determine"
+    - "unclear"
+    - "insufficient information"
+    - "I don't know"
+    - "uncertain"
+
+# ============================================================
+# TASK TYPE ROUTING RULES
+# ============================================================
+# start_tier: which tier handles this task first
+# max_tier: ceiling — never escalate beyond this
+# confidence_check: whether to auto-escalate on low confidence
+
+routing_rules:
+
+  # ── TIER 1 — Boilerplate (Qwen) ──────────────────────────
+
+  - task_type: "yaml_generation"
+    description: "Generate a YAML manifest or config from a schema or template"
+    start_tier: 1
+    max_tier: 2
+    confidence_check: true
+    examples:
+      - "Generate hypothesis_library.yaml from template"
+      - "Create new component entry for system_manifest.yaml"
+
+  - task_type: "file_creation"
+    description: "Create a new file from a pattern — scripts, configs, stubs"
+    start_tier: 1
+    max_tier: 2
+    confidence_check: true
+    examples:
+      - "Create validate_KAN-XXX.py from validator template"
+      - "Scaffold a new pipeline module"
+
+  - task_type: "validation_script"
+    description: "Write or run a validation script against a manifest"
+    start_tier: 1
+    max_tier: 2
+    confidence_check: true
+    examples:
+      - "Write validator for audit_findings.yaml"
+
+  - task_type: "template_fill"
+    description: "Fill a known template with provided values"
+    start_tier: 1
+    max_tier: 2
+    confidence_check: false
+    examples:
+      - "Populate telemetry event from error code registry"
+
+  # ── TIER 2 — Routine Intelligence (Sonnet) ───────────────
+
+  - task_type: "narrative_generation"
+    description: "Generate a human-readable insight narrative from structured data"
+    start_tier: 2
+    max_tier: 3
+    confidence_check: true
+    examples:
+      - "Generate Day 90 insight narrative for Loans journey"
+      - "Summarise vulnerable cohort findings"
+
+  - task_type: "hypothesis_evaluation"
+    description: "Evaluate, score, or approve a hypothesis from hypothesis_library.yaml"
+    start_tier: 2
+    max_tier: 3
+    confidence_check: true
+    examples:
+      - "Evaluate HYPO-007 against available evidence"
+
+  - task_type: "pattern_detection"
+    description: "Detect patterns in customer journey data or pipeline outputs"
+    start_tier: 2
+    max_tier: 3
+    confidence_check: true
+    examples:
+      - "Detect abandonment pattern on Step 3 of Loans journey"
+
+  - task_type: "data_analysis"
+    description: "Analyse structured data outputs — statistics, anomalies, trends"
+    start_tier: 2
+    max_tier: 3
+    confidence_check: true
+    examples:
+      - "Analyse daily_journey_mart output for Step 3 drop-off"
+
+  # ── TIER 3 — Hardest Problems (Opus) ─────────────────────
+
+  - task_type: "governance_review"
+    description: "Review data use, sensitivity, purpose limitation, trust tier compliance"
+    start_tier: 3
+    max_tier: 3
+    confidence_check: false
+    examples:
+      - "Review if vulnerable cohort data can be used in this pipeline"
+
+  - task_type: "architecture_decision"
+    description: "Design a system component, evaluate trade-offs, define contracts"
+    start_tier: 3
+    max_tier: 3
+    confidence_check: false
+    examples:
+      - "Design the recovery pattern for DEPENDENCY-002"
+
+  - task_type: "vulnerable_cohort_analysis"
+    description: "Analysis involving vulnerable customer data — highest scrutiny required"
+    start_tier: 3
+    max_tier: 3
+    confidence_check: false
+    examples:
+      - "Analyse Step 3 abandonment for likely 45+ vulnerable cohort"
+
+  - task_type: "complex_reasoning"
+    description: "Multi-step reasoning, root cause analysis, debugging, planning"
+    start_tier: 3
+    max_tier: 3
+    confidence_check: false
+    examples:
+      - "Root cause analysis for FINDING-002 CRITICAL"
+
+# ============================================================
+# AUDIT TRAIL
+# ============================================================
+
+audit:
+  enabled: true
+  log_file: "logs/model_router_audit.jsonl"
+  fields:
+    - run_id
+    - task_type
+    - start_tier
+    - final_tier
+    - models_tried
+    - confidence_scores
+    - escalation_count
+    - timestamp_utc
+    - prompt_tokens_estimate
+    - success
+
+# ============================================================
+# MONITORING
+# ============================================================
+
+monitoring:
+  enabled: true
+  log_path: "logs/model_performance.jsonl"
+  weekly_report: true
+  weekly_report_path: "logs/weekly_model_report.md"
+  metrics:
+    - model_used
+    - task_type
+    - latency_seconds
+    - escalation_count
+    - confidence_score
+    - success
+    - estimated_cost_usd
+    - timestamp_utc
+    - run_id
+  cost_per_1k_tokens:
+    local: 0.0
+    sonnet_input: 0.003
+    sonnet_output: 0.015
+    opus_input: 0.015
+    opus_output: 0.075
+  alert_thresholds:
+    escalation_rate_pct: 30      # alert if >30% of calls escalate
+    opus_call_pct: 20            # alert if >20% of calls hit Opus
+    failure_rate_pct: 5          # alert if >5% of calls fail
+
+# ============================================================
+# FALLBACK POLICY
+# ============================================================
+
+fallback_policy:
+  enabled: true
+  trigger_conditions:
+    - "model unavailable (health check fails)"
+    - "response timeout exceeded"
+    - "malformed output after max_retries"
+  max_retries: 2
+  escalate_on_failure: true
+  telemetry_error_code: "DEPENDENCY-003"
+
+# ============================================================
+# USAGE CONTRACT
+# ============================================================
+
+usage_contract:
+  mandatory: true
+  rules:
+    - id: "MR-01"
+      rule: "All model calls MUST go through model_router.py. No direct Ollama or Anthropic calls in pipeline code."
+    - id: "MR-02"
+      rule: "task_type MUST be declared at call site. RoutingError raised if unregistered."
+    - id: "MR-03"
+      rule: "Tier 3 tasks (governance_review, architecture_decision, vulnerable_cohort_analysis) always start at Opus. Never downgraded."
+    - id: "MR-04"
+      rule: "Every call is logged to logs/model_router_audit.jsonl regardless of outcome."
+    - id: "MR-05"
+      rule: "Escalation is automatic. Callers must not implement their own escalation logic."

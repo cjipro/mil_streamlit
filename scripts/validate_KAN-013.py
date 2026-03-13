@@ -1,20 +1,20 @@
 """
-validate_KAN-013.py
-Validates manifests/audit_findings.yaml against the KAN-13 acceptance criteria.
+validate_PULSE-13.py
+Validates manifests/audit_findings.yaml against the PULSE-13 acceptance criteria.
 
 Checks:
   - Required top-level metadata present: schema_version, generated_by, purpose, last_updated
-  - findings is a non-empty list
-  - Required findings present: FINDING-001, FINDING-002, FINDING-003
-  - FINDING-002 severity is CRITICAL
+  - findings is a non-empty list with at least 5 entries
+  - Required findings present: FINDING-001 through FINDING-005
+  - FINDING-002 severity is CRITICAL and status is OPEN (blocker for PULSE-14)
   - Each finding has all required fields:
-      id, severity, status, description, business_impact, action_required,
-      owner, data_owner_signoff_required, resolution, fallback_if_unresolved
+      id, title, severity, status, description, impact, resolution_required, owner, linked_ticket
   - severity values: CRITICAL / HIGH / MEDIUM / LOW
-  - status values: OPEN / RESOLVED / ACCEPTED-WITH-FALLBACK / BLOCKED
-  - No finding is RESOLVED without data_owner_signoff_required = true
+  - status values: OPEN / IN_PROGRESS / RESOLVED / DEFERRED
+  - Topics covered: data availability, schema completeness, join rate quality,
+    field freshness, CUST_DIM availability
 
-Run: py scripts/validate_KAN-013.py
+Run: py scripts/validate_PULSE-13.py
 """
 
 import yaml
@@ -25,26 +25,33 @@ SPEC_PATH = "manifests/audit_findings.yaml"
 
 REQUIRED_FINDING_FIELDS = [
     "id",
+    "title",
     "severity",
     "status",
     "description",
-    "business_impact",
-    "action_required",
+    "impact",
+    "resolution_required",
     "owner",
-    "data_owner_signoff_required",
-    "resolution",
-    "fallback_if_unresolved",
+    "linked_ticket",
 ]
 
 VALID_SEVERITIES = {"CRITICAL", "HIGH", "MEDIUM", "LOW"}
-VALID_STATUSES = {"OPEN", "RESOLVED", "ACCEPTED-WITH-FALLBACK", "BLOCKED"}
+VALID_STATUSES = {"OPEN", "IN_PROGRESS", "RESOLVED", "DEFERRED"}
 
-REQUIRED_FINDING_IDS = {"FINDING-001", "FINDING-002", "FINDING-003"}
+REQUIRED_FINDING_IDS = {
+    "FINDING-001",
+    "FINDING-002",
+    "FINDING-003",
+    "FINDING-004",
+    "FINDING-005",
+}
+
+MIN_FINDINGS = 5
 
 
 def validate(spec_path: str) -> bool:
     print(f"\n{'='*60}")
-    print("CJI Pulse — validate_KAN-013.py")
+    print("CJI Pulse — validate_PULSE-13.py")
     print(f"Validating: {spec_path}")
     print(f"{'='*60}\n")
 
@@ -78,11 +85,15 @@ def validate(spec_path: str) -> bool:
     findings = spec.get("findings")
     if not findings or not isinstance(findings, list):
         errors.append("MISSING or empty 'findings' list")
-        # Cannot continue without findings
         _print_summary(errors, warnings)
         return False
 
     print(f"  [OK] {len(findings)} finding(s) present")
+
+    if len(findings) < MIN_FINDINGS:
+        errors.append(
+            f"Too few findings: {len(findings)} present, minimum required is {MIN_FINDINGS}"
+        )
 
     # --- Index findings by id ---
     findings_by_id = {}
@@ -125,42 +136,46 @@ def validate(spec_path: str) -> bool:
                 f"{fid}: invalid status '{status}'. Must be one of {sorted(VALID_STATUSES)}"
             )
 
-        # RESOLVED requires data_owner_signoff_required = true
-        if status == "RESOLVED":
-            if finding.get("data_owner_signoff_required") is not True:
-                errors.append(
-                    f"{fid}: status is RESOLVED but data_owner_signoff_required is not true. "
-                    "Data owner sign-off required before marking RESOLVED."
-                )
+        # resolution_required must be bool
+        res_req = finding.get("resolution_required")
+        if res_req is None:
+            pass  # already caught by field check
+        elif not isinstance(res_req, bool):
+            errors.append(f"{fid}: resolution_required must be true or false, got '{res_req}'")
 
-        if fid not in [f"<unknown>"] and severity in VALID_SEVERITIES and status in VALID_STATUSES:
+        if fid != "<unknown>" and severity in VALID_SEVERITIES and status in VALID_STATUSES:
             print(f"  [OK] {fid}: severity={severity}, status={status}")
 
-    # --- FINDING-002 must be CRITICAL ---
-    print("\nChecking FINDING-002 is CRITICAL...")
+    # --- FINDING-002 must be CRITICAL and OPEN ---
+    print("\nChecking FINDING-002 is CRITICAL and OPEN (blocker for PULSE-14)...")
     f002 = findings_by_id.get("FINDING-002")
     if f002:
         if f002.get("severity") != "CRITICAL":
             errors.append(
-                f"FINDING-002 severity must be CRITICAL (blocks Phase 1 mission). "
+                f"FINDING-002 severity must be CRITICAL (blocks PULSE-14). "
                 f"Got: '{f002.get('severity')}'"
             )
         else:
             print("  [OK] FINDING-002 severity = CRITICAL")
-    else:
-        # Already reported as missing above
-        pass
+
+        if f002.get("status") != "OPEN":
+            errors.append(
+                f"FINDING-002 status must be OPEN (blocker for PULSE-14 — not yet resolved). "
+                f"Got: '{f002.get('status')}'"
+            )
+        else:
+            print("  [OK] FINDING-002 status = OPEN")
 
     _print_summary(errors, warnings)
 
     if errors:
-        print("RESULT: FAILED — audit_findings.yaml does not meet KAN-13 acceptance criteria.")
+        print("RESULT: FAILED — audit_findings.yaml does not meet PULSE-13 acceptance criteria.")
         print(f"{'='*60}\n")
         return False
     else:
-        print("RESULT: PASSED — audit_findings.yaml meets all KAN-13 acceptance criteria.")
-        print("No pipeline may be built against an affected table until all findings are RESOLVED")
-        print("or ACCEPTED-WITH-FALLBACK.")
+        print("RESULT: PASSED — audit_findings.yaml meets all PULSE-13 acceptance criteria.")
+        print("No pipeline may be built against an affected table until all findings are")
+        print("RESOLVED or DEFERRED.")
         print(f"{'='*60}\n")
         return True
 

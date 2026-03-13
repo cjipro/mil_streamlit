@@ -1,5 +1,5 @@
 """
-validate_KAN-012.py — KAN-12 Docker environment health check
+validate_PULSE-12.py — PULSE-12 Docker environment health check
 Verifies all 4 services are reachable and reports PASS/FAIL per service.
 
 Services checked:
@@ -55,7 +55,7 @@ def check_tcp(host, port, label, timeout=5):
 def check_http(url, label, timeout=8, expected_status=None):
     """Check an HTTP endpoint returns a response."""
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "validate_KAN-012/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "validate_PULSE-12/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             status = resp.status
             if expected_status and status not in expected_status:
@@ -74,7 +74,7 @@ def check_ollama_model(base_url, model_name, label, timeout=8):
     """Check Ollama /api/tags and confirm model is available."""
     url = f"{base_url}/api/tags"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "validate_KAN-012/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "validate_PULSE-12/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             models = [m.get("name", "") for m in data.get("models", [])]
@@ -95,7 +95,7 @@ def check_ollama_model(base_url, model_name, label, timeout=8):
 
 def main():
     print()
-    print("validate_KAN-012.py — KAN-12 Docker environment health check")
+    print("validate_PULSE-12.py — PULSE-12 Docker environment health check")
     print("=" * 62)
     print()
 
@@ -103,19 +103,19 @@ def main():
 
     # 1. PostgreSQL — TCP check (psycopg2 not required)
     ok, msg = check_tcp("localhost", 5432, "PostgreSQL")
-    results.append((ok, msg, "validate_KAN-012.check_postgres"))
+    results.append((ok, msg, "validate_PULSE-12.check_postgres"))
 
     # 2. Streamlit — HTTP check
     ok, msg = check_http("http://localhost:8501", "Streamlit")
-    results.append((ok, msg, "validate_KAN-012.check_streamlit"))
+    results.append((ok, msg, "validate_PULSE-12.check_streamlit"))
 
     # 3. Jupyter — HTTP check
     ok, msg = check_http("http://localhost:8888", "Jupyter")
-    results.append((ok, msg, "validate_KAN-012.check_jupyter"))
+    results.append((ok, msg, "validate_PULSE-12.check_jupyter"))
 
     # 4. Ollama — HTTP + model check
     ok, msg = check_ollama_model("http://localhost:11434", "qwen2.5-coder:14b", "Ollama")
-    results.append((ok, msg, "validate_KAN-012.check_ollama"))
+    results.append((ok, msg, "validate_PULSE-12.check_ollama"))
 
     # Print results
     for ok, msg, _ in results:
@@ -143,8 +143,8 @@ def main():
                 retryability="backoff",
                 business_impact_tier="P1",
                 downstream_dependency_impact="All pipelines requiring this service are blocked",
-                manifest_spec_reference="manifests/system_manifest.yaml#KAN-12",
-                recovery_strategy_reference="manifests/system_manifest.yaml#KAN-12.recovery_patterns",
+                manifest_spec_reference="manifests/system_manifest.yaml#PULSE-12",
+                recovery_strategy_reference="manifests/system_manifest.yaml#PULSE-12.recovery_patterns",
             )
         sys.exit(1)
     else:
