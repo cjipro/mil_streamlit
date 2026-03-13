@@ -33,58 +33,188 @@ table_registry:
     hash_generated_by: "original_system"
     hash_generated_outside_codebase: true
   tables:
-    - human_name: "Mobile_App_Events_Raw"
-      agentic_name: "MAER"
-      type: "raw_source"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "AUDITED"
-    - human_name: "Mobile_App_Events_Ref"
-      agentic_name: "MAER_F"
-      type: "reference"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "AUDITED"
-    - human_name: "Operation_Codes_Ref"
-      agentic_name: "OCR"
-      type: "reference"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "AUDITED"
-    - human_name: "Mobile_App_Events_Session"
-      agentic_name: "MAES"
-      type: "derived"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "REBUILD"
-    - human_name: "Mobile_App_Events_Session_Bucketed"
-      agentic_name: "MAESB"
-      type: "derived"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "REBUILD"
-    - human_name: "Customer_Profile_Dim"
-      agentic_name: "CPD"
-      type: "dimension"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "PENDING_AUDIT"
-      audit_note: "Must be audited before DPIA special category question can be answered"
-    - human_name: "Call_Centre_Events_Raw"
-      agentic_name: "CCER"
-      type: "raw_source"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "PENDING"
-    - human_name: "Branch_Visit_Events_Raw"
-      agentic_name: "BVER"
-      type: "raw_source"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "PENDING"
-    - human_name: "Customer_Satisfaction_Raw"
-      agentic_name: "CSR"
-      type: "raw_source"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "PENDING"
-    - human_name: "Web_App_Events_Raw"
-      agentic_name: "WAER"
-      type: "raw_source"
-      source_hash: "HASH_PENDING_ORIGINAL"
-      status: "DEFERRED"
-
+    - human_name: Mobile_App_Events_Raw
+      agentic_name: MAER
+      database: bsl_custjrny_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Mobile_App_Events_Ref
+      agentic_name: MAER_F
+      database: bsl_common_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Online_Banking_Events_Raw
+      agentic_name: OBRE
+      database: bsl_custjrny_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: App_Event_Log
+      agentic_name: EVTL
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: App_Event_Tag_Details
+      agentic_name: PSDE
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Smart_Call
+      agentic_name: SCAL
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Device_Attributes_Detail
+      agentic_name: DADTL
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Device_Attributes
+      agentic_name: DATR
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Connected_Device_Accounts
+      agentic_name: CDAC
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Accepted_Terms_Conditions
+      agentic_name: ATCS
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Account_Blacklist
+      agentic_name: ABLK
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Activation_Codes
+      agentic_name: ACTC
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Registration_Service
+      agentic_name: REGS
+      database: e_bmb_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: SCV_Trillium_Customer
+      agentic_name: SCVT
+      database: e_scv_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: SCV_Customer_ID_Mapping
+      agentic_name: SCVC
+      database: u_bukc_dsa_bp_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: SCV_Cardholder_ID_Mapping
+      agentic_name: SCVH
+      database: u_bukc_dsa_bp_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Branch_Events_Physical_L3
+      agentic_name: BVER3
+      database: u_clp_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Branch_Events_Physical_L2
+      agentic_name: BVER2
+      database: u_clp_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Branch_Events_Physical_L1
+      agentic_name: BVER1
+      database: u_clp_db
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Operations_Gateway_Raw
+      agentic_name: OCR
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Mobile_App_Events_Sessionised
+      agentic_name: MAES
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Mobile_App_Events_Sessionised_Barclaycard
+      agentic_name: MAESB
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Customer_Profile_Data
+      agentic_name: CPD
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Credit_Card_Events_Raw
+      agentic_name: CCER
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Web_App_Events_Raw
+      agentic_name: WAER
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
+    - human_name: Customer_Service_Raw
+      agentic_name: CSR
+      database: TBC
+      source_hash: HASH_PENDING_ORIGINAL
+      hash_algorithm: HMAC-SHA256
+      hash_generated_outside_codebase: true
+      status: draft
 principles:
   - id: P1
     agent_name: "pii_mask_never_ignore"

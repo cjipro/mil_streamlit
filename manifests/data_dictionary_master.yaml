@@ -1,331 +1,2668 @@
----
-schema_version: "2.0"
-created: "2026-03-12"
-sponsor: "TAQ Bank"
-classification: "MASTER SOURCE — never read directly by humans or agents"
-generated_outputs:
-  - manifests/data_dictionary_human.yaml
-  - manifests/data_dictionary_agentic.yaml
-governance_ref: manifests/governance_principles.yaml
-strategy_ref: manifests/data_strategy_v2.md
+# ============================================================
+# CJI Pulse — Living Data Dictionary v2.0
+# KAN-011 | Sprint 1
+# Last updated: 2026-03-12
+# Maintained by: Hussain Ahmed
+#
+# STATUS VALUES:
+#   draft       — captured from schema, not query-validated
+#   confirmed   — validated against live data
+#   deprecated  — superseded or removed
+#
+# TO ADD A NEW TABLE: Tell Claude in chat:
+#   "Add table: [paste schema or screenshot] — database: [db name]"
+#   Claude will assign agentic name, classify fields, and add entry.
+# ============================================================
 
-mandatory_core_fields:
-  description: "These fields must appear in every table contract regardless of type"
-  fields:
-    - table_purpose
-    - business_owner
-    - technical_owner
-    - grain
-    - keys
-    - source_hash
-    - hash_algorithm
-    - data_classification
-    - permitted_purposes
-    - freshness_sla
-    - quality_expectations
-    - retention_class
-    - contract_version
+metadata:
+  version: "2.0"
+  sprint: 1
+  session: 5
+  databases_in_scope: 6
+  tables_total: 23
+  tables_with_fields: 17
+  tables_pending_access: 6
 
-conditional_fields:
-  description: "These fields appear only where materially relevant"
-  fields:
-    - pii_masking_rules
-    - consent_dependency
-    - cross_border_restrictions
-    - fairness_metadata
-    - scd_rules
-    - human_approval_gates
-    - write_back_controls
-    - customer_facing_output_controls
-    - actionability_rules
-    - special_legal_restrictions
+# ============================================================
+# DATABASE 1 — bsl_custjrny_db
+# ============================================================
 
 tables:
 
-  - human_name: "Mobile_App_Events_Raw"
-    agentic_name: "MAER"
-    type: "raw_source"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "1.0"
-    status: "AUDITED"
-    table_purpose: "Raw mobile app event log. Every user interaction captured from the mobile app. Primary source for journey intelligence, abandonment detection, and behavioural signal derivation."
-    grain: "One row per event fired"
-    business_owner: "TAQ Bank Data Engineering"
-    technical_owner: "TAQ Bank Data Engineering"
-    data_classification: "SENSITIVE"
-    mobile_channel_key: 10333002
-    estimated_volume: "330M sessions/month"
-    retention_class: "REGULATORY_7Y"
-    deletion_rule: "Anonymise after 7 years"
-    legal_hold: false
-    freshness_sla: "Real-time"
-    quality_expectations:
-      session_id_null_rate: 0.0
-      event_timestamp_null_rate: 0.0
-      operation_code_null_rate: 0.0
-    permitted_purposes:
-      - journey_analytics
-      - abandonment_detection
-      - behavioural_signals
-      - session_reconstruction
-      - cohort_analysis
-    principle_refs:
-      - pii_mask_never_ignore
-      - triple_name_raw_friendly_agent
-      - dict_human_gold_agent_context
-      - raw_name_sealed_never_surface
-      - data_observability_accuracy_rectify
-      - field_version_history_aware
-      - purpose_bound_least_privilege
-      - artifact_retain_delete_hold
-    audit_findings:
-      - finding_id: AF-001
-        description: "cust_id = -99 volume unknown at scale. Needs count query on recent partition."
-        severity: MEDIUM
-        status: FLAGGED
-        ticket: KAN-014
-      - finding_id: AF-002
-        description: "App version / experience cohort not found in MAER. app_type reflects brand not version. Blocks refresh vs legacy comparison."
-        severity: CRITICAL
-        status: OPEN
-        ticket: KAN-014
-      - finding_id: AF-003
-        description: "Native flag meaning in OCR unknown. Could be app experience identifier."
-        severity: MEDIUM
-        status: FLAGGED
-        ticket: KAN-014
-    fields: []  # Fields to be populated as data audit progresses
+  - agentic_name: MAER
+    human_name: Mobile_App_Events_Raw
+    source: bsl_custjrny_db.bmb_dtl
+    source_hash: HASH_PENDING_ORIGINAL
+    database: bsl_custjrny_db
+    status: draft
+    estimated_rows: "~292B rows/month"
+    estimated_size: "44TB"
+    partitions: null
+    grain: one row per app event per session
+    primary_join_keys:
+      - sesn_id
+      - cust_id
+      - evnt_key
+    notes: >
+      Core mobile app event stream. Volume confirmed from EVTL cross-reference.
+      NULL_CONFIRMED fields (atrb_char_1 through _40) are structurally present
+      but empty in production. adobe_id also NULL_CONFIRMED.
+      cust_id fallback rule: CASE WHEN cust_id > 0 THEN cust_id ELSE CAST(chnl_cust_id AS BIGINT) END
+    fields:
+      # --- GOLD ---
+      - name: sesn_id
+        agentic: MAER_sesn_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Session identifier. Proxy for login sessions. Multiple login events in one session = 1 login.
 
-  - human_name: "Mobile_App_Events_Ref"
-    agentic_name: "MAER_F"
-    type: "reference"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "1.0"
-    status: "AUDITED"
-    table_purpose: "Event dimension lookup. Maps event keys to human-readable event names and group names. Enriches MAER events via join on event_key."
-    grain: "One row per event definition"
-    business_owner: "TAQ Bank Data Engineering"
-    technical_owner: "TAQ Bank Data Engineering"
-    data_classification: "INTERNAL"
-    retention_class: "OPERATIONAL"
-    legal_hold: false
-    freshness_sla: "Daily"
-    permitted_purposes:
-      - journey_analytics
-      - session_reconstruction
-    principle_refs:
-      - raw_name_sealed_never_surface
-      - purpose_bound_least_privilege
-    fields: []  # Fields to be populated as data audit progresses
+      - name: cust_id
+        agentic: MAER_cust_id
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Primary customer identifier. Use fallback rule when null.
 
-  - human_name: "Operation_Codes_Ref"
-    agentic_name: "OCR"
-    type: "reference"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "1.0"
-    status: "AUDITED"
-    table_purpose: "Operation code reference. 465 known codes. Maps operation codes to step-level detail, feature classification, business area, and journey taxonomy. Primary journey classifier for CJI Pulse."
-    grain: "One row per operation code"
-    business_owner: "TAQ Bank Data Engineering"
-    technical_owner: "TAQ Bank Data Engineering"
-    data_classification: "INTERNAL"
-    retention_class: "OPERATIONAL"
-    legal_hold: false
-    freshness_sla: "Weekly"
-    primary_classifier: "feature_name"
-    total_known_codes: 465
-    permitted_purposes:
-      - journey_analytics
-      - session_reconstruction
-      - abandonment_detection
-    principle_refs:
-      - raw_name_sealed_never_surface
-      - purpose_bound_least_privilege
-    audit_findings:
-      - finding_id: AF-003
-        description: "Native flag meaning unknown. Could be app experience identifier."
-        severity: MEDIUM
-        status: FLAGGED
-        ticket: KAN-014
-    fields: []  # Fields to be populated as data audit progresses
+      - name: jrny_key
+        agentic: MAER_jrny_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Journey key. Joins to journey dimension.
 
-  - human_name: "Mobile_App_Events_Session"
-    agentic_name: "MAES"
-    type: "derived"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "1.0"
-    status: "REBUILD"
-    table_purpose: "Sessionised mobile app events. One row per session. Derived from MAER enriched by MAER_F and OCR. Core session spine for all CJI Pulse journey intelligence."
-    grain: "One row per session"
-    business_owner: "TAQ Bank Data Engineering"
-    technical_owner: "TAQ Bank Data Engineering"
-    data_classification: "SENSITIVE"
-    retention_class: "REGULATORY_7Y"
-    legal_hold: false
-    freshness_sla: "Daily"
-    source_tables: [MAER, MAER_F, OCR]
-    rebuild_note: "Must be rebuilt to include CJI Pulse required fields. Original pipeline logic used as reference only."
-    permitted_purposes:
-      - journey_analytics
-      - abandonment_detection
-      - behavioural_signals
-      - cohort_analysis
-    principle_refs:
-      - pii_mask_never_ignore
-      - raw_name_sealed_never_surface
-      - purpose_bound_least_privilege
-      - artifact_retain_delete_hold
-    fields: []  # Fields to be defined during rebuild
+      - name: jrny_sts
+        agentic: MAER_jrny_sts
+        type: int
+        classification: GOLD
+        pii: false
+        notes: Journey status. 1=successful, 0=unsuccessful.
 
-  - human_name: "Mobile_App_Events_Session_Bucketed"
-    agentic_name: "MAESB"
-    type: "derived"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "DRAFT"
-    status: "REBUILD"
-    table_purpose: "Bucketed session data for cohort and performance band analysis. Derived from MAES. Rebuild required."
-    grain: "One row per session bucket"
-    business_owner: "TAQ Bank Data Engineering"
-    technical_owner: "TAQ Bank Data Engineering"
-    data_classification: "SENSITIVE"
-    retention_class: "REGULATORY_7Y"
-    legal_hold: false
-    freshness_sla: "Daily"
-    source_tables: [MAES]
-    permitted_purposes:
-      - cohort_analysis
-      - behavioural_signals
-    principle_refs:
-      - raw_name_sealed_never_surface
-      - purpose_bound_least_privilege
-    fields: []  # Fields to be defined during rebuild
+      - name: src_evnt_cd
+        agentic: MAER_src_evnt_cd
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Source event code. Login codes: A001B, AU01B, TA01B, A401B, TA04B"
 
-  - human_name: "Customer_Profile_Dim"
-    agentic_name: "CPD"
-    type: "dimension"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "DRAFT"
-    status: "PENDING_AUDIT"
-    table_purpose: "Customer demographics and profile data. PENDING AUDIT — structure and content unknown until audit complete."
-    grain: "TBC"
-    business_owner: "TBC"
-    technical_owner: "TBC"
-    data_classification: "SENSITIVE — PII LIKELY"
-    retention_class: "TBC"
-    legal_hold: false
-    freshness_sla: "TBC"
-    permitted_purposes: []
-    regulatory_note: "DPIA special category data question (Q3) cannot be answered until this table is audited. REG-002 open."
-    principle_refs:
-      - pii_mask_never_ignore
-      - raw_name_sealed_never_surface
-      - fairness_protected_chars_mandatory
-    fields: []  # Unknown until audit complete
+      - name: evnt_ts
+        agentic: MAER_evnt_ts
+        type: timestamp
+        classification: GOLD
+        pii: false
+        notes: Event timestamp.
 
-  - human_name: "Call_Centre_Events_Raw"
-    agentic_name: "CCER"
-    type: "raw_source"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "DRAFT"
-    status: "PENDING"
-    table_purpose: "Call centre interaction data. Cross-channel leakage signal — customers who failed in app and called instead."
-    grain: "TBC"
-    business_owner: "TBC"
-    technical_owner: "TBC"
-    data_classification: "TBC"
-    retention_class: "TBC"
-    legal_hold: false
-    freshness_sla: "TBC"
-    permitted_purposes: []
+      - name: evnt_key
+        agentic: MAER_evnt_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Event key. Joins to MAER_F on evnt_key.
+
+      - name: err_key
+        agentic: MAER_err_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Successful login mobile: 10411766. Successful login Barclaycard: 10411688."
+
+      - name: val
+        agentic: MAER_val
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Event value payload.
+
+      # --- PII ---
+      - name: tel_num
+        agentic: MAER_tel_num
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Telephone number.
+
+      - name: srt_cd
+        agentic: MAER_srt_cd
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Sort code.
+
+      - name: acct_num
+        agentic: MAER_acct_num
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Account number.
+
+      - name: srt_cd_1
+        agentic: MAER_srt_cd_1
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Secondary sort code.
+
+      - name: acct_num_1
+        agentic: MAER_acct_num_1
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Secondary account number.
+
+      - name: msk_card_num
+        agentic: MAER_msk_card_num
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Masked card number.
+
+      - name: msk_card_num_1
+        agentic: MAER_msk_card_num_1
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Secondary masked card number.
+
+      - name: cardholder_id
+        agentic: MAER_cardholder_id
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Cardholder identifier. Joins to SCVH for SCV resolution.
+
+      - name: chnl_cust_id
+        agentic: MAER_chnl_cust_id
+        type: string
+        classification: GOLD
+        pii: true
+        notes: Channel customer ID. Used in cust_id fallback rule.
+
+      - name: fr_acct_id
+        agentic: MAER_fr_acct_id
+        type: string
+        classification: SILVER
+        pii: true
+        notes: From account ID — transaction context.
+
+      - name: to_acct_id
+        agentic: MAER_to_acct_id
+        type: string
+        classification: SILVER
+        pii: true
+        notes: To account ID — transaction context.
+
+      # --- REFERENCE ---
+      - name: app_tp
+        agentic: MAER_app_tp
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Application type.
+
+      - name: dvc_tp_id
+        agentic: MAER_dvc_tp_id
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Device type ID.
+
+      - name: chnl_key
+        agentic: MAER_chnl_key
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: "Mobile channel key: 10333002. Barclaycard channel: 10333003."
+
+      - name: busns_ent_key
+        agentic: MAER_busns_ent_key
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Business entity key.
+
+      - name: evnt_rspn_key
+        agentic: MAER_evnt_rspn_key
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: "Event response key. Successful mobile: 15. Successful Barclaycard: 66."
+
+      - name: seg_hash_key
+        agentic: MAER_seg_hash_key
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Segment hash key.
+
+      - name: prd_key
+        agentic: MAER_prd_key
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Product key.
+
+      - name: vol
+        agentic: MAER_vol
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: Volume counter.
+
+      - name: tel_oprtng_sys
+        agentic: MAER_tel_oprtng_sys
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Telephone operating system.
+
+      # --- NULL_CONFIRMED ---
+      - name: adobe_id
+        agentic: MAER_adobe_id
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: Adobe visitor ID. Confirmed NULL in production.
+
+      - name: tst_and_trgt_adobe_id
+        agentic: MAER_tst_and_trgt_adobe_id
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: Test and target Adobe ID. Confirmed NULL in production.
+
+      - name: jrny_sub_tp
+        agentic: MAER_jrny_sub_tp
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Journey sub type. Confirmed NULL in production.
+
+      - name: strt_dt
+        agentic: MAER_strt_dt
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Start date. Confirmed NULL in production.
+
+      - name: end_dt
+        agentic: MAER_end_dt
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: End date. Confirmed NULL in production.
+
+      - name: pmt_dt
+        agentic: MAER_pmt_dt
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Payment date. Confirmed NULL in production.
+
+      - name: actn_ts
+        agentic: MAER_actn_ts
+        type: timestamp
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Action timestamp. Confirmed NULL in production.
+
+      - name: actn_ts_1
+        agentic: MAER_actn_ts_1
+        type: timestamp
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Secondary action timestamp. Confirmed NULL in production.
+
+      - name: actn_flag_1
+        agentic: MAER_actn_flag_1
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Action flag 1 through 5. Confirmed NULL in production.
+
+      - name: actn_flag_2
+        agentic: MAER_actn_flag_2
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: ~
+
+      - name: actn_flag_3
+        agentic: MAER_actn_flag_3
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: ~
+
+      - name: actn_flag_4
+        agentic: MAER_actn_flag_4
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: ~
+
+      - name: actn_flag_5
+        agentic: MAER_actn_flag_5
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: ~
+
+      - name: atrb_char_1_through_40
+        agentic: MAER_atrb_char_1_through_40
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: 40 attribute character columns. All confirmed NULL in production. Represented as single entry for brevity.
+
+      # --- INFRASTRUCTURE ---
+      - name: warehouse_load_tmp
+        agentic: MAER_warehouse_load_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Warehouse load timestamp.
+
+      - name: dt_key
+        agentic: MAER_dt_key
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Date partition key.
+
+  # ============================================================
+
+  - agentic_name: MAER_F
+    human_name: Mobile_App_Events_Ref
+    source: bsl_common_db.dim_evnt
+    source_hash: HASH_PENDING_ORIGINAL
+    database: bsl_common_db
+    status: draft
+    estimated_rows: "22,288"
+    estimated_size: "991KB"
+    grain: one row per event type
+    primary_join_keys:
+      - evnt_key
+    notes: >
+      Reference/dimension table for event classification.
+      MAER joins to MAER_F on evnt_key to get human-readable event names and groupings.
+      CRITICAL: evnt_grp_nm journey classification did not work in production.
+      System fell back to gateway operation codes. Journey taxonomy source unresolved.
+      Do not rely on evnt_grp_nm for journey classification until resolved.
+    fields:
+      - name: evnt_key
+        agentic: MAER_F_evnt_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Event key. Primary join to MAER.
+
+      - name: src_evnt_cd
+        agentic: MAER_F_src_evnt_cd
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Source event code.
+
+      - name: chnl_key
+        agentic: MAER_F_chnl_key
+        type: bigint
+        classification: GOLD
+        pii: false
+        notes: Channel key.
+
+      - name: evnt_nm
+        agentic: MAER_F_evnt_nm
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Human-readable event name.
+
+      - name: evnt_grp_nm
+        agentic: MAER_F_evnt_grp_nm
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "CRITICAL: Event group name / journey classification. Did not work in production. Do not use until resolved."
+
+      - name: fnl_step_ind
+        agentic: MAER_F_fnl_step_ind
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Final step indicator.
+
+      - name: evnt_seq
+        agentic: MAER_F_evnt_seq
+        type: int
+        classification: SILVER
+        pii: false
+        notes: Event sequence number.
+
+      - name: cmplx_jrny_ind
+        agentic: MAER_F_cmplx_jrny_ind
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Complex journey indicator.
+
+      - name: pik_atrb_fr_ind
+        agentic: MAER_F_pik_atrb_fr_ind
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Pick attribute from indicator.
+
+      - name: eff_strt_dt
+        agentic: MAER_F_eff_strt_dt
+        type: date
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Effective start date — SCD2 marker.
+
+      - name: eff_end_dt
+        agentic: MAER_F_eff_end_dt
+        type: date
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Effective end date — SCD2 marker.
+
+      - name: warehouse_load_tmp
+        agentic: MAER_F_warehouse_load_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Warehouse load timestamp.
+
+      - name: date_load_tmp
+        agentic: MAER_F_date_load_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Date load timestamp.
+
+  # ============================================================
+
+  - agentic_name: OBRE
+    human_name: Online_Banking_Events_Raw
+    source: bsl_custjrny_db.rolb_dtl
+    source_hash: HASH_PENDING_ORIGINAL
+    database: bsl_custjrny_db
+    status: draft
+    estimated_rows: "16.85B"
+    estimated_size: "1.35TB"
+    grain: one row per online banking event per session
+    primary_join_keys:
+      - sesn_id
+      - cust_id
+      - evnt_key
+    notes: >
+      Core online banking event stream. Mirror structure to MAER but for web channel.
+      chnl_sub_tp contains full journey path URLs e.g. /olb/mortgageserv/coremortgages/RegularOverpaymentStep3.json
+      — treat as GOLD journey path signal.
+      atrb_7_val confirmed to contain real address data — PII_POSSIBLE on all atrb_val fields.
+    fields:
+      - name: cust_id
+        agentic: OBRE_cust_id
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Primary customer identifier.
+
+      - name: evnt_key
+        agentic: OBRE_evnt_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Event key.
+
+      - name: err_key
+        agentic: OBRE_err_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Error key.
+
+      - name: jrny_sts
+        agentic: OBRE_jrny_sts
+        type: int
+        classification: GOLD
+        pii: false
+        notes: Journey status. 1=successful, 0=unsuccessful.
+
+      - name: sesn_id
+        agentic: OBRE_sesn_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Session identifier.
+
+      - name: val
+        agentic: OBRE_val
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Event value payload.
+
+      - name: chnl_cust_id
+        agentic: OBRE_chnl_cust_id
+        type: string
+        classification: GOLD
+        pii: true
+        notes: Channel customer ID.
+
+      - name: evnt_ts
+        agentic: OBRE_evnt_ts
+        type: timestamp
+        classification: GOLD
+        pii: false
+        notes: Event timestamp.
+
+      - name: chnl_sub_tp
+        agentic: OBRE_chnl_sub_tp
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Channel sub type. Contains full journey path URLs. Example: /olb/mortgageserv/coremortgages/RegularOverpaymentStep3.json. High-value journey signal."
+
+      - name: evnt_called_by_scrn
+        agentic: OBRE_evnt_called_by_scrn
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Screen that triggered the event.
+
+      - name: fr_acct_id
+        agentic: OBRE_fr_acct_id
+        type: string
+        classification: SILVER
+        pii: true
+        notes: From account ID.
+
+      - name: to_acct_id
+        agentic: OBRE_to_acct_id
+        type: string
+        classification: SILVER
+        pii: true
+        notes: To account ID.
+
+      - name: emp_id
+        agentic: OBRE_emp_id
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Employee ID — colleague-assisted sessions.
+
+      - name: atrb_7_val
+        agentic: OBRE_atrb_7_val
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "CONFIRMED PII — contains real address data. Sample: 6 Longfield road. All atrb_val fields should be treated PII_POSSIBLE."
+
+      - name: trns_id
+        agentic: OBRE_trns_id
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Transaction ID.
+
+      - name: seg_hash_key
+        agentic: OBRE_seg_hash_key
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Segment hash key.
+
+      - name: evnt_rspn_key
+        agentic: OBRE_evnt_rspn_key
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Event response key.
+
+      - name: vol
+        agentic: OBRE_vol
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: Volume counter.
+
+      - name: app_tp
+        agentic: OBRE_app_tp
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Application type.
+
+      - name: src_evnt_cd
+        agentic: OBRE_src_evnt_cd
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Source event code.
+
+      - name: src_err_cd
+        agentic: OBRE_src_err_cd
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Source error code.
+
+      - name: src_evnt_rspn_cd
+        agentic: OBRE_src_evnt_rspn_cd
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Source event response code.
+
+      - name: atrb_1_val_through_atrb_15_val
+        agentic: OBRE_atrb_1_through_15_val
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Attribute value columns 1-15. PII_POSSIBLE on all. atrb_13_val through atrb_26_val NULL_CONFIRMED. atrb_7_val confirmed PII."
+
+      - name: dvc_tp_id
+        agentic: OBRE_dvc_tp_id
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Device type ID.
+
+      - name: prd_key
+        agentic: OBRE_prd_key
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Product key.
+
+      - name: idv_tp_key
+        agentic: OBRE_idv_tp_key
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Individual type key.
+
+      - name: busns_ent_key
+        agentic: OBRE_busns_ent_key
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Business entity key.
+
+      - name: src_idv_tp
+        agentic: OBRE_src_idv_tp
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: Source individual type.
+
+      - name: chnl_key
+        agentic: OBRE_chnl_key
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: Channel key.
+
+      - name: jrny_sub_tp
+        agentic: OBRE_jrny_sub_tp
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: Journey sub type. Confirmed NULL in production.
+
+      - name: dt_key
+        agentic: OBRE_dt_key
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Date partition key.
+
+      - name: warehouse_load_tmp
+        agentic: OBRE_warehouse_load_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Warehouse load timestamp.
+
+  # ============================================================
+  # DATABASE 3 — e_bmb_db
+  # ============================================================
+
+  - agentic_name: EVTL
+    human_name: App_Event_Log
+    source: e_bmb_db.event_log
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per app event
+    primary_join_keys:
+      - session_id
+    notes: Core event log for mobile app. Source of volume reference ~292B rows/month for MAER.
+    fields:
+      - name: session_id
+        agentic: EVTL_session_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Session identifier. Joins to MAER.sesn_id.
+      - name: aid
+        agentic: EVTL_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: App Instance ID. Device-level, not person-level. Unique per app install.
+      - name: event_id
+        agentic: EVTL_event_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+      - name: event_name
+        agentic: EVTL_event_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+      - name: event_type
+        agentic: EVTL_event_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: event_value
+        agentic: EVTL_event_value
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: event_status
+        agentic: EVTL_event_status
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: created_date
+        agentic: EVTL_created_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: dt_key
+        agentic: EVTL_dt_key
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Date partition key.
+
+  - agentic_name: PSDE
+    human_name: App_Event_Tag_Details
+    source: e_bmb_db.psdm_bmb_event_details
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per event tag detail
+    primary_join_keys:
+      - event_id
+    notes: Tagging detail layer for app events.
+    fields:
+      - name: event_id
+        agentic: PSDE_event_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+      - name: tag_name
+        agentic: PSDE_tag_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: tag_value
+        agentic: PSDE_tag_value
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: tag_type
+        agentic: PSDE_tag_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: created_date
+        agentic: PSDE_created_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: dt_key
+        agentic: PSDE_dt_key
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+  - agentic_name: SCAL
+    human_name: Smart_Call
+    source: e_bmb_db.smart_call
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per smart call event per session
+    primary_join_keys:
+      - session_id
+    notes: >
+      AF-002: appversion present but SPARSE — disqualified as primary appversion source.
+      Use DADTL.applicationversion instead. SCAL.appversion format: APP_02790.
+    fields:
+      - name: session_id
+        agentic: SCAL_session_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Joins to MAER.sesn_id.
+      - name: aid
+        agentic: SCAL_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: App Instance ID.
+      - name: appversion
+        agentic: SCAL_appversion
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "AF-002: SPARSE — not reliable as primary source. Use DADTL.applicationversion. Format: APP_02790."
+      - name: device_id
+        agentic: SCAL_device_id
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: os_version
+        agentic: SCAL_os_version
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: device_model
+        agentic: SCAL_device_model
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: device_make
+        agentic: SCAL_device_make
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: device_type
+        agentic: SCAL_device_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: network_type
+        agentic: SCAL_network_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: carrier
+        agentic: SCAL_carrier
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: screen_resolution
+        agentic: SCAL_screen_resolution
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: app_id
+        agentic: SCAL_app_id
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: ~
+      - name: timestamp
+        agentic: SCAL_timestamp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: event_id
+        agentic: SCAL_event_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+      - name: event_name
+        agentic: SCAL_event_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: event_type
+        agentic: SCAL_event_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: event_value
+        agentic: SCAL_event_value
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: event_status
+        agentic: SCAL_event_status
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: created_date
+        agentic: SCAL_created_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: dt_key
+        agentic: SCAL_dt_key
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+  - agentic_name: DADTL
+    human_name: Device_Attributes_Detail
+    source: e_bmb_db.bmb_device_attr_detail
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per device attribute record
+    primary_join_keys:
+      - aid
+    notes: >
+      AF-002 RESOLVED: Definitive appversion source.
+      Use applicationversion (not appversion — legacy alias).
+      Join to MAER via aid. Filter active=1 for current device record.
+      Join pattern: MAER.aid -> DADTL.aid WHERE active=1
+    fields:
+      - name: aid
+        agentic: DADTL_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: App Instance ID. Primary join key to MAER.
+      - name: applicationversion
+        agentic: DADTL_applicationversion
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "AF-002 RESOLVED: Definitive app version field. Both populated but this is canonical."
+      - name: appversion
+        agentic: DADTL_appversion
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Legacy alias for applicationversion. Use applicationversion instead.
+      - name: device_id
+        agentic: DADTL_device_id
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: os_version
+        agentic: DADTL_os_version
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: os_name
+        agentic: DADTL_os_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: device_model
+        agentic: DADTL_device_model
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: device_make
+        agentic: DADTL_device_make
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: device_type
+        agentic: DADTL_device_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: screen_width
+        agentic: DADTL_screen_width
+        type: int
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: screen_height
+        agentic: DADTL_screen_height
+        type: int
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: network_type
+        agentic: DADTL_network_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: carrier
+        agentic: DADTL_carrier
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: locale
+        agentic: DADTL_locale
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: timezone
+        agentic: DADTL_timezone
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+      - name: created_date
+        agentic: DADTL_created_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: updated_date
+        agentic: DADTL_updated_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: active
+        agentic: DADTL_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Filter active=1 for current device record.
+      - name: dt_key
+        agentic: DADTL_dt_key
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: recid
+        agentic: DADTL_recid
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+      - name: source
+        agentic: DADTL_source
+        type: string
+        classification: REFERENCE
+        pii: false
+        notes: ~
+
+  - agentic_name: DATR
+    human_name: Device_Attributes
+    source: e_bmb_db.bmb_device_attr
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per device
+    primary_join_keys:
+      - aid
+    notes: Summary device attributes. Less granular than DADTL.
     fields: []
 
-  - human_name: "Branch_Visit_Events_Raw"
-    agentic_name: "BVER"
-    type: "raw_source"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "DRAFT"
-    status: "PENDING"
-    table_purpose: "Branch visit data. 48-hour cross-channel leakage signal."
-    grain: "TBC"
-    business_owner: "TBC"
-    technical_owner: "TBC"
-    data_classification: "TBC"
-    retention_class: "TBC"
-    legal_hold: false
-    freshness_sla: "TBC"
-    permitted_purposes: []
+  - agentic_name: CDAC
+    human_name: Connected_Device_Accounts
+    source: e_bmb_db.connected_device_accounts
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per device-account link
+    primary_join_keys:
+      - aid
+    notes: Maps devices to customer accounts.
     fields: []
 
-  - human_name: "Customer_Satisfaction_Raw"
-    agentic_name: "CSR"
-    type: "raw_source"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "DRAFT"
-    status: "PENDING"
-    table_purpose: "NPS and customer satisfaction data. Separate discussion required before audit."
-    grain: "TBC"
-    business_owner: "TBC"
-    technical_owner: "TBC"
-    data_classification: "TBC"
-    retention_class: "TBC"
-    legal_hold: false
-    freshness_sla: "TBC"
-    permitted_purposes: []
+  - agentic_name: ATCS
+    human_name: Accepted_Terms_Conditions
+    source: e_bmb_db.acceptedtermsandconditions
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per T&C acceptance event
+    primary_join_keys: []
+    notes: Records customer T&C acceptance events.
     fields: []
 
-  - human_name: "Web_App_Events_Raw"
-    agentic_name: "WAER"
-    type: "raw_source"
-    source_hash: "HASH_PENDING_ORIGINAL"
-    hash_algorithm: "HMAC-SHA256"
-    hash_scope: "fully_qualified_table_name"
-    hash_generated_by: "original_system"
-    hash_generated_outside_codebase: true
-    contract_version: "DRAFT"
-    status: "DEFERRED"
-    table_purpose: "Web channel raw data. Separate ecosystem — different instrumentation, different grain, different pipeline. Audit deferred."
-    grain: "TBC"
-    business_owner: "TBC"
-    technical_owner: "TBC"
-    data_classification: "TBC"
-    retention_class: "TBC"
-    legal_hold: false
-    freshness_sla: "TBC"
-    permitted_purposes: []
+  - agentic_name: ABLK
+    human_name: Account_Blacklist
+    source: e_bmb_db.account_blacklist
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per blacklisted account
+    primary_join_keys: []
+    notes: Blacklisted accounts. Sensitive — restricted use.
     fields: []
+
+  - agentic_name: ACTC
+    human_name: Activation_Codes
+    source: e_bmb_db.activation_codes
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per activation code
+    primary_join_keys: []
+    notes: App activation codes. Registration journey context.
+    fields: []
+
+  - agentic_name: REGS
+    human_name: Registration_Service
+    source: e_bmb_db.bmb_registered_service
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_bmb_db
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per registered service
+    primary_join_keys: []
+    notes: >
+      AUDIT FINDING: As of 14 Feb 2025 ~5% / 622K customer IDs incorrectly
+      showing active registrations. E-layer confirms these are not actually registered.
+      registration_status=100 means complete. Range 1-100 for incomplete.
+      active=1 + at least 1 login in past year = truly active. Auto-deregistered otherwise.
+    fields: []
+
+  # ============================================================
+  # DATABASE 4 — e_scv_db
+  # ============================================================
+
+  - agentic_name: SCVT
+    human_name: SCV_Trillium_Customer
+    source: e_scv_db.trillium_customer
+    source_hash: HASH_PENDING_ORIGINAL
+    database: e_scv_db
+    status: draft
+    estimated_rows: "455,463,149"
+    estimated_size: "54.39GB"
+    partitions: 2
+    grain: one row per SCV customer identity record
+    primary_join_keys:
+      - scv_id
+      - source_reference
+    notes: >
+      Master identity resolution table. Most PII-rich table in scope.
+      Contains special category data under UK GDPR: gender, date_of_birth,
+      nationality, country_of_birth, national_identifier_value (NI number).
+      REG-002 ANSWERED: YES — special category data is processed. DPIA Q3 confirmed.
+      Vulnerability flags present: goneaway, deceased, caution_word, dormant, care_of, care_of_bank.
+      Sanctioned risk flag present — financial crime signal.
+      Business rules: exclude scv_group_status IN ('C','H') for suspect linking.
+      system_hub_id=001 = Customer System (retail). system_hub_id=012 = Triumph (cards).
+    fields:
+      - name: active
+        agentic: SCVT_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: scv_matching_scheme
+        agentic: SCVT_scv_matching_scheme
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: ~
+
+      - name: scv_id
+        agentic: SCVT_scv_id
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Canonical SCV customer ID. Primary join key across all identity resolution.
+
+      - name: suspect_scv_id
+        agentic: SCVT_suspect_scv_id
+        type: bigint
+        classification: SILVER
+        pii: true
+        notes: Suspect match SCV ID. Exclude when scv_group_status IN ('C','H').
+
+      - name: suspect_case_generated_date
+        agentic: SCVT_suspect_case_generated_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: suspect_case_priority
+        agentic: SCVT_suspect_case_priority
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: workflow_flags_out
+        agentic: SCVT_workflow_flags_out
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: shv_id
+        agentic: SCVT_shv_id
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: ~
+
+      - name: suspect_shv_id
+        agentic: SCVT_suspect_shv_id
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: sdp_id
+        agentic: SCVT_sdp_id
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: ~
+
+      - name: suspect_sdp_id
+        agentic: SCVT_suspect_sdp_id
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: suspect_case_id
+        agentic: SCVT_suspect_case_id
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: system_hub_id
+        agentic: SCVT_system_hub_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "001=Customer System (retail banking). 012=Triumph (credit cards)."
+
+      - name: source_reference
+        agentic: SCVT_source_reference
+        type: string
+        classification: GOLD
+        pii: true
+        notes: Source system customer ID. Maps to cust_id (001) or cardholder_id (012).
+
+      - name: source_reference_party_member
+        agentic: SCVT_source_reference_party_member
+        type: bigint
+        classification: REFERENCE
+        pii: false
+        notes: ~
+
+      - name: alt_source_reference_01
+        agentic: SCVT_alt_source_reference_01
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: Alternate source reference. NULL_CONFIRMED in sample.
+
+      - name: name_start_date
+        agentic: SCVT_name_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: customer_type
+        agentic: SCVT_customer_type
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "PN=Personal. BN=Business."
+
+      - name: trading_name
+        agentic: SCVT_trading_name
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: Trading name. NULL_CONFIRMED for personal customers.
+
+      - name: registered_name
+        agentic: SCVT_registered_name
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: Registered name. NULL_CONFIRMED for personal customers.
+
+      - name: title
+        agentic: SCVT_title
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Sample: MRS, MR"
+
+      - name: given_name_1
+        agentic: SCVT_given_name_1
+        type: string
+        classification: SILVER
+        pii: true
+        notes: First given name.
+
+      - name: given_name_2
+        agentic: SCVT_given_name_2
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Second given name.
+
+      - name: given_name_3
+        agentic: SCVT_given_name_3
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: Third given name. NULL_CONFIRMED.
+
+      - name: name_tokenised_status
+        agentic: SCVT_name_tokenised_status
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Y = name has been tokenised."
+
+      - name: standard_title
+        agentic: SCVT_standard_title
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Standardised title from Trillium.
+
+      - name: standard_first_name
+        agentic: SCVT_standard_first_name
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Standardised first name.
+
+      - name: standard_middle_name
+        agentic: SCVT_standard_middle_name
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Standardised middle name.
+
+      - name: standard_last_name
+        agentic: SCVT_standard_last_name
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Standardised last name.
+
+      - name: standard_full_name
+        agentic: SCVT_standard_full_name
+        type: string
+        classification: SILVER
+        pii: true
+        notes: Standardised full name concatenated.
+
+      - name: standard_gender
+        agentic: SCVT_standard_gender
+        type: string
+        classification: SPECIAL_CATEGORY
+        pii: true
+        notes: "SPECIAL CATEGORY — UK GDPR Article 9. F/M. REG-002 scope confirmed."
+
+      - name: previous_title
+        agentic: SCVT_previous_title
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: previous_given_name_1
+        agentic: SCVT_previous_given_name_1
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: previous_given_name_2
+        agentic: SCVT_previous_given_name_2
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: previous_given_name_3
+        agentic: SCVT_previous_given_name_3
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: previous_given_name_4
+        agentic: SCVT_previous_given_name_4
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: previous_surname
+        agentic: SCVT_previous_surname
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: previous_generation
+        agentic: SCVT_previous_generation
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: ~
+
+      - name: previous_suffix
+        agentic: SCVT_previous_suffix
+        type: string
+        classification: NULL_CONFIRMED
+        pii: false
+        notes: ~
+
+      - name: source_full_previous_name
+        agentic: SCVT_source_full_previous_name
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: date_of_birth
+        agentic: SCVT_date_of_birth
+        type: string
+        classification: SPECIAL_CATEGORY
+        pii: true
+        notes: "SPECIAL CATEGORY — UK GDPR Article 9. Format: YYYYMMDD. REG-002 scope confirmed."
+
+      - name: gender
+        agentic: SCVT_gender
+        type: string
+        classification: SPECIAL_CATEGORY
+        pii: true
+        notes: "SPECIAL CATEGORY — UK GDPR Article 9. Source gender field (vs standard_gender from Trillium). REG-002 scope confirmed."
+
+      - name: nationality
+        agentic: SCVT_nationality
+        type: string
+        classification: SPECIAL_CATEGORY
+        pii: true
+        notes: "SPECIAL CATEGORY — UK GDPR Article 9. REG-002 scope confirmed."
+
+      - name: country_of_birth
+        agentic: SCVT_country_of_birth
+        type: string
+        classification: SPECIAL_CATEGORY
+        pii: true
+        notes: "SPECIAL CATEGORY — UK GDPR Article 9. REG-002 scope confirmed."
+
+      - name: country_of_residence
+        agentic: SCVT_country_of_residence
+        type: string
+        classification: SILVER
+        pii: true
+        notes: ~
+
+      - name: national_identifier_type
+        agentic: SCVT_national_identifier_type
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "NI = National Insurance number type."
+
+      - name: national_identifier_value
+        agentic: SCVT_national_identifier_value
+        type: string
+        classification: SPECIAL_CATEGORY
+        pii: true
+        notes: "SPECIAL CATEGORY — National Insurance Number. Highly sensitive. REG-002 scope confirmed."
+
+      - name: national_identifier_start_date
+        agentic: SCVT_national_identifier_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: company_reg_no
+        agentic: SCVT_company_reg_no
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: company_intl_reg_no
+        agentic: SCVT_company_intl_reg_no
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: company_vat_reg_no
+        agentic: SCVT_company_vat_reg_no
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: company_vat_intl_reg_no
+        agentic: SCVT_company_vat_intl_reg_no
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: misc_name_text
+        agentic: SCVT_misc_name_text
+        type: string
+        classification: NULL_CONFIRMED
+        pii: true
+        notes: ~
+
+      - name: goneaway_detected_name
+        agentic: SCVT_goneaway_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Vulnerability signal. N=not gone away. Y=gone away."
+
+      - name: deceased_detected_name
+        agentic: SCVT_deceased_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Vulnerability signal. N=living."
+
+      - name: caution_word_detected_name
+        agentic: SCVT_caution_word_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Vulnerability signal."
+
+      - name: barclays_address_detected_name
+        agentic: SCVT_barclays_address_detected_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: no_mail_detected_name
+        agentic: SCVT_no_mail_detected_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: dormant_detected_name
+        agentic: SCVT_dormant_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Vulnerability signal. Dormant customer indicator."
+
+      - name: re_detected_name
+        agentic: SCVT_re_detected_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: care_of_detected_name
+        agentic: SCVT_care_of_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Vulnerability signal. Care of address indicator."
+
+      - name: care_of_bank_detected_name
+        agentic: SCVT_care_of_bank_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Vulnerability signal. Care of bank indicator."
+
+      - name: sanctioned_risk_detected_name
+        agentic: SCVT_sanctioned_risk_detected_name
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Financial crime signal. C=sanctioned. Permitted purposes must be tightly controlled."
+
+      - name: scv_group_status
+        agentic: SCVT_scv_group_status
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Exclude IN ('C','H') for suspect linking. C=closed/suspect. H=held."
+
+      - name: party_to_manual_link
+        agentic: SCVT_party_to_manual_link
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: conflict_history_marker
+        agentic: SCVT_conflict_history_marker
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: scv_timestamp
+        agentic: SCVT_scv_timestamp
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: scv_record_reference
+        agentic: SCVT_scv_record_reference
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+  # ============================================================
+  # DATABASE 5 — u_bukc_dsa_bp_db
+  # ============================================================
+
+  - agentic_name: SCVC
+    human_name: SCV_Customer_ID_Mapping
+    source: u_bukc_dsa_bp_db.core_ana_cusidr_to_scvid
+    source_hash: HASH_PENDING_ORIGINAL
+    database: u_bukc_dsa_bp_db
+    object_type: VIEW
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per customer ID to SCV ID mapping
+    primary_join_keys:
+      - source_customer_identifier
+      - scv_id
+    notes: >
+      VIEW on top of SCVT. Maps retail banking cust_id to canonical scv_id.
+      Created Jul 2025. Use active=1 for current mapping.
+      Join pattern: MAER.cust_id -> SCVC.source_customer_identifier -> SCVC.scv_id -> SCVT
+    fields:
+      - name: source_customer_identifier
+        agentic: SCVC_source_customer_identifier
+        type: string
+        classification: GOLD
+        pii: true
+        notes: Source system cust_id. Join key from MAER/OBRE.
+
+      - name: scv_id
+        agentic: SCVC_scv_id
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Canonical SCV ID. Join key to SCVT.
+
+      - name: suspect_match
+        agentic: SCVC_suspect_match
+        type: int
+        classification: GOLD
+        pii: false
+        notes: Exclude suspect matches in production queries.
+
+      - name: eff_start_date
+        agentic: SCVC_eff_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Effective start date for dynamic linking.
+
+      - name: eff_end_date
+        agentic: SCVC_eff_end_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Effective end date for dynamic linking.
+
+      - name: active
+        agentic: SCVC_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Filter active=1 for current mapping.
+
+      - name: recid
+        agentic: SCVC_recid
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+  - agentic_name: SCVH
+    human_name: SCV_Cardholder_ID_Mapping
+    source: u_bukc_dsa_bp_db.core_ana_cardhid_to_scvid
+    source_hash: HASH_PENDING_ORIGINAL
+    database: u_bukc_dsa_bp_db
+    object_type: VIEW
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per cardholder ID to SCV ID mapping
+    primary_join_keys:
+      - source_customer_identifier
+      - scv_id
+    notes: >
+      VIEW on top of SCVT. Maps Triumph cardholder_id to canonical scv_id.
+      Created Jul 2025. Mirror structure to SCVC.
+      Join pattern: MAER.cardholder_id -> SCVH.source_customer_identifier -> SCVH.scv_id -> SCVT
+    fields:
+      - name: source_customer_identifier
+        agentic: SCVH_source_customer_identifier
+        type: string
+        classification: GOLD
+        pii: true
+        notes: Cardholder ID from Triumph system. Join key from MAER.
+
+      - name: scv_id
+        agentic: SCVH_scv_id
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Canonical SCV ID. Join key to SCVT.
+
+      - name: suspect_match
+        agentic: SCVH_suspect_match
+        type: int
+        classification: GOLD
+        pii: false
+        notes: Exclude suspect matches in production queries.
+
+      - name: eff_start_date
+        agentic: SCVH_eff_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: eff_end_date
+        agentic: SCVH_eff_end_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+      - name: active
+        agentic: SCVH_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Filter active=1 for current mapping.
+
+      - name: recid
+        agentic: SCVH_recid
+        type: bigint
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: ~
+
+  # ============================================================
+  # DATABASE 6 — u_clp_db
+  # ============================================================
+
+  - agentic_name: BVER3
+    human_name: Branch_Events_Physical_L3
+    source: u_clp_db.fact_cdal_l3_physical
+    source_hash: HASH_PENDING_ORIGINAL
+    database: u_clp_db
+    status: draft
+    estimated_rows: "404,966,814"
+    estimated_size: "5.72GB"
+    partitions: 453
+    grain: one row per journey/event per customer per date per location
+    primary_join_keys:
+      - customer_identifier
+      - jrny_key
+      - evnt_key
+    notes: >
+      Most granular branch events table. Access: BDH RESTRICTED.
+      JOURNEY TAXONOMY NOTE: Contains journey, journey_id, parent_category, category,
+      jrny_grouping fields — populated embedded taxonomy. Candidate to resolve OCR
+      critical journey classification issue. Investigate jrny_key join to MAER.
+      voice_session_id present — voice channel join key.
+    fields:
+      - name: platform
+        agentic: BVER3_platform
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Platform type.
+
+      - name: event_month
+        agentic: BVER3_event_month
+        type: varchar
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Partition key.
+
+      - name: customer_identifier
+        agentic: BVER3_customer_identifier
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: Customer ID. Joins to SCVC for SCV resolution.
+
+      - name: channel
+        agentic: BVER3_channel
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Channel. Branch / Post Office.
+
+      - name: sub_channel
+        agentic: BVER3_sub_channel
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Sub channel. Branch / Pod / Van / Community Centre / SBH / Post Office.
+
+      - name: event_date
+        agentic: BVER3_event_date
+        type: varchar
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: location_identifier
+        agentic: BVER3_location_identifier
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Unique location ID supporting aggregation of multiple BSLs into single location.
+
+      - name: branch_name
+        agentic: BVER3_branch_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: Site naming convention.
+
+      - name: cdal_interaction_id
+        agentic: BVER3_cdal_interaction_id
+        type: int
+        classification: GOLD
+        pii: false
+        notes: "Aggregated interaction type. Codes: 1=id, 2=vi, 3=tc, 4=tx, 5=to, 6=ss, 7=cs, 8=df, 9=mm, 10=ff."
+
+      - name: journey
+        agentic: BVER3_journey
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Journey name. Embedded taxonomy — candidate for OCR fix.
+
+      - name: journey_id
+        agentic: BVER3_journey_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Journey ID.
+
+      - name: parent_category
+        agentic: BVER3_parent_category
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Journey parent category.
+
+      - name: category
+        agentic: BVER3_category
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Journey category.
+
+      - name: jrny_key
+        agentic: BVER3_jrny_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: BSL source journey key. Joins to journey dimension.
+
+      - name: jrny_grouping
+        agentic: BVER3_jrny_grouping
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Journey grouping from dim_jrny.
+
+      - name: evnt_key
+        agentic: BVER3_evnt_key
+        type: string
+        classification: GOLD
+        pii: false
+        notes: BSL source event key. Joins to MAER_F.
+
+      - name: event_grouping
+        agentic: BVER3_event_grouping
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Event grouping from dim_evnt.
+
+      - name: event_counter
+        agentic: BVER3_event_counter
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: Event count.
+
+      - name: jrny_sts
+        agentic: BVER3_jrny_sts
+        type: int
+        classification: GOLD
+        pii: false
+        notes: Journey status. 1=successful, 0=unsuccessful.
+
+      - name: pushed_to_colleague
+        agentic: BVER3_pushed_to_colleague
+        type: int
+        classification: SILVER
+        pii: false
+        notes: Indicative marker — event must be completed by agent due to system/regulation direction.
+
+      - name: start_hour
+        agentic: BVER3_start_hour
+        type: int
+        classification: SILVER
+        pii: false
+        notes: Hour of day the journey/event started.
+
+      - name: voice_session_id
+        agentic: BVER3_voice_session_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Voice channel session ID. Join key for voice channel enrichment.
+
+  - agentic_name: BVER2
+    human_name: Branch_Events_Physical_L2
+    source: u_clp_db.factt_cdal_l2_combined
+    source_hash: HASH_PENDING_ORIGINAL
+    database: u_clp_db
+    status: draft
+    estimated_rows: "384,912,988"
+    estimated_size: "10.69GB"
+    partitions: 111
+    grain: one row per customer per date per location — aggregated
+    primary_join_keys:
+      - customer_identifier
+      - location_identifier
+      - event_date
+    notes: >
+      Aggregated from BVER3. Adds complexity concatenation columns for wildcard searching.
+      num_distinct_* columns are pre-aggregated interaction counts by type per customer per day.
+      platform_complexity and demand_complexity are concatenated strings for wildcard search.
+    fields:
+      - name: event_month
+        agentic: BVER2_event_month
+        type: varchar
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Partition key.
+
+      - name: channel
+        agentic: BVER2_channel
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: sub_channel
+        agentic: BVER2_sub_channel
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: customer_identifier
+        agentic: BVER2_customer_identifier
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: ~
+
+      - name: event_date
+        agentic: BVER2_event_date
+        type: varchar
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: location_identifier
+        agentic: BVER2_location_identifier
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: branch_name
+        agentic: BVER2_branch_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: pushed_to_colleague
+        agentic: BVER2_pushed_to_colleague
+        type: int
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: start_hour_internal
+        agentic: BVER2_start_hour_internal
+        type: int
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: start_hour_external
+        agentic: BVER2_start_hour_external
+        type: int
+        classification: SILVER
+        pii: false
+        notes: ~
+
+      - name: platform_complexity_internal
+        agentic: BVER2_platform_complexity_internal
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Concatenation of all internal platforms for wildcard searching. e.g. fs, atmi."
+
+      - name: platform_complexity_external
+        agentic: BVER2_platform_complexity_external
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Concatenation of all external platforms for wildcard searching.
+
+      - name: demand_complexity_internal
+        agentic: BVER2_demand_complexity_internal
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Concatenation of all internal cdal_interaction_ids for wildcard searching.
+
+      - name: demand_complexity_external
+        agentic: BVER2_demand_complexity_external
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Concatenation of all external cdal_interaction_ids for wildcard searching.
+
+      - name: categories
+        agentic: BVER2_categories
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: journeys
+        agentic: BVER2_journeys
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: num_distinct_id
+        agentic: BVER2_num_distinct_id
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: Count of distinct customers with cdal_interaction_id=1 (id).
+
+      - name: num_distinct_vi
+        agentic: BVER2_num_distinct_vi
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=2 (vi).
+
+      - name: num_distinct_tc
+        agentic: BVER2_num_distinct_tc
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=3 (tc).
+
+      - name: num_distinct_tx
+        agentic: BVER2_num_distinct_tx
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=4 (tx).
+
+      - name: num_distinct_to
+        agentic: BVER2_num_distinct_to
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=5 (to).
+
+      - name: num_distinct_ss
+        agentic: BVER2_num_distinct_ss
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=6 (ss).
+
+      - name: num_distinct_cs
+        agentic: BVER2_num_distinct_cs
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=7 (cs).
+
+      - name: num_distinct_df
+        agentic: BVER2_num_distinct_df
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=8 (df).
+
+      - name: num_distinct_mm
+        agentic: BVER2_num_distinct_mm
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=9 (mm).
+
+      - name: num_distinct_ff
+        agentic: BVER2_num_distinct_ff
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=10 (ff).
+
+      - name: num_distinct_zz
+        agentic: BVER2_num_distinct_zz
+        type: bigint
+        classification: SILVER
+        pii: false
+        notes: cdal_interaction_id=unknown (zz).
+
+      - name: voice_session_id
+        agentic: BVER2_voice_session_id
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+  - agentic_name: BVER1
+    human_name: Branch_Events_Physical_L1
+    source: u_clp_db.fact_cdal_l1_physical
+    source_hash: HASH_PENDING_ORIGINAL
+    database: u_clp_db
+    status: draft
+    estimated_rows: "201,363,620"
+    estimated_size: "3.84GB"
+    partitions: 179
+    grain: one row per customer per date per location — highest aggregation
+    primary_join_keys:
+      - customer_identifier
+      - location_identifier
+      - event_date
+    notes: >
+      Most aggregated branch events table. Pre-enriched with CPD attributes.
+      Partially unblocks KAN-015 without direct CPD access.
+      post_code confirmed PII — real postcodes in sample.
+      accessibility_and_vulnerability and vulnerability_markers are key Day 90 signals.
+      affluence_band, tier, portfolio_segment are segmentation attributes from CPD.
+    fields:
+      - name: channel
+        agentic: BVER1_channel
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Sample: touchpoint"
+
+      - name: event_month
+        agentic: BVER1_event_month
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: Partition key.
+
+      - name: sub_channel
+        agentic: BVER1_sub_channel
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Sample: pod, com"
+
+      - name: customer_identifier
+        agentic: BVER1_customer_identifier
+        type: bigint
+        classification: GOLD
+        pii: true
+        notes: ~
+
+      - name: location_identifier
+        agentic: BVER1_location_identifier
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: branch_name
+        agentic: BVER1_branch_name
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "Sample: burton on trent bbc, ebbw vale"
+
+      - name: event_date
+        agentic: BVER1_event_date
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: demand_complexity_internal
+        agentic: BVER1_demand_complexity_internal
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Sample: .id.vi"
+
+      - name: demand_complexity_external
+        agentic: BVER1_demand_complexity_external
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Sample: .id.vi.ss.cs"
+
+      - name: platform_complexity_internal
+        agentic: BVER1_platform_complexity_internal
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Sample: .fs"
+
+      - name: platform_complexity_external
+        agentic: BVER1_platform_complexity_external
+        type: string
+        classification: GOLD
+        pii: false
+        notes: ~
+
+      - name: digitally_active
+        agentic: BVER1_digitally_active
+        type: int
+        classification: GOLD
+        pii: false
+        notes: CPD enriched flag. 1=digitally active.
+
+      - name: virtually_active
+        agentic: BVER1_virtually_active
+        type: int
+        classification: GOLD
+        pii: false
+        notes: CPD enriched flag. 0=not virtually active.
+
+      - name: tier
+        agentic: BVER1_tier
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Customer tier from CPD. Sample: b, e"
+
+      - name: portfolio_segment
+        agentic: BVER1_portfolio_segment
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Sample: community"
+
+      - name: post_code
+        agentic: BVER1_post_code
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "PII CONFIRMED — real postcodes in sample."
+
+      - name: product_holdings
+        agentic: BVER1_product_holdings
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Concatenated product codes. Sample: .ca.sa, .ca"
+
+      - name: accessibility_and_vulnerability
+        agentic: BVER1_accessibility_and_vulnerability
+        type: int
+        classification: GOLD
+        pii: false
+        notes: Vulnerability flag. 1=has accessibility/vulnerability marker. Key Day 90 signal.
+
+      - name: vulnerability_markers
+        agentic: BVER1_vulnerability_markers
+        type: string
+        classification: GOLD
+        pii: false
+        notes: Detailed vulnerability markers. NULL when no vulnerability present.
+
+      - name: affluence_band
+        agentic: BVER1_affluence_band
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Segmentation attribute from CPD. Sample: middle income"
+
+  # ============================================================
+  # ORIGINAL 10 TABLES — PENDING ACCESS OR BUILD
+  # ============================================================
+
+  - agentic_name: OCR
+    human_name: Operations_Gateway_Raw
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: TBC
+    primary_join_keys: []
+    notes: >
+      CRITICAL OPEN ISSUE: Journey classification logic from MAER_F evnt_grp_nm
+      did not work in production. OCR currently provides fallback gateway operation codes.
+      OCR cannot be removed until journey taxonomy source is resolved.
+      CANDIDATE RESOLUTION: BVER3 contains embedded journey taxonomy (journey, journey_id,
+      parent_category, category, jrny_grouping). Investigate if BVER3 taxonomy can replace
+      OCR dependency. Must resolve before MAES rebuild.
+    fields: []
+
+  - agentic_name: MAES
+    human_name: Mobile_App_Events_Sessionised
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per session
+    primary_join_keys: []
+    notes: >
+      TO BE BUILT. Sessionised layer on top of MAER.
+      Blocked pending journey classification resolution (OCR dependency).
+      AF-002 now resolved — appversion enrichment via DADTL.applicationversion confirmed.
+    fields: []
+
+  - agentic_name: MAESB
+    human_name: Mobile_App_Events_Sessionised_Barclaycard
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per Barclaycard session
+    primary_join_keys: []
+    notes: Barclaycard variant of MAES. Blocked same as MAES.
+    fields: []
+
+  - agentic_name: CPD
+    human_name: Customer_Profile_Data
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per customer
+    primary_join_keys:
+      - scv_id
+    notes: >
+      ACCESS PENDING — KAN-015 and REG-002 blocked.
+      CPD attributes partially available via BVER1 pre-enrichment.
+      Full access needed for direct SCV_ID based enrichment.
+      Join pattern when available: SCVC.scv_id -> CPD.scv_id
+    fields: []
+
+  - agentic_name: CCER
+    human_name: Credit_Card_Events_Raw
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per credit card event
+    primary_join_keys: []
+    notes: Credit card channel events. Source TBC.
+    fields: []
+
+  - agentic_name: WAER
+    human_name: Web_App_Events_Raw
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: one row per web event
+    primary_join_keys: []
+    notes: Web/app events. Source TBC. May overlap with OBRE.
+    fields: []
+
+  - agentic_name: CSR
+    human_name: Customer_Service_Raw
+    source: TBC
+    source_hash: HASH_PENDING_ORIGINAL
+    database: TBC
+    status: draft
+    estimated_rows: null
+    estimated_size: null
+    grain: TBC
+    primary_join_keys: []
+    notes: Customer service channel events. Source TBC.
+    fields: []
+
+# ============================================================
+# AUDIT FINDINGS
+# ============================================================
+
+audit_findings:
+
+  - id: AF-001
+    status: OPEN
+    title: Journey classification failure in production
+    description: >
+      MAER_F evnt_grp_nm journey classification did not work in production.
+      System fell back to gateway operation codes via OCR.
+      OCR cannot be removed until resolved.
+    resolution_candidate: >
+      BVER3 contains embedded journey taxonomy fields (journey, journey_id,
+      parent_category, category, jrny_grouping). Investigate as replacement.
+    priority: CRITICAL
+    blocks: MAES build, OCR removal
+
+  - id: AF-002
+    status: RESOLVED
+    title: Missing appversion field in MAER
+    description: >
+      MAER has no appversion field. Required for funnel analysis,
+      bug attribution, and feature adoption tracking.
+    resolution: >
+      Definitive source: e_bmb_db.bmb_device_attr_detail (DADTL).
+      Field: applicationversion (not appversion — legacy alias).
+      Join: MAER.aid -> DADTL.aid WHERE active=1.
+      SCAL.appversion rejected — sparse population, unreliable.
+      Coverage query pending to confirm aid join rate.
+    resolved_date: "2026-03-12"
+    resolved_by: Hussain Ahmed
+
+  - id: AF-003
+    status: OPEN
+    title: Registration data quality — false active registrations
+    description: >
+      As of 14 Feb 2025 approximately 5% of customer IDs (622K records)
+      incorrectly showing active registrations in REGS.
+      E-layer confirms these customers are not actually registered.
+    table: REGS
+    priority: MEDIUM
+
+  - id: AF-004
+    status: OPEN
+    title: PII in OBRE attribute columns
+    description: >
+      OBRE atrb_7_val confirmed to contain real address data.
+      All atrb_val fields in OBRE and similar tables should be
+      treated as PII_POSSIBLE until individually confirmed.
+    table: OBRE
+    priority: HIGH
+
+# ============================================================
+# REGULATORY OPEN ITEMS
+# ============================================================
+
+regulatory_items:
+
+  - id: REG-001
+    status: OPEN
+    title: Register DPIA
+    description: Formal DPIA registration required before production use.
+
+  - id: REG-002
+    status: ANSWERABLE
+    title: Audit CPD for special category data
+    description: >
+      SCVT confirmed to contain special category data under UK GDPR Article 9:
+      standard_gender, gender, date_of_birth, nationality, country_of_birth,
+      national_identifier_value (NI number).
+      DPIA Q3 answer: YES — special category data is processed.
+      Full CPD audit still pending access.
+
+  - id: REG-003
+    status: ANSWERABLE
+    title: Vulnerability data processing statement
+    description: >
+      SCVT contains 6 vulnerability flags: goneaway_detected_name,
+      deceased_detected_name, caution_word_detected_name, dormant_detected_name,
+      care_of_detected_name, care_of_bank_detected_name.
+      BVER1 contains accessibility_and_vulnerability and vulnerability_markers.
+      Sufficient to draft vulnerability data processing statement.
+
+  - id: REG-004
+    status: OPEN
+    title: Customer rights statement
+    description: Customer rights statement pending.
+
+# ============================================================
+# BUSINESS RULES — LOCKED
+# ============================================================
+
+business_rules:
+
+  login_operation_codes:
+    values: [A001B, AU01B, TA01B, A401B, TA04B]
+    field: src_evnt_cd
+    tables: [MAER, OBRE]
+
+  channel_keys:
+    mobile: 10333002
+    barclaycard: 10333003
+    field: chnl_key
+
+  successful_login:
+    mobile:
+      err_key: 10411766
+      evnt_rspn_key: 15
+    barclaycard:
+      err_key: 10411688
+      evnt_rspn_key: 66
+
+  session_proxy_rule: >
+    sesn_id = proxy for login sessions.
+    Multiple login events in one session = 1 login session.
+
+  cust_id_fallback: >
+    CASE WHEN cust_id > 0 THEN cust_id
+    ELSE CAST(chnl_cust_id AS BIGINT) END
+
+  registration_active_rule: >
+    active=1 AND at least 1 login in past year.
+    Auto-deregistered otherwise.
+
+  registration_complete:
+    value: 100
+    range: 1-100 for incomplete
+
+  cus_class:
+    P: Personal
+    B: Business
+    "NULL": Credit Card
+
+  scv_suspect_exclude: >
+    Exclude scv_group_status IN ('C', 'H') for all production queries.
+
+  scv_dynamic_linking: >
+    Use eff_start_dt / eff_end_dt or active='1' for point-in-time accuracy.
+
+  identity_resolution:
+    retail_banking:
+      system_hub_id: "001"
+      identifier: cust_id
+      mapping_table: SCVC
+    credit_cards:
+      system_hub_id: "012"
+      identifier: cardholder_id
+      mapping_table: SCVH

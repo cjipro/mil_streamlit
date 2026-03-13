@@ -17,10 +17,17 @@ LOG_PATH = "logs/principle_warnings.log"
 
 EXPECTED_PRINCIPLE_IDS = {f"P{i}" for i in range(1, 22)}
 EXPECTED_TABLES = {
-    "Mobile_App_Events_Raw", "Mobile_App_Events_Ref", "Operation_Codes_Ref",
-    "Mobile_App_Events_Session", "Mobile_App_Events_Session_Bucketed",
-    "Customer_Profile_Dim", "Call_Centre_Events_Raw", "Branch_Visit_Events_Raw",
-    "Customer_Satisfaction_Raw", "Web_App_Events_Raw",
+    # Session 5 — 26 tables across 6 databases
+    "Mobile_App_Events_Raw", "Mobile_App_Events_Ref", "Online_Banking_Events_Raw",
+    "App_Event_Log", "App_Event_Tag_Details", "Smart_Call",
+    "Device_Attributes_Detail", "Device_Attributes", "Connected_Device_Accounts",
+    "Accepted_Terms_Conditions", "Account_Blacklist", "Activation_Codes",
+    "Registration_Service", "SCV_Trillium_Customer", "SCV_Customer_ID_Mapping",
+    "SCV_Cardholder_ID_Mapping", "Branch_Events_Physical_L3",
+    "Branch_Events_Physical_L2", "Branch_Events_Physical_L1",
+    "Operations_Gateway_Raw", "Mobile_App_Events_Sessionised",
+    "Mobile_App_Events_Sessionised_Barclaycard", "Customer_Profile_Data",
+    "Credit_Card_Events_Raw", "Web_App_Events_Raw", "Customer_Service_Raw",
 }
 EXPECTED_REG_IDS = {"REG-001", "REG-002", "REG-003", "REG-004"}
 EXPECTED_SUBSTITUTIONS = 3
@@ -126,7 +133,7 @@ def main():
     found_tables = {t.get("human_name") for t in table_reg if isinstance(t, dict)}
     missing_tables = sorted(EXPECTED_TABLES - found_tables)
     check(
-        "All 10 tables in table_registry",
+        f"All {len(EXPECTED_TABLES)} tables in table_registry",
         not missing_tables,
         f"missing: {missing_tables}" if missing_tables else f"{len(found_tables)} found",
     )
@@ -174,7 +181,7 @@ def main():
             found_master = {t.get("human_name") for t in master_tables if isinstance(t, dict)}
             missing_master = sorted(EXPECTED_TABLES - found_master)
             check(
-                "All 10 tables in master dictionary",
+                f"All {len(EXPECTED_TABLES)} tables in master dictionary",
                 not missing_master,
                 f"missing: {missing_master}" if missing_master else f"{len(found_master)} found",
             )
