@@ -60,34 +60,46 @@ findings:
 # ============================================================
 
   - id: AF-001
-    status: CLOSED_WITH_CAVEAT
+    severity: HIGH
+    status: DEFERRED
     title: Journey classification failure — OCR dependency
     description: >
       MAER_F evnt_grp_nm journey classification did not work in production.
       System fell back to gateway operation codes via OCR.
+    impact: >
+      Journey labels from OCR are proxy classifications only. All downstream
+      findings must carry DIRECTIONAL response mode until taxonomy confirmed.
+    resolution_required: true
+    owner: Hussain Ahmed
+    linked_ticket: KAN-14
     resolution: >
       Accepted as known limitation for Sprint 1. OCR remains as intentional
       fallback. Full resolution deferred to Sprint 2.
     caveat: >
-      Journey labels from OCR are proxy classifications only — not human-readable
-      journey names. All downstream findings must carry DIRECTIONAL response mode
-      until taxonomy confirmed.
+      All downstream findings carry DIRECTIONAL response mode until resolved.
+      evnt_grp_nm diagnostic and BVER3 taxonomy test deferred to Sprint 2.
     resolution_candidates:
       - "Fix evnt_grp_nm — run dim_evnt population diagnostic in Sprint 2"
       - "BVER3 taxonomy — test jrny_key overlap with MAER in Sprint 2"
-    resolved_date: "2026-03-12"
-    resolved_by: Hussain Ahmed
+    deferred_date: "2026-03-12"
+    deferred_by: Hussain Ahmed
     deferred_to: Sprint 2
     blocks_unblocked:
       - MAES can now be built with OCR as interim journey source
-      - All journey findings carry DIRECTIONAL response mode until resolved
 
   - id: AF-002
-    status: CLOSED_WITH_CAVEAT
+    severity: CRITICAL
+    status: RESOLVED
     title: Missing appversion field in MAER
     description: >
       MAER has no appversion field. Required for funnel analysis,
       bug attribution, and feature adoption tracking.
+    impact: >
+      Phase 1 mission (comparing app experience for Step 3 abandonment) requires
+      app version. Resolved via DADTL join with documented coverage caveat.
+    resolution_required: false
+    owner: Hussain Ahmed
+    linked_ticket: KAN-14
     resolution: >
       Definitive source: e_bmb_db.bmb_device_attr_detail (DADTL).
       Field: applicationversion (not appversion — legacy alias, do not use).
@@ -105,23 +117,35 @@ findings:
     resolved_by: Hussain Ahmed
 
   - id: AF-003
+    severity: MEDIUM
     status: OPEN
     title: Registration data quality — false active registrations
     description: >
       As of 14 Feb 2025 approximately 5% of customer IDs (622K records)
       incorrectly showing active registrations in REGS.
       E-layer confirms these customers are not actually registered.
+    impact: >
+      Active user universe is overstated by ~622K. Funnel metrics and
+      engagement rates will be inflated until root cause resolved.
+    resolution_required: true
+    owner: Hussain Ahmed
+    linked_ticket: KAN-11
     table: REGS
-    priority: MEDIUM
     action_required: Investigate root cause — likely SCD2 join issue in e-layer
 
   - id: AF-004
+    severity: HIGH
     status: OPEN
     title: PII in OBRE attribute columns
     description: >
       OBRE atrb_7_val confirmed to contain real address data (sample: 6 Longfield road).
       All atrb_val fields in OBRE and similar tables should be treated as
       PII_POSSIBLE until individually confirmed clean.
+    impact: >
+      Unmasked PII in attribute columns would violate P1 and P4. Pipeline must not
+      pass these fields downstream until audit complete.
+    resolution_required: true
+    owner: Hussain Ahmed
+    linked_ticket: KAN-11
     table: OBRE
-    priority: HIGH
     action_required: Audit all atrb_val columns 1-26 for PII content
