@@ -181,7 +181,7 @@ components:
     name: "Master Data Dictionary"
     file: "manifests/data_dictionary_master.yaml"
     status: "IN_PROGRESS"
-    description: "Single source of truth. Never read directly by humans or agents. 10 tables. Fields to be populated as data audit progresses."
+    description: "Single source of truth. Never read directly by humans or agents. 26 tables across 6 databases. Session 5: 17 tables with fields populated, 9 pending access. AF-002 resolved, REG-002/REG-003 answerable."
     principle_refs: [P1, P2, P3, P4, P5, P9, P10, P18]
 
   - id: data_dictionary_human
