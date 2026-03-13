@@ -70,18 +70,26 @@ Manifest hardening complete (2026-03-12):
 
 ## Model Config
 
-- **Primary:** `claude-sonnet-4-6`
-- **Local:** `qwen2.5-coder:14b` via Ollama at `http://localhost:11434`
-- **Use local for:** yaml generation, file creation, validation scripts
-- **Use Claude for:** architecture decisions, governance review, complex reasoning
+- **Default:** `qwen2.5-coder:14b` via Ollama at `http://localhost:11434` — use for all standard tasks
+- **Reserve Sonnet (`claude-sonnet-4-6`) for:** exceptions only (see routing rules below)
+- **Weekly Sonnet limit running low — conserve**
 
-## Model Routing Rules
+## Model Routing Rules — Updated 2026-03-12
 
-- Use Sonnet (claude-sonnet-4-6) for: multi-file logic, CLI tools with flags,
-  telemetry compliance, anything reading multiple manifests
-- Use Qwen (local) for: simple YAML scaffolds, single-file templates,
-  validation scripts under 50 lines
-- Default to Sonnet when in doubt — switch to Qwen only for clearly simple tasks
+**DEFAULT: Qwen** (qwen2.5-coder:14b at http://localhost:11434)
+
+Use Qwen for:
+- YAML edits and field population
+- Single-file scripts and validators
+- Jira/GitLab API calls
+- Commit and validation runs
+- Any clearly isolated, well-defined task
+
+Switch to Sonnet ONLY when:
+- Qwen fails to resolve after one attempt
+- Multi-manifest logic spanning 3+ files
+- Anthropic API calls required (build_from_manifest.py)
+- Explicitly instructed by Hussain
 
 ## Programme Principles
 
