@@ -1,57 +1,127 @@
-schema_version: "1.0"
-generated_by: KAN-13
-purpose: "Machine-readable register of all data quality findings. No pipeline is built against an affected table until its findings are RESOLVED or ACCEPTED-WITH-FALLBACK."
-last_updated: "2026-03-11"
+schema_version: "1.1"
+generated_by: "KAN-13"
+purpose: "Machine-readable register of all data quality audit findings for CJI Pulse. No pipeline is built against an affected table until its findings are RESOLVED or DEFERRED."
+last_updated: "2026-03-12"
 
 findings:
+
   - id: FINDING-001
+    title: "Data Availability — MA_D Row Counts Below Expected Threshold"
     severity: HIGH
     status: OPEN
-    description: "cust_id uses -99 as a sentinel value for unauthenticated/guest sessions. The volume is unknown and must be quantified before pipeline build."
-    business_impact: "The issue affects the accuracy of data related to unauthenticated sessions, potentially leading to skewed analytics."
-    action_required: "Quantify the volume of -99 sentinel values in cust_id and update the pipeline accordingly."
-    owner: Hussain Ahmed
-    data_owner_signoff_required: true
-    resolution: null
-    fallback_if_unresolved: "Consider excluding -99 values from analysis until the volume is quantified."
-    affects_tables:
-      - MA_D
-    blocks_components:
-      - KAN-20
-    raised_date: "2026-03-11"
-    target_resolution_date: "2026-03-18"
+    description: "MA_D table row counts are below the expected daily threshold, indicating possible ingestion failure or data loss."
+    impact: "Incomplete row counts will skew Step 3 abandonment metrics and undermine pipeline confidence."
+    resolution_required: true
+    owner: "Hussain Ahmed"
+    linked_ticket: KAN-13
 
   - id: FINDING-002
+    title: "Schema Completeness — app_version Field Missing from MA_D"
     severity: CRITICAL
     status: OPEN
-    description: "The app_version field is missing in MA_D, blocking the entire Phase 1 mission."
-    business_impact: "This finding blocks the ability to compare refreshed vs legacy app experience, which is crucial for the CJI Pulse Day 90 mission."
-    action_required: "Add the app_version field to the MA_D table and ensure data consistency."
-    owner: Hussain Ahmed
-    data_owner_signoff_required: true
-    resolution: null
-    fallback_if_unresolved: "The mission will be delayed until the app_version field is added."
-    affects_tables:
-      - MA_D
-    blocks_components:
-      - KAN-14
-      - KAN-20
-    raised_date: "2026-03-11"
-    target_resolution_date: "2026-03-18"
+    description: "The app_version field is absent from MA_D, blocking the ability to split journeys by refreshed vs legacy app experience."
+    impact: "The Phase 1 mission (comparing app experience for Step 3 abandonment) cannot proceed until this field is present — blocks KAN-14."
+    resolution_required: true
+    owner: "Hussain Ahmed"
+    linked_ticket: KAN-14
 
   - id: FINDING-003
-    severity: MEDIUM
+    title: "Join Rate Quality — MA_D to CUST_DIM Join Below 80%"
+    severity: HIGH
     status: OPEN
-    description: "The meaning of the Native flag in OPS_CD is undocumented."
-    business_impact: "The undocumented flag may be crucial for resolving Finding 002, but its meaning is unclear."
-    action_required: "Document the meaning of the Native flag in OPS_CD and investigate its potential mapping to app_experience."
-    owner: Hussain Ahmed
-    data_owner_signoff_required: true
-    resolution: null
-    fallback_if_unresolved: "If the meaning cannot be determined, consider using other available data to resolve Finding 002."
-    affects_tables:
-      - OPS_CD
-    blocks_components:
-      - KAN-14
-    raised_date: "2026-03-11"
-    target_resolution_date: "2026-03-18"
+    description: "The join rate between MA_D and CUST_DIM on cust_id is below 80%, producing a high proportion of unattributed sessions."
+    impact: "Low join rate makes cohort-level analysis (age band, vulnerability flag) unreliable and inflates the unknowns population."
+    resolution_required: true
+    owner: "Hussain Ahmed"
+    linked_ticket: KAN-13
+
+  - id: FINDING-004
+    title: "Field Freshness — journey_date Lag Exceeds 24 Hours in MA_D"
+    severity: MEDIUM
+    status: IN_PROGRESS
+    description: "The journey_date field in MA_D lags wall-clock time by more than 24 hours on a recurring basis."
+    impact: "Stale journey dates cause the daily pipeline to process yesterday's events as today's, distorting trend analysis."
+    resolution_required: true
+    owner: "Hussain Ahmed"
+    linked_ticket: KAN-13
+
+  - id: FINDING-005
+    title: "CUST_DIM Availability — age_band and vulnerability_flag Columns Missing"
+    severity: HIGH
+    status: OPEN
+    description: "CUST_DIM does not expose the age_band or vulnerability_flag columns required for vulnerable cohort segmentation."
+    impact: "Without these columns the Day 90 mission objective (identifying likely 45+, likely vulnerable customers on Step 3) cannot be met."
+    resolution_required: true
+    owner: "Hussain Ahmed"
+    linked_ticket: KAN-13
+
+# ============================================================
+# AF-series findings — data dictionary audit (Session 5, 2026-03-12)
+# ============================================================
+
+  - id: AF-001
+    status: CLOSED_WITH_CAVEAT
+    title: Journey classification failure — OCR dependency
+    description: >
+      MAER_F evnt_grp_nm journey classification did not work in production.
+      System fell back to gateway operation codes via OCR.
+    resolution: >
+      Accepted as known limitation for Sprint 1. OCR remains as intentional
+      fallback. Full resolution deferred to Sprint 2.
+    caveat: >
+      Journey labels from OCR are proxy classifications only — not human-readable
+      journey names. All downstream findings must carry DIRECTIONAL response mode
+      until taxonomy confirmed.
+    resolution_candidates:
+      - "Fix evnt_grp_nm — run dim_evnt population diagnostic in Sprint 2"
+      - "BVER3 taxonomy — test jrny_key overlap with MAER in Sprint 2"
+    resolved_date: "2026-03-12"
+    resolved_by: Hussain Ahmed
+    deferred_to: Sprint 2
+    blocks_unblocked:
+      - MAES can now be built with OCR as interim journey source
+      - All journey findings carry DIRECTIONAL response mode until resolved
+
+  - id: AF-002
+    status: CLOSED_WITH_CAVEAT
+    title: Missing appversion field in MAER
+    description: >
+      MAER has no appversion field. Required for funnel analysis,
+      bug attribution, and feature adoption tracking.
+    resolution: >
+      Definitive source: e_bmb_db.bmb_device_attr_detail (DADTL).
+      Field: applicationversion (not appversion — legacy alias, do not use).
+      Join: MAER.aid -> DADTL.aid WHERE active=1.
+      SCAL.appversion rejected — sparse population.
+    coverage:
+      pct_range: "60-79%"
+      verdict: acceptable_for_cohort_analysis
+      not_suitable_for: row_level_guarantees
+    null_handling: "COALESCE(d.applicationversion, 'VERSION_UNKNOWN') AS app_version"
+    caveat: >
+      20-40% of MAER sessions will have NULL applicationversion.
+      All downstream queries must handle NULLs explicitly using COALESCE pattern.
+    resolved_date: "2026-03-12"
+    resolved_by: Hussain Ahmed
+
+  - id: AF-003
+    status: OPEN
+    title: Registration data quality — false active registrations
+    description: >
+      As of 14 Feb 2025 approximately 5% of customer IDs (622K records)
+      incorrectly showing active registrations in REGS.
+      E-layer confirms these customers are not actually registered.
+    table: REGS
+    priority: MEDIUM
+    action_required: Investigate root cause — likely SCD2 join issue in e-layer
+
+  - id: AF-004
+    status: OPEN
+    title: PII in OBRE attribute columns
+    description: >
+      OBRE atrb_7_val confirmed to contain real address data (sample: 6 Longfield road).
+      All atrb_val fields in OBRE and similar tables should be treated as
+      PII_POSSIBLE until individually confirmed clean.
+    table: OBRE
+    priority: HIGH
+    action_required: Audit all atrb_val columns 1-26 for PII content

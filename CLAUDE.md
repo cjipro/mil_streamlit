@@ -56,6 +56,19 @@ Manifest hardening complete (2026-03-12):
 - adoption_hooks: Slack/Teams placeholders added to global schema
 - Infrastructure reality: Databricks onboarding, Snowflake live, ClickHouse POC
 
+## Session 5 Part 2 — 2026-03-12
+- e_bmb_db fully documented: DATR, CDAC, ATCS, ABLK, ACTC, REGS fields populated
+- AF-001 CLOSED WITH CAVEAT: OCR accepted as interim journey source, Sprint 2 fix
+- AF-002 CLOSED WITH CAVEAT: DADTL.applicationversion confirmed, 60-79% coverage
+- AF-003 OPEN: REGS 622K false active registrations
+- AF-004 OPEN: PII in OBRE atrb_val columns
+- KAN-014 closed — appversion resolution complete with documented caveat
+- All audit findings now tracked in audit_findings.yaml
+- Database 3 (e_bmb_db) fully documented — 10 tables, all fields populated
+- 19 tables fully documented across 6 databases
+- 7 tables remain at 0 fields — all blocked on external dependencies
+- MAES unblocked for Sprint 1 build with OCR as interim journey source
+
 ## Key Manifests
 
 | File | Purpose |
