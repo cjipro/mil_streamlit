@@ -1133,13 +1133,89 @@ tables:
     source_hash: HASH_PENDING_ORIGINAL
     database: e_bmb_db
     status: draft
-    estimated_rows: null
-    estimated_size: null
+    estimated_rows: "4,250,455,533"
+    estimated_size: "94.35GB"
     grain: one row per device
     primary_join_keys:
       - aid
-    notes: Summary device attributes. Less granular than DADTL.
-    fields: []
+    notes: "Key-value narrow format twin of DADTL. Same device data, different structure. 4.25B rows, 94.35GB. Use DADTL for columnar queries; DATR for attribute scanning. attr_key values include deviceOSVersion, appversion, and other device attributes."
+    fields:
+      - name: active
+        agentic: DATR_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Active flag."
+
+      - name: aid
+        agentic: DATR_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: "App Instance ID. Device-level, not person-level. Primary join key."
+
+      - name: enddate_ts
+        agentic: DATR_enddate_ts
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "End date timestamp."
+
+      - name: id
+        agentic: DATR_id
+        type: decimal
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Internal record ID."
+
+      - name: attr_key
+        agentic: DATR_attr_key
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "Attribute name. Key-value narrow format. Examples: deviceOSVersion, appversion."
+
+      - name: attr_value
+        agentic: DATR_attr_value
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "Attribute value. Paired with attr_key. Example: 12.2 for deviceOSVersion."
+
+      - name: updt_fields
+        agentic: DATR_updt_fields
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Updated fields marker."
+
+      - name: eff_start_date
+        agentic: DATR_eff_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Effective start date — SCD2."
+
+      - name: eff_end_date
+        agentic: DATR_eff_end_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Effective end date — SCD2."
+
+      - name: dw_lod_tmp
+        agentic: DATR_dw_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse load timestamp."
+
+      - name: dw_upd_lod_tmp
+        agentic: DATR_dw_upd_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse update load timestamp."
 
   - agentic_name: CDAC
     human_name: Connected_Device_Accounts
@@ -1147,13 +1223,110 @@ tables:
     source_hash: HASH_PENDING_ORIGINAL
     database: e_bmb_db
     status: draft
-    estimated_rows: null
-    estimated_size: null
+    estimated_rows: "103,236"
+    estimated_size: "8.2MB"
     grain: one row per device-account link
     primary_join_keys:
       - aid
-    notes: Maps devices to customer accounts.
-    fields: []
+    notes: "Small lookup table — 103K rows. Maps devices to accounts with payment limits. Relevant for session stitching and wearable device identification. wearableid field confirms wearable device support in scope."
+    fields:
+      - name: active
+        agentic: CDAC_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Active flag."
+
+      - name: id
+        agentic: CDAC_id
+        type: decimal
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Internal record ID."
+
+      - name: aid
+        agentic: CDAC_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: "App Instance ID. Primary join key to device tables."
+
+      - name: highlimit
+        agentic: CDAC_highlimit
+        type: decimal
+        classification: SILVER
+        pii: false
+        notes: "High payment limit for this connected device. Sample: 6000.00"
+
+      - name: lowlimit
+        agentic: CDAC_lowlimit
+        type: decimal
+        classification: SILVER
+        pii: false
+        notes: "Low payment limit for this connected device. Sample: 20.00"
+
+      - name: privacysetting
+        agentic: CDAC_privacysetting
+        type: int
+        classification: SILVER
+        pii: false
+        notes: "Privacy setting flag."
+
+      - name: productidentifier
+        agentic: CDAC_productidentifier
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Product/account identifier linked to this device."
+
+      - name: sortingorder
+        agentic: CDAC_sortingorder
+        type: int
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Display sort order."
+
+      - name: wearableid
+        agentic: CDAC_wearableid
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Wearable device ID (e.g. smartwatch). PII — device identifier."
+
+      - name: updt_fields
+        agentic: CDAC_updt_fields
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Updated fields marker."
+
+      - name: eff_start_date
+        agentic: CDAC_eff_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Effective start date — SCD2."
+
+      - name: eff_end_date
+        agentic: CDAC_eff_end_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Effective end date — SCD2."
+
+      - name: dw_lod_tmp
+        agentic: CDAC_dw_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse load timestamp."
+
+      - name: dw_upd_lod_tmp
+        agentic: CDAC_dw_upd_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse update load timestamp."
 
   - agentic_name: ATCS
     human_name: Accepted_Terms_Conditions
@@ -1161,12 +1334,53 @@ tables:
     source_hash: HASH_PENDING_ORIGINAL
     database: e_bmb_db
     status: draft
-    estimated_rows: null
-    estimated_size: null
+    estimated_rows: "23,451,693"
+    estimated_size: "684.33MB"
     grain: one row per T&C acceptance event
     primary_join_keys: []
-    notes: Records customer T&C acceptance events.
-    fields: []
+    notes: "Records each T&C acceptance event per device. 23.45M rows, 684MB. Consent signal — relevant to DPIA and P16 (consent principle). dateaccepted + acceptedcondtionsid together identify which version of T&Cs a customer accepted and when. Useful for consent audit trail."
+    fields:
+      - name: dw_bus_dt
+        agentic: ATCS_dw_bus_dt
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Business date — partition key."
+
+      - name: id
+        agentic: ATCS_id
+        type: decimal
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Internal record ID."
+
+      - name: aid
+        agentic: ATCS_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: "App Instance ID. Links consent event to device/customer."
+
+      - name: dateaccepted
+        agentic: ATCS_dateaccepted
+        type: timestamp
+        classification: GOLD
+        pii: false
+        notes: "Timestamp of T&C acceptance. Consent signal — DPIA relevant."
+
+      - name: acceptedcondtionsid
+        agentic: ATCS_acceptedcondtionsid
+        type: decimal
+        classification: SILVER
+        pii: false
+        notes: "T&C version ID accepted. Sample: 12513. Allows tracking of which version was accepted."
+
+      - name: dw_lod_tmp
+        agentic: ATCS_dw_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse load timestamp."
 
   - agentic_name: ABLK
     human_name: Account_Blacklist
@@ -1174,12 +1388,102 @@ tables:
     source_hash: HASH_PENDING_ORIGINAL
     database: e_bmb_db
     status: draft
-    estimated_rows: null
-    estimated_size: null
+    estimated_rows: "94,445"
+    estimated_size: "5.97MB"
     grain: one row per blacklisted account
     primary_join_keys: []
-    notes: Blacklisted accounts. Sensitive — restricted use.
-    fields: []
+    notes: "Small but sensitive table — 94K rows, 5.97MB. Fraud and vulnerability signal. remark field contains fraud indicators — directly supports REG-003 vulnerability data processing statement. Permitted purposes must be tightly controlled. Use with caution — financial crime data."
+    fields:
+      - name: active
+        agentic: ABLK_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Active flag."
+
+      - name: id
+        agentic: ABLK_id
+        type: decimal
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Internal record ID."
+
+      - name: accountnumber
+        agentic: ABLK_accountnumber
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Blacklisted account number."
+
+      - name: blacklisted_date
+        agentic: ABLK_blacklisted_date
+        type: timestamp
+        classification: GOLD
+        pii: false
+        notes: "Date account was blacklisted."
+
+      - name: end_date
+        agentic: ABLK_end_date
+        type: timestamp
+        classification: SILVER
+        pii: false
+        notes: "Date blacklist entry expires."
+
+      - name: remark
+        agentic: ABLK_remark
+        type: string
+        classification: GOLD
+        pii: false
+        notes: "Fraud and vulnerability signal. Contains free-text reason for blacklisting. Confirmed values: 'Refer to fraud', 'Suspected first party fraud'. Relevant to REG-003 (vulnerability data processing statement) and Day 90 'likely vulnerable' customer identification."
+
+      - name: sort_code
+        agentic: ABLK_sort_code
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Sort code of blacklisted account."
+
+      - name: product_identifier
+        agentic: ABLK_product_identifier
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Combined product identifier (sort code + account number)."
+
+      - name: updt_fields
+        agentic: ABLK_updt_fields
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Updated fields marker."
+
+      - name: eff_start_date
+        agentic: ABLK_eff_start_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Effective start date — SCD2."
+
+      - name: eff_end_date
+        agentic: ABLK_eff_end_date
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Effective end date — SCD2."
+
+      - name: dw_lod_tmp
+        agentic: ABLK_dw_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse load timestamp."
+
+      - name: dw_upd_lod_tmp
+        agentic: ABLK_dw_upd_lod_tmp
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Warehouse update load timestamp."
 
   - agentic_name: ACTC
     human_name: Activation_Codes
@@ -1187,12 +1491,116 @@ tables:
     source_hash: HASH_PENDING_ORIGINAL
     database: e_bmb_db
     status: draft
-    estimated_rows: null
-    estimated_size: null
+    estimated_rows: "87,098,329"
+    estimated_size: "6.11GB"
     grain: one row per activation code
     primary_join_keys: []
-    notes: App activation codes. Registration journey context.
-    fields: []
+    notes: "App registration funnel table. 87M rows, 6.11GB. Records each activation code issued during app registration. phone_number is PII — masked at pipeline entry. confirmed=1 indicates successful activation. retry_count supports abandonment analysis. STATUS: draft — 4 additional infrastructure fields may exist. Confirm full schema from Hue."
+    fields:
+      - name: active
+        agentic: ACTC_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Active flag."
+
+      - name: id
+        agentic: ACTC_id
+        type: decimal
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Internal record ID."
+
+      - name: aid
+        agentic: ACTC_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: "App Instance ID. Links activation to device."
+
+      - name: code
+        agentic: ACTC_code
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "Activation code value. Sensitive — one-time use numeric code. Not PII but must not be logged or surfaced. Sample: 463502."
+
+      - name: confirmed
+        agentic: ACTC_confirmed
+        type: decimal
+        classification: GOLD
+        pii: false
+        notes: "Whether activation was confirmed. 1=confirmed."
+
+      - name: enddate_ts
+        agentic: ACTC_enddate_ts
+        type: timestamp
+        classification: SILVER
+        pii: false
+        notes: "Activation end date."
+
+      - name: expiry
+        agentic: ACTC_expiry
+        type: timestamp
+        classification: SILVER
+        pii: false
+        notes: "Code expiry timestamp."
+
+      - name: phone_number
+        agentic: ACTC_phone_number
+        type: string
+        classification: SILVER
+        pii: true
+        notes: "Phone number SMS was sent to. PII — direct identifier. Sample: +447969285795"
+
+      - name: retry_count
+        agentic: ACTC_retry_count
+        type: decimal
+        classification: SILVER
+        pii: false
+        notes: "Number of retry attempts for activation."
+
+      - name: sms_msg_reciept_ts
+        agentic: ACTC_sms_msg_reciept_ts
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "SMS message receipt timestamp."
+
+      - name: msg_type
+        agentic: ACTC_msg_type
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "Message type. APP_GENERATED_SMS almost always."
+
+      - name: winmessageid
+        agentic: ACTC_winmessageid
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Windows message ID for SMS routing."
+
+      - name: create_date
+        agentic: ACTC_create_date
+        type: timestamp
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Record creation date."
+
+      - name: mvc_req_count
+        agentic: ACTC_mvc_req_count
+        type: decimal
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "MVC request count."
+
+      - name: updt_fields
+        agentic: ACTC_updt_fields
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Updated fields marker."
 
   - agentic_name: REGS
     human_name: Registration_Service
@@ -1204,12 +1612,35 @@ tables:
     estimated_size: null
     grain: one row per registered service
     primary_join_keys: []
-    notes: >
-      AUDIT FINDING: As of 14 Feb 2025 ~5% / 622K customer IDs incorrectly
-      showing active registrations. E-layer confirms these are not actually registered.
-      registration_status=100 means complete. Range 1-100 for incomplete.
-      active=1 + at least 1 login in past year = truly active. Auto-deregistered otherwise.
-    fields: []
+    notes: "Registration service layer — core table for active user universe. AF-003 OPEN: As of 14 Feb 2025 approximately 622K customer IDs (5%) incorrectly showing active registrations. E-layer confirms these are not actually registered. Business rules: active=1 AND login in past year = truly active. registration_status=100 = complete. service_code=APP almost always."
+    fields:
+      - name: aid
+        agentic: REGS_aid
+        type: string
+        classification: GOLD
+        pii: true
+        notes: "App Instance ID. Primary identifier for registered device."
+
+      - name: service_code
+        agentic: REGS_service_code
+        type: string
+        classification: SILVER
+        pii: false
+        notes: "Service code. APP almost always (substituted from sealed name). Historic BCA records exist for legacy Habib Bank registrations."
+
+      - name: active
+        agentic: REGS_active
+        type: string
+        classification: INFRASTRUCTURE
+        pii: false
+        notes: "Active registration flag. active=1 AND at least 1 login in past year = truly active. Auto-deregistered otherwise. AF-003: ~622K records incorrectly active as of Feb 2025."
+
+      - name: registration_status
+        agentic: REGS_registration_status
+        type: decimal
+        classification: GOLD
+        pii: false
+        notes: "Registration completion status. 100=fully complete. Range 1-99=incomplete. No row = not registered. Key field for registration funnel analysis."
 
   # ============================================================
   # DATABASE 4 — e_scv_db
