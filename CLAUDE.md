@@ -69,6 +69,34 @@ Manifest hardening complete (2026-03-12):
 - 7 tables remain at 0 fields — all blocked on external dependencies
 - MAES unblocked for Sprint 1 build with OCR as interim journey source
 
+## Visualization & Automation Layer — Phase 4 (2026-03-13)
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| Streamlit app | `app/cji_app.py` | Glass layer — connects to HDFS NameNode at `http://namenode:9870` via WebHDFS |
+| HDFS page | `app/cji_app.py` → "HDFS Live" | Renders governance KPI card + Plotly charts from 284k MAER rows |
+| dbt project | `twin_refinery/` | Refinement layer — reads from `raw.maer_batch_01` in PostgreSQL |
+| dbt profiles | `twin_refinery/profiles.yml` | Targets `postgresql:5432`, db=`cjipulse`, schema=`staging` |
+| dbt staging model | `twin_refinery/models/staging/stg_maer_batch.sql` | P4/P5 validation — filters rows where org_name != 'Habib Bank' |
+| HDFS → PG loader | `twin_refinery/scripts/load_hdfs_to_pg.py` | Loads HDFS CSV into `raw.maer_batch_01` before dbt run |
+| GitLab CI | `.gitlab-ci.yml` | Build (docker:dind) → Test (HDFS compliance + governance) → Push to registry |
+| CI tests | `ci/test_hdfs_compliance.py` | HDFS file existence + schema + P4/P5 sample check |
+| CI tests | `ci/test_governance_compliance.py` | Full CSV governance gate (P4 + P5 rules) |
+
+### dbt Run Order
+```bash
+# 1. Load HDFS → PostgreSQL
+docker exec streamlit py /app/../twin_refinery/scripts/load_hdfs_to_pg.py
+
+# 2. Run dbt from twin_refinery/
+cd twin_refinery && dbt run && dbt test
+```
+
+### Governance Rules for dbt Models
+- All staging models must filter `org_name = 'Habib Bank'` — no raw client names
+- P4: `hmac_ref` column must always equal `HASH_PENDING_ORIGINAL` at staging layer
+- Violations in dbt tests = pipeline blocked — not WARN, full FAIL
+
 ## Key Manifests
 
 | File | Purpose |
@@ -80,6 +108,14 @@ Manifest hardening complete (2026-03-12):
 | `manifests/data_strategy_v2.md` | KAN-011 v2.0 — complete data strategy. Three names, hash strategy, two dictionaries, three-layer governance, regulatory framework. |
 | `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 — WARN_NOT_FAIL, table registry, substitution registry, REG-001–004 |
 | `manifests/data_dictionary_master.yaml` | KAN-011 — master source, 10 tables, HASH_PENDING_ORIGINAL, never read directly by humans or agents |
+
+## Model Routing — HARD RULE (active until 2026-03-18)
+
+- Default: qwen2.5-coder:14b via Ollama at http://localhost:11434
+- Sonnet usage target: 3% maximum
+- If Qwen cannot complete a task: PARK IT — do not fall back to Sonnet
+- Report parked tasks to Hussain with reason
+- Sonnet only unlocked by explicit instruction from Hussain
 
 ## Model Config
 
