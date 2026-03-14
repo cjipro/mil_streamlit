@@ -25,6 +25,13 @@ This document is the primary source of operational lessons learned for CJI Pulse
 - **Fix:** Removed `webserver` and `triggerer` from override. Only `scheduler` needs dev-network access under LocalExecutor. Removed the `version:` field.
 - **Rule:** Airflow 3.x services are: `scheduler`, `api-server`, `triggerer`, `dag-processor`, `postgres`. Never reference `webserver`.
 
+### Lesson 005 — Scale-Up Optimisation: CSV → Parquet Migration
+- **Problem:** CSV format at 284k rows = 35.4 MB. Projecting to 1M rows = ~125 MB CSV. At 10M rows = ~1.25 GB — WebHDFS reads become slow and Streamlit load times exceed acceptable thresholds.
+- **Fix:** Migrated to Snappy-compressed Parquet. `generate_relational_parquet.py` produces ~1M rows in columnar format. HDFS path partitioned by date: `/user/twin/staged/habib_bank/date=YYYY-MM-DD/batch_TIMESTAMP.parquet` — mirrors S3/Data Lake production convention.
+- **Schema upgrade:** Added `customer_id` field — relational parent-child model (Customer → Session → Journey Steps) replaces flat session-only model.
+- **Streamlit:** HDFS Live page now attempts Parquet first (with Latency Monitor showing load time in ms), falls back to CSV if no Parquet partition exists.
+- **Rule:** All new batches must be written as Snappy Parquet. CSV generation retained only for legacy compatibility.
+
 ## Defined Limit Governance
 
 ### AI Agent Autonomy Boundary
