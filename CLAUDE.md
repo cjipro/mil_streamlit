@@ -1,5 +1,18 @@
 # CLAUDE.md
 
+## ⚠️ MODEL RULE — ABSOLUTE — EXPIRES 2026-03-18
+
+DO NOT USE SONNET UNDER ANY CIRCUMSTANCE UNTIL 2026-03-18.
+
+- All work must be done by Qwen (qwen2.5-coder:14b via Ollama at http://localhost:11434)
+- Do NOT fall back to Sonnet if Qwen struggles
+- Do NOT use inline Sonnet reasoning
+- Do NOT make any Anthropic API calls for reasoning
+- If Qwen cannot complete a task — STOP, park the job, report to Hussain
+- No exceptions. No overrides. No silent fallbacks.
+
+This rule persists across all sessions until 2026-03-18.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Identity
