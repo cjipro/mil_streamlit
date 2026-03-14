@@ -108,6 +108,7 @@ cd twin_refinery && dbt run && dbt test
 | `manifests/data_strategy_v2.md` | KAN-011 v2.0 — complete data strategy. Three names, hash strategy, two dictionaries, three-layer governance, regulatory framework. |
 | `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 — WARN_NOT_FAIL, table registry, substitution registry, REG-001–004 |
 | `manifests/data_dictionary_master.yaml` | KAN-011 — master source, 10 tables, HASH_PENDING_ORIGINAL, never read directly by humans or agents |
+| `CHRONICLE.md` | **Primary source for Operational Lessons Learned** — port conflicts, HDFS lessons, Airflow 3.x rules, Defined Limit governance, Separation of Concerns |
 
 ## Model Routing — HARD RULE (active until 2026-03-18)
 
