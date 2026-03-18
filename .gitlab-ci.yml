@@ -1,0 +1,64 @@
+stages:
+  - build
+  - test
+  - push
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE/cji-pulse-streamlit
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+# --- BUILD STAGE ---
+build_streamlit:
+  stage: build
+  image: docker:24.0
+  services:
+    - docker:24.0-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -f Dockerfile.streamlit -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+  artifacts:
+    reports:
+      dotenv: build.env
+
+# --- TEST STAGE ---
+test_hdfs_schema:
+  stage: test
+  image: python:3.11-slim
+  before_script:
+    - pip install --quiet hdfs requests
+  script:
+    - python ci/test_hdfs_compliance.py
+  variables:
+    HDFS_URL: "http://namenode:9870"
+    HDFS_PATH: "/user/twin/staged/batch_01_habib_bank.csv"
+  allow_failure: false
+
+test_governance_rules:
+  stage: test
+  image: python:3.11-slim
+  before_script:
+    - pip install --quiet pandas
+  script:
+    - python ci/test_governance_compliance.py
+  allow_failure: false
+
+# --- PUSH STAGE ---
+push_to_registry:
+  stage: push
+  image: docker:24.0
+  services:
+    - docker:24.0-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:latest
+  only:
+    - main

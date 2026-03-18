@@ -1,0 +1,54 @@
+version: 2
+
+sources:
+  - name: raw
+    database: cjipulse
+    schema: raw
+    tables:
+      - name: maer_batch_01
+        description: "MAER event rows loaded from HDFS staged vault. 284k rows from 50k sessions."
+        columns:
+          - name: session_id
+            description: "UUID per user session"
+            tests:
+              - not_null
+          - name: org_name
+            description: "P5 sealed — must be Habib Bank exclusively"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['Habib Bank']
+          - name: channel
+            description: "P5 sealed — BMB substituted with APP prefix"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['APP_Mobile', 'APP_Web', 'APP_Tablet']
+          - name: hmac_ref
+            description: "P4 sealed — all hashes are HASH_PENDING_ORIGINAL at staging"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['HASH_PENDING_ORIGINAL']
+          - name: outcome
+            description: "Journey outcome label"
+            tests:
+              - not_null
+
+models:
+  - name: stg_maer_batch
+    description: "P4/P5 validated staging view of MAER batch data"
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+      - name: p5_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['SEALED']
+      - name: p4_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['SEALED']

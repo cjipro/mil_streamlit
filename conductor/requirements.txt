@@ -1,0 +1,7 @@
+# Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages
+
+# Sealing Pipeline dependencies
+dbt-postgres==1.8.2
+hdfs>=2.7.0
+pandas>=2.2.0
+psycopg2-binary>=2.9.9

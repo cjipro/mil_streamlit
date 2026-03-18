@@ -1,0 +1,19 @@
+# docker-compose.override.yml — Conductor / Sealing Pipeline
+# Bridges Astro local dev containers to the main dev-network so the
+# scheduler can reach namenode (HDFS) and postgresql by hostname.
+# Also mounts the Docker socket so BashOperator tasks can run docker exec.
+#
+# PRE-CONDITION: `docker-compose up -d` must be running from ~/while-sleeping/
+# before `astro dev start` — the dev-network must exist first.
+
+networks:
+  dev-network:
+    external: true
+    name: while-sleeping_dev-network
+
+services:
+  scheduler:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - dev-network

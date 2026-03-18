@@ -1,0 +1,14 @@
+twin_refinery:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: postgresql
+      port: 5432
+      user: cjipulse_user
+      password: cjipulse_pass
+      dbname: cjipulse
+      schema: staging
+      threads: 4
+      keepalives_idle: 0
+      connect_timeout: 10

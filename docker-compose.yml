@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # --- EXISTING INFRASTRUCTURE ---
+  postgresql:
+    image: postgres:15
+    container_name: postgresql
+    environment:
+      POSTGRES_DB: cjipulse
+      POSTGRES_USER: cjipulse_user
+      POSTGRES_PASSWORD: cjipulse_pass
+    ports: ["5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    networks: [dev-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cjipulse_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pyspark-jupyter:
+    image: jupyter/pyspark-notebook:latest
+    container_name: pyspark-jupyter
+    ports: ["8888:8888"] # Jupyter stays here
+    volumes: ["./pyspark-notebooks:/home/jovyan/work"]
+    networks: [dev-network]
+    environment:
+      - SPARK_OPTS=--master local[*] --conf spark.driver.host=pyspark-jupyter
+    depends_on:
+      postgresql: { condition: service_healthy }
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: streamlit
+    ports: ["8501:8501"]
+    volumes: ["./app:/app"]
+    networks: [dev-network]
+    environment:
+      - APP_FILE=cji_app.py
+    depends_on:
+      postgresql: { condition: service_healthy }
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports: ["11434:11434"]
+    volumes: ["./ollama-models:/root/.ollama"]
+    networks: [dev-network]
+    command: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull qwen2.5-coder:14b && tail -f /dev/null"]
+
+  # --- NEW HDFS STAGING LAYER (THE HEARTBEAT) ---
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    hostname: namenode
+    ports: ["9870:9870", "8020:8020"]
+    networks: [dev-network]
+    environment:
+      - CLUSTER_NAME=cjipulse
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_replication=1
+    volumes:
+      - ./data/namenode:/hadoop/dfs/name
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    depends_on: [namenode]
+    networks: [dev-network]
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_replication=1
+      - SERVICE_PRECONDITION=namenode:9870
+    volumes:
+      - ./data/datanode:/hadoop/dfs/data
+
+  hue:
+    image: gethue/hue:latest
+    container_name: hue
+    ports: ["9001:8888"] # Hue moves to 9001 to avoid Jupyter conflict
+    depends_on: [namenode]
+    networks: [dev-network]
+
+networks:
+  dev-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
