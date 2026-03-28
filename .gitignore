@@ -8,6 +8,8 @@ data/*.parquet
 data/*.csv
 data/*.json
 *.pkl
+*.csv
+*.parquet
 
 # Python
 __pycache__/
@@ -25,3 +27,19 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# MIL runtime data — local working copies, never committed
+# Only .gitkeep files commit to preserve directory structure
+mil/data/signals/*
+mil/data/historical/*
+mil/data/chronicle_evidence/*
+mil/data/enriched/*
+mil/data/findings/*
+!mil/data/signals/.gitkeep
+!mil/data/historical/.gitkeep
+!mil/data/chronicle_evidence/.gitkeep
+!mil/data/enriched/.gitkeep
+!mil/data/findings/.gitkeep
+
+# MIL HDFS volumes — outside repo, never committed
+C:/Users/hussa/hdfs-volumes/mil/

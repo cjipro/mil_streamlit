@@ -301,6 +301,25 @@ rating_velocity:
       severity: P1
 
 # ============================================================
+# STORAGE
+# Dual-write: local JSON is working copy, MIL HDFS is permanent record.
+# MIL HDFS is sovereign — zero cross-reads with CJI HDFS.
+# CJI HDFS: namenode:9870 / port 8020 — never referenced here.
+# ============================================================
+
+storage:
+  local_base: "mil/data/"
+  hdfs_base: "/user/mil/"
+  hdfs_namenode: "localhost:9871"
+  hdfs_webhdfs_port: 9865
+  dual_write: true
+  note: >
+    Local is working copy. HDFS is permanent record.
+    MIL HDFS is sovereign — zero cross-reads with CJI HDFS.
+    All data is public market signals. No PII. No DPIA required.
+    MIL NameNode port 9871. CJI NameNode port 9870. They never cross.
+
+# ============================================================
 # PUBLISHING
 # ============================================================
 
