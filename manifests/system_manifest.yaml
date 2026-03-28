@@ -829,6 +829,20 @@ components:
 # + MIL Phase 0 — Constitutional Foundation (Days 1-30)
 # ============================================================
 
+# ── MIL INFRASTRUCTURE ───────────────────────────────────────
+
+mil_hdfs:
+  namenode: "localhost:9871"
+  webhdfs: "localhost:9865"
+  base_path: "/user/mil/"
+  status: LIVE
+  started: "2026-03-28"
+  directories_verified: "20/20"
+  note: >
+    Sovereign HDFS instance for MIL. Separate from CJI Pulse HDFS (localhost:9870).
+    Zero cross-reads. No shared volumes, ports, or config.
+    All data is public market signals. No PII. No DPIA required.
+
 # ── MIL PHASE 0 ─────────────────────────────────────────────
 
   - id: PULSE-2A

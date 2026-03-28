@@ -1,0 +1,64 @@
+# docker-compose.override.yml — MIL sovereign HDFS extension
+#
+# Adds MIL-dedicated NameNode + DataNode to the stack.
+# Automatically merged by Docker Compose when running from repo root.
+#
+# MIL HDFS is SOVEREIGN — separate from CJI Pulse HDFS in every way:
+#   Separate containers: mil-namenode, mil-datanode
+#   Separate ports:      NameNode UI 9871 (CJI uses 9870)
+#                        DataNode HTTP 9865 (CJI uses 9864)
+#                        HDFS IPC 8021 (CJI uses 8020)
+#   Separate volumes:    C:/Users/hussa/hdfs-volumes/mil/
+#   Separate cluster:    CLUSTER_NAME=mil
+#   Zero cross-reads:    Nico Zhao's Law — MIL HDFS and CJI HDFS
+#                        never share volumes, ports, or configuration.
+#
+# Data classification: public market signals only.
+# No PII. No DPIA required. No three-name convention.
+#
+# PRE-CONDITION: docker-compose up -d from ~/while-sleeping/ first.
+# DO NOT start mil-namenode/mil-datanode until this file is confirmed working.
+# Run: docker-compose config --services to verify no port conflicts.
+
+version: '3.8'
+
+services:
+
+  mil-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: mil-namenode
+    hostname: mil-namenode
+    ports:
+      - "9871:9870"   # NameNode UI + WebHDFS — CJI uses 9870
+      - "8021:8020"   # HDFS IPC — CJI uses 8020
+    networks:
+      - dev-network
+    environment:
+      - CLUSTER_NAME=mil
+      - CORE_CONF_fs_defaultFS=hdfs://mil-namenode:8020
+      - HDFS_CONF_dfs_replication=1
+      - HDFS_CONF_dfs_namenode_http___address=0.0.0.0:9870
+    volumes:
+      - C:/Users/hussa/hdfs-volumes/mil/namenode:/hadoop/dfs/name
+
+  mil-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: mil-datanode
+    hostname: mil-datanode
+    depends_on:
+      - mil-namenode
+    ports:
+      - "9865:9864"   # DataNode HTTP — CJI uses 9864
+    networks:
+      - dev-network
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://mil-namenode:8020
+      - HDFS_CONF_dfs_replication=1
+      - SERVICE_PRECONDITION=mil-namenode:9870
+    volumes:
+      - C:/Users/hussa/hdfs-volumes/mil/datanode:/hadoop/dfs/data
+
+networks:
+  dev-network:
+    external: true
+    name: while-sleeping_dev-network

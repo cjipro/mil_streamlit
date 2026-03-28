@@ -7,8 +7,14 @@ Writes signals to mil/data/signals/signals_YYYY-MM-DD_HHMMSS.json.
 Applies Jax filter on sources where jax_filter: true.
 Logs SILENCE_FLAG and SCHEMA_DRIFT to mil/data/signals/errors.log.
 
+Dual-write storage:
+  Local:  mil/data/signals/signals_TIMESTAMP.json  (fast, working copy)
+  HDFS:   /user/mil/signals/signals_TIMESTAMP.json (permanent record)
+  HDFS failure is non-fatal — local write always succeeds first.
+
 Zero Entanglement: no imports from pulse/, poc/, app/, dags/,
 or any internal module. This file is the harvester boundary.
+MIL HDFS client connects to port 9871 only — never CJI port 9870.
 """
 import json
 import logging
@@ -55,6 +61,7 @@ from mil.harvester.sources.ft_cityam import build_all_sources as ft_sources
 from mil.harvester.sources.twitter import build_all_sources as tw_sources
 from mil.harvester.sources.glassdoor import build_all_sources as gd_sources
 from mil.harvester.jax_synthetic_filter import apply_jax_filter
+from mil.storage.hdfs_client import dual_write_signals
 
 # Sources where Jax filter is required
 JAX_REQUIRED_SOURCES = {"reddit", "youtube", "twitter_x", "facebook"}
@@ -127,13 +134,18 @@ def run_harvest() -> list[dict]:
 
             all_signals.append(sig_dict)
 
-    # Write output
+    # ── Dual-write: local first, then HDFS ───────────────────
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S")
     out_file = DATA_DIR / f"signals_{timestamp}.json"
+
+    # Local write — always first, always succeeds
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(all_signals, f, indent=2, default=str)
+    logger.info("Harvest complete. %d signals written (local): %s", len(all_signals), out_file.name)
 
-    logger.info("Harvest complete. %d signals written to %s", len(all_signals), out_file.name)
+    # HDFS write — permanent record, non-fatal on failure
+    dual_write_signals(out_file, all_signals, timestamp)
+
     logger.info("%d SILENCE/SCHEMA_DRIFT errors logged.", len(errors))
     logger.info("=" * 60)
 

@@ -211,6 +211,47 @@ underlying findings file: `mil/outputs/mil_findings.json`.
 
 ---
 
+## STORAGE ARCHITECTURE
+
+MIL operates dual-write storage. Local JSON files for fast access.
+Separate HDFS instance for permanent record.
+
+**Dual-write contract:**
+- Local write always happens first — it is the fast, working copy
+- HDFS write is the permanent record
+- HDFS failure is non-fatal — logged as WARNING, local write succeeds
+- Local is source of truth if HDFS is unavailable
+
+**Directory layout:**
+
+| Local | HDFS | Purpose |
+|-------|------|---------|
+| `mil/data/signals/` | `/user/mil/signals/` | Live harvest output |
+| `mil/data/historical/` | `/user/mil/historical/{source}/{competitor}/` | Backfill data |
+| `mil/data/chronicle_evidence/` | `/user/mil/chronicle_evidence/{CHR-nnn}/` | Evidence for CHRONICLE entries |
+| `mil/data/enriched/` | `/user/mil/enriched/` | Qwen-enriched signals |
+| `mil/data/findings/` | `/user/mil/findings/` | mil_findings.json copies |
+
+**MIL HDFS is sovereign — Zero Entanglement applies to storage:**
+
+```
+MIL HDFS NameNode:  localhost:9871  (container: mil-namenode)
+CJI HDFS NameNode:  localhost:9870  (container: namenode)
+
+These never share volumes, ports, or configuration.
+MIL HDFS and CJI HDFS never cross-read.
+Nico Zhao's Law applies to storage as it does to imports.
+```
+
+**Data classification:** All MIL HDFS data is public market signals.
+No PII. No DPIA required. No three-name convention needed.
+No internal customer data ever enters MIL HDFS.
+
+**WebHDFS client:** `mil/storage/hdfs_client.py` — connects to port 9871 only.
+It imports nothing from CJI Pulse HDFS config. Separate client, separate config.
+
+---
+
 ## QLORA GATE — POST-DAY 30
 
 QLoRA fine-tuning is not in the 30-day build window. Five conditions must all
