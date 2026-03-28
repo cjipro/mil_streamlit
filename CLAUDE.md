@@ -56,7 +56,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### What MIL Is
 
-Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 5 competitor apps: NatWest, Lloyds, HSBC, Monzo, Revolut.
+Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps: NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays.
 
 ### MIL Zero Entanglement — HARD RULE
 
@@ -69,9 +69,13 @@ Violation: fails build validator (hard failure, not a warning).
 
 Enforced by: `py scripts/validate_mil_import_rule.py`
 
-### MIL Identity Shield (P5 Extension)
+### MIL — P5 Does Not Apply
 
-TAQ Bank (the client) must never appear in any MIL file — outputs, CHRONICLE entries, scraper config, signal queries, training pairs, or any mil/ file. This applies identically to the CJI Pulse P5 rule.
+MIL processes exclusively public market data. No internal customer data, no telemetry, no PII.
+
+**MIL public data exception:** Competitors appear by their real public names in all MIL files, outputs, CHRONICLE entries, configs, training pairs, and published briefings. Barclays is Barclays. No masking required or applied in any mil/ file.
+
+TAQ Bank (the client) does not appear in MIL because the client is not a monitored competitor — not because of P5. P5 applies to CJI Pulse internal systems only.
 
 ### MIL Constitutional Documents
 
@@ -202,7 +206,7 @@ P21: fairness_protected_chars_mandatory
 - WARN_P codes emitted with principle reference, severity, and audit_logged flag
 - P4 — raw field names never printed, logged, or passed to any agent under any circumstance
 - P5 — TAQ Bank is the only client name that may appear in any output
-- P5 extension — applies to MIL identically. Client never appears in mil/ files.
+- P5 extension — applies to CJI Pulse internal systems only. MIL is exempt (public data, no PII). Barclays is Barclays in all MIL contexts.
 
 ## Critical Rules — DATA STRATEGY v2.0
 

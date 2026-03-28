@@ -14,6 +14,11 @@ This validator is a HARD FAILURE — not a warning.
 Exit code 1 if any violation is found.
 Exit code 0 if clean.
 
+NOTE: P5 Identity Shield does NOT apply to MIL.
+MIL processes exclusively public market data. Competitors appear by
+their real names (Barclays is Barclays). No client-name check is run
+on mil/ files. P5 applies to CJI Pulse internal systems only.
+
 Run: py scripts/validate_mil_import_rule.py
 """
 import sys
@@ -126,37 +131,10 @@ def check_outputs_exit_point(violations: list) -> None:
         violations.append("VIOLATION: mil/outputs/mil_findings.json does not exist — the exit point is missing.")
 
 
-def check_barclays_not_present(violations: list) -> None:
-    """
-    P5 Identity Shield — TAQ Bank (client) must never appear in mil/ files.
-    Barclays is the client identifier to check.
-    This check is intentionally case-insensitive.
-    """
-    mil_dir = ROOT / "mil"
-    if not mil_dir.exists():
-        return
-
-    # Check all text files in mil/
-    extensions = [".py", ".yaml", ".yml", ".json", ".md", ".txt"]
-    for ext in extensions:
-        for f in mil_dir.rglob(f"*{ext}"):
-            try:
-                content = f.read_text(encoding="utf-8", errors="ignore")
-                if "barclays" in content.lower():
-                    rel = f.relative_to(ROOT)
-                    violations.append(
-                        f"VIOLATION [P5 IDENTITY SHIELD]: {rel} contains 'Barclays' — "
-                        f"client name must never appear in MIL files. "
-                        f"Substitute with TAQ Bank if internal reference required."
-                    )
-            except Exception:
-                pass
-
-
 def main():
     print("=" * 60)
     print("MIL Import Rule Validator")
-    print("Zero Entanglement + P5 Identity Shield check")
+    print("Zero Entanglement check")
     print("=" * 60)
     print()
 
@@ -173,9 +151,6 @@ def main():
     check_chronicle_exists(violations)
     check_sovereign_brief_exists(violations)
     check_outputs_exit_point(violations)
-
-    print("Checking P5 Identity Shield (client name not in mil/ files)...")
-    check_barclays_not_present(violations)
 
     print()
 

@@ -967,7 +967,7 @@ components:
     type: "Pipeline"
     component_group: MIL
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "BUILT"
     priority: P1
     estimated_effort_hours: 6
     tool: "Claude Code"
@@ -991,7 +991,7 @@ components:
     type: "Pipeline"
     component_group: MIL
     owner: "Hussain Ahmed"
-    status: "NOT_STARTED"
+    status: "BUILT"
     priority: P1
     estimated_effort_hours: 4
     tool: "Claude Code"

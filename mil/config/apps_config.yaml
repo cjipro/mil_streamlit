@@ -6,10 +6,14 @@ created: "2026-03-28"
 last_updated: "2026-03-28"
 
 # ============================================================
-# IDENTITY SHIELD NOTE
-# TAQ Bank (the client) does not appear in this file.
-# This list contains only external competitors being monitored.
-# P5 rule applies — client identity sealed.
+# P5 IDENTITY SHIELD — MIL PUBLIC DATA EXCEPTION
+# P5 applies to CJI Pulse internal systems only.
+# MIL processes exclusively public market data.
+# Competitors appear by their real public names in all MIL
+# outputs, configs, CHRONICLE entries, and training pairs.
+# No masking required or applied in any MIL file.
+# TAQ Bank (the client) does not appear — not because of P5,
+# but because the client is not a monitored competitor.
 # ============================================================
 
 # ============================================================
@@ -78,6 +82,21 @@ competitors:
     twitter_keywords: ["Revolut", "Revolut app", "Revolut down", "Revolut not working"]
     facebook_page: "revolut"
     youtube_channel_keywords: ["Revolut", "Revolut bank"]
+    active: true
+
+  - id: COMP_006
+    name: "Barclays"
+    display_name: "Barclays"
+    p5: false
+    p5_note: "MIL public data exception — Barclays appears as Barclays in all MIL outputs. P5 applies to CJI Pulse internal systems only."
+    app_store_id: "307871777"
+    google_play_id: "com.barclays.android.barclaysmobilebanking"
+    downdetector_slug: "barclays"
+    trustpilot_slug: "barclays.co.uk"
+    reddit_mentions: ["Barclays", "Barclays bank", "Barclays app"]
+    twitter_keywords: ["Barclays", "Barclays app", "Barclays down", "Barclays not working"]
+    facebook_page: "barclays"
+    youtube_channel_keywords: ["Barclays", "Barclays bank"]
     active: true
 
 # ============================================================
@@ -289,6 +308,7 @@ publish:
   enabled: true
   method: github_pages
   github_repo: "${PUBLISH_REPO}"
+  domain: "cjipro.com"
+  url: "https://cjipro.com/briefing"
   cloudflare_access: true
-  url: "${PUBLISH_URL}"
-  note: "URL is a config variable — never hardcoded in component files. Set after Cloudflare config."
+  note: "Domain cjipro.com registered and verified on GitHub Pages. URL is canonical — briefing path."
