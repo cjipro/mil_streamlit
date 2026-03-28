@@ -3,10 +3,10 @@ programme: "CJI Pulse / while-sleeping"
 description: "90-Day Delivery Plan — Machine Execution Brief. Built for AI, Reviewed by Human."
 day_90_vision: "Customers experiencing difficulties on Step 3 of Loans journey, abandoning — likely 45+, likely vulnerable. In last 3 days 5 customers said App journey sucks."
 repo: "https://gitlab.com/streaming-analytics/while-sleeping"
-jira_project: "KAN"
+jira_project: "PULSE"
 jira_url: "https://cjipro.atlassian.net"
 owner: "Hussain Ahmed"
-last_updated: "2026-03-11"
+last_updated: "2026-03-18"
 status: "ACTIVE"
 
 programme_principles:
@@ -826,7 +826,254 @@ components:
 
 # ============================================================
 # SPRINT 2: Audit Completion & Data Contract Baseline (Days 8-14)
+# + MIL Phase 0 — Constitutional Foundation (Days 1-30)
 # ============================================================
+
+# ── MIL PHASE 0 ─────────────────────────────────────────────
+
+  - id: PULSE-2A
+    jira_key: PULSE-2A
+    name: "MIL_SCHEMA.yaml — canonical schema, CAC formula, failure modes, signal sources"
+    sprint: 2
+    days: "1-7"
+    type: "Constitutional Document"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "BUILT"
+    built_date: "2026-03-28"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Claude Code"
+    gitlab_path: "mil/MIL_SCHEMA.yaml"
+    purpose: "Canonical schema for all MIL findings, signal records, provenance chains, and operational configuration. Source of truth for trust weights, CAC formula, journey IDs, failure modes, and Zero Entanglement rule."
+    dependencies: []
+    acceptance_criteria:
+      - "mil/MIL_SCHEMA.yaml exists and is valid YAML"
+      - "All 10 signal sources defined with trust weights"
+      - "Zero Entanglement rule documented"
+      - "CAC formula with starting weights alpha=0.4, beta=0.4, delta=0.2"
+      - "Three failure modes defined: SILENCE, CONTRADICTION, NO_CHRONICLE_MATCH"
+      - "Day 30 success metrics M1, M2, M3 defined"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2B
+    jira_key: PULSE-2B
+    name: "mil/CHRONICLE.md — immutable banking failure ledger, 3 initial entries"
+    sprint: 2
+    days: "1-7"
+    type: "Constitutional Document"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "BUILT"
+    built_date: "2026-03-28"
+    review_status: "DRAFT — awaiting Hussain sign-off before inference traces to entries"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Claude Code"
+    gitlab_path: "mil/CHRONICLE.md"
+    purpose: "Immutable failure ledger. Every MIL inference traces to a CHRONICLE entry. Three entries at creation: TSB 2018 (CHR-001), Lloyds 2025 (CHR-002), HSBC 2025 (CHR-003). Weekly append-only cadence."
+    dependencies: ["PULSE-2A"]
+    acceptance_criteria:
+      - "mil/CHRONICLE.md exists"
+      - "CHR-001 (TSB 2018), CHR-002 (Lloyds 2025), CHR-003 (HSBC 2025) present"
+      - "All review flags documented for Hussain sign-off"
+      - "twitter_archive fields marked PENDING"
+      - "Immutability rule stated"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+    review_flags:
+      - "CHR-003 customer impact count must be verified before inference use"
+      - "CHR-003 root cause is UNCONFIRMED — confidence penalty applies"
+      - "Twitter archive fields pending Premium+ search"
+
+  - id: PULSE-2C
+    jira_key: PULSE-2C
+    name: "SOVEREIGN_BRIEF.md — Trust Manifesto, Air-Gap, Blind Spot Register, Human Operating Model"
+    sprint: 2
+    days: "1-7"
+    type: "Constitutional Document"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "BUILT"
+    built_date: "2026-03-28"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Claude Code"
+    gitlab_path: "mil/SOVEREIGN_BRIEF.md"
+    purpose: "Trust Manifesto. The Laws of the system. Contains: Article Zero verbatim, Air-Gap definition, Dynamic Blind Spot Register (9 entries), Human Operating Model (daily/weekly rhythm), Ownership Register, Publishing Sovereignty Statement, QLoRA gate conditions."
+    dependencies: ["PULSE-2A", "PULSE-2B"]
+    acceptance_criteria:
+      - "mil/SOVEREIGN_BRIEF.md exists"
+      - "Article Zero verbatim and unchanged"
+      - "Air-Gap definition includes Zero Entanglement import rule"
+      - "Blind Spot Register documents BS-005 (Facebook stub) and BS-006 (client P5)"
+      - "Daily and weekly operating rhythm documented"
+      - "Ownership Register complete"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2D
+    jira_key: PULSE-2D
+    name: "mil/config/apps_config.yaml + mil/outputs/mil_findings.json bootstrap"
+    sprint: 2
+    days: "1-7"
+    type: "Configuration"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "BUILT"
+    built_date: "2026-03-28"
+    priority: P1
+    estimated_effort_hours: 2
+    tool: "Claude Code"
+    gitlab_path: "mil/config/apps_config.yaml"
+    purpose: "Full 10-source signal stack configuration with trust weights, credentials (env vars only), modular competitor list (5 apps: NatWest, Lloyds, HSBC, Monzo, Revolut). mil_findings.json bootstrapped as empty exit point."
+    dependencies: ["PULSE-2A"]
+    acceptance_criteria:
+      - "mil/config/apps_config.yaml exists and is valid YAML"
+      - "5 competitor apps defined (no client name present)"
+      - "10 signal sources defined with trust weights"
+      - "All credentials reference env vars — no hardcoded keys"
+      - "mil/outputs/mil_findings.json exists as empty bootstrap"
+      - "P5 Identity Shield — client does not appear in file"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2E
+    jira_key: PULSE-2E
+    name: "Build validator MIL Import Rule + CLAUDE.md full clean-up + MIL section"
+    sprint: 2
+    days: "1-7"
+    type: "Tooling"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "BUILT"
+    built_date: "2026-03-28"
+    priority: P1
+    estimated_effort_hours: 1
+    tool: "Claude Code"
+    gitlab_path: "scripts/validate_mil_import_rule.py"
+    purpose: "Hard-fail build validator enforcing Zero Entanglement. Also enforces P5 Identity Shield check across all mil/ files. CLAUDE.md updated: stale Qwen rule removed, hypothesis count corrected to 28, full MIL section added."
+    dependencies: ["PULSE-2A"]
+    acceptance_criteria:
+      - "scripts/validate_mil_import_rule.py exists and runs clean (exit 0)"
+      - "Validator checks mil/ imports, external mil imports, P5 shield, constitutional docs exist"
+      - "CLAUDE.md hypothesis count updated to 28"
+      - "CLAUDE.md Qwen hard rule stale section removed"
+      - "CLAUDE.md MIL section added"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2F
+    jira_key: PULSE-2F
+    name: "voice_intelligence_agent.py — 9 modular source classes"
+    sprint: 2
+    days: "8-14"
+    type: "Pipeline"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 6
+    tool: "Claude Code"
+    gitlab_path: "mil/harvester/voice_intelligence_agent.py"
+    purpose: "Modular signal harvester. One class per source. Reads trust weights and config from apps_config.yaml — no hardcoding. Covers all 9 Week 2 active sources. Facebook built as stub (implementation deferred). Signal severity classified at ingestion."
+    dependencies: ["PULSE-2D"]
+    acceptance_criteria:
+      - "One class per signal source"
+      - "All config read from apps_config.yaml"
+      - "Signal severity (P0/P1/P2) classified at ingestion"
+      - "Facebook class exists as stub with correct interface"
+      - "No credentials hardcoded — all from env vars"
+      - "Zero Entanglement: no internal module imports"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2G
+    jira_key: PULSE-2G
+    name: "jax_synthetic_filter.py + rating_velocity_monitor.py"
+    sprint: 2
+    days: "8-14"
+    type: "Pipeline"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 4
+    tool: "Claude Code"
+    gitlab_path: "mil/harvester/jax_synthetic_filter.py"
+    purpose: "Jax Synthetic Filter: detects coordinated bot attacks, fake review seeding, narrative drift, like-farming (YouTube). Rating Velocity Monitor: runs every 6 hours on App Store + Google Play, triggers Revenue Heist (0.3pt drop/14 days), P0 (0.5pt/72h), volume spike (200% above baseline)."
+    dependencies: ["PULSE-2F"]
+    acceptance_criteria:
+      - "jax_synthetic_filter.py adds narrative_drift_flag to signal records"
+      - "rating_velocity_monitor.py runs on cadence"
+      - "All three trigger thresholds implemented"
+      - "Revenue Heist report generated on trigger"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2H
+    jira_key: PULSE-2H
+    name: "teacher_agent.py + synthetic_engine.py + research_trigger.py + mil_agent.py"
+    sprint: 2
+    days: "15-21"
+    type: "Agent"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 8
+    tool: "Claude Code + Sonnet API"
+    gitlab_path: "mil/researcher/teacher_agent.py"
+    purpose: "Teacher (Sonnet): deep causal autopsies on CHRONICLE entries, RAG-first architecture. Synthetic Engine: 500+ instruction pairs with CHRONICLE traces. Research Trigger: overnight batch, P0/P1 threshold. mil_agent.py: Qwen-14B inference with CAC formula and RAG against CHRONICLE.md."
+    dependencies: ["PULSE-2B", "PULSE-2G"]
+    acceptance_criteria:
+      - "Every autopsy traces to a chronicle_id"
+      - "Model disagreement check flags DISAGREEMENT pairs"
+      - "research_trigger.py only fires on P0/P1 + no existing CHRONICLE match"
+      - "mil_agent.py applies CAC formula — no finding without CHRONICLE trace"
+      - "QLoRA NOT triggered — post-Day 30 only"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2I
+    jira_key: PULSE-2I
+    name: "Command dashboard — app.py + all components + adapter shim + scheduler.py"
+    sprint: 2
+    days: "22-30"
+    type: "Dashboard"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P1
+    estimated_effort_hours: 8
+    tool: "Claude Code"
+    gitlab_path: "mil/command/app.py"
+    purpose: "Streamlit Executive Cockpit. Vane Trajectory Chart, Inference Cards (CAC + blind spots + provenance), Clark Escalation Protocol (P1/P2/P3), Exit Strategy button + click_log.jsonl. Thin adapter at app/pages/07_mil.py. scheduler.py: P1 auto-downgrade at 11:00, Morning Briefing trigger, publish trigger, research_queue batch trigger, rating velocity trigger."
+    dependencies: ["PULSE-2H"]
+    acceptance_criteria:
+      - "Dashboard renders from mil/outputs/mil_findings.json"
+      - "Exit Strategy button logs clicks with timestamp + finding_id + user_id"
+      - "P1 auto-downgrade fires at 11:00 via scheduler.py"
+      - "Adapter at app/pages/07_mil.py contains zero MIL logic"
+      - "First Morning Briefing delivered on Day 30"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+  - id: PULSE-2J
+    jira_key: PULSE-2J
+    name: "publish.py — static HTML render + GitHub Pages + Cloudflare Access"
+    sprint: 2
+    days: "22-30"
+    type: "Publishing"
+    component_group: MIL
+    owner: "Hussain Ahmed"
+    status: "NOT_STARTED"
+    priority: P2
+    estimated_effort_hours: 3
+    tool: "Claude Code"
+    gitlab_path: "mil/command/publish.py"
+    purpose: "Reads mil/outputs/mil_findings.json, renders to clean HTML briefing, pushes to GitHub Pages private repo. Cloudflare Access provides email OTP auth. Triggered automatically after each Morning Briefing by scheduler.py. No raw signals, training data, or customer data published."
+    dependencies: ["PULSE-2I"]
+    acceptance_criteria:
+      - "Renders from mil_findings.json only"
+      - "PUBLISH_REPO and PUBLISH_URL read from env vars — never hardcoded"
+      - "Every published finding carries CAC score, blind spots, CHRONICLE trace"
+      - "Sovereignty statement satisfied — inference stays local"
+    validation_command: "py scripts/validate_mil_import_rule.py"
+
+# ── CJI PULSE SPRINT 2 (existing tickets below) ─────────────
 
   - id: PULSE-20
     jira_key: PULSE-22

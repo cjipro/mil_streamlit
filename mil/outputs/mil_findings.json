@@ -1,0 +1,8 @@
+{
+  "_comment": "MIL FINDINGS — THE ONLY EXIT POINT. This file is the sole data crossing from MIL to CJI Pulse. Nothing else crosses the boundary. CJI Pulse reads this file. MIL writes this file. No other crossing is permitted.",
+  "_schema_version": "1.0",
+  "_status": "BOOTSTRAP — no findings yet. Harvester not yet active.",
+  "_zero_entanglement": "mil/outputs/mil_findings.json is the only file CJI Pulse may read from mil/. No other mil/ file may be imported or read by external systems.",
+  "generated_at": null,
+  "findings": []
+}

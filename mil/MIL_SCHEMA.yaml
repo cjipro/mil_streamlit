@@ -1,0 +1,386 @@
+schema_version: "1.0"
+spec_id: "MIL-SCHEMA-001"
+name: "Market Intelligence Layer — Master Schema"
+description: >
+  Canonical schema for all MIL findings, signal records, provenance chains,
+  and operational configuration. Every MIL component reads field names from
+  this file. No hardcoding permitted anywhere in mil/.
+owner: "Hussain Ahmed"
+created: "2026-03-28"
+last_updated: "2026-03-28"
+article_zero: >
+  "This system shall prioritise the expression of its own ignorance over the
+  delivery of any unverified certainty. Honesty in calibration is the only
+  product; all inferences are secondary to the preservation of the Designed
+  Ceiling."
+
+# ============================================================
+# ZERO ENTANGLEMENT RULE
+# ============================================================
+zero_entanglement:
+  rule: >
+    No file under mil/ may import from pulse/, poc/, app/, dags/, or any
+    internal data module. No file outside mil/ may import from mil/ directly.
+    Permitted data exchange: read mil/outputs/mil_findings.json only.
+  violation_response: "Fails build validator. Not a warning — a hard failure."
+  permitted_crossing:
+    file: "mil/outputs/mil_findings.json"
+    direction: "MIL writes, CJI Pulse reads"
+    note: "This is the only exit point. Nothing else crosses the boundary."
+
+# ============================================================
+# IDENTITY SHIELD — P5 EXTENSION
+# ============================================================
+identity_shield:
+  rule: >
+    TAQ Bank (the client) must never appear in MIL outputs, CHRONICLE entries,
+    scraper config, signal queries, training pairs, or any MIL file.
+    This applies identically to the P5 rule governing CJI Pulse.
+  substitution: "Any reference to the client → replace with TAQ Bank only where internal note is required"
+  violation_response: "WARN_P5 emitted. Finding held. Human review required before release."
+
+# ============================================================
+# JOURNEY ID TAXONOMY
+# Aligned with CJI Pulse from Day 1 — Phase 2 integration
+# is a config change, not a rebuild.
+# ============================================================
+journey_ids:
+  J_LOANS_03:   "Loans application — Step 3 (income and affordability declaration)"
+  J_PAY_01:     "Payments and transfers — primary flow"
+  J_ONBOARD_01: "Onboarding and registration — KYC steps"
+  J_LOGIN_01:   "Login and authentication — biometric and credential"
+  J_SERVICE_01: "Servicing and dashboard — balance, transactions, card controls"
+
+# ============================================================
+# SIGNAL SEVERITY CLASSIFICATION
+# Applied at ingestion — before any inference.
+# ============================================================
+signal_severity:
+  P0:
+    label: "Critical"
+    definition: "Blocked transaction, authentication lockout, service outage. Immediate CHRONICLE similarity check triggered."
+    cac_vol_weight_multiplier: 2.0
+    auto_escalate: true
+  P1:
+    label: "Significant"
+    definition: "Journey abandonment, repeated failure, crash on critical path. Enters Clark Escalation Protocol."
+    cac_vol_weight_multiplier: 1.5
+    auto_escalate: false
+  P2:
+    label: "Low"
+    definition: "UI preference, minor inconvenience, cosmetic complaint. Logged and monitored."
+    cac_vol_weight_multiplier: 1.0
+    auto_escalate: false
+
+# ============================================================
+# SIGNAL SOURCE REGISTRY
+# Trust weights are fixed at schema level.
+# Source classes are modular — one class per source in
+# voice_intelligence_agent.py.
+# ============================================================
+signal_sources:
+
+  downdetector:
+    trust_weight: 0.95
+    method: scrape
+    url: "downdetector.co.uk"
+    week: 2
+    jax_filter: false
+    note: "Highest trust weight. Real-time structured outage reports. Often first mover before Twitter peaks."
+
+  app_store:
+    trust_weight: 0.90
+    method: "iTunes RSS feed (free, no auth)"
+    base_url: "https://itunes.apple.com/gb/rss/customerreviews/id={APP_ID}/sortBy=mostRecent/json"
+    fields: [rating, title, review, version, date]
+    update_cadence: every_6_hours
+    rating_velocity_monitoring: true
+    week: 2
+    jax_filter: false
+    note: "Version field is critical — pinpoints exact update that caused failure."
+
+  google_play:
+    trust_weight: 0.90
+    method: "google-play-scraper library (free)"
+    fields: [rating, content, thumbsUpCount, reviewCreatedVersion, at]
+    update_cadence: every_6_hours
+    rating_velocity_monitoring: true
+    week: 2
+    jax_filter: false
+
+  financial_times:
+    trust_weight: 0.90
+    method: "RSS feed (free)"
+    week: 2
+    jax_filter: false
+    note: "Editorial verification adds weight. Banking tech failures covered within hours."
+
+  city_am:
+    trust_weight: 0.90
+    method: "RSS feed (free)"
+    week: 2
+    jax_filter: false
+
+  reddit:
+    trust_weight: 0.85
+    method: "Official Reddit API (free)"
+    credentials:
+      client_id: "REDDIT_CLIENT_ID"
+      client_secret: "REDDIT_CLIENT_SECRET"
+    subreddits:
+      - r/UKPersonalFinance
+      - r/Banking
+      - r/Monzo
+      - r/Revolut
+      - r/UKBanks
+    week: 2
+    jax_filter: true
+    note: "High substance. Detailed failure narratives."
+
+  trustpilot:
+    trust_weight: 0.80
+    method: scrape
+    week: 2
+    jax_filter: false
+    note: "Skewed negative by design — bias is useful for failure detection, not general sentiment."
+
+  facebook:
+    trust_weight: 0.75
+    method: "public page scrape — NOT Meta Graph API"
+    week: 2
+    jax_filter: true
+    implementation_status: "STUB — scraping method unconfirmed. See SOVEREIGN_BRIEF.md Blind Spot Register."
+    demographic_note: "35-55 skew — aligns directly with vulnerable customer cohort in Day 90 vision."
+    note: "Do not use Meta Graph API. Public page scraping only. Implementation deferred to Day 30 review."
+
+  youtube:
+    trust_weight: 0.75
+    method: "YouTube Data API v3 (free — Google Cloud)"
+    credentials:
+      api_key: "YOUTUBE_API_KEY"
+    quota: "10,000 units/day free tier"
+    targets:
+      - "Official competitor channel comment sections"
+      - "App review videos (detected via title keywords)"
+      - "Fix guide videos: 'app not working', 'app fix'"
+    week: 2
+    jax_filter: true
+    jax_youtube_specific:
+      - "like_farming detection (like-to-comment ratio)"
+      - "spam reply detection (new accounts, clustered timestamps)"
+      - "bot view inflation (low comment-to-view ratio flags)"
+    note: "Fix guide video volume is a failure scale signal."
+
+  twitter_x:
+    trust_weight: 0.60
+    method: "Official API — Filtered Stream + Premium full archive search"
+    credentials:
+      api_key: "TWITTER_API_KEY"
+      api_secret: "TWITTER_API_SECRET"
+      bearer_token: "TWITTER_BEARER_TOKEN"
+      access_token: "TWITTER_ACCESS_TOKEN"
+      access_token_secret: "TWITTER_ACCESS_TOKEN_SECRET"
+    tier: "purchased"
+    week: 2
+    jax_filter: true
+    note: "Highest velocity. First signal on banking failures. Bearer Token drives Filtered Stream."
+
+  glassdoor:
+    trust_weight: 0.70
+    method: scrape
+    update_cadence: weekly
+    week: 3
+    status: DEFERRED
+    note: "Internal engineering stress shows up weeks before public failures. Indirect but early signal."
+
+  linkedin_executive:
+    trust_weight: 0.65
+    method: scrape
+    week: null
+    status: PHASE_2_ONLY
+    note: "Strategic announcements, CTO posts about migrations. Not customer signals. Do not build in Phase 1."
+
+  google_reviews:
+    trust_weight: null
+    status: SKIP
+    reason: "Branch-level not app-level. Not relevant to digital journey monitoring."
+
+  meta_graph_api:
+    trust_weight: null
+    status: SKIP
+    reason: "Restricted, unnecessary. Use Facebook public page scraping instead."
+
+# ============================================================
+# MANDATORY OUTPUT FIELDS
+# Every MIL finding must carry all of these.
+# ============================================================
+mandatory_output_fields:
+  - confidence_score          # CAC formula output: float 0.0–1.0
+  - blind_spots               # list[str] — what the system cannot confirm
+  - top_3_keywords            # list[str] — Olah Interpretability Layer output
+  - human_countersign_status  # enum: PENDING / SIGNED / AUTO_DOWNGRADED / REJECTED
+  - signal_severity           # enum: P0 / P1 / P2
+  - journey_id                # from journey_ids taxonomy above
+  - finding_tier              # Clark tier: P1 / P2 / P3
+  - designed_ceiling_reached  # bool — true if system hit Phase 2 boundary
+
+# ============================================================
+# PROVENANCE CHAIN
+# Every finding must carry a complete 4-field chain.
+# If chronicle_id cannot be populated — finding is UNANCHORED.
+# UNANCHORED findings do not reach Morning Briefing.
+# ============================================================
+provenance_chain:
+  fields:
+    chronicle_id:
+      type: string
+      required: true
+      note: "CHRONICLE.md entry that anchors this finding. If null — finding is UNANCHORED and held."
+    signal_ids:
+      type: "list[string]"
+      required: true
+      note: "Array of individual signal identifiers that triggered detection."
+    classification_version:
+      type: string
+      required: true
+      note: "CLASS_VER — version of the classification model used for journey attribution."
+    teacher_model_version:
+      type: string
+      required: true
+      note: "TEACHER_VER — Teacher model version used for most recent distillation batch."
+  unanchored_rule: >
+    If chronicle_id is null or no CHRONICLE entry matches above similarity
+    threshold — finding is logged as UNANCHORED and held. It does not reach
+    Morning Briefing. It does not get trained on. It appears in weekly
+    Unanchored Signals digest for Hussain review only.
+
+# ============================================================
+# CAC FORMULA — Calibrated Agentic Confidence
+# C_mil = ( alpha * Vol_sig + beta * Sim_hist ) / ( delta * Delta_tel + 1 )
+# ============================================================
+cac_formula:
+  formula: "C_mil = ( alpha * Vol_sig + beta * Sim_hist ) / ( delta * Delta_tel + 1 )"
+  variables:
+    Vol_sig:
+      weight_name: alpha
+      starting_weight: 0.40
+      definition: "Volume of unique social signals. P0 signals carry double weight per severity multiplier."
+    Sim_hist:
+      weight_name: beta
+      starting_weight: 0.40
+      definition: "Match strength to a CHRONICLE.md failure pattern — historical similarity score."
+    Delta_tel:
+      weight_name: delta
+      starting_weight: 0.20
+      definition: >
+        The Vane Gap — divergence between negative sentiment and stable
+        internal telemetry. Higher divergence lowers confidence.
+  calibration_rule: >
+    Starting weights alpha=0.40, beta=0.40, delta=0.20.
+    Weights are NOT tuned before first 30 days of real signal corpus.
+    Calibration review at Day 30 — only if real data justifies adjustment.
+
+# ============================================================
+# FAILURE MODE DEFINITIONS
+# Three operational states. Each has a defined response.
+# ============================================================
+failure_modes:
+
+  SILENCE:
+    trigger: "No signals detected for a monitored competitor in a 48-hour window."
+    response:
+      - "Log SILENCE_FLAG with timestamp and competitor_id"
+      - "Do not interpret as good news — silence is ambiguous, not positive"
+      - "Morning Briefing note: 'No signal detected — possible scraper failure or genuine absence. Check harvester health first.'"
+      - "Owner checks voice_intelligence_agent.py logs before drawing any conclusion"
+      - "If harvester healthy and silence genuine — log as data point, not a finding"
+    interpretation: "AMBIGUOUS — not positive, not negative"
+
+  CONTRADICTION:
+    trigger: "Two or more signals from different platforms point in opposite directions."
+    example: "App Store rating stable, Reddit complaint cluster spiking."
+    response:
+      - "Log as CONTRADICTED finding — same response mode as CJI Pulse"
+      - "Do not flatten. Do not average. Do not suppress."
+      - "Present both signals in Inference Card with source trust weights visible"
+      - "Human countersign required before any action is taken"
+    interpretation: "CONTRADICTED is information, not a failure — the system working correctly"
+
+  NO_CHRONICLE_MATCH:
+    trigger: "Inference requested but no CHRONICLE entry matches above similarity threshold."
+    response:
+      - "Finding logged as UNANCHORED and held — does not reach Morning Briefing"
+      - "Does not get trained on under any circumstances"
+      - "Appears in weekly Unanchored Signals digest for Hussain review"
+      - "These are candidates for new CHRONICLE entries, not inferences"
+    article_zero_note: >
+      Nico Zhao's Law extended to failure modes: the system cannot infer
+      its way out of a gap in the CHRONICLE. Honesty about what cannot
+      be known is the only permitted response.
+
+# ============================================================
+# RATING VELOCITY MONITOR — TRIGGER THRESHOLDS
+# ============================================================
+rating_velocity:
+  triggers:
+    revenue_heist:
+      condition: "Drop > 0.3 points in 14 days"
+      action: "Revenue Heist trigger — Digital Sales opportunity report"
+      finding_severity: P1
+    p0_signal:
+      condition: "Drop > 0.5 points in 72 hours"
+      action: "P0 signal — immediate CHRONICLE similarity check"
+      finding_severity: P0
+    volume_spike:
+      condition: "Review volume spike > 200% above 7-day baseline"
+      action: "P1 signal — Jax filter check first"
+      finding_severity: P1
+  sources: [app_store, google_play]
+  cadence: every_6_hours
+
+# ============================================================
+# PUBLISHING CONFIGURATION
+# ============================================================
+publishing:
+  enabled: true
+  method: github_pages
+  github_repo: "PUBLISH_REPO"       # env var — never hardcoded
+  cloudflare_access: true
+  url: "PUBLISH_URL"                # env var — set after Cloudflare config
+  publishes: "mil/outputs/mil_findings.json rendered to clean HTML only"
+  never_publishes:
+    - raw signals
+    - training data
+    - internal telemetry
+    - customer data
+  note: "Inference engine remains sovereign and local. Only sanitised findings output travels."
+
+# ============================================================
+# DAY 30 SUCCESS METRICS
+# ============================================================
+day_30_success_metrics:
+  M1:
+    name: "Signal Pipeline Live"
+    definition: "5 consecutive days of clean signal ingestion across all 5 competitor apps with zero harvester failures."
+    pass_condition: "binary — pass or fail"
+    owner: "Claude Code build + Hussain sign-off"
+  M2:
+    name: "One Validated Finding"
+    definition: >
+      At least one P2 or above finding that: carries a CHRONICLE trace,
+      has CAC score above 0.4, has been reviewed by a named human,
+      and was not later downgraded as incorrect.
+    pass_condition: "binary — pass or fail"
+    owner: "Hussain — countersign required"
+  M3:
+    name: "One Designed Ceiling Trigger"
+    definition: >
+      At least one finding that correctly reaches the Ceiling — system says
+      'to confirm this I require internal HDFS data' — and the Exit Strategy
+      button is clicked and logged.
+    pass_condition: "binary — pass or fail"
+    owner: "Hussain — click log reviewed"
+  not_success:
+    - "A fine-tuned model"
+    - "A high finding volume"
+    - "A dashboard that looks impressive in a demo"

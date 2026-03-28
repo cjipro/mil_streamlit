@@ -1,0 +1,294 @@
+schema_version: "1.0"
+spec_id: "MIL-APPS-001"
+name: "MIL Signal Stack — Competitor Apps and Source Configuration"
+owner: "Hussain Ahmed"
+created: "2026-03-28"
+last_updated: "2026-03-28"
+
+# ============================================================
+# IDENTITY SHIELD NOTE
+# TAQ Bank (the client) does not appear in this file.
+# This list contains only external competitors being monitored.
+# P5 rule applies — client identity sealed.
+# ============================================================
+
+# ============================================================
+# COMPETITOR APPS
+# Structure supports dynamic list — no hardcoded list length.
+# Add new competitors here without modifying harvester code.
+# Each app entry carries both App Store and Google Play IDs.
+# ============================================================
+
+competitors:
+  - id: COMP_001
+    name: "NatWest"
+    app_store_id: "466738371"
+    google_play_id: "com.rbs.mobile.android.natwest"
+    downdetector_slug: "natwest"
+    trustpilot_slug: "natwest.com"
+    reddit_mentions: ["NatWest", "Natwest bank", "NatWest app"]
+    twitter_keywords: ["NatWest", "NatWest app", "NatWest down", "NatWest not working"]
+    facebook_page: "NatWest"
+    youtube_channel_keywords: ["NatWest", "NatWest bank"]
+    active: true
+
+  - id: COMP_002
+    name: "Lloyds"
+    app_store_id: "469964520"
+    google_play_id: "com.lloydsbank.mobile"
+    downdetector_slug: "lloyds-bank"
+    trustpilot_slug: "lloydsbank.com"
+    reddit_mentions: ["Lloyds", "Lloyds bank", "Lloyds app", "LBG"]
+    twitter_keywords: ["Lloyds", "Lloyds bank", "Lloyds app", "Lloyds down"]
+    facebook_page: "LloydsBank"
+    youtube_channel_keywords: ["Lloyds Bank", "Lloyds banking"]
+    active: true
+
+  - id: COMP_003
+    name: "HSBC"
+    app_store_id: "295196139"
+    google_play_id: "uk.co.hsbc.hsbcukbankingapp"
+    downdetector_slug: "hsbc"
+    trustpilot_slug: "hsbc.co.uk"
+    reddit_mentions: ["HSBC", "HSBC UK", "HSBC app"]
+    twitter_keywords: ["HSBC", "HSBC UK", "HSBC app", "HSBC down", "ERR03"]
+    facebook_page: "HSBC"
+    youtube_channel_keywords: ["HSBC UK", "HSBC bank"]
+    active: true
+
+  - id: COMP_004
+    name: "Monzo"
+    app_store_id: "1052238659"
+    google_play_id: "co.monzo.uk"
+    downdetector_slug: "monzo"
+    trustpilot_slug: "monzo.com"
+    reddit_mentions: ["Monzo", "Monzo bank", "Monzo app"]
+    twitter_keywords: ["Monzo", "Monzo app", "Monzo down", "Monzo not working"]
+    facebook_page: "monzobank"
+    youtube_channel_keywords: ["Monzo", "Monzo bank"]
+    active: true
+
+  - id: COMP_005
+    name: "Revolut"
+    app_store_id: "932493386"
+    google_play_id: "com.revolut.revolut"
+    downdetector_slug: "revolut"
+    trustpilot_slug: "revolut.com"
+    reddit_mentions: ["Revolut", "Revolut app", "Revolut UK"]
+    twitter_keywords: ["Revolut", "Revolut app", "Revolut down", "Revolut not working"]
+    facebook_page: "revolut"
+    youtube_channel_keywords: ["Revolut", "Revolut bank"]
+    active: true
+
+# ============================================================
+# SIGNAL SOURCES
+# Trust weights defined here — single source of truth.
+# Harvester reads trust_weight from this config, never hardcodes.
+# Week 2 sources are active at launch.
+# Week 3 and Phase 2 sources are noted but not activated.
+# ============================================================
+
+signal_sources:
+
+  # ── WEEK 2 — ACTIVE AT LAUNCH ────────────────────────────
+
+  downdetector:
+    enabled: true
+    week: 2
+    trust_weight: 0.95
+    method: scrape
+    base_url: "https://downdetector.co.uk/status/{slug}/"
+    cadence: every_30_minutes
+    jax_filter: false
+    note: "Highest trust weight. Real-time structured outage reports. Often first mover before Twitter peaks."
+
+  app_store:
+    enabled: true
+    week: 2
+    trust_weight: 0.90
+    method: "iTunes RSS (free, no auth)"
+    base_url: "https://itunes.apple.com/gb/rss/customerreviews/id={APP_ID}/sortBy=mostRecent/json"
+    cadence: every_6_hours
+    rating_velocity_monitoring: true
+    fields: [rating, title, review, version, date]
+    jax_filter: false
+    note: "Version field is critical — pinpoints exact update that caused failure."
+
+  google_play:
+    enabled: true
+    week: 2
+    trust_weight: 0.90
+    method: "google-play-scraper (pip install google-play-scraper)"
+    cadence: every_6_hours
+    rating_velocity_monitoring: true
+    fields: [rating, content, thumbsUpCount, reviewCreatedVersion, at]
+    jax_filter: false
+
+  financial_times:
+    enabled: true
+    week: 2
+    trust_weight: 0.90
+    method: RSS
+    feed_url: "https://www.ft.com/rss/home/uk"
+    cadence: every_1_hour
+    keywords: ["bank", "banking app", "migration", "outage", "IT failure", "mobile banking"]
+    jax_filter: false
+    note: "Editorial verification adds weight. Banking tech failures covered within hours."
+
+  city_am:
+    enabled: true
+    week: 2
+    trust_weight: 0.90
+    method: RSS
+    feed_url: "https://www.cityam.com/feed/"
+    cadence: every_1_hour
+    keywords: ["bank", "banking app", "fintech", "outage", "IT failure"]
+    jax_filter: false
+
+  reddit:
+    enabled: true
+    week: 2
+    trust_weight: 0.85
+    method: "Official Reddit API (free tier)"
+    credentials:
+      client_id: "${REDDIT_CLIENT_ID}"
+      client_secret: "${REDDIT_CLIENT_SECRET}"
+    subreddits:
+      - r/UKPersonalFinance
+      - r/Banking
+      - r/Monzo
+      - r/Revolut
+      - r/UKBanks
+    cadence: every_1_hour
+    jax_filter: true
+    note: "High substance. Detailed failure narratives. Jax filter required — coordinated narratives appear here."
+
+  trustpilot:
+    enabled: true
+    week: 2
+    trust_weight: 0.80
+    method: scrape
+    base_url: "https://www.trustpilot.com/review/{slug}"
+    cadence: every_6_hours
+    jax_filter: false
+    note: "Skewed negative by design — bias is useful for failure detection, not general sentiment."
+
+  facebook:
+    enabled: false    # stub — implementation deferred
+    week: 2
+    trust_weight: 0.75
+    method: "public page scrape — NOT Meta Graph API"
+    implementation_status: STUB
+    implementation_note: >
+      Class exists in voice_intelligence_agent.py with correct interface.
+      Scraping method unconfirmed — deferred to Day 30 review.
+      Options: Playwright/headless browser or facebook-scraper library.
+      See SOVEREIGN_BRIEF.md Blind Spot Register BS-005.
+    cadence: every_6_hours
+    jax_filter: true
+    demographic_note: "35-55 skew — aligns with vulnerable customer cohort in Day 90 vision."
+    note: "Do not use Meta Graph API. Public page scraping only."
+
+  youtube:
+    enabled: true
+    week: 2
+    trust_weight: 0.75
+    method: "YouTube Data API v3 (free — Google Cloud quota: 10,000 units/day)"
+    credentials:
+      api_key: "${YOUTUBE_API_KEY}"
+    target_types:
+      - "Official competitor channel comment sections"
+      - "App review videos (detected via title keywords)"
+      - "Fix guide videos"
+    fix_guide_keywords: ["app not working", "app fix", "bank app problem", "bank down fix"]
+    cadence: every_6_hours
+    jax_filter: true
+    jax_youtube_specific:
+      like_farming: "Detect via like-to-comment ratio anomaly"
+      spam_replies: "Detect via new accounts + clustered timestamps"
+      bot_view_inflation: "Flag via low comment-to-view ratio"
+    note: "Fix guide video volume is a failure scale signal."
+
+  twitter_x:
+    enabled: true
+    week: 2
+    trust_weight: 0.60
+    method: "Official API — Filtered Stream + Premium full archive search"
+    credentials:
+      api_key: "${TWITTER_API_KEY}"
+      api_secret: "${TWITTER_API_SECRET}"
+      bearer_token: "${TWITTER_BEARER_TOKEN}"
+      access_token: "${TWITTER_ACCESS_TOKEN}"
+      access_token_secret: "${TWITTER_ACCESS_TOKEN_SECRET}"
+    tier: "purchased — Filtered Stream requires bearer token"
+    cadence: real_time_stream
+    jax_filter: true
+    note: "Highest velocity. First signal on banking failures. Bearer Token drives Filtered Stream."
+
+  # ── WEEK 3 — DEFERRED ────────────────────────────────────
+
+  glassdoor:
+    enabled: false
+    week: 3
+    status: DEFERRED
+    trust_weight: 0.70
+    method: scrape
+    cadence: weekly
+    note: "Internal engineering stress shows up weeks before public failures. Activate in Week 3."
+
+  # ── PHASE 2 ONLY — DO NOT BUILD ──────────────────────────
+
+  linkedin_executive:
+    enabled: false
+    week: null
+    status: PHASE_2_ONLY
+    trust_weight: 0.65
+    method: scrape
+    note: "Strategic announcements, CTO posts about migrations. Not customer signals. Phase 2 only."
+
+  # ── SKIPPED ENTIRELY ─────────────────────────────────────
+
+  google_reviews:
+    enabled: false
+    status: SKIP
+    reason: "Branch-level not app-level. Not relevant to digital journey monitoring."
+
+  meta_graph_api:
+    enabled: false
+    status: SKIP
+    reason: "Restricted, unnecessary. Use Facebook public page scraping instead."
+
+# ============================================================
+# RATING VELOCITY MONITOR
+# Runs every 6 hours on app_store and google_play sources.
+# ============================================================
+
+rating_velocity:
+  enabled: true
+  sources: [app_store, google_play]
+  cadence: every_6_hours
+  triggers:
+    revenue_heist:
+      condition: "drop > 0.3 points in 14 days"
+      action: "Revenue Heist — Digital Sales opportunity report"
+      severity: P1
+    p0_immediate:
+      condition: "drop > 0.5 points in 72 hours"
+      action: "P0 signal — immediate CHRONICLE similarity check"
+      severity: P0
+    volume_spike:
+      condition: "review volume spike > 200% above 7-day baseline"
+      action: "P1 signal — Jax filter check first"
+      severity: P1
+
+# ============================================================
+# PUBLISHING
+# ============================================================
+
+publish:
+  enabled: true
+  method: github_pages
+  github_repo: "${PUBLISH_REPO}"
+  cloudflare_access: true
+  url: "${PUBLISH_URL}"
+  note: "URL is a config variable — never hardcoded in component files. Set after Cloudflare config."
