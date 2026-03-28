@@ -83,23 +83,29 @@ never internal in.
 
 ---
 
-## IDENTITY SHIELD — P5 EXTENSION
+## IDENTITY SHIELD — P5 SCOPE BOUNDARY
 
-The client (TAQ Bank) must never appear in MIL outputs, CHRONICLE entries,
-scraper config, signal queries, training pairs, or any MIL file.
+P5 Identity Shield (`client_identity_sealed_taq_only`) applies to **CJI Pulse
+internal systems only**. MIL processes exclusively public market data — no
+internal customer data, no telemetry, no PII.
 
-This is an extension of the CJI Pulse P5 rule
-(`client_identity_sealed_taq_only`) to the MIL sovereign system.
+**MIL public data exception:**
+Competitors appear by their real public names in all MIL files, outputs,
+CHRONICLE entries, scraper config, signal queries, training pairs, and
+published briefings. Barclays is Barclays. No masking required or applied.
 
-**Scope:**
-- `mil/config/apps_config.yaml` — client does not appear in competitor list
-- `mil/CHRONICLE.md` — if any entry involves the client, substitute TAQ Bank
-- Signal queries — no search terms referencing the client
-- Training pairs — no client references in Input, Reasoning Chain, or Recommended Action
-- All MIL outputs and Inference Cards — client does not surface
+**Why TAQ Bank still does not appear in MIL:**
+The client is not a monitored competitor. TAQ Bank absence from MIL files
+reflects scope, not P5. There is no P5 restriction on MIL.
 
-**Response to violation:**
+**What P5 does protect in this system:**
+- CJI Pulse telemetry, internal customer data, HDFS pipeline outputs
+- Any file under `pulse/`, `app/`, `dags/`, `twin_refinery/`, `src/`
+- All CJI Pulse agent outputs and hypothesis findings
+
+**Response to client name appearing in a CJI Pulse output:**
 WARN_P5 emitted. Finding held. Human review required before release.
+This rule does not apply to MIL files.
 
 ---
 
@@ -135,7 +141,7 @@ Agents must reference this register when constructing Inference Cards.
 | BS-003 | Transaction-level data | App Store reviews do not specify which transaction type failed | Permanent in Phase 1 | N/A |
 | BS-004 | iOS vs Android split | Platform split not always visible in review signals | Partial — version field in App Store mitigates | Ongoing |
 | BS-005 | Facebook public page signals | Architecture ready. Scraping method unconfirmed. Demographic gap in 35-55 complaint data until resolved. | OPEN — deferred to Day 30 review alongside QLoRA gate | Day 30 |
-| BS-006 | TAQ Bank (client) signals | Client excluded from monitoring per P5 Identity Shield. Any historical TAQ Bank pattern is masked before storage. | Permanent | N/A |
+| BS-006 | TAQ Bank (client) signals | Client is not a monitored competitor — excluded from scope, not masked. P5 does not apply to MIL. If client signals are ever needed, that is a Phase 2 internal scope decision, not a P5 question. | Permanent | N/A |
 | BS-007 | Non-English signals | Reddit and Twitter signals in non-English languages not classified | Low impact for UK-focused competitors | Monitor |
 | BS-008 | HSBC CHR-003 root cause | HSBC August 2025 outage root cause not publicly confirmed. Similarity matching carries confidence penalty. | OPEN — Hussain to confirm if additional source available | CHRONICLE review |
 | BS-009 | CHRONICLE twitter_archive fields | Twitter Premium+ archive search pending for all three CHRONICLE entries | OPEN — action at earliest opportunity | Weekly review |

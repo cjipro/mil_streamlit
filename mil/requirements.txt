@@ -1,0 +1,27 @@
+# MIL Harvester — Python dependencies
+# Install: pip install -r mil/requirements.txt
+
+# Core
+requests>=2.31.0
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# App Store — iTunes RSS (no extra dep, uses requests)
+
+# Google Play
+google-play-scraper>=1.2.7
+
+# Reddit
+praw>=7.7.1
+
+# YouTube
+google-api-python-client>=2.118.0
+
+# RSS (FT, City AM)
+feedparser>=6.0.11
+
+# Scheduling
+apscheduler>=3.10.4
+
+# Testing (no live calls — all mocked)
+# unittest is stdlib — no extra dep needed
