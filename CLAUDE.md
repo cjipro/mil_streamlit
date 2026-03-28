@@ -16,6 +16,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Claude Code for all development tasks
 - Repo: `C:\Users\hussa\while-sleeping`
 
+## JIRA PROJECTS — TWO SEPARATE SYSTEMS
+
+### PULSE Project — CJI Pulse only
+Site: cjipro.atlassian.net
+Key: PULSE
+Tickets: PULSE-1 through PULSE-83 (current)
+Next ticket: PULSE-84
+Board: Scrum
+Scope: Internal customer journey intelligence only. PII present. Highly governed.
+
+### MIL Project — MIL sovereign system only
+Site: cjipro.atlassian.net
+Key: MIL
+Board: Kanban
+URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
+Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
+Tickets: MIL-1 through MIL-6 (BUILT)
+Next ticket: MIL-7
+Scope: Public market intelligence only. No PII. Open governance.
+
+### Hard Rule
+Never create a PULSE ticket for MIL work.
+Never create a MIL ticket for CJI Pulse work.
+Claude Code creates MIL Jira tickets programmatically when instructed.
+Hussain closes all tickets manually in Jira UI — never programmatically.
+Dual closure rule applies to both projects: validator passes AND Hussain closes in UI.
+
 ## Build Rules
 
 - Manifest is source of truth — `system_manifest.yaml`
