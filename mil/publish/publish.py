@@ -847,22 +847,31 @@ def generate_html(
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sonar — App Intelligence Briefing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* -- Reset & Base ----------------------------------------------------------- */
 *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
 
 :root {{
-  --bg:        #12131a;
-  --card:      #161820;
-  --border:    #1e2030;
-  --amber:     #e8a030;
-  --red:       #cc3333;
-  --green:     #2a9a5a;
-  --text:      #e8e4d8;
-  --dim:       #6b7088;
-  --mono:      'DM Mono', monospace;
-  --sans:      'DM Sans', sans-serif;
+  --bg:          #00273D;
+  --topbar-bg:   #001E30;
+  --ticker-bg:   #001828;
+  --journey-bg:  #001E30;
+  --summary-bg:  #002030;
+  --feed-bg:     #00273D;
+  --panel-bg:    #001828;
+  --card:        #002A3F;
+  --border:      #003A5C;
+  --blue:        #00AEEF;
+  --teal:        #00AFA0;
+  --amber:       #F5A623;
+  --red:         #CC0000;
+  --text:        #E8F4FA;
+  --text-2:      #7AACBF;
+  --text-3:      #4A7A8F;
+  --muted:       #3A6A7F;
+  --mono:        'DM Mono', monospace;
+  --sans:        'Plus Jakarta Sans', sans-serif;
 }}
 
 html, body {{
@@ -874,30 +883,26 @@ html, body {{
   min-height: 100vh;
 }}
 
-a {{ color: var(--amber); text-decoration: none; }}
+a {{ color: var(--blue); text-decoration: none; }}
 
 /* -- Topbar ----------------------------------------------------------------- */
 .topbar {{
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 20px;
-  padding: 16px 24px;
-  background: #0e0f15;
+  padding: 14px 32px;
+  background: var(--topbar-bg);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
 }}
-.topbar-left {{
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}}
+.topbar-left {{ display: flex; flex-direction: column; gap: 5px; }}
 .topbar-logo {{
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.08em;
-  color: var(--amber);
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 1.5px;
+  color: var(--blue);
   margin-bottom: 2px;
 }}
 .brand-line {{
@@ -905,685 +910,216 @@ a {{ color: var(--amber); text-decoration: none; }}
   align-items: flex-start;
   gap: 7px;
   font-size: 11px;
-  color: var(--dim);
+  font-weight: 400;
+  color: var(--text-2);
   line-height: 1.4;
 }}
-.brand-dot {{
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 3px;
-}}
+.brand-dot {{ width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }}
 .brand-dot-blue {{ background: #00AEEF; box-shadow: 0 0 4px rgba(0,174,239,0.5); }}
-.brand-dot-teal {{ background: #00c4b4; box-shadow: 0 0 4px rgba(0,196,180,0.5); }}
-/* Barclays sentiment card — in topbar left column */
-.topbar-sent-card {{
-  background: #002A3F;
-  border: 1px solid #00AEEF;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 6px;
-  margin-bottom: 4px;
-  max-width: 500px;
-}}
-.sent-card-bar {{
-  height: 2px;
-  background: linear-gradient(90deg, #00AEEF, #0080C0);
-}}
-.sent-card-inner {{
-  padding: 9px 13px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}}
-.sent-card-label {{
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #00AEEF;
-  text-transform: uppercase;
-}}
-.sent-card-score-row {{
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}}
-.sent-card-score {{
-  font-family: var(--mono);
-  font-size: 44px;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1;
-}}
-.sent-card-delta {{
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 600;
-}}
-.sent-card-baseline {{
-  font-size: 10px;
-  color: #5da8c8;
-}}
-.sent-card-progress {{
-  height: 3px;
-  background: rgba(0,174,239,0.15);
-  border-radius: 2px;
-  overflow: hidden;
-}}
-.sent-progress-fill {{
-  height: 3px;
-  background: linear-gradient(90deg, #00AEEF, #0080C0);
-  border-radius: 2px;
-}}
-.sent-card-meta {{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  font-weight: 600;
-}}
-.sent-card-ts {{
-  font-family: var(--mono);
-  font-size: 10px;
-  color: #3d6d82;
-}}
+.brand-dot-teal {{ background: #00AFA0; box-shadow: 0 0 4px rgba(0,175,160,0.5); }}
+
+/* Barclays sentiment card */
+.topbar-sent-card {{ background: #002A3F; border: 1px solid #00AEEF; border-radius: 10px; overflow: hidden; margin-top: 6px; margin-bottom: 4px; }}
+.sent-card-bar {{ height: 2px; background: linear-gradient(90deg, #00AEEF, #0080C0); }}
+.sent-card-inner {{ padding: 9px 13px; display: flex; flex-direction: column; gap: 5px; }}
+.sent-card-label {{ font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #00AEEF; text-transform: uppercase; }}
+.sent-card-score-row {{ display: flex; align-items: baseline; gap: 12px; }}
+.sent-card-score {{ font-family: var(--mono); font-size: 44px; font-weight: 800; color: #E8F4FA; line-height: 1; }}
+.sent-card-delta {{ font-family: var(--mono); font-size: 16px; font-weight: 800; color: #CC0000; }}
+.sent-card-baseline {{ font-family: var(--mono); font-size: 10px; color: #4A7A8F; }}
+.sent-card-progress {{ height: 3px; background: #003A5C; border-radius: 2px; overflow: hidden; }}
+.sent-progress-fill {{ height: 3px; background: linear-gradient(90deg, #00AEEF, #0080C0); border-radius: 2px; }}
+.sent-card-meta {{ display: flex; justify-content: space-between; align-items: center; }}
+.sent-card-traj {{ display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; }}
+.traj-dot {{ width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }}
+.sent-card-ts {{ font-family: var(--mono); font-size: 10px; color: #3A6A7F; }}
+
 /* Pills row */
-.topbar-pills {{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 2px;
-}}
-.version-pill {{
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--dim);
-  background: #161820;
-  border: 1px solid var(--border);
-  padding: 2px 8px;
-  border-radius: 4px;
-}}
-.live-dot {{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--green);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}}
-.live-dot::before {{
-  content: '';
-  width: 7px;
-  height: 7px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}}
+.topbar-pills {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }}
+.version-pill {{ font-family: var(--mono); font-size: 11px; color: var(--text-3); background: var(--card); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }}
+.live-dot {{ display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal); font-weight: 600; letter-spacing: 0.05em; }}
+.live-dot::before {{ content: ''; width: 7px; height: 7px; background: var(--teal); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }}
 @keyframes pulse {{
-  0%, 100% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(42,154,90,0.4); }}
-  50% {{ opacity: 0.7; box-shadow: 0 0 0 5px rgba(42,154,90,0); }}
+  0%, 100% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(0,175,160,0.4); }}
+  50% {{ opacity: 0.7; box-shadow: 0 0 0 5px rgba(0,175,160,0); }}
 }}
-.bootstrap-badge {{
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: #1a1500;
-  color: var(--amber);
-  border: 1px solid var(--amber);
-  font-family: var(--mono);
-  letter-spacing: 0.05em;
+.bootstrap-badge {{ font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(245,166,35,0.10); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); font-family: var(--mono); letter-spacing: 0.05em; }}
+
+/* Executive Alert panel */
+.exec-alert-panel {{ background: #001828; border: 1px solid #CC0000; border-radius: 12px; overflow: hidden; align-self: flex-start; }}
+.exec-alert-header {{ background: #1A0000; border-bottom: 1px solid #CC0000; padding: 8px 14px; display: flex; align-items: center; gap: 8px; }}
+.exec-alert-pulse {{ width: 7px; height: 7px; border-radius: 50%; background: #CC0000; animation: pulse-red 1.5s ease-in-out infinite; flex-shrink: 0; }}
+@keyframes pulse-red {{
+  0%, 100% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(204,0,0,0.5); }}
+  50% {{ opacity: 0.8; box-shadow: 0 0 0 4px rgba(204,0,0,0); }}
 }}
-/* Executive Alert panel — topbar right column */
-.exec-alert-panel {{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  align-self: flex-start;
-}}
-.exec-alert-title {{
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--dim);
-  text-transform: uppercase;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
-}}
-.exec-alert-row {{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}}
-.exec-alert-key {{
-  font-size: 11px;
-  color: var(--dim);
-}}
-.exec-alert-val {{
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--mono);
-}}
-.exec-alert-status {{
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 3px;
-  letter-spacing: 0.05em;
-}}
-.status-clear {{ background: rgba(42,154,90,0.15); color: #4ad88a; }}
-.status-watch {{ background: rgba(232,160,48,0.12); color: var(--amber); }}
-.status-alert {{ background: rgba(204,51,51,0.15); color: #ff6666; }}
+.exec-alert-title {{ font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #CC0000; text-transform: uppercase; flex: 1; }}
+.exec-alert-ts {{ font-family: var(--mono); font-size: 10px; color: #4A2A2A; }}
+.exec-alert-body {{ padding: 11px 14px; display: flex; flex-direction: column; gap: 7px; }}
+.exec-alert-row {{ display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 6px; border-bottom: 1px solid #2A1010; }}
+.exec-alert-row:last-child {{ border-bottom: none; padding-bottom: 0; }}
+.exec-alert-key {{ font-size: 11px; color: #9A8080; }}
+.exec-alert-val {{ font-size: 12px; font-weight: 600; font-family: var(--mono); }}
+.exec-alert-status {{ font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 1px; }}
+.status-clear {{ background: rgba(0,175,160,0.12); color: #00AFA0; }}
+.status-watch {{ background: rgba(245,166,35,0.12); color: #F5A623; }}
+.status-alert {{ background: rgba(204,0,0,0.15); color: #FF4444; }}
 
 /* -- Ticker ----------------------------------------------------------------- */
-.ticker-wrapper {{
-  overflow: hidden;
-  background: #0e0f15;
-  border-bottom: 1px solid var(--border);
-  padding: 8px 0;
-}}
-.ticker-track {{
-  overflow: hidden;
-  white-space: nowrap;
-}}
-.ticker-inner {{
-  display: inline-flex;
-  align-items: center;
-  animation: ticker-scroll 30s linear infinite;
-}}
-.ticker-inner:hover {{
-  animation-play-state: paused;
-}}
+.ticker-wrapper {{ overflow: hidden; background: var(--ticker-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 11px 0; }}
+.ticker-track {{ overflow: hidden; white-space: nowrap; }}
+.ticker-inner {{ display: inline-flex; align-items: center; animation: ticker-scroll 30s linear infinite; }}
+.ticker-inner:hover {{ animation-play-state: paused; }}
 @keyframes ticker-scroll {{
   0%   {{ transform: translateX(0); }}
   100% {{ transform: translateX(-50%); }}
 }}
-.ticker-item {{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 20px;
-  font-size: 12px;
-}}
-.ticker-barclays {{ background: rgba(232,160,48,0.06); border-radius: 4px; }}
-.ticker-name {{ font-weight: 600; letter-spacing: 0.02em; }}
-.ticker-score {{ font-family: var(--mono); font-size: 13px; font-weight: 500; }}
-.ticker-delta {{ font-size: 11px; }}
-.ticker-sep {{ color: var(--border); padding: 0 4px; }}
+.ticker-item {{ display: inline-flex; align-items: center; gap: 6px; padding: 0 20px; }}
+.ticker-barclays {{ background: rgba(0,174,239,0.06); border-radius: 4px; }}
+.ticker-name {{ font-size: 12px; font-weight: 600; color: var(--text-2); }}
+.ticker-barclays .ticker-name {{ font-size: 12px; font-weight: 800; color: #00AEEF; }}
+.ticker-score {{ font-family: var(--mono); font-size: 14px; font-weight: 700; }}
+.ticker-delta {{ font-family: var(--mono); font-size: 10px; }}
+.ticker-sep {{ color: var(--border); padding: 0 4px; font-size: 18px; }}
 
 /* -- Mini Bar --------------------------------------------------------------- */
-.mini-bar {{
-  display: inline-flex;
-  align-items: center;
-  width: 60px;
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-}}
-.mini-bar-fill {{
-  height: 4px;
-  border-radius: 2px;
-  transition: width 0.3s ease;
-}}
+.mini-bar {{ display: inline-flex; align-items: center; width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }}
+.mini-bar-fill {{ height: 4px; border-radius: 2px; transition: width 0.3s ease; }}
 
 /* -- Journey Row ------------------------------------------------------------ */
-.journey-row {{
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-bottom: 1px solid var(--border);
-}}
-.journey-cell {{
-  flex: 1;
-  padding: 12px 16px;
-  background: var(--card);
-  cursor: default;
-  transition: background 0.15s;
-}}
-.journey-cell:hover {{ background: #1a1c28; }}
-.journey-cell-name {{ font-size: 11px; color: var(--dim); font-weight: 500; margin-bottom: 4px; }}
-.journey-cell-score {{ font-size: 22px; font-weight: 700; font-family: var(--mono); margin-bottom: 4px; }}
+.journey-row {{ display: flex; gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 2px solid var(--border); }}
+.journey-cell {{ flex: 1; padding: 10px 32px; background: var(--journey-bg); cursor: default; transition: background 0.15s; }}
+.journey-cell:hover {{ background: #002440; }}
+.journey-cell-name {{ font-size: 11px; font-weight: 700; color: var(--text-2); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }}
+.journey-cell-score {{ font-size: 26px; font-weight: 800; font-family: var(--mono); margin-bottom: 4px; }}
 .journey-cell-meta {{ display: flex; align-items: center; gap: 6px; }}
 .traj-icon {{ font-size: 14px; }}
-.journey-status-label {{ font-size: 10px; font-weight: 600; letter-spacing: 0.06em; }}
+.journey-status-label {{ font-size: 10px; font-weight: 700; letter-spacing: 0.06em; font-family: var(--mono); color: var(--text-3); }}
 
 /* -- Metrics Strip ---------------------------------------------------------- */
-.metrics-strip {{
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-bottom: 1px solid var(--border);
-}}
-.metric-card {{
-  flex: 1;
-  padding: 16px 20px;
-  background: var(--card);
-}}
-.metric-value {{ font-size: 32px; font-weight: 700; font-family: var(--mono); line-height: 1; margin-bottom: 4px; }}
-.metric-label {{ font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--text); }}
-.metric-sub {{ font-size: 11px; color: var(--dim); margin-top: 2px; }}
+.metrics-strip {{ display: flex; gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }}
+.metric-card {{ flex: 1; padding: 12px 32px; background: var(--summary-bg); }}
+.metric-value {{ font-size: 28px; font-weight: 800; font-family: var(--mono); line-height: 1; margin-bottom: 4px; }}
+.metric-label {{ font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; }}
+.metric-sub {{ font-size: 12px; color: var(--text-2); margin-top: 2px; }}
 
 /* -- Body Layout ------------------------------------------------------------ */
-.body-wrapper {{
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 1px;
-  background: var(--border);
-  min-height: calc(100vh - 200px);
-}}
-.left-col {{ background: var(--bg); padding: 20px; display: flex; flex-direction: column; gap: 16px; }}
-.right-col {{ background: var(--bg); padding: 20px; display: flex; flex-direction: column; gap: 16px; }}
+.body-wrapper {{ display: grid; grid-template-columns: 1fr 360px; gap: 1px; background: var(--border); min-height: calc(100vh - 200px); }}
+.left-col {{ background: var(--feed-bg); padding: 18px 32px 24px; display: flex; flex-direction: column; gap: 16px; }}
+.right-col {{ background: var(--panel-bg); padding: 16px 18px; display: flex; flex-direction: column; gap: 16px; }}
 
 /* -- Journey Cards ---------------------------------------------------------- */
-.journey-card {{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}}
-.card-header {{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}}
-.rank-num {{
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--dim);
-  min-width: 24px;
-}}
-.journey-name {{
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-  flex: 1;
-}}
-.badge {{
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 2px 8px;
-  border-radius: 3px;
-}}
-.derived-note {{
-  font-size: 10px;
-  font-family: var(--mono);
-  color: var(--amber);
-  background: rgba(232,160,48,0.08);
-  padding: 3px 8px;
-  border-radius: 3px;
-  letter-spacing: 0.03em;
-}}
-.verdict-label {{
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--dim);
-}}
-.verdict-text {{
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.4;
-}}
-.verdict-baseline {{
-  color: var(--dim);
-  font-weight: 400;
-  font-style: italic;
-}}
-.version-delta-row {{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}}
-.version-label {{
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--dim);
-  background: #0d0e14;
-  padding: 2px 6px;
-  border-radius: 3px;
-}}
-.version-delta {{
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 500;
-  background: #0d0e14;
-  padding: 2px 8px;
-  border-radius: 3px;
-}}
-.signal-counts {{
-  display: flex;
-  gap: 8px;
-}}
-.sig-count {{
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 3px;
-}}
-.sig-p1 {{ background: rgba(204,51,51,0.15); color: #ff6666; }}
-.sig-p2 {{ background: rgba(232,160,48,0.12); color: var(--amber); }}
-.voice-label {{
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--dim);
-}}
+.journey-card {{ background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }}
+.card-header {{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }}
+.rank-num {{ font-family: var(--mono); font-size: 12px; font-weight: 800; color: var(--text-3); background: var(--border); width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }}
+.journey-name {{ font-size: 16px; font-weight: 700; color: var(--text); flex: 1; }}
+.badge {{ font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 2px 10px; border-radius: 12px; }}
+.derived-note {{ font-size: 11px; font-family: var(--mono); color: var(--amber); background: rgba(245,166,35,0.08); padding: 3px 8px; border-radius: 12px; }}
+.verdict-label {{ font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; }}
+.verdict-text {{ font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.65; }}
+.verdict-baseline {{ color: var(--text-3); font-weight: 400; font-style: italic; }}
+.version-delta-row {{ display: flex; align-items: center; gap: 12px; }}
+.version-label {{ font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--blue); background: var(--border); padding: 2px 6px; border-radius: 4px; }}
+.version-delta {{ font-family: var(--mono); font-size: 12px; font-weight: 500; background: var(--border); padding: 2px 8px; border-radius: 4px; }}
+.signal-counts {{ display: flex; gap: 8px; }}
+.sig-count {{ font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 12px; }}
+.sig-p1 {{ background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.2); }}
+.sig-p2 {{ background: rgba(245,166,35,0.10); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }}
+.voice-label {{ font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; }}
 .pills {{ display: flex; flex-wrap: wrap; gap: 6px; }}
-.pill {{
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-weight: 500;
-}}
-.pill-neg {{ background: rgba(204,51,51,0.15); color: #ff6666; border: 1px solid rgba(204,51,51,0.2); }}
-.pill-pos {{ background: rgba(42,154,90,0.15); color: #4ad88a; border: 1px solid rgba(42,154,90,0.2); }}
-.market-note {{ font-size: 11px; color: var(--dim); font-style: italic; }}
+.pill {{ font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }}
+.pill-neg {{ background: #2A0010; color: #E08080; border: 1px solid #4A0020; }}
+.pill-pos {{ background: #003A30; color: #7ADAC8; border: 1px solid #005A48; }}
+.detected-pill {{ font-family: var(--mono); font-size: 11px; color: var(--text-2); background: var(--border); border-radius: 20px; padding: 1px 8px; }}
+.market-note {{ font-size: 11px; color: var(--muted); font-style: italic; }}
 
 /* -- Right Panel ------------------------------------------------------------ */
 .panel-section {{ display: flex; flex-direction: column; gap: 10px; }}
-.panel-title {{
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--dim);
-  text-transform: uppercase;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}}
+.panel-title {{ font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); }}
 
 /* -- Inference Card --------------------------------------------------------- */
-.inference-card {{
-  background: #12140a;
-  border: 1px solid var(--amber);
-  border-radius: 6px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}}
+.inference-card {{ background: var(--card); border: 1px solid var(--red); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }}
 .inference-header {{ display: flex; align-items: center; gap: 8px; }}
-.inference-label {{ font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--amber); }}
-.severity-badge {{
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 3px;
-}}
-.severity-p0 {{ background: rgba(204,51,51,0.3); color: #ff4444; }}
-.severity-p1 {{ background: rgba(204,51,51,0.15); color: #ff6666; }}
-.inference-finding {{ font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }}
+.inference-label {{ font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--red); text-transform: uppercase; }}
+.severity-badge {{ font-size: 10px; font-weight: 700; padding: 1px 8px; border-radius: 12px; }}
+.severity-p0 {{ background: rgba(204,0,0,0.3); color: #FF4444; }}
+.severity-p1 {{ background: rgba(204,0,0,0.15); color: #FF6666; }}
+.inference-finding {{ font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5; }}
 .blind-spots {{ list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 4px; }}
-.blind-spot-item {{ font-size: 11px; color: var(--dim); padding-left: 12px; position: relative; }}
-.blind-spot-item::before {{ content: '⚠'; position: absolute; left: 0; font-size: 9px; color: var(--amber); }}
-.chronicle-anchor {{ font-family: var(--mono); font-size: 11px; color: var(--amber); }}
+.blind-spot-item {{ font-size: 11px; color: #9A8080; line-height: 1.5; padding-left: 12px; position: relative; }}
+.blind-spot-item::before {{ content: '\26A0'; position: absolute; left: 0; font-size: 9px; color: var(--amber); }}
+.chronicle-anchor {{ font-family: var(--mono); font-size: 11px; color: var(--blue); }}
 .inference-actions {{ display: flex; gap: 6px; flex-wrap: wrap; }}
-.action-btn {{
-  background: #1a1500;
-  color: var(--amber);
-  border: 1px solid var(--amber);
-  border-radius: 4px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}}
-.action-btn:hover {{ background: rgba(232,160,48,0.15); }}
+.action-btn {{ background: #1A0000; color: var(--red); border: 1px solid #4A1010; border-radius: 12px; padding: 3px 10px; font-size: 10px; font-weight: 500; cursor: pointer; transition: background 0.15s; }}
+.action-btn:hover {{ background: rgba(204,0,0,0.1); }}
 
 /* -- Chronicle -------------------------------------------------------------- */
-.chronicle-card {{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}}
+.chronicle-card {{ background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 5px; }}
 .chronicle-header {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }}
-.chronicle-id {{ font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--amber); }}
-.chronicle-bank {{ font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }}
-.chronicle-date {{ font-size: 10px; color: var(--dim); font-family: var(--mono); }}
-.chronicle-active {{
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  background: rgba(204,51,51,0.2);
-  color: #ff6666;
-  padding: 1px 5px;
-  border-radius: 3px;
-}}
-.chronicle-hold {{
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  background: rgba(107,112,136,0.2);
-  color: var(--dim);
-  padding: 1px 5px;
-  border-radius: 3px;
-}}
-.chronicle-cap {{
-  font-size: 9px;
-  color: var(--amber);
-  background: rgba(232,160,48,0.1);
-  padding: 1px 5px;
-  border-radius: 3px;
-}}
-.chronicle-type {{ font-size: 11px; color: var(--text); font-weight: 500; }}
-.chronicle-impact {{ font-size: 11px; color: var(--amber); font-weight: 600; font-family: var(--mono); }}
+.chronicle-id {{ font-family: var(--mono); font-size: 11px; font-weight: 600; color: #8BBCCC; }}
+.chronicle-bank {{ font-size: 11px; font-weight: 600; color: #8BBCCC; flex: 1; }}
+.chronicle-date {{ font-size: 10px; color: var(--muted); font-family: var(--mono); }}
+.chronicle-active {{ font-size: 9px; font-weight: 700; letter-spacing: 1px; background: rgba(204,0,0,0.2); color: #FF6666; padding: 1px 5px; border-radius: 8px; }}
+.chronicle-hold {{ font-size: 9px; font-weight: 700; background: rgba(74,122,143,0.2); color: var(--text-3); padding: 1px 5px; border-radius: 8px; }}
+.chronicle-cap {{ font-size: 9px; color: var(--amber); background: rgba(245,166,35,0.1); padding: 1px 5px; border-radius: 8px; }}
+.chronicle-type {{ font-size: 10px; color: #3A5A6F; }}
+.chronicle-impact {{ font-size: 11px; font-weight: 700; color: var(--amber); font-family: var(--mono); }}
 
 /* -- Sources Grid ----------------------------------------------------------- */
-.sources-grid {{ display: flex; flex-direction: column; gap: 6px; }}
-.source-item {{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border);
-}}
+.sources-grid {{ display: flex; flex-direction: column; gap: 4px; }}
+.source-item {{ display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }}
 .source-item:last-child {{ border-bottom: none; }}
-.dot {{
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}}
-.dot-green {{ background: var(--green); box-shadow: 0 0 4px rgba(42,154,90,0.6); }}
-.dot-amber {{ background: var(--amber); box-shadow: 0 0 4px rgba(232,160,48,0.5); }}
-.dot-grey {{ background: #3a3d52; }}
-.source-name {{ font-size: 12px; color: var(--text); flex: 1; }}
-.source-weight {{ font-family: var(--mono); font-size: 11px; color: var(--dim); }}
+.dot {{ width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }}
+.dot-green {{ background: var(--teal); box-shadow: 0 0 4px rgba(0,175,160,0.6); }}
+.dot-amber {{ background: var(--amber); box-shadow: 0 0 4px rgba(245,166,35,0.5); }}
+.dot-grey {{ background: var(--border); }}
+.source-name {{ font-size: 11px; font-weight: 500; color: var(--muted); flex: 1; }}
+.source-weight {{ font-family: var(--mono); font-size: 11px; color: var(--text-3); }}
 
 /* -- Delta ------------------------------------------------------------------ */
 .delta {{ font-family: var(--mono); font-size: 11px; font-weight: 600; }}
-.delta-na {{ font-family: var(--mono); font-size: 11px; color: var(--dim); }}
+.delta-na {{ font-family: var(--mono); font-size: 11px; color: var(--text-3); }}
 
 /* -- Defaults Banner -------------------------------------------------------- */
-.defaults-banner {{
-  margin: 12px 24px;
-  padding: 10px 16px;
-  background: rgba(232,160,48,0.08);
-  border: 1px solid rgba(232,160,48,0.2);
-  border-radius: 5px;
-  font-size: 11px;
-  color: var(--amber);
-}}
+.defaults-banner {{ margin: 12px 32px; padding: 10px 16px; background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.15); border-radius: 8px; font-size: 11px; color: var(--amber); }}
 .defaults-banner ul {{ padding-left: 16px; margin-top: 4px; }}
 .defaults-banner li {{ margin-top: 2px; }}
 
 /* -- Footer ----------------------------------------------------------------- */
-.footer {{
-  background: #0e0f15;
-  border-top: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}}
-.footer-item {{ font-size: 11px; color: var(--dim); font-family: var(--mono); }}
+.footer {{ background: var(--topbar-bg); border-top: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }}
+.footer-item {{ font-size: 11px; color: #2A5A6F; font-family: var(--mono); letter-spacing: 1px; }}
 .footer-sep {{ color: var(--border); }}
-.footer-sovereign {{
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--amber);
-  background: rgba(232,160,48,0.08);
-  padding: 2px 8px;
-  border-radius: 3px;
-}}
+.footer-sovereign {{ font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--blue); background: rgba(0,174,239,0.08); padding: 2px 8px; border-radius: 8px; }}
 
 /* -- Ask Sonar Button ------------------------------------------------------- */
-.ask-sonar-btn {{
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: var(--amber);
-  color: #12131a;
-  border: none;
-  border-radius: 28px;
-  padding: 12px 22px;
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(232,160,48,0.4);
-  transition: transform 0.15s, box-shadow 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}}
-.ask-sonar-btn:hover {{
-  transform: translateY(-2px);
-  box-shadow: 0 6px 28px rgba(232,160,48,0.55);
-}}
+.ask-sonar-btn {{ position: fixed; bottom: 24px; right: 24px; background: #00AEEF; color: #001E30; border: none; border-radius: 24px; padding: 11px 20px 11px 16px; font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; z-index: 1000; box-shadow: 0 4px 24px rgba(0,174,239,0.4); transition: transform 0.15s, box-shadow 0.15s; display: flex; align-items: center; gap: 8px; }}
+.ask-sonar-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 32px rgba(0,174,239,0.55); }}
 .ask-sonar-btn svg {{ width: 16px; height: 16px; }}
 
 /* -- Chat Panel ------------------------------------------------------------- */
-.chat-overlay {{
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-}}
-.chat-panel {{
-  position: fixed;
-  bottom: 80px;
-  right: 24px;
-  width: 360px;
-  max-height: 500px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  display: none;
-  flex-direction: column;
-  z-index: 1001;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  overflow: hidden;
-}}
+.chat-overlay {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }}
+.chat-panel {{ position: fixed; bottom: 80px; right: 24px; width: 360px; max-height: 500px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; z-index: 1001; box-shadow: 0 8px 40px rgba(0,0,0,0.6); overflow: hidden; }}
 .chat-panel.open {{ display: flex; }}
-.chat-header {{
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}}
+.chat-header {{ padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }}
 .chat-title {{ font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }}
-.chat-close {{
-  background: none;
-  border: none;
-  color: var(--dim);
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  padding: 0 4px;
-}}
+.chat-close {{ background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }}
 .chat-close:hover {{ color: var(--text); }}
-.chat-messages {{
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 160px;
-}}
-.chat-chips {{
-  padding: 8px 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  border-top: 1px solid var(--border);
-}}
-.chip {{
-  background: #1a1c28;
-  color: var(--amber);
-  border: 1px solid rgba(232,160,48,0.25);
-  border-radius: 14px;
-  padding: 4px 10px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: background 0.15s;
-}}
-.chip:hover {{ background: rgba(232,160,48,0.12); }}
-.chat-input-row {{
-  padding: 10px 12px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 8px;
-}}
-.chat-input {{
-  flex: 1;
-  background: #0e0f15;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-family: var(--sans);
-  font-size: 12px;
-  color: var(--text);
-  outline: none;
-}}
-.chat-input:focus {{ border-color: var(--amber); }}
-.chat-send {{
-  background: var(--amber);
-  color: #12131a;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 14px;
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
-}}
-.chat-msg {{
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 8px 10px;
-  border-radius: 6px;
-}}
-.chat-msg.system {{ background: #1a1c28; color: var(--text); }}
-.chat-msg.user {{ background: rgba(232,160,48,0.1); color: var(--amber); align-self: flex-end; }}
-.chat-msg.error {{ background: rgba(204,51,51,0.1); color: #ff6666; }}
+.chat-messages {{ flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 160px; }}
+.chat-chips {{ padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid var(--border); }}
+.chip {{ background: var(--border); color: var(--blue); border: 1px solid rgba(0,174,239,0.2); border-radius: 14px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: background 0.15s; }}
+.chip:hover {{ background: rgba(0,174,239,0.1); }}
+.chat-input-row {{ padding: 10px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }}
+.chat-input {{ flex: 1; background: var(--topbar-bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: var(--sans); font-size: 12px; color: var(--text); outline: none; }}
+.chat-input:focus {{ border-color: var(--blue); }}
+.chat-send {{ background: var(--blue); color: #001E30; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; font-size: 12px; cursor: pointer; }}
+.chat-msg {{ font-size: 12px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }}
+.chat-msg.system {{ background: var(--border); color: var(--text); }}
+.chat-msg.user {{ background: rgba(0,174,239,0.1); color: var(--blue); align-self: flex-end; }}
+.chat-msg.error {{ background: rgba(204,0,0,0.1); color: #FF6666; }}
 
 /* -- Responsive ------------------------------------------------------------- */
 @media (max-width: 900px) {{
+  .topbar {{ grid-template-columns: 1fr; }}
   .body-wrapper {{ grid-template-columns: 1fr; }}
   .metrics-strip {{ flex-wrap: wrap; }}
   .metric-card {{ min-width: 45%; }}
@@ -1620,7 +1156,10 @@ a {{ color: var(--amber); text-decoration: none; }}
           <div class="sent-progress-fill" style="width:{barcl_pct:.0f}%;"></div>
         </div>
         <div class="sent-card-meta">
-          <span style="color:{barcl_traj_color};">{barcl_traj_arrow} {barcl_trajectory}</span>
+          <span class="sent-card-traj" style="color:{barcl_traj_color};">
+            <span class="traj-dot" style="background:{barcl_traj_color};"></span>
+            {barcl_traj_arrow} {barcl_trajectory}
+          </span>
           <span class="sent-card-ts">{e(last_run_str)}</span>
         </div>
       </div>
@@ -1634,26 +1173,32 @@ a {{ color: var(--amber); text-decoration: none; }}
   </div>
   <!-- Right: Executive Alert panel -->
   <div class="exec-alert-panel">
-    <div class="exec-alert-title">Executive Alerts</div>
-    <div class="exec-alert-row">
-      <span class="exec-alert-key">P0 Active</span>
-      <span class="exec-alert-status {alert_p0_class}">{alert_p0_str}</span>
+    <div class="exec-alert-header">
+      <span class="exec-alert-pulse"></span>
+      <span class="exec-alert-title">Executive Alerts</span>
+      <span class="exec-alert-ts">{e(last_run_str)}</span>
     </div>
-    <div class="exec-alert-row">
-      <span class="exec-alert-key">P1 Signals</span>
-      <span class="exec-alert-val" style="color:{alert_p1_color};">{alert_p1_count}</span>
-    </div>
-    <div class="exec-alert-row">
-      <span class="exec-alert-key">Watch List</span>
-      <span class="exec-alert-val" style="color:var(--amber);">{watch_count_tb}</span>
-    </div>
-    <div class="exec-alert-row">
-      <span class="exec-alert-key">Top Concern</span>
-      <span class="exec-alert-val" style="color:#ff6666;font-size:11px;">{e(alert_top_concern)}</span>
-    </div>
-    <div class="exec-alert-row">
-      <span class="exec-alert-key">System</span>
-      <span class="exec-alert-status status-clear">NOMINAL</span>
+    <div class="exec-alert-body">
+      <div class="exec-alert-row">
+        <span class="exec-alert-key">P0 Active</span>
+        <span class="exec-alert-status {alert_p0_class}">{alert_p0_str}</span>
+      </div>
+      <div class="exec-alert-row">
+        <span class="exec-alert-key">P1 Signals</span>
+        <span class="exec-alert-val" style="color:{alert_p1_color};">{alert_p1_count}</span>
+      </div>
+      <div class="exec-alert-row">
+        <span class="exec-alert-key">Watch List</span>
+        <span class="exec-alert-val" style="color:var(--amber);">{watch_count_tb}</span>
+      </div>
+      <div class="exec-alert-row">
+        <span class="exec-alert-key">Top Concern</span>
+        <span class="exec-alert-val" style="color:#FF4444;font-size:11px;">{e(alert_top_concern)}</span>
+      </div>
+      <div class="exec-alert-row">
+        <span class="exec-alert-key">System</span>
+        <span class="exec-alert-status status-clear">NOMINAL</span>
+      </div>
     </div>
   </div>
 </div>
