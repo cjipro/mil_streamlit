@@ -817,6 +817,29 @@ def generate_html(
 
     published_at = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
+    # ── Barclays topbar sentiment card data ───────────────────────────────────
+    barcl = competitor_sentiment.get("Barclays", {})
+    barcl_score = barcl.get("score")
+    barcl_score_str = f"{barcl_score:.0f}" if barcl_score is not None else "—"
+    barcl_pct = min(100, max(0, barcl_score or 0))
+    barcl_p1 = barcl.get("p1", 0)
+    barcl_delta_str = "— vs baseline"
+    barcl_baseline_str = "Establishing"
+    barcl_trajectory = "WORSENING" if barcl_p1 > 0 else ("STABLE" if barcl_score and barcl_score > 65 else "WATCH")
+    barcl_traj_color = "#ff4444" if barcl_trajectory == "WORSENING" else ("#e8a030" if barcl_trajectory == "WATCH" else "#2a9a5a")
+    barcl_traj_arrow = "&#8600;" if barcl_trajectory == "WORSENING" else ("&#8594;" if barcl_trajectory == "WATCH" else "&#8599;")
+
+    # ── Executive Alert panel data ────────────────────────────────────────────
+    total_p0 = sum(d.get("p0", 0) for d in competitor_sentiment.values())
+    total_p1 = sum(d.get("p1", 0) for d in competitor_sentiment.values())
+    watch_count_tb = sum(1 for j in journey_analysis if j.get("status") == "WATCH")
+    alert_p0_str = str(total_p0) if total_p0 > 0 else "NONE"
+    alert_p0_class = "status-alert" if total_p0 > 0 else "status-clear"
+    alert_p1_count = str(total_p1)
+    alert_p1_color = "#ff6666" if total_p1 > 5 else ("#e8a030" if total_p1 > 0 else "#4ad88a")
+    top_concern_entry = max(competitor_sentiment.items(), key=lambda x: x[1].get("p1", 0))
+    alert_top_concern = top_concern_entry[0] if top_concern_entry[1].get("p1", 0) > 0 else "None"
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -855,24 +878,133 @@ a {{ color: var(--amber); text-decoration: none; }}
 
 /* -- Topbar ----------------------------------------------------------------- */
 .topbar {{
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 24px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  padding: 16px 24px;
   background: #0e0f15;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
 }}
+.topbar-left {{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}}
 .topbar-logo {{
   font-weight: 700;
   font-size: 15px;
   letter-spacing: 0.08em;
   color: var(--amber);
+  margin-bottom: 2px;
 }}
-.topbar-sep {{ color: var(--border); font-size: 18px; }}
-.topbar-meta {{ font-size: 12px; color: var(--dim); font-family: var(--mono); }}
+.brand-line {{
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--dim);
+  line-height: 1.4;
+}}
+.brand-dot {{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}}
+.brand-dot-blue {{ background: #00AEEF; box-shadow: 0 0 4px rgba(0,174,239,0.5); }}
+.brand-dot-teal {{ background: #00c4b4; box-shadow: 0 0 4px rgba(0,196,180,0.5); }}
+/* Barclays sentiment card — in topbar left column */
+.topbar-sent-card {{
+  background: #002A3F;
+  border: 1px solid #00AEEF;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  max-width: 500px;
+}}
+.sent-card-bar {{
+  height: 2px;
+  background: linear-gradient(90deg, #00AEEF, #0080C0);
+}}
+.sent-card-inner {{
+  padding: 9px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}}
+.sent-card-label {{
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #00AEEF;
+  text-transform: uppercase;
+}}
+.sent-card-score-row {{
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}}
+.sent-card-score {{
+  font-family: var(--mono);
+  font-size: 44px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}}
+.sent-card-delta {{
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+}}
+.sent-card-baseline {{
+  font-size: 10px;
+  color: #5da8c8;
+}}
+.sent-card-progress {{
+  height: 3px;
+  background: rgba(0,174,239,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}}
+.sent-progress-fill {{
+  height: 3px;
+  background: linear-gradient(90deg, #00AEEF, #0080C0);
+  border-radius: 2px;
+}}
+.sent-card-meta {{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+}}
+.sent-card-ts {{
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #3d6d82;
+}}
+/* Pills row */
+.topbar-pills {{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}}
+.version-pill {{
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  background: #161820;
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 4px;
+}}
 .live-dot {{
   display: inline-flex;
   align-items: center;
@@ -894,7 +1026,6 @@ a {{ color: var(--amber); text-decoration: none; }}
   0%, 100% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(42,154,90,0.4); }}
   50% {{ opacity: 0.7; box-shadow: 0 0 0 5px rgba(42,154,90,0); }}
 }}
-.topbar-right {{ margin-left: auto; display: flex; align-items: center; gap: 12px; }}
 .bootstrap-badge {{
   font-size: 10px;
   padding: 2px 8px;
@@ -905,6 +1036,51 @@ a {{ color: var(--amber); text-decoration: none; }}
   font-family: var(--mono);
   letter-spacing: 0.05em;
 }}
+/* Executive Alert panel — topbar right column */
+.exec-alert-panel {{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-self: flex-start;
+}}
+.exec-alert-title {{
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  text-transform: uppercase;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}}
+.exec-alert-row {{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}}
+.exec-alert-key {{
+  font-size: 11px;
+  color: var(--dim);
+}}
+.exec-alert-val {{
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--mono);
+}}
+.exec-alert-status {{
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}}
+.status-clear {{ background: rgba(42,154,90,0.15); color: #4ad88a; }}
+.status-watch {{ background: rgba(232,160,48,0.12); color: var(--amber); }}
+.status-alert {{ background: rgba(204,51,51,0.15); color: #ff6666; }}
 
 /* -- Ticker ----------------------------------------------------------------- */
 .ticker-wrapper {{
@@ -1420,14 +1596,65 @@ a {{ color: var(--amber); text-decoration: none; }}
 
 <!-- -- Topbar -------------------------------------------------------------- -->
 <div class="topbar">
-  <div class="topbar-logo">SONAR / APP INTELLIGENCE</div>
-  <span class="topbar-sep">|</span>
-  <div class="topbar-meta">v{e(version_display)}</div>
-  <span class="topbar-sep">|</span>
-  <div class="topbar-meta">{e(last_run_str)}</div>
-  <div class="topbar-right">
-    {"<span class='bootstrap-badge'>BASELINE ESTABLISHING</span>" if is_bootstrap else ""}
-    <div class="live-dot">LIVE</div>
+  <!-- Left: brand + straplines + sentiment card + pills -->
+  <div class="topbar-left">
+    <div class="topbar-logo">SONAR / APP INTELLIGENCE</div>
+    <div class="brand-line">
+      <span class="brand-dot brand-dot-blue"></span>
+      <span>Live customer signals across market channels &mdash; continuously monitored and interpreted</span>
+    </div>
+    <div class="brand-line">
+      <span class="brand-dot brand-dot-teal"></span>
+      <span>Historical failure patterns applied to detect early risk &mdash; enabling Barclays to act before issues escalate</span>
+    </div>
+    <div class="topbar-sent-card">
+      <div class="sent-card-bar"></div>
+      <div class="sent-card-inner">
+        <div class="sent-card-label">BARCLAYS OVERALL SENTIMENT &middot; TODAY vs BASELINE</div>
+        <div class="sent-card-score-row">
+          <span class="sent-card-score">{barcl_score_str}</span>
+          <span class="sent-card-delta" style="color:#ff4444;">{barcl_delta_str}</span>
+        </div>
+        <div class="sent-card-baseline">Baseline: {barcl_baseline_str}</div>
+        <div class="sent-card-progress">
+          <div class="sent-progress-fill" style="width:{barcl_pct:.0f}%;"></div>
+        </div>
+        <div class="sent-card-meta">
+          <span style="color:{barcl_traj_color};">{barcl_traj_arrow} {barcl_trajectory}</span>
+          <span class="sent-card-ts">{e(last_run_str)}</span>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-pills">
+      <span class="version-pill">v{e(version_display)}</span>
+      <span class="version-pill">{e(last_run_str)}</span>
+      {"<span class='bootstrap-badge'>BASELINE ESTABLISHING</span>" if is_bootstrap else ""}
+      <div class="live-dot">LIVE</div>
+    </div>
+  </div>
+  <!-- Right: Executive Alert panel -->
+  <div class="exec-alert-panel">
+    <div class="exec-alert-title">Executive Alerts</div>
+    <div class="exec-alert-row">
+      <span class="exec-alert-key">P0 Active</span>
+      <span class="exec-alert-status {alert_p0_class}">{alert_p0_str}</span>
+    </div>
+    <div class="exec-alert-row">
+      <span class="exec-alert-key">P1 Signals</span>
+      <span class="exec-alert-val" style="color:{alert_p1_color};">{alert_p1_count}</span>
+    </div>
+    <div class="exec-alert-row">
+      <span class="exec-alert-key">Watch List</span>
+      <span class="exec-alert-val" style="color:var(--amber);">{watch_count_tb}</span>
+    </div>
+    <div class="exec-alert-row">
+      <span class="exec-alert-key">Top Concern</span>
+      <span class="exec-alert-val" style="color:#ff6666;font-size:11px;">{e(alert_top_concern)}</span>
+    </div>
+    <div class="exec-alert-row">
+      <span class="exec-alert-key">System</span>
+      <span class="exec-alert-status status-clear">NOMINAL</span>
+    </div>
   </div>
 </div>
 
