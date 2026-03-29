@@ -541,7 +541,6 @@ def build_metrics_strip_html(journey_analysis: list, competitor_sentiment: dict)
         metric_card("Needs Attention", regression_count, "var(--red)", "REGRESSION journeys"),
         metric_card("Watch", watch_count, "var(--amber)", "WATCH journeys"),
         metric_card("Performing Well", performing_count, "var(--green)", "across all sources"),
-        metric_card("Barclays Sentiment", barclays_str, "var(--amber)", "brand competitor"),
     ]
     return '<div class="metrics-strip">' + "".join(cards) + "</div>"
 
@@ -810,11 +809,6 @@ def generate_html(
     for j in journey_analysis:
         journey_cards_html += build_journey_card_html(j)
 
-    defaults_note = ""
-    if defaults_used:
-        items_html = "".join(f"<li>{e(d)}</li>" for d in defaults_used)
-        defaults_note = f'<div class="defaults-banner"><strong>Safe defaults applied:</strong><ul>{items_html}</ul></div>'
-
     published_at = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
     # ── Barclays topbar sentiment card data ───────────────────────────────────
@@ -839,6 +833,62 @@ def generate_html(
     alert_p1_color = "#ff6666" if total_p1 > 5 else ("#e8a030" if total_p1 > 0 else "#4ad88a")
     top_concern_entry = max(competitor_sentiment.items(), key=lambda x: x[1].get("p1", 0))
     alert_top_concern = top_concern_entry[0] if top_concern_entry[1].get("p1", 0) > 0 else "None"
+
+    # ── Executive Alert panel HTML (pre-computed — f-string cannot do conditionals) ─
+    _has_alert = total_p0 > 0 or total_p1 > 3
+    if _has_alert:
+        _concern_label = e(alert_top_concern) if alert_top_concern != "None" else "Multiple competitors"
+        _risk_text = (
+            "P0 active — immediate escalation required. Pattern matches known failure signature."
+            if total_p0 > 0
+            else f"{total_p1} P1 signals detected across monitored competitors. Elevated risk window."
+        )
+        _action_text = (
+            "Initiate CHRONICLE similarity check. Review top concern competitor journey data. "
+            "Brief stakeholders within 30 minutes."
+        )
+        _p0_pill_style = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
+        _p1_style = "color:#e8a030;" if total_p1 > 0 else "color:#4ad88a;"
+        exec_alert_panel_html = (
+            '  <!-- Right: Executive Alert panel -->\n'
+            '  <div class="exec-alert-panel">\n'
+            '    <div class="exec-alert-header">\n'
+            '      <span class="exec-alert-pulse"></span>\n'
+            '      <span class="exec-alert-title">Executive Alert</span>\n'
+            f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
+            '    </div>\n'
+            '    <div class="exec-alert-body">\n'
+            f'      <div class="exec-alert-finding">{_concern_label}</div>\n'
+            '      <div class="exec-alert-pills">\n'
+            f'        <span class="exec-pill" style="{_p0_pill_style}">P0 &nbsp;{e(alert_p0_str)}</span>\n'
+            f'        <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;{e(alert_p1_count)}</span>\n'
+            f'        <span class="exec-pill" style="background:rgba(245,166,35,0.08);color:#c0922a;border:1px solid rgba(245,166,35,0.2);">Watch &nbsp;{watch_count_tb}</span>\n'
+            '      </div>\n'
+            '      <div class="exec-alert-section-label">RISK INTERPRETATION</div>\n'
+            f'      <div class="exec-alert-section-text">{e(_risk_text)}</div>\n'
+            '      <div class="exec-alert-section-label">RECOMMENDED ACTION</div>\n'
+            f'      <div class="exec-alert-section-text">{e(_action_text)}</div>\n'
+            '    </div>\n'
+            '    <div class="exec-alert-footer">\n'
+            '      <button class="exec-escalate-btn">Escalate</button>\n'
+            '    </div>\n'
+            '  </div>'
+        )
+    else:
+        exec_alert_panel_html = (
+            '  <!-- Right: Executive Alert panel -->\n'
+            '  <div class="exec-alert-panel exec-alert-nominal">\n'
+            '    <div class="exec-alert-header exec-alert-header-nominal">\n'
+            '      <span class="exec-alert-pulse exec-alert-pulse-green"></span>\n'
+            '      <span class="exec-alert-title exec-alert-title-nominal">Executive Alert</span>\n'
+            f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
+            '    </div>\n'
+            '    <div class="exec-alert-body">\n'
+            '      <div class="exec-nominal-badge">SYSTEMS NOMINAL</div>\n'
+            '      <div class="exec-nominal-text">No active P0 or P1 signals detected. All monitored competitors within normal operating parameters.</div>\n'
+            '    </div>\n'
+            '  </div>'
+        )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -964,6 +1014,23 @@ a {{ color: var(--blue); text-decoration: none; }}
 .status-clear {{ background: rgba(0,175,160,0.12); color: #00AFA0; }}
 .status-watch {{ background: rgba(245,166,35,0.12); color: #F5A623; }}
 .status-alert {{ background: rgba(204,0,0,0.15); color: #FF4444; }}
+/* Nominal state overrides */
+.exec-alert-nominal {{ border-color: #00AFA0; }}
+.exec-alert-header-nominal {{ background: #001A18; border-bottom-color: #00AFA0; }}
+.exec-alert-pulse-green {{ background: #00AFA0; animation: none; }}
+.exec-alert-title-nominal {{ color: #00AFA0; }}
+/* Finding + pills */
+.exec-alert-finding {{ font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }}
+.exec-alert-pills {{ display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }}
+.exec-pill {{ font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.04em; }}
+.exec-alert-section-label {{ font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; margin-top: 6px; margin-bottom: 3px; }}
+.exec-alert-section-text {{ font-size: 11px; color: var(--text-2); line-height: 1.5; }}
+.exec-alert-footer {{ padding: 8px 14px; border-top: 1px solid #2A1010; }}
+.exec-escalate-btn {{ background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.4); border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 14px; cursor: pointer; width: 100%; font-family: var(--sans); text-transform: uppercase; }}
+.exec-escalate-btn:hover {{ background: rgba(204,0,0,0.25); }}
+/* Nominal body text */
+.exec-nominal-badge {{ font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: #00AFA0; margin-bottom: 8px; }}
+.exec-nominal-text {{ font-size: 11px; color: var(--text-2); line-height: 1.5; }}
 
 /* -- Ticker ----------------------------------------------------------------- */
 .ticker-wrapper {{ overflow: hidden; background: var(--ticker-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 11px 0; }}
@@ -1134,7 +1201,7 @@ a {{ color: var(--blue); text-decoration: none; }}
 <div class="topbar">
   <!-- Left: brand + straplines + sentiment card + pills -->
   <div class="topbar-left">
-    <div class="topbar-logo">SONAR / APP INTELLIGENCE</div>
+    <div class="topbar-logo">CJI SONAR &mdash; APP INTELLIGENCE</div>
     <div class="brand-line">
       <span class="brand-dot brand-dot-blue"></span>
       <span>Live customer signals across market channels &mdash; continuously monitored and interpreted</span>
@@ -1171,36 +1238,7 @@ a {{ color: var(--blue); text-decoration: none; }}
       <div class="live-dot">LIVE</div>
     </div>
   </div>
-  <!-- Right: Executive Alert panel -->
-  <div class="exec-alert-panel">
-    <div class="exec-alert-header">
-      <span class="exec-alert-pulse"></span>
-      <span class="exec-alert-title">Executive Alerts</span>
-      <span class="exec-alert-ts">{e(last_run_str)}</span>
-    </div>
-    <div class="exec-alert-body">
-      <div class="exec-alert-row">
-        <span class="exec-alert-key">P0 Active</span>
-        <span class="exec-alert-status {alert_p0_class}">{alert_p0_str}</span>
-      </div>
-      <div class="exec-alert-row">
-        <span class="exec-alert-key">P1 Signals</span>
-        <span class="exec-alert-val" style="color:{alert_p1_color};">{alert_p1_count}</span>
-      </div>
-      <div class="exec-alert-row">
-        <span class="exec-alert-key">Watch List</span>
-        <span class="exec-alert-val" style="color:var(--amber);">{watch_count_tb}</span>
-      </div>
-      <div class="exec-alert-row">
-        <span class="exec-alert-key">Top Concern</span>
-        <span class="exec-alert-val" style="color:#FF4444;font-size:11px;">{e(alert_top_concern)}</span>
-      </div>
-      <div class="exec-alert-row">
-        <span class="exec-alert-key">System</span>
-        <span class="exec-alert-status status-clear">NOMINAL</span>
-      </div>
-    </div>
-  </div>
+{exec_alert_panel_html}
 </div>
 
 <!-- -- Sentiment Ticker ---------------------------------------------------- -->
@@ -1213,8 +1251,6 @@ a {{ color: var(--blue); text-decoration: none; }}
 
 <!-- -- Metrics Strip ------------------------------------------------------- -->
 {metrics_strip_html}
-
-{defaults_note}
 
 <!-- -- Body ---------------------------------------------------------------- -->
 <div class="body-wrapper">
