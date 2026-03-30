@@ -1,8 +1,2145 @@
 {
-  "_comment": "MIL FINDINGS — THE ONLY EXIT POINT. This file is the sole data crossing from MIL to CJI Pulse. Nothing else crosses the boundary. CJI Pulse reads this file. MIL writes this file. No other crossing is permitted.",
+  "_comment": "MIL FINDINGS -- THE ONLY EXIT POINT. This file is the sole data crossing from MIL to CJI Pulse. Nothing else crosses the boundary.",
   "_schema_version": "1.0",
-  "_status": "BOOTSTRAP — no findings yet. Harvester not yet active.",
+  "_status": "LIVE",
   "_zero_entanglement": "mil/outputs/mil_findings.json is the only file CJI Pulse may read from mil/. No other mil/ file may be imported or read by external systems.",
-  "generated_at": null,
-  "findings": []
+  "generated_at": "2026-03-30T08:29:10.312757+00:00",
+  "summary": {
+    "total_findings": 25,
+    "anchored": 20,
+    "unanchored": 5,
+    "designed_ceiling_hits": 6,
+    "cac_weights": {
+      "alpha": 0.4,
+      "beta": 0.4,
+      "delta": 0.2
+    },
+    "delta_tel_note": "delta_tel=0.0 for all findings -- no internal telemetry. Phase 2 required to close Vane gap."
+  },
+  "findings": [
+    {
+      "finding_id": "MIL-F-20260330-001",
+      "generated_at": "2026-03-30T08:28:52.436251+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.1204,
+      "blind_spots": [
+        "App version",
+        "User feedback"
+      ],
+      "top_3_keywords": [
+        "different banking apps",
+        "easy lloyds",
+        "good"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "\"Lloyds' app is being promoted on app store due to user-friendliness and ease of use.\"",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 14,
+        "P0": 3,
+        "P1": 4,
+        "P2": 7,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.19,
+        "sim_hist": 0.1111111111111111,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_3",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_11",
+          "lloyds_12"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.1111111111111111,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-002",
+      "generated_at": "2026-03-30T08:28:53.545825+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.5556,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "CHR-001",
+        "app_store_ratings"
+      ],
+      "top_3_keywords": [
+        "easy to use",
+        "easy",
+        "reliable"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Mixed feedback for the Lloyds banking app on the App Store, leaning towards positive overall, with smooth and easy to handle being highlighted as positives",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 91,
+        "P0": 26,
+        "P1": 31,
+        "P2": 34,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.3888888888888889,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_2",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_12",
+          "lloyds_14",
+          "lloyds_15",
+          "lloyds_17",
+          "lloyds_18",
+          "lloyds_20",
+          "lloyds_22",
+          "lloyds_23",
+          "lloyds_24",
+          "lloyds_25",
+          "lloyds_26"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3888888888888889,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-003",
+      "generated_at": "2026-03-30T08:28:54.312189+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.5344,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "app_icon",
+        "network_problems"
+      ],
+      "top_3_keywords": [
+        "easy to use",
+        "easy",
+        "great job"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "The app_store_loyds cluster is experiencing unusual user behavior and high signal count.",
+      "failure_mode": "CONTRADICTION",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 46,
+        "P0": 18,
+        "P1": 17,
+        "P2": 11,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.725,
+        "sim_hist": 0.6111111111111112,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_3",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_10",
+          "lloyds_11",
+          "lloyds_12",
+          "lloyds_13",
+          "lloyds_14",
+          "lloyds_15",
+          "lloyds_18",
+          "lloyds_19",
+          "lloyds_20",
+          "lloyds_21",
+          "lloyds_22",
+          "lloyds_24",
+          "lloyds_25",
+          "lloyds_26"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.6111111111111112,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-004",
+      "generated_at": "2026-03-30T08:28:55.137332+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "app_name",
+        "user_data"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "helpful",
+        "bank"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "App Store Lloyds may not be a proper bank account system based on signals",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 81,
+        "P0": 10,
+        "P1": 25,
+        "P2": 46,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_10",
+          "lloyds_11",
+          "lloyds_16",
+          "lloyds_22",
+          "lloyds_23",
+          "lloyds_27",
+          "lloyds_28",
+          "lloyds_30",
+          "lloyds_31",
+          "lloyds_32",
+          "lloyds_33",
+          "lloyds_34",
+          "lloyds_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-005",
+      "generated_at": "2026-03-30T08:28:56.276216+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.1684,
+      "blind_spots": [
+        "App store",
+        "Lloyds"
+      ],
+      "top_3_keywords": [
+        "transfer",
+        "can't complete",
+        "adding features"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The competitor app may be trying to confirm a specific loan type as it uses the journey \"J_PAY_01\" and mentions both transfer and payment amounts. This is not observed in the actual bank's public data.",
+      "failure_mode": "CONTRADICTION",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 22,
+        "P0": 3,
+        "P1": 12,
+        "P2": 7,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.31,
+        "sim_hist": 0.1111111111111111,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_3",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_11",
+          "lloyds_14",
+          "lloyds_16",
+          "lloyds_17",
+          "lloyds_19",
+          "lloyds_20",
+          "lloyds_21"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.1111111111111111,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-006",
+      "generated_at": "2026-03-30T08:28:56.870541+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.1444,
+      "blind_spots": [
+        "date of release"
+      ],
+      "top_3_keywords": [
+        "features",
+        "colourfulness",
+        "interactiveness"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "monzo's app is being favorably reviewed",
+      "failure_mode": "NO_CHANTICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 18,
+        "P0": 4,
+        "P1": 6,
+        "P2": 8,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.25,
+        "sim_hist": 0.1111111111111111,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "monzo_2",
+          "monzo_4",
+          "monzo_5",
+          "monzo_6",
+          "monzo_10",
+          "monzo_11",
+          "monzo_12",
+          "monzo_14",
+          "monzo_15",
+          "monzo_17"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.1111111111111111,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-007",
+      "generated_at": "2026-03-30T08:28:57.505642+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.45,
+      "blind_spots": [],
+      "top_3_keywords": [
+        "monzo",
+        "easy",
+        "best bank"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Competitor app Store Monzo has a problem with updating from public reviews",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 81,
+        "P0": 30,
+        "P1": 14,
+        "P2": 37,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.125,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [
+          "monzo_0",
+          "monzo_1",
+          "monzo_2",
+          "monzo_3",
+          "monzo_4",
+          "monzo_5",
+          "monzo_7",
+          "monzo_9",
+          "monzo_10",
+          "monzo_14",
+          "monzo_17",
+          "monzo_19",
+          "monzo_20",
+          "monzo_22",
+          "monzo_25",
+          "monzo_26",
+          "monzo_31",
+          "monzo_35",
+          "monzo_36",
+          "monzo_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.125,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-008",
+      "generated_at": "2026-03-30T08:28:58.147590+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.3758,
+      "blind_spots": [],
+      "top_3_keywords": [
+        "monzo",
+        "easy",
+        "account"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "App Store review of Monzo shows low ratings and negative remarks on the interface.",
+      "failure_mode": "NO_ CHRONICLE_ MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 34,
+        "P0": 9,
+        "P1": 13,
+        "P2": 12,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.495,
+        "sim_hist": 0.4444444444444444,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "monzo_2",
+          "monzo_3",
+          "monzo_4",
+          "monzo_5",
+          "monzo_7",
+          "monzo_8",
+          "monzo_11",
+          "monzo_12",
+          "monzo_13",
+          "monzo_15",
+          "monzo_18",
+          "monzo_19",
+          "monzo_22",
+          "monzo_23",
+          "monzo_24",
+          "monzo_26",
+          "monzo_27",
+          "monzo_28",
+          "monzo_29",
+          "monzo_30"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.4444444444444444,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-009",
+      "generated_at": "2026-03-30T08:28:59.347672+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "NO_CHRONICLE_MATCH",
+        "app_store_monzo"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "monzo",
+        "app"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Monzo received positive reviews with 'future', 'stolen', 'iPhone running iOS 18', 'nice app' and 'customizable' among the top keywords but has no chronicle match for this signal cluster.",
+      "failure_mode": "CONTRADICTION",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 79,
+        "P0": 22,
+        "P1": 20,
+        "P2": 37,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "monzo_1",
+          "monzo_2",
+          "monzo_6",
+          "monzo_9",
+          "monzo_10",
+          "monzo_11",
+          "monzo_12",
+          "monzo_14",
+          "monzo_17",
+          "monzo_18",
+          "monzo_19",
+          "monzo_20",
+          "monzo_24",
+          "monzo_26",
+          "monzo_27",
+          "monzo_28",
+          "monzo_29",
+          "monzo_30",
+          "monzo_35",
+          "monzo_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-010",
+      "generated_at": "2026-03-30T08:29:00.009679+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.1262,
+      "blind_spots": [
+        [
+          "App Store Monzo"
+        ],
+        "Journey",
+        "Journey"
+      ],
+      "top_3_keywords": [
+        "money",
+        "\u00a310",
+        "referral"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "No movement detected during the initial Pot Problem issue.",
+      "failure_mode": "CONTRADICTION",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 18,
+        "P0": 5,
+        "P1": 6,
+        "P2": 7,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.26,
+        "sim_hist": 0.05555555555555555,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "monzo_0",
+          "monzo_1",
+          "monzo_3",
+          "monzo_4",
+          "monzo_5",
+          "monzo_6",
+          "monzo_10",
+          "monzo_12",
+          "monzo_13",
+          "monzo_15",
+          "monzo_17"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.05555555555555555,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-011",
+      "generated_at": "2026-03-30T08:29:00.716812+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.108,
+      "blind_spots": [],
+      "top_3_keywords": [
+        "easy",
+        "good",
+        "financials"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "J_SERVICE_01 has positive feedback on using the Barclays app that is easy to access by other means",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 11,
+        "P0": 2,
+        "P1": 3,
+        "P2": 6,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.14500000000000002,
+        "sim_hist": 0.125,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [
+          "barclays_1",
+          "barclays_2",
+          "barclays_4",
+          "barclays_7",
+          "barclays_9"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.125,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-012",
+      "generated_at": "2026-03-30T08:29:01.511866+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.5556,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "competitor",
+        "journey"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "easy to use",
+        "good"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Unconfirmed signals indicate users are having trouble opening and loading google play Barclays app with mixed feedback on its usefulness.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 105,
+        "P0": 29,
+        "P1": 27,
+        "P2": 49,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.3888888888888889,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_2",
+          "barclays_3",
+          "barclays_5",
+          "barclays_8",
+          "barclays_9",
+          "barclays_11",
+          "barclays_12",
+          "barclays_14",
+          "barclays_15",
+          "barclays_16",
+          "barclays_17",
+          "barclays_18",
+          "barclays_21",
+          "barclays_22",
+          "barclays_23",
+          "barclays_27",
+          "barclays_29",
+          "barclays_30",
+          "barclays_32",
+          "barclays_33"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3888888888888889,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-013",
+      "generated_at": "2026-03-30T08:29:02.151397+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.2869,
+      "blind_spots": [
+        "payment review",
+        "in case of fraud"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "quick",
+        "app"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Easy-to-use platform and quick bill payments",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 32,
+        "P0": 13,
+        "P1": 9,
+        "P2": 10,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.495,
+        "sim_hist": 0.2222222222222222,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_0",
+          "barclays_1",
+          "barclays_2",
+          "barclays_5",
+          "barclays_6",
+          "barclays_7",
+          "barclays_13",
+          "barclays_14",
+          "barclays_15",
+          "barclays_16",
+          "barclays_17",
+          "barclays_18",
+          "barclays_19",
+          "barclays_22",
+          "barclays_24",
+          "barclays_25",
+          "barclays_26",
+          "barclays_27",
+          "barclays_28",
+          "barclays_29"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.2222222222222222,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-014",
+      "generated_at": "2026-03-30T08:29:02.871504+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "banking app",
+        "signal counts"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "quick",
+        "very"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "There is a correlation between this system and Google Play Barclays savings accounts.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 79,
+        "P0": 25,
+        "P1": 11,
+        "P2": 43,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "barclays_0",
+          "barclays_1",
+          "barclays_5",
+          "barclays_6",
+          "barclays_7",
+          "barclays_14",
+          "barclays_16",
+          "barclays_20",
+          "barclays_21",
+          "barclays_22",
+          "barclays_23",
+          "barclays_25",
+          "barclays_28",
+          "barclays_29",
+          "barclays_30",
+          "barclays_32",
+          "barclays_33",
+          "barclays_34",
+          "barclays_35",
+          "barclays_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-015",
+      "generated_at": "2026-03-30T08:29:03.597723+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.2149,
+      "blind_spots": [
+        "phone number",
+        "bank account number",
+        "branch location"
+      ],
+      "top_3_keywords": [
+        "excellent",
+        "money transfers",
+        "flakey"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Barclays is facing complaints regarding its voice banking app.",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 20,
+        "P0": 7,
+        "P1": 9,
+        "P2": 4,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.315,
+        "sim_hist": 0.2222222222222222,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_0",
+          "barclays_2",
+          "barclays_3",
+          "barclays_4",
+          "barclays_7",
+          "barclays_8",
+          "barclays_9",
+          "barclays_10",
+          "barclays_11",
+          "barclays_12",
+          "barclays_13",
+          "barclays_14",
+          "barclays_15",
+          "barclays_16",
+          "barclays_17",
+          "barclays_18"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.2222222222222222,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-016",
+      "generated_at": "2026-03-30T08:29:04.318249+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.1264,
+      "blind_spots": [
+        "User identity",
+        "Exact user location",
+        "Specific device"
+      ],
+      "top_3_keywords": [
+        "['overall', 'amount']",
+        "app",
+        "recommends"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The customer is satisfied with the Natwest Bank app",
+      "failure_mode": "NO_ANTI_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 14,
+        "P0": 4,
+        "P1": 5,
+        "P2": 5,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.20500000000000002,
+        "sim_hist": 0.1111111111111111,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6",
+          "natwest_10",
+          "natwest_11"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.1111111111111111,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-017",
+      "generated_at": "2026-03-30T08:29:04.949791+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.5111,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+      ],
+      "top_3_keywords": [
+        "easy to use",
+        "easy",
+        "good"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Negative reviews indicate a new app update is causing issues in the banking application",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 78,
+        "P0": 16,
+        "P1": 20,
+        "P2": 42,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.2777777777777778,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_2",
+          "natwest_3",
+          "natwest_6",
+          "natwest_7",
+          "natwest_10",
+          "natwest_11",
+          "natwest_13",
+          "natwest_15",
+          "natwest_17",
+          "natwest_18",
+          "natwest_19",
+          "natwest_20",
+          "natwest_21",
+          "natwest_23",
+          "natwest_26",
+          "natwest_28",
+          "natwest_30",
+          "natwest_31",
+          "natwest_32",
+          "natwest_36"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.2777777777777778,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-018",
+      "generated_at": "2026-03-30T08:29:05.511695+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.796,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+      ],
+      "top_3_keywords": [
+        "natwest",
+        "helpful",
+        "login"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P1",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Issue reported with Natwest's Google Play app",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 64,
+        "P0": 21,
+        "P1": 28,
+        "P2": 15,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.99,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6",
+          "natwest_7",
+          "natwest_8",
+          "natwest_10",
+          "natwest_11",
+          "natwest_13",
+          "natwest_15",
+          "natwest_16",
+          "natwest_17",
+          "natwest_18",
+          "natwest_19",
+          "natwest_20",
+          "natwest_21",
+          "natwest_22",
+          "natwest_24"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-019",
+      "generated_at": "2026-03-30T08:29:06.187094+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "google_play_natwest",
+        "J_ONBOARD_01"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "impossible",
+        "easy to use"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Registration issues reported on mobile app platform",
+      "failure_mode": "SILENCE",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 79,
+        "P0": 20,
+        "P1": 29,
+        "P2": 30,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "natwest_1",
+          "natwest_2",
+          "natwest_4",
+          "natwest_7",
+          "natwest_8",
+          "natwest_9",
+          "natwest_10",
+          "natwest_12",
+          "natwest_15",
+          "natwest_16",
+          "natwest_17",
+          "natwest_19",
+          "natwest_22",
+          "natwest_23",
+          "natwest_24",
+          "natwest_25",
+          "natwest_26",
+          "natwest_30",
+          "natwest_31",
+          "natwest_32"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-020",
+      "generated_at": "2026-03-30T08:29:07.086336+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.3216,
+      "blind_spots": [
+        "Journey",
+        "P0",
+        "P1"
+      ],
+      "top_3_keywords": [
+        "transfers",
+        "rewards link",
+        "frozen card"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Google Play Natwest is a banking app with more than one journey signal and it might be related to the payment features.",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 26,
+        "P0": 8,
+        "P1": 15,
+        "P2": 3,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.41500000000000004,
+        "sim_hist": 0.3888888888888889,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_8",
+          "natwest_9",
+          "natwest_10",
+          "natwest_11",
+          "natwest_12",
+          "natwest_13",
+          "natwest_14",
+          "natwest_15",
+          "natwest_16",
+          "natwest_17",
+          "natwest_18",
+          "natwest_19",
+          "natwest_20",
+          "natwest_21",
+          "natwest_22"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3888888888888889,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-021",
+      "generated_at": "2026-03-30T08:29:07.586488+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.153,
+      "blind_spots": [],
+      "top_3_keywords": [
+        "worst app ever",
+        "verify every cent i spend",
+        "confirm via email link"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "International fee calculation not transparent",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 12,
+        "P0": 6,
+        "P1": 3,
+        "P2": 3,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.195,
+        "sim_hist": 0.1875,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.1875,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-022",
+      "generated_at": "2026-03-30T08:29:08.311280+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.6,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Revenue and userbase"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "great",
+        "fast"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P1",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Google Play Revolut is the most popular bank app for starting a new journey service",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 106,
+        "P0": 28,
+        "P1": 20,
+        "P2": 58,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.5,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_4",
+          "revolut_7",
+          "revolut_10",
+          "revolut_18",
+          "revolut_19",
+          "revolut_22",
+          "revolut_23",
+          "revolut_24",
+          "revolut_29",
+          "revolut_32",
+          "revolut_33",
+          "revolut_34",
+          "revolut_35",
+          "revolut_38",
+          "revolut_39",
+          "revolut_43",
+          "revolut_45"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.5,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-023",
+      "generated_at": "2026-03-30T08:29:08.875260+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.2631,
+      "blind_spots": [],
+      "top_3_keywords": [
+        "restore",
+        "revolute",
+        "cannot use the app"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The signal suggests blind spots could be present around sensitive data",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 26,
+        "P0": 6,
+        "P1": 12,
+        "P2": 8,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.38,
+        "sim_hist": 0.2777777777777778,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11",
+          "revolut_12",
+          "revolut_13",
+          "revolut_19",
+          "revolut_20",
+          "revolut_21",
+          "revolut_23",
+          "revolut_25"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.2777777777777778,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-024",
+      "generated_at": "2026-03-30T08:29:09.568744+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.392,
+      "blind_spots": [
+        "Revolut app",
+        "usage patterns"
+      ],
+      "top_3_keywords": [
+        "easy to use",
+        "easy",
+        "account"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The number of mentions has increased over the past week.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 67,
+        "P0": 18,
+        "P1": 26,
+        "P2": 23,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.98,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_8",
+          "revolut_10",
+          "revolut_15",
+          "revolut_16",
+          "revolut_17",
+          "revolut_19",
+          "revolut_20",
+          "revolut_22",
+          "revolut_23",
+          "revolut_24",
+          "revolut_26",
+          "revolut_30",
+          "revolut_31",
+          "revolut_32",
+          "revolut_33",
+          "revolut_35",
+          "revolut_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-025",
+      "generated_at": "2026-03-30T08:29:10.311509+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.1082,
+      "blind_spots": [
+        "Journey number",
+        "Keywords"
+      ],
+      "top_3_keywords": [
+        "budgeting tools",
+        "currency exchange",
+        "paid subscription"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Crashing and transferring issues related to Google Play Revolut app were reported for top keywords",
+      "failure_mode": "CONTRADICTION",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 14,
+        "P0": 4,
+        "P1": 7,
+        "P2": 3,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.21499999999999997,
+        "sim_hist": 0.05555555555555555,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_12",
+          "revolut_13"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.05555555555555555,
+        "inference_approved": true
+      }
+    }
+  ],
+  "unanchored_signals": [
+    {
+      "finding_id": "MIL-F-20260330-004",
+      "generated_at": "2026-03-30T08:28:55.137332+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "app_name",
+        "user_data"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "helpful",
+        "bank"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "App Store Lloyds may not be a proper bank account system based on signals",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 81,
+        "P0": 10,
+        "P1": 25,
+        "P2": 46,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_10",
+          "lloyds_11",
+          "lloyds_16",
+          "lloyds_22",
+          "lloyds_23",
+          "lloyds_27",
+          "lloyds_28",
+          "lloyds_30",
+          "lloyds_31",
+          "lloyds_32",
+          "lloyds_33",
+          "lloyds_34",
+          "lloyds_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-009",
+      "generated_at": "2026-03-30T08:28:59.347672+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "NO_CHRONICLE_MATCH",
+        "app_store_monzo"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "monzo",
+        "app"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Monzo received positive reviews with 'future', 'stolen', 'iPhone running iOS 18', 'nice app' and 'customizable' among the top keywords but has no chronicle match for this signal cluster.",
+      "failure_mode": "CONTRADICTION",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 79,
+        "P0": 22,
+        "P1": 20,
+        "P2": 37,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "monzo_1",
+          "monzo_2",
+          "monzo_6",
+          "monzo_9",
+          "monzo_10",
+          "monzo_11",
+          "monzo_12",
+          "monzo_14",
+          "monzo_17",
+          "monzo_18",
+          "monzo_19",
+          "monzo_20",
+          "monzo_24",
+          "monzo_26",
+          "monzo_27",
+          "monzo_28",
+          "monzo_29",
+          "monzo_30",
+          "monzo_35",
+          "monzo_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-014",
+      "generated_at": "2026-03-30T08:29:02.871504+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "banking app",
+        "signal counts"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "quick",
+        "very"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "There is a correlation between this system and Google Play Barclays savings accounts.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 79,
+        "P0": 25,
+        "P1": 11,
+        "P2": 43,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "barclays_0",
+          "barclays_1",
+          "barclays_5",
+          "barclays_6",
+          "barclays_7",
+          "barclays_14",
+          "barclays_16",
+          "barclays_20",
+          "barclays_21",
+          "barclays_22",
+          "barclays_23",
+          "barclays_25",
+          "barclays_28",
+          "barclays_29",
+          "barclays_30",
+          "barclays_32",
+          "barclays_33",
+          "barclays_34",
+          "barclays_35",
+          "barclays_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-019",
+      "generated_at": "2026-03-30T08:29:06.187094+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.4,
+      "blind_spots": [
+        "google_play_natwest",
+        "J_ONBOARD_01"
+      ],
+      "top_3_keywords": [
+        "easy",
+        "impossible",
+        "easy to use"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Registration issues reported on mobile app platform",
+      "failure_mode": "SILENCE",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 79,
+        "P0": 20,
+        "P1": 29,
+        "P2": 30,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 1.0,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "natwest_1",
+          "natwest_2",
+          "natwest_4",
+          "natwest_7",
+          "natwest_8",
+          "natwest_9",
+          "natwest_10",
+          "natwest_12",
+          "natwest_15",
+          "natwest_16",
+          "natwest_17",
+          "natwest_19",
+          "natwest_22",
+          "natwest_23",
+          "natwest_24",
+          "natwest_25",
+          "natwest_26",
+          "natwest_30",
+          "natwest_31",
+          "natwest_32"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260330-024",
+      "generated_at": "2026-03-30T08:29:09.568744+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.392,
+      "blind_spots": [
+        "Revolut app",
+        "usage patterns"
+      ],
+      "top_3_keywords": [
+        "easy to use",
+        "easy",
+        "account"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_ONBOARD_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The number of mentions has increased over the past week.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": true,
+      "signal_counts": {
+        "total": 67,
+        "P0": 18,
+        "P1": 26,
+        "P2": 23,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.98,
+        "sim_hist": 0.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": null,
+        "signal_ids": [
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_8",
+          "revolut_10",
+          "revolut_15",
+          "revolut_16",
+          "revolut_17",
+          "revolut_19",
+          "revolut_20",
+          "revolut_22",
+          "revolut_23",
+          "revolut_24",
+          "revolut_26",
+          "revolut_30",
+          "revolut_31",
+          "revolut_32",
+          "revolut_33",
+          "revolut_35",
+          "revolut_37"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": null,
+        "bank": null,
+        "incident_type": null,
+        "sim_hist_score": 0.0,
+        "inference_approved": false
+      }
+    }
+  ]
 }
