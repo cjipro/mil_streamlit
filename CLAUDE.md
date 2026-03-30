@@ -69,21 +69,113 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 
 ### Sprint 2 — MIL Phase 0 (Active from 2026-03-28)
 - PULSE-2A: MIL_SCHEMA.yaml (BUILT — 2026-03-28)
-- PULSE-2B: mil/CHRONICLE.md — 3 entries drafted, REVIEW REQUIRED by Hussain
+- PULSE-2B: mil/CHRONICLE.md — CHR-001/002/003/004 + ARCH-001 logged (REVIEW REQUIRED by Hussain)
 - PULSE-2C: SOVEREIGN_BRIEF.md (BUILT — 2026-03-28)
 - PULSE-2D: apps_config.yaml + mil_findings.json bootstrap (BUILT — 2026-03-28)
 - PULSE-2E: Build validator + CLAUDE.md clean-up (IN_PROGRESS)
 - PULSE-2F: voice_intelligence_agent.py (NOT_STARTED — Week 2)
 - PULSE-2G: jax_synthetic_filter.py + rating_velocity_monitor.py (NOT_STARTED — Week 2)
-- PULSE-2H: teacher_agent.py + synthetic_engine.py + research_trigger.py + mil_agent.py (NOT_STARTED — Week 3)
+- PULSE-2H: teacher_agent.py + synthetic_engine.py + research_trigger.py (NOT_STARTED — Week 3)
+- **mil_agent.py (MIL-8): BUILT — 2026-03-30** (see MIL Pipeline State below)
 - PULSE-2I: Command dashboard + scheduler.py + adapter shim (NOT_STARTED — Week 4)
-- PULSE-2J: publish.py (NOT_STARTED — Week 4)
+- PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
+
+## MIL Pipeline State — 2026-03-30
+
+### Infrastructure
+- **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
+  - Zero Entanglement: MIL HDFS sovereign on 9871. CJI Pulse HDFS on 9870. Never shared.
+  - WebHDFS 2-step PUT confirmed working: NameNode 9871 → DataNode 9864 redirect chain
+  - HDFS volumes: C:/Users/hussa/hdfs-volumes/mil-namenode + mil-datanode
+- **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Refuel-8B is primary labeler.
+
+### Enrichment Pipeline (qwen_enrichment.py — schema v2)
+File: `mil/harvester/qwen_enrichment.py`
+- Model: michaelborck/refuled:latest via /v1/chat/completions (OpenAI-compat)
+- Batch size: 3 records per Refuel call (RECORDS_PER_PROMPT=3)
+- Schema v2 fields per record:
+  - journey_category: 15 classes (Login & Account Access, App not Opening, Failed Transaction, etc.)
+  - bank_product_type: Accounts / Loans / Money Transfer / Payments / Credit Cards / Other
+  - sentiment_score: float -1.0 to 1.0
+  - severity_class: P0 / P1 / P2 with severity gate enforced in _normalise_enrichment()
+  - reasoning: one-sentence explanation
+- **Severity gate**: P0/P1 only permitted when journey is high-risk (Login & Account Access,
+  App not Opening, Failed Transaction, Password Issues, Network Failure) AND product is
+  high-risk (Accounts/Loans/Money Transfer/Payments/Credit Cards). All else = P2.
+- JSON repair pipeline: trim → json.loads → json_repair fallback → ENRICHMENT_FAILED
+- Result: P0=48 (1.9%), P1=44 (1.8%), P2=2,394 (95.8%) across 2,500 records
+
+### Vault (vault_sync.py)
+File: `mil/vault/vault_sync.py`
+- Reads from mil/data/historical/enriched/*.json
+- Pushes to HDFS /user/mil/enriched/ via WebHDFS (port 9871)
+- DuckDB anchor log: mil/vault/mil_vault.db (vault_anchor_log table)
+- SKIPPED_WRONG_MODEL guard: blocks any file enriched with qwen model
+- Current state: **5/5 VAULTED** at 20260330_074849
+  - app_store_lloyds_enriched.json: 500 records VAULTED
+  - app_store_monzo_enriched.json: 500 records VAULTED
+  - google_play_barclays_enriched.json: 500 records VAULTED
+  - google_play_natwest_enriched.json: 500 records VAULTED
+  - google_play_revolut_enriched.json: 500 records VAULTED
+- Missing backfill: app_store/natwest + app_store/revolut (no raw data harvested yet)
+
+### Inference Engine (mil_agent.py — MIL-8)
+File: `mil/inference/mil_agent.py`
+- CAC formula: C_mil = (alpha*Vol_sig + beta*Sim_hist) / (delta*Delta_tel + 1)
+  - alpha=0.40, beta=0.40, delta=0.20 (not tuned before Day 30)
+- RAG: keyword overlap against CHRONICLE entries (CHR-001/002 inference_approved only)
+  - CHR-003: inference_approved=false (root cause unconfirmed)
+  - CHR-004: inference_approved=false (Barclays enrichment awaiting Hussain review)
+- Designed Ceiling: triggers when CAC > 0.45 AND delta_tel=0.0
+  - Output: "To confirm this I require internal HDFS telemetry data. Request Phase 2."
+- Refuel-8B called per finding for blind_spots + narrative + failure_mode
+- Deterministic fallback if Refuel unavailable (Article Zero compliant)
+- journey_category (v2) -> journey_id mapping in JOURNEY_MAP
+- Current findings: **43 total** | 34 anchored | 9 unanchored | 12 Designed Ceiling
+  - Clark P1: 4 findings | Clark P2: 12 | Clark P3: 18
+  - Top finding: NatWest J_SERVICE_01 CAC=0.652, P0, CHR-001 [CEILING]
+  - M2 candidate: NatWest J_SERVICE_01 CAC=0.652 — PENDING Hussain countersign
+  - M3 DEMONSTRATED: 12 Designed Ceiling triggers active
+
+### Briefing Data Layer (briefing_data.py)
+File: `mil/briefing_data.py`
+- Fully dynamic: no hardcoded journey list — groups by raw journey_category from Refuel
+- get_briefing_data() returns complete dict for publish.py and dashboard
+- Sentiment: avg star rating x20 (0-100), 7-day rolling window
+- Trend: 3-day vs 4-day split (WORSENING/IMPROVING/STABLE)
+- Issue Score = Volume x Severity_Weight x Trend_Factor x CHRONICLE_Bonus
+- Current output (2026-03-30):
+  - Overall sentiment: 87/100, STABLE (baseline 81)
+  - #1 journey: App not Opening, score=93.75, P0=4, P1=6, sentiment=66, STABLE
+  - #2 journey: Failed Transaction, score=58.75, P0=5, P1=2, sentiment=60, STABLE
+  - Competitor ticker: Lloyds 72 (worst), NatWest 73, Revolut 87, Barclays 91, Monzo 94
+  - Issues status: 12 needs_attention / 4 watch / 36 performing_well
+  - Executive alert: NatWest J_SERVICE_01, CAC=0.652, P0, CHR-001, CEILING
+
+### MIL Jira — Kanban Board
+- MIL-1 through MIL-6: BUILT (2026-03-28)
+- MIL-7: Teacher Agent + Synthetic Engine — NOT_STARTED (requires Sonnet API, Hussain gate)
+- MIL-8: mil_agent.py — **BUILT 2026-03-30** (commits 9f7ecc4, c3e35a7)
+- Next MIL ticket: MIL-9
+
+### Day 30 Success Metrics — Current State
+- M1 (Signal Pipeline Live): Pipeline operational. Need 5 consecutive clean days. IN_PROGRESS.
+- M2 (One Validated Finding): NatWest J_SERVICE_01 CAC=0.652, CHR-001 anchor, PENDING Hussain countersign.
+- M3 (Designed Ceiling Trigger): **DEMONSTRATED** — 12 active ceiling triggers.
+
+### Pending Human Actions (Hussain)
+- CHR-004: Review Barclays enrichment results, set inference_approved if satisfied
+- CHR-003: Confirm HSBC root cause or leave inference_approved=false
+- M2: Countersign NatWest J_SERVICE_01 finding to close M2
+- app_store/natwest + app_store/revolut: backfill raw data still missing
+- Jira: close MIL-8 in UI (dual closure rule)
 
 ## MIL — Market Intelligence Layer
 
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps: NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays.
+**Current corpus: 2,500 enriched records (5 competitors × 500). Missing: app_store/natwest + app_store/revolut backfill.**
 
 ### MIL Zero Entanglement — HARD RULE
 
@@ -116,7 +208,8 @@ TAQ Bank (the client) does not appear in MIL because the client is not a monitor
 
 ### MIL Model Routing
 
-- **Qwen (local):** All YAML/Markdown generation, signal classification, narrative generation, MIL inference (CAC + RAG), Adversarial Attacker evaluation
+- **Refuel-8B (local):** Signal classification, journey attribution, MIL inference (CAC + RAG), Adversarial Attacker evaluation — `michaelborck/refuled:latest` at `http://127.0.0.1:11434/v1`
+- **Qwen (local):** YAML/Markdown generation, narrative generation, non-inference scripting — `qwen2.5-coder:14b` at `http://127.0.0.1:11434`
 - **Sonnet (Claude API):** Teacher autopsies only — TSB, Lloyds, HSBC deep causal analysis + synthetic instruction pair generation
 - **RTX 5070 Ti:** QLoRA fine-tuning — POST-DAY 30 ONLY, gated on 5 conditions
 
@@ -169,21 +262,29 @@ Session 5 Part 2 (2026-03-12):
 | `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 |
 | `manifests/data_dictionary_master.yaml` | PULSE-11 — master source, never read directly |
 | `CHRONICLE.md` | **Operational Lessons Learned** — port conflicts, HDFS lessons, Airflow 3.x rules |
-| `mil/CHRONICLE.md` | **MIL banking failure ledger** — TSB 2018, Lloyds 2025, HSBC 2025 |
+| `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, ARCH-001 |
 
-## Model Routing — Updated 2026-03-28
+## Model Routing — Updated 2026-03-29
 
-**Qwen hard rule expired 2026-03-18. Sonnet is now available. Preference remains Qwen-first — conserve Sonnet tokens.**
+**MIL inference now routes to Refuel-8B. Qwen remains default for all non-inference tasks. Conserve Sonnet tokens.**
 
-**DEFAULT: Qwen** (qwen2.5-coder:14b at http://localhost:11434)
+**DEFAULT: Qwen** (qwen2.5-coder:14b at http://127.0.0.1:11434)
 
 Use Qwen for:
 - YAML edits and field population
 - Single-file scripts and validators
 - Jira/GitLab API calls
 - Commit and validation runs
-- Signal classification and MIL narrative generation
+- MIL narrative generation (non-classification)
 - Any clearly isolated, well-defined task
+
+**MIL INFERENCE: Refuel-8B** (michaelborck/refuled:latest at http://127.0.0.1:11434/v1)
+
+Use Refuel for:
+- Signal classification (journey attribution, severity, keywords)
+- MIL enrichment pipeline (`mil/harvester/qwen_enrichment.py`)
+- CAC + RAG inference
+- Adversarial Attacker evaluation
 
 Use Sonnet when:
 - MIL Teacher autopsies (deep causal reasoning — explicitly required by plan)
