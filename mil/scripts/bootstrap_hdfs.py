@@ -29,6 +29,7 @@ DIRS = [
     "/user/mil/chronicle_evidence/CHR-001_tsb_2018",
     "/user/mil/chronicle_evidence/CHR-002_lloyds_2025",
     "/user/mil/chronicle_evidence/CHR-003_hsbc_2025",
+    "/user/mil/chronicle_evidence/CHR-004_barclays_2026",
     "/user/mil/enriched",
     "/user/mil/findings",
 ]
