@@ -69,15 +69,24 @@ MAX_RETRIES     = 2
 # Severity volume multipliers per MIL_SCHEMA.yaml signal_severity
 SEV_MULTIPLIER = {"P0": 2.0, "P1": 1.5, "P2": 1.0, "ENRICHMENT_FAILED": 0.0}
 
-# Journey attribution -> journey_id taxonomy (MIL_SCHEMA.yaml journey_ids)
+# journey_category (v2 schema) -> journey_id taxonomy (MIL_SCHEMA.yaml)
 JOURNEY_MAP = {
-    "login":              "J_LOGIN_01",
-    "payments":           "J_PAY_01",
-    "onboarding":         "J_ONBOARD_01",
-    "account_management": "J_SERVICE_01",
-    "app_performance":    "J_SERVICE_01",
-    "other":              None,
-    "ENRICHMENT_FAILED":  None,
+    "Login & Account Access":   "J_LOGIN_01",
+    "Password Issues":          "J_LOGIN_01",
+    "Failed Transaction":       "J_PAY_01",
+    "Transaction Charges":      "J_PAY_01",
+    "Account Registration":     "J_ONBOARD_01",
+    "App Installation Issues":  "J_ONBOARD_01",
+    "App crashes or Slow":      "J_SERVICE_01",
+    "App not Opening":          "J_SERVICE_01",
+    "Network Failure":          "J_SERVICE_01",
+    "Customer Support":         "J_SERVICE_01",
+    "Customer Inquiry":         "J_SERVICE_01",
+    "UI/UX":                    None,
+    "Feature Requests":         None,
+    "General Feedback":         None,
+    "Other":                    None,
+    "ENRICHMENT_FAILED":        None,
 }
 
 # Clark tier mapping on CAC score
@@ -377,7 +386,8 @@ def call_refuel_for_finding(
         f"Signal counts -- P0: {severity_summary.get('P0', 0)}, "
         f"P1: {severity_summary.get('P1', 0)}, P2: {severity_summary.get('P2', 0)}\n"
         f"Top keywords: {', '.join(top_keywords[:5])}\n"
-        f"CHRONICLE anchor: {chronicle_id or 'NONE -- NO_CHRONICLE_MATCH'}"
+        f"CHRONICLE anchor: {chronicle_id or 'NONE -- NO_CHRONICLE_MATCH'}\n"
+        f"Note: P0/P1 signals are pre-validated high-risk journey+product combinations only."
     )
 
     if not refuel_available:
@@ -488,12 +498,20 @@ def build_finding(
             dominant_sev = sev
             break
 
-    # Top keywords from cluster (most common)
+    # Top keywords: v2 schema uses reasoning text; v1 used keywords list
+    # Support both: prefer keywords list if present, else extract from reasoning
     kw_counter: dict[str, int] = defaultdict(int)
     for r in cluster:
         for kw in r.get("keywords", []):
             if kw and kw.lower() not in ("enrichment_failed",):
                 kw_counter[kw.lower()] += 1
+        # v2 schema: extract meaningful words from reasoning
+        reasoning = r.get("reasoning", "")
+        if reasoning and not r.get("keywords"):
+            for word in reasoning.lower().split():
+                word = word.strip(".,;:\"'()")
+                if len(word) > 4 and word not in ("cannot", "unable", "their", "which", "these"):
+                    kw_counter[word] += 1
     top_3 = [k for k, _ in sorted(kw_counter.items(), key=lambda x: -x[1])[:3]]
 
     chronicle_id  = chronicle_entry["chronicle_id"] if chronicle_entry else None
@@ -623,11 +641,10 @@ def run_inference(sample_size: Optional[int] = None) -> list[dict]:
 
         logger.info("[MILAgent] Processing %s -- %d records", competitor_key, total)
 
-        # Aggregate by (journey_attribution, severity_class) cluster
-        # Group by journey_attribution first, then assess severity mix
+        # Aggregate by journey_category (v2 schema) cluster
         journey_clusters: dict[str, list[dict]] = defaultdict(list)
         for r in records:
-            attribution = r.get("journey_attribution", "other")
+            attribution = r.get("journey_category") or r.get("journey_attribution", "Other")
             journey_clusters[attribution].append(r)
 
         for attribution, cluster in sorted(journey_clusters.items()):
@@ -654,10 +671,18 @@ def run_inference(sample_size: Optional[int] = None) -> list[dict]:
                              competitor_key, attribution, total_meaningful)
                 continue
 
-            # Collect signal keywords
+            # Collect signal keywords for RAG (v1: keywords list, v2: journey_category + reasoning)
             all_keywords: list[str] = []
             for r in cluster:
                 all_keywords.extend(r.get("keywords", []))
+                # v2 schema: supplement with journey_category label and reasoning words
+                jcat = r.get("journey_category", "")
+                if jcat:
+                    all_keywords.extend(jcat.lower().split())
+                reasoning = r.get("reasoning", "")
+                if reasoning:
+                    all_keywords.extend(w.strip(".,;:\"'()").lower()
+                                        for w in reasoning.split() if len(w) > 4)
 
             # RAG: find best approved CHRONICLE match
             chronicle_entry, sim_hist = find_best_chronicle_match(journey_id, all_keywords)
@@ -839,7 +864,8 @@ if __name__ == "__main__":
             f"CAC={f['confidence_score']:.4f} | {f['signal_severity']} | "
             f"tier={f['finding_tier']} | {anchor_tag}{ceiling_tag}"
         )
-        print(f"    {f['finding_summary']}")
+        summary_safe = f['finding_summary'].encode('ascii', 'replace').decode('ascii')
+        print(f"    {summary_safe}")
         if f["is_unanchored"]:
             print("    ** UNANCHORED -- NO_CHRONICLE_MATCH -- held for Hussain review **")
         if f["designed_ceiling_reached"]:
