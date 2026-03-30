@@ -24,6 +24,17 @@ from collections import defaultdict, Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+# ── MIL-sibling import: briefing_data.py is sovereign MIL code, not a pulse/ module ──
+_MIL_DIR_FOR_IMPORT = Path(__file__).resolve().parent.parent
+if str(_MIL_DIR_FOR_IMPORT) not in sys.path:
+    sys.path.insert(0, str(_MIL_DIR_FOR_IMPORT))
+try:
+    from briefing_data import get_briefing_data as _get_briefing_data
+    _BRIEFING_DATA_AVAILABLE = True
+except Exception as _bd_import_err:
+    _get_briefing_data = None
+    _BRIEFING_DATA_AVAILABLE = False
+
 # -----------------------------------------------------------------------------
 # PATH CONSTANTS
 # -----------------------------------------------------------------------------
@@ -90,6 +101,134 @@ POSITIVE_KEYWORDS = [
     "reliable", "fast", "smooth", "brilliant", "best", "amazing",
     "improved", "simple", "intuitive",
 ]
+
+# Internal map: raw journey_category -> journey_id (for legacy HTML functions only)
+_CATEGORY_TO_JID_PUB = {
+    "Login & Account Access":  "J_LOGIN_01",
+    "Password Issues":         "J_LOGIN_01",
+    "Failed Transaction":      "J_PAY_01",
+    "Transaction Charges":     "J_PAY_01",
+    "Account Registration":    "J_ONBOARD_01",
+    "App Installation Issues": "J_ONBOARD_01",
+    "App crashes or Slow":     "J_SERVICE_01",
+    "App not Opening":         "J_SERVICE_01",
+    "Network Failure":         "J_SERVICE_01",
+    "Customer Support":        "J_SERVICE_01",
+    "Customer Inquiry":        "J_SERVICE_01",
+}
+
+
+def _bd_to_journey_analysis(journey_performance: list) -> list:
+    """
+    Translate briefing_data journey_performance list -> legacy journey_analysis format
+    expected by build_journey_row_html / build_journey_card_html / build_metrics_strip_html.
+    """
+    result = []
+    for row in journey_performance:
+        p0   = row.get("p0", 0)
+        p1   = row.get("p1", 0)
+        p2   = row.get("p2", 0)
+        trend = row.get("trend", "STABLE")
+
+        # Derive legacy status from enriched data
+        if p0 > 0 or (p1 >= 2 and trend == "WORSENING"):
+            status = "REGRESSION"
+        elif p1 > 0 or trend == "WORSENING":
+            status = "WATCH"
+        else:
+            status = "PERFORMING WELL"
+
+        jid = _CATEGORY_TO_JID_PUB.get(row.get("journey", ""), "J_SERVICE_01")
+
+        result.append({
+            "rank":           row["rank"],
+            "journey_id":     jid,
+            "journey_name":   row["journey"],   # raw category string as display name
+            "status":         status,
+            "score":          row.get("sentiment_score"),
+            "avg_rating":     round(row.get("sentiment_score", 0) / 20, 2) if row.get("sentiment_score") else None,
+            "p1":             p0 + p1,           # collapse P0 into P1 bucket for display
+            "p2":             p2,
+            "negative_weight": p0 * 8 + p1 * 3 + p2,
+            "neg_pills":      [],
+            "pos_pills":      [],
+            "verdict_text":   row.get("verdict", ""),
+            "version_current": None,
+            "is_derived":     True,
+        })
+    return result
+
+
+def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
+    """Build Executive Alert panel HTML from briefing_data executive_alert dict."""
+    if not ea or not ea.get("finding_id"):
+        return (
+            '  <!-- Right: Executive Alert panel -->\n'
+            '  <div class="topbar-box exec-alert-panel exec-alert-nominal">\n'
+            '    <div class="exec-alert-header exec-alert-header-nominal">\n'
+            '      <span class="exec-alert-pulse exec-alert-pulse-green"></span>\n'
+            '      <span class="exec-alert-title exec-alert-title-nominal">Executive Alert</span>\n'
+            f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
+            '    </div>\n'
+            '    <div class="exec-alert-body">\n'
+            '      <div class="exec-nominal-badge">SYSTEMS NOMINAL</div>\n'
+            '      <div class="exec-nominal-text">No active P0 or P1 signals in current window.</div>\n'
+            '    </div>\n'
+            '  </div>'
+        )
+
+    comp       = ea.get("competitor", "")
+    jid        = ea.get("journey_id", "")
+    cac        = ea.get("confidence_score") or 0.0
+    chr_id     = ea.get("chronicle_id") or ""
+    ceiling    = ea.get("designed_ceiling", False)
+    p0         = ea.get("p0", 0)
+    p1         = ea.get("p1", 0)
+    tier       = ea.get("finding_tier", "")
+    summary    = ea.get("summary", "")[:160]
+    action     = ea.get("action_required", "Monitor signal volume.")
+    blind_spot = ea.get("primary_blind_spot", "")
+
+    ceiling_tag = " -- CEILING" if ceiling else ""
+    title = f"{e(comp)} {e(jid)} -- CAC={cac:.3f} {e(chr_id)}{e(ceiling_tag)}"
+
+    p0_style = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
+    p1_style = "background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);"
+    cac_style = "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);"
+    tier_style = "background:rgba(0,175,160,0.10);color:#00AFA0;border:1px solid rgba(0,175,160,0.3);"
+
+    blind_html = (
+        f'      <div class="exec-alert-section-label">BLIND SPOT</div>\n'
+        f'      <div class="exec-alert-section-text">{e(blind_spot)}</div>\n'
+    ) if blind_spot else ""
+
+    return (
+        '  <!-- Right: Executive Alert panel (bd-wired) -->\n'
+        '  <div class="topbar-box exec-alert-panel">\n'
+        '    <div class="exec-alert-header">\n'
+        '      <span class="exec-alert-pulse"></span>\n'
+        '      <span class="exec-alert-title">Executive Alert</span>\n'
+        f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
+        '    </div>\n'
+        '    <div class="exec-alert-body">\n'
+        f'      <div class="exec-alert-finding">{title}</div>\n'
+        '      <div class="exec-alert-pills">\n'
+        f'        <span class="exec-pill" style="{p0_style}">P0 &nbsp;{p0}</span>\n'
+        f'        <span class="exec-pill" style="{p1_style}">P1 &nbsp;{p1}</span>\n'
+        f'        <span class="exec-pill" style="{cac_style}">CAC &nbsp;{cac:.3f}</span>\n'
+        f'        <span class="exec-pill" style="{tier_style}">Clark &nbsp;{e(tier)}</span>\n'
+        '      </div>\n'
+        '      <div class="exec-alert-section-label">RISK INTERPRETATION</div>\n'
+        f'      <div class="exec-alert-section-text">{e(summary)}</div>\n'
+        f'{blind_html}'
+        '      <div class="exec-alert-section-label">RECOMMENDED ACTION</div>\n'
+        f'      <div class="exec-alert-section-text">{e(action)}</div>\n'
+        '    </div>\n'
+        '    <div class="exec-alert-footer">\n'
+        '      <button class="exec-escalate-btn">Escalate</button>\n'
+        '    </div>\n'
+        '  </div>'
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -816,6 +955,7 @@ def generate_html(
     version_current: str,
     version_previous: str,
     defaults_used: list,
+    exec_alert_override: str = "",
 ) -> str:
     """Generate the full self-contained HTML briefing page."""
 
@@ -946,6 +1086,10 @@ def generate_html(
             '  </div>'
         )
 
+    # Apply exec_alert_override from briefing_data layer if provided
+    if exec_alert_override:
+        exec_alert_panel_html = exec_alert_override
+
     # ── Box 2: Issues Status (pre-computed — metric rows + journey list) ──────
     _reg_count = sum(1 for j in journey_analysis if j.get("status") == "REGRESSION")
     _wat_count = sum(1 for j in journey_analysis if j.get("status") == "WATCH")
@@ -955,7 +1099,7 @@ def generate_html(
     _status_arrows = {"REGRESSION": "&#8600;", "WATCH": "&#8594;", "PERFORMING WELL": "&#8599;"}
     _journey_rows = ""
     for _j in journey_analysis:
-        _jname = JOURNEY_NAMES.get(_j.get("journey_id", ""), _j.get("journey_id", ""))
+        _jname = _j.get("journey_name") or JOURNEY_NAMES.get(_j.get("journey_id", ""), _j.get("journey_id", ""))
         _jscore = f'{_j["score"]:.0f}' if _j.get("score") is not None else "\u2014"
         _jstatus = _j.get("status", "WATCH")
         _jcolor = _status_colors.get(_jstatus, "#F5A623")
@@ -1657,6 +1801,62 @@ def main():
     active_sources = [k for k, v in source_coverage.items() if v == "active"]
     print(f"  active sources: {active_sources}")
 
+    # ── Briefing data layer (enriched Refuel-8B data) ─────────────────────────
+    exec_alert_override_html = ""
+    if _BRIEFING_DATA_AVAILABLE:
+        print("\n[3.5/5] Loading briefing data layer (enriched) …")
+        try:
+            bd = _get_briefing_data()
+
+            # Override competitor scores from enriched records
+            for item in bd.get("competitor_ticker", []):
+                comp = item.get("competitor", "")
+                score = item.get("score")
+                if comp and score is not None:
+                    if comp in competitor_sentiment:
+                        competitor_sentiment[comp]["score"] = score
+                    else:
+                        competitor_sentiment[comp] = {
+                            "score": score, "p0": 0, "p1": 0, "p2": 0,
+                            "count": item.get("n_records", 0),
+                            "avg_rating": None, "version": None, "reviews": [],
+                        }
+            print(f"  Competitor scores updated from enriched data.")
+
+            # Replace journey_analysis with bd-derived (enriched) version
+            bd_journeys = bd.get("journey_performance", [])
+            if bd_journeys:
+                journey_analysis = _bd_to_journey_analysis(bd_journeys)
+                reg  = sum(1 for j in journey_analysis if j["status"] == "REGRESSION")
+                wtch = sum(1 for j in journey_analysis if j["status"] == "WATCH")
+                perf = sum(1 for j in journey_analysis if j["status"] == "PERFORMING WELL")
+                print(f"  Journey analysis: {len(journey_analysis)} journeys  "
+                      f"REGRESSION={reg} WATCH={wtch} PERFORMING={perf}")
+
+            # Build exec_alert override from bd.executive_alert
+            now_utc = datetime.now(timezone.utc)
+            lr_raw = findings.get("generated_at") or (signals[0].get("timestamp") if signals else None)
+            if lr_raw:
+                try:
+                    lr_dt = datetime.fromisoformat(str(lr_raw).replace("Z", "+00:00"))
+                    lr_str = lr_dt.strftime("%Y-%m-%d %H:%M UTC")
+                except Exception:
+                    lr_str = now_utc.strftime("%Y-%m-%d %H:%M UTC")
+            else:
+                lr_str = now_utc.strftime("%Y-%m-%d %H:%M UTC")
+
+            ea = bd.get("executive_alert", {})
+            exec_alert_override_html = build_bd_exec_alert_html(ea, lr_str)
+            fid = ea.get("finding_id") or "NOMINAL"
+            print(f"  Exec alert: {fid}")
+
+        except Exception as exc:
+            print(f"  WARN: briefing_data layer failed -- {exc}")
+            all_defaults.append(f"briefing_data layer unavailable -- {exc}")
+    else:
+        print("\n[3.5/5] briefing_data layer not available -- using signal-derived analysis")
+        all_defaults.append("briefing_data layer -- import failed, using signal-derived analysis")
+
     # Track defaults
     if not findings_bound:
         all_defaults.append("mil_findings.json empty — sentiment derived from raw signals")
@@ -1677,6 +1877,7 @@ def main():
         version_current=version_current,
         version_previous=version_previous,
         defaults_used=all_defaults,
+        exec_alert_override=exec_alert_override_html,
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
