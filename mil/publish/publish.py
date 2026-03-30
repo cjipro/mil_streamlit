@@ -653,6 +653,16 @@ def build_chronicle_html() -> str:
             "inference_hold": True,
             "active_match": False,
         },
+        {
+            "id": "CHR-004",
+            "bank": "Barclays",
+            "date": "March 2026",
+            "type": "App Friction — Cards Section Crash Cluster",
+            "impact": "5 reviews 2026-03-23/25 — probable v8.20.1 regression — enrichment re-run pending",
+            "approved": False,
+            "inference_hold": True,
+            "active_match": False,
+        },
     ]
 
     cards = []
@@ -717,6 +727,34 @@ def build_inference_card_html(findings: dict) -> str:
     <button class="action-btn">Add to Watch</button>
     <button class="action-btn">Dismiss</button>
   </div>
+</div>
+"""
+
+
+def build_active_inferences_section_html() -> str:
+    """Build the ACTIVE INFERENCES panel section for the right column.
+    Hardcoded CHR-004 pending — rendered once Refuel enrichment re-run is complete
+    and inference_approved is set to true in CHRONICLE.
+    """
+    return """
+<div class="panel-section">
+  <div class="panel-title">ACTIVE INFERENCES</div>
+<div class="inference-card">
+  <div class="inference-header">
+    <span class="inference-label">ACTIVE INFERENCE</span>
+    <span class="severity-badge severity-p1">P1</span>
+  </div>
+  <div class="inference-finding">Barclays Cards section crash cluster &#8212; probable v8.20.1 regression. OTP failure on account setup and payment auth loop detected.</div>
+  <ul class="blind-spots">
+    <li class="blind-spot-item">Root cause unconfirmed &#8212; enrichment re-run pending</li>
+    <li class="blind-spot-item">No CHRONICLE similarity score yet &#8212; awaiting Refuel classification</li>
+  </ul>
+  <div class="chronicle-anchor">CHRONICLE: CHR-004</div>
+  <div class="inference-actions">
+    <button class="action-btn">View Signals</button>
+    <button class="action-btn">CHRONICLE Check</button>
+  </div>
+</div>
 </div>
 """
 
@@ -803,6 +841,7 @@ def generate_html(
     metrics_strip_html = build_metrics_strip_html(journey_analysis, competitor_sentiment)
     inference_card_html = build_inference_card_html(findings)
     chronicle_html = build_chronicle_html()
+    active_inferences_html = build_active_inferences_section_html()
     sources_grid_html = build_sources_grid_html(source_coverage)
 
     journey_cards_html = ""
@@ -836,29 +875,46 @@ def generate_html(
 
     # ── Executive Alert panel HTML (pre-computed — f-string cannot do conditionals) ─
     _has_alert = total_p0 > 0 or total_p1 > 3
+
+    # Worst journey from market signals — used as Barclays journey context
+    _worst_j = max(journey_analysis, key=lambda j: j.get("p1", 0) * 1.5 + j.get("p2", 0)) if journey_analysis else {}
+    _worst_j_name = JOURNEY_NAMES.get(_worst_j.get("journey_id", ""), "App") if _worst_j else "App"
+
+    # Does Barclays have specific signals?
+    _barcl_has_signal = barcl_p1 > 0 or (barcl_score is not None and barcl_score < 55)
+
     if _has_alert:
-        _concern_label = e(alert_top_concern) if alert_top_concern != "None" else "Multiple competitors"
-        _risk_text = (
-            "P0 active — immediate escalation required. Pattern matches known failure signature."
-            if total_p0 > 0
-            else f"{total_p1} P1 signals detected across monitored competitors. Elevated risk window."
-        )
+        if _barcl_has_signal:
+            _status_phrase = "elevated risk signals" if barcl_p1 > 0 else "WATCH — declining sentiment"
+            _finding_title = f"Barclays {_worst_j_name} journey \u2014 {_status_phrase}"
+            _risk_text = (
+                f"Barclays-specific signals confirm active risk window on the {_worst_j_name} journey. "
+                f"P1 signal count: {barcl_p1}. CHRONICLE similarity check recommended."
+            )
+        else:
+            _finding_title = (
+                f"Market signals elevated — {total_p1} P1 signals across monitored competitors. "
+                f"No Barclays-specific finding confirmed yet."
+            )
+            _risk_text = (
+                f"Market pattern suggests similar risk window for Barclays {_worst_j_name} journey — "
+                f"monitor closely. Barclays-specific confirmation pending."
+            )
         _action_text = (
-            "Initiate CHRONICLE similarity check. Review top concern competitor journey data. "
-            "Brief stakeholders within 30 minutes."
+            f"Review Barclays {_worst_j_name} journey signal feed. "
+            "Initiate CHRONICLE similarity check if pattern persists beyond next harvest cycle."
         )
         _p0_pill_style = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
-        _p1_style = "color:#e8a030;" if total_p1 > 0 else "color:#4ad88a;"
         exec_alert_panel_html = (
             '  <!-- Right: Executive Alert panel -->\n'
-            '  <div class="exec-alert-panel">\n'
+            '  <div class="topbar-box exec-alert-panel">\n'
             '    <div class="exec-alert-header">\n'
             '      <span class="exec-alert-pulse"></span>\n'
             '      <span class="exec-alert-title">Executive Alert</span>\n'
             f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
             '    </div>\n'
             '    <div class="exec-alert-body">\n'
-            f'      <div class="exec-alert-finding">{_concern_label}</div>\n'
+            f'      <div class="exec-alert-finding">{e(_finding_title)}</div>\n'
             '      <div class="exec-alert-pills">\n'
             f'        <span class="exec-pill" style="{_p0_pill_style}">P0 &nbsp;{e(alert_p0_str)}</span>\n'
             f'        <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;{e(alert_p1_count)}</span>\n'
@@ -877,7 +933,7 @@ def generate_html(
     else:
         exec_alert_panel_html = (
             '  <!-- Right: Executive Alert panel -->\n'
-            '  <div class="exec-alert-panel exec-alert-nominal">\n'
+            '  <div class="topbar-box exec-alert-panel exec-alert-nominal">\n'
             '    <div class="exec-alert-header exec-alert-header-nominal">\n'
             '      <span class="exec-alert-pulse exec-alert-pulse-green"></span>\n'
             '      <span class="exec-alert-title exec-alert-title-nominal">Executive Alert</span>\n'
@@ -889,6 +945,56 @@ def generate_html(
             '    </div>\n'
             '  </div>'
         )
+
+    # ── Box 2: Issues Status (pre-computed — metric rows + journey list) ──────
+    _reg_count = sum(1 for j in journey_analysis if j.get("status") == "REGRESSION")
+    _wat_count = sum(1 for j in journey_analysis if j.get("status") == "WATCH")
+    _perf_count = sum(1 for j in journey_analysis if j.get("status") == "PERFORMING WELL")
+
+    _status_colors = {"REGRESSION": "#CC0000", "WATCH": "#F5A623", "PERFORMING WELL": "#00AFA0"}
+    _status_arrows = {"REGRESSION": "&#8600;", "WATCH": "&#8594;", "PERFORMING WELL": "&#8599;"}
+    _journey_rows = ""
+    for _j in journey_analysis:
+        _jname = JOURNEY_NAMES.get(_j.get("journey_id", ""), _j.get("journey_id", ""))
+        _jscore = f'{_j["score"]:.0f}' if _j.get("score") is not None else "\u2014"
+        _jstatus = _j.get("status", "WATCH")
+        _jcolor = _status_colors.get(_jstatus, "#F5A623")
+        _jarrow = _status_arrows.get(_jstatus, "&#8594;")
+        _journey_rows += (
+            f'        <div class="journey-list-item">\n'
+            f'          <span class="journey-list-name">{e(_jname)}</span>\n'
+            f'          <span class="journey-list-right">\n'
+            f'            <span class="journey-list-score" style="color:{_jcolor};">{_jscore}</span>\n'
+            f'            <span class="journey-list-status" style="color:{_jcolor};">{_jarrow} {e(_jstatus)}</span>\n'
+            f'          </span>\n'
+            f'        </div>\n'
+        )
+
+    box2_html = (
+        '  <!-- Middle: Issues Status box -->\n'
+        '  <div class="topbar-box">\n'
+        '    <div class="topbar-box-header" style="background:#001E30;">\n'
+        '      <span class="topbar-box-title" style="color:#7AACBF;">ISSUES STATUS</span>\n'
+        '      <span style="font-size:10px;color:#3A6A7F;">today\'s signal summary</span>\n'
+        '    </div>\n'
+        '    <div class="topbar-box-body">\n'
+        '      <div class="issues-stat-row">\n'
+        f'        <span class="issues-stat-num" style="color:var(--red);">{_reg_count}</span>\n'
+        '        <div><div class="issues-stat-label">Needs Attention</div><div class="issues-stat-sub">REGRESSION journeys</div></div>\n'
+        '      </div>\n'
+        '      <div class="issues-stat-row">\n'
+        f'        <span class="issues-stat-num" style="color:var(--amber);">{_wat_count}</span>\n'
+        '        <div><div class="issues-stat-label">Watch</div><div class="issues-stat-sub">WATCH journeys</div></div>\n'
+        '      </div>\n'
+        '      <div class="issues-stat-row">\n'
+        f'        <span class="issues-stat-num" style="color:var(--teal);">{_perf_count}</span>\n'
+        '        <div><div class="issues-stat-label">Performing Well</div><div class="issues-stat-sub">across all sources</div></div>\n'
+        '      </div>\n'
+        '      <div class="issues-divider"></div>\n'
+        f'{_journey_rows}'
+        '    </div>\n'
+        '  </div>'
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -938,16 +1044,36 @@ a {{ color: var(--blue); text-decoration: none; }}
 /* -- Topbar ----------------------------------------------------------------- */
 .topbar {{
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
-  padding: 14px 32px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px 24px;
   background: var(--topbar-bg);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
+  align-items: stretch;
 }}
-.topbar-left {{ display: flex; flex-direction: column; gap: 5px; }}
+/* Topbar shared box style */
+.topbar-box {{ background: #002A3F; border: 1px solid #003A5C; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }}
+.topbar-box-header {{ padding: 10px 16px; border-bottom: 1px solid #003A5C; display: flex; align-items: center; justify-content: space-between; }}
+.topbar-box-title {{ font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }}
+.topbar-box-body {{ padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; }}
+/* Box 1 brand */
+.topbar-left {{ display: flex; flex-direction: column; }}
+/* Box 2 issues status */
+.issues-stat-row {{ display: flex; align-items: center; gap: 12px; }}
+.issues-stat-num {{ font-family: var(--mono); font-size: 40px; font-weight: 800; line-height: 1; min-width: 52px; }}
+.issues-stat-label {{ font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; }}
+.issues-stat-sub {{ font-size: 13px; color: var(--text-2); margin-top: 2px; }}
+.issues-divider {{ height: 1px; background: #003A5C; margin: 4px 0; }}
+/* Journey list in box 2 */
+.journey-list-item {{ display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #001E30; font-size: 14px; }}
+.journey-list-item:last-child {{ border-bottom: none; }}
+.journey-list-name {{ color: #7AACBF; font-weight: 600; }}
+.journey-list-right {{ display: flex; align-items: center; gap: 6px; }}
+.journey-list-score {{ font-family: var(--mono); font-size: 16px; font-weight: 700; }}
+.journey-list-status {{ font-size: 10px; font-weight: 700; }}
 .topbar-logo {{
   font-weight: 800;
   font-size: 17px;
@@ -968,25 +1094,24 @@ a {{ color: var(--blue); text-decoration: none; }}
 .brand-dot-blue {{ background: #00AEEF; box-shadow: 0 0 4px rgba(0,174,239,0.5); }}
 .brand-dot-teal {{ background: #00AFA0; box-shadow: 0 0 4px rgba(0,175,160,0.5); }}
 
-/* Barclays sentiment card */
-.topbar-sent-card {{ background: #002A3F; border: 1px solid #00AEEF; border-radius: 10px; overflow: hidden; margin-top: 6px; margin-bottom: 4px; }}
+/* Barclays sentiment card — compact 2-line */
+.topbar-sent-card {{ background: #002A3F; border: 1px solid #00AEEF; border-radius: 8px; overflow: hidden; margin-top: 0; margin-bottom: 0; max-width: 100%; width: 100%; }}
 .sent-card-bar {{ height: 2px; background: linear-gradient(90deg, #00AEEF, #0080C0); }}
-.sent-card-inner {{ padding: 9px 13px; display: flex; flex-direction: column; gap: 5px; }}
-.sent-card-label {{ font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #00AEEF; text-transform: uppercase; }}
-.sent-card-score-row {{ display: flex; align-items: baseline; gap: 12px; }}
-.sent-card-score {{ font-family: var(--mono); font-size: 44px; font-weight: 800; color: #E8F4FA; line-height: 1; }}
-.sent-card-delta {{ font-family: var(--mono); font-size: 16px; font-weight: 800; color: #CC0000; }}
+.sent-card-inner {{ padding: 8px 14px; display: flex; flex-direction: column; gap: 3px; }}
+.sent-row-1 {{ display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }}
+.sent-row-2 {{ display: flex; align-items: center; justify-content: space-between; }}
+.sent-card-label {{ font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #00AEEF; text-transform: uppercase; flex-shrink: 0; }}
+.sent-card-score {{ font-family: var(--mono); font-size: 36px; font-weight: 800; color: #E8F4FA; line-height: 1; }}
+.sent-card-delta {{ font-family: var(--mono); font-size: 16px; font-weight: 600; }}
+.sent-card-traj {{ font-size: 10px; font-weight: 700; margin-left: auto; white-space: normal; }}
 .sent-card-baseline {{ font-family: var(--mono); font-size: 10px; color: #4A7A8F; }}
-.sent-card-progress {{ height: 3px; background: #003A5C; border-radius: 2px; overflow: hidden; }}
-.sent-progress-fill {{ height: 3px; background: linear-gradient(90deg, #00AEEF, #0080C0); border-radius: 2px; }}
-.sent-card-meta {{ display: flex; justify-content: space-between; align-items: center; }}
-.sent-card-traj {{ display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; }}
-.traj-dot {{ width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }}
+.sent-card-progress {{ height: 2px; background: #003A5C; border-radius: 1px; overflow: hidden; margin-top: 3px; }}
+.sent-progress-fill {{ height: 2px; background: linear-gradient(90deg, #00AEEF, #0080C0); border-radius: 1px; }}
 .sent-card-ts {{ font-family: var(--mono); font-size: 10px; color: #3A6A7F; }}
 
 /* Pills row */
-.topbar-pills {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }}
-.version-pill {{ font-family: var(--mono); font-size: 11px; color: var(--text-3); background: var(--card); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }}
+.topbar-pills {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px; }}
+.version-pill {{ font-family: var(--mono); font-size: 12px; color: var(--text-3); background: var(--card); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }}
 .live-dot {{ display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal); font-weight: 600; letter-spacing: 0.05em; }}
 .live-dot::before {{ content: ''; width: 7px; height: 7px; background: var(--teal); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }}
 @keyframes pulse {{
@@ -996,7 +1121,7 @@ a {{ color: var(--blue); text-decoration: none; }}
 .bootstrap-badge {{ font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(245,166,35,0.10); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); font-family: var(--mono); letter-spacing: 0.05em; }}
 
 /* Executive Alert panel */
-.exec-alert-panel {{ background: #001828; border: 1px solid #CC0000; border-radius: 12px; overflow: hidden; align-self: flex-start; }}
+.exec-alert-panel {{ background: #001828; border: 1px solid #CC0000; border-radius: 12px; overflow: hidden; }}
 .exec-alert-header {{ background: #1A0000; border-bottom: 1px solid #CC0000; padding: 8px 14px; display: flex; align-items: center; gap: 8px; }}
 .exec-alert-pulse {{ width: 7px; height: 7px; border-radius: 50%; background: #CC0000; animation: pulse-red 1.5s ease-in-out infinite; flex-shrink: 0; }}
 @keyframes pulse-red {{
@@ -1005,7 +1130,7 @@ a {{ color: var(--blue); text-decoration: none; }}
 }}
 .exec-alert-title {{ font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #CC0000; text-transform: uppercase; flex: 1; }}
 .exec-alert-ts {{ font-family: var(--mono); font-size: 10px; color: #4A2A2A; }}
-.exec-alert-body {{ padding: 11px 14px; display: flex; flex-direction: column; gap: 7px; }}
+.exec-alert-body {{ padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }}
 .exec-alert-row {{ display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 6px; border-bottom: 1px solid #2A1010; }}
 .exec-alert-row:last-child {{ border-bottom: none; padding-bottom: 0; }}
 .exec-alert-key {{ font-size: 11px; color: #9A8080; }}
@@ -1020,13 +1145,13 @@ a {{ color: var(--blue); text-decoration: none; }}
 .exec-alert-pulse-green {{ background: #00AFA0; animation: none; }}
 .exec-alert-title-nominal {{ color: #00AFA0; }}
 /* Finding + pills */
-.exec-alert-finding {{ font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }}
+.exec-alert-finding {{ font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }}
 .exec-alert-pills {{ display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }}
-.exec-pill {{ font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.04em; }}
-.exec-alert-section-label {{ font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; margin-top: 6px; margin-bottom: 3px; }}
-.exec-alert-section-text {{ font-size: 11px; color: var(--text-2); line-height: 1.5; }}
+.exec-pill {{ font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.04em; }}
+.exec-alert-section-label {{ font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; margin-top: 8px; margin-bottom: 3px; padding-bottom: 4px; }}
+.exec-alert-section-text {{ font-size: 13px; color: var(--text-2); line-height: 1.5; padding-bottom: 4px; }}
 .exec-alert-footer {{ padding: 8px 14px; border-top: 1px solid #2A1010; }}
-.exec-escalate-btn {{ background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.4); border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 14px; cursor: pointer; width: 100%; font-family: var(--sans); text-transform: uppercase; }}
+.exec-escalate-btn {{ background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.4); border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 14px; cursor: pointer; width: 100%; font-family: var(--sans); text-transform: uppercase; }}
 .exec-escalate-btn:hover {{ background: rgba(204,0,0,0.25); }}
 /* Nominal body text */
 .exec-nominal-badge {{ font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: #00AFA0; margin-bottom: 8px; }}
@@ -1043,9 +1168,9 @@ a {{ color: var(--blue); text-decoration: none; }}
 }}
 .ticker-item {{ display: inline-flex; align-items: center; gap: 6px; padding: 0 20px; }}
 .ticker-barclays {{ background: rgba(0,174,239,0.06); border-radius: 4px; }}
-.ticker-name {{ font-size: 12px; font-weight: 600; color: var(--text-2); }}
-.ticker-barclays .ticker-name {{ font-size: 12px; font-weight: 800; color: #00AEEF; }}
-.ticker-score {{ font-family: var(--mono); font-size: 14px; font-weight: 700; }}
+.ticker-name {{ font-size: 13px; font-weight: 600; color: var(--text-2); }}
+.ticker-barclays .ticker-name {{ font-size: 13px; font-weight: 800; color: #00AEEF; }}
+.ticker-score {{ font-family: var(--mono); font-size: 15px; font-weight: 700; }}
 .ticker-delta {{ font-family: var(--mono); font-size: 10px; }}
 .ticker-sep {{ color: var(--border); padding: 0 4px; font-size: 18px; }}
 
@@ -1057,8 +1182,8 @@ a {{ color: var(--blue); text-decoration: none; }}
 .journey-row {{ display: flex; gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 2px solid var(--border); }}
 .journey-cell {{ flex: 1; padding: 10px 32px; background: var(--journey-bg); cursor: default; transition: background 0.15s; }}
 .journey-cell:hover {{ background: #002440; }}
-.journey-cell-name {{ font-size: 11px; font-weight: 700; color: var(--text-2); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }}
-.journey-cell-score {{ font-size: 26px; font-weight: 800; font-family: var(--mono); margin-bottom: 4px; }}
+.journey-cell-name {{ font-size: 13px; font-weight: 700; color: var(--text-2); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }}
+.journey-cell-score {{ font-size: 30px; font-weight: 800; font-family: var(--mono); margin-bottom: 4px; }}
 .journey-cell-meta {{ display: flex; align-items: center; gap: 6px; }}
 .traj-icon {{ font-size: 14px; }}
 .journey-status-label {{ font-size: 10px; font-weight: 700; letter-spacing: 0.06em; font-family: var(--mono); color: var(--text-3); }}
@@ -1185,11 +1310,11 @@ a {{ color: var(--blue); text-decoration: none; }}
 .chat-msg.error {{ background: rgba(204,0,0,0.1); color: #FF6666; }}
 
 /* -- Responsive ------------------------------------------------------------- */
-@media (max-width: 900px) {{
-  .topbar {{ grid-template-columns: 1fr; }}
+@media (max-width: 768px) {{
+  .topbar {{ grid-template-columns: 1fr; gap: 12px; padding: 12px 16px; position: relative; }}
+  .topbar-box {{ min-height: 280px; }}
+  .sent-card-score {{ font-size: 48px; }}
   .body-wrapper {{ grid-template-columns: 1fr; }}
-  .metrics-strip {{ flex-wrap: wrap; }}
-  .metric-card {{ min-width: 45%; }}
   .journey-row {{ flex-wrap: wrap; }}
   .journey-cell {{ min-width: 45%; }}
 }}
@@ -1199,45 +1324,48 @@ a {{ color: var(--blue); text-decoration: none; }}
 
 <!-- -- Topbar -------------------------------------------------------------- -->
 <div class="topbar">
-  <!-- Left: brand + straplines + sentiment card + pills -->
-  <div class="topbar-left">
-    <div class="topbar-logo">CJI SONAR &mdash; APP INTELLIGENCE</div>
-    <div class="brand-line">
-      <span class="brand-dot brand-dot-blue"></span>
-      <span>Live customer signals across market channels &mdash; continuously monitored and interpreted</span>
-    </div>
-    <div class="brand-line">
-      <span class="brand-dot brand-dot-teal"></span>
-      <span>Historical failure patterns applied to detect early risk &mdash; enabling Barclays to act before issues escalate</span>
-    </div>
-    <div class="topbar-sent-card">
-      <div class="sent-card-bar"></div>
-      <div class="sent-card-inner">
-        <div class="sent-card-label">BARCLAYS OVERALL SENTIMENT &middot; TODAY vs BASELINE</div>
-        <div class="sent-card-score-row">
-          <span class="sent-card-score">{barcl_score_str}</span>
-          <span class="sent-card-delta" style="color:#ff4444;">{barcl_delta_str}</span>
-        </div>
-        <div class="sent-card-baseline">Baseline: {barcl_baseline_str}</div>
-        <div class="sent-card-progress">
-          <div class="sent-progress-fill" style="width:{barcl_pct:.0f}%;"></div>
-        </div>
-        <div class="sent-card-meta">
-          <span class="sent-card-traj" style="color:{barcl_traj_color};">
-            <span class="traj-dot" style="background:{barcl_traj_color};"></span>
-            {barcl_traj_arrow} {barcl_trajectory}
-          </span>
-          <span class="sent-card-ts">{e(last_run_str)}</span>
+
+  <!-- Box 1: Brand + Sentiment Baseline -->
+  <div class="topbar-box topbar-left">
+    <div class="sent-card-bar" style="height:2px;background:linear-gradient(90deg,#00AEEF,#0080C0);"></div>
+    <div class="topbar-box-body" style="gap:8px;">
+      <div class="topbar-sent-card" style="margin-top:0;">
+        <div class="sent-card-bar"></div>
+        <div class="sent-card-inner">
+          <div class="sent-row-1">
+            <span class="sent-card-label">BARCLAYS SENTIMENT</span>
+            <span class="sent-card-score">{barcl_score_str}</span>
+            <span class="sent-card-delta" style="color:{barcl_traj_color};">{barcl_delta_str}</span>
+            <span class="sent-card-traj" style="color:{barcl_traj_color};">{barcl_traj_arrow} {barcl_trajectory}</span>
+          </div>
+          <div class="sent-row-2">
+            <span class="sent-card-baseline">Baseline: {barcl_baseline_str}</span>
+            <span class="sent-card-ts">{e(last_run_str)}</span>
+          </div>
+          <div class="sent-card-progress">
+            <div class="sent-progress-fill" style="width:{barcl_pct:.0f}%;"></div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="topbar-pills">
-      <span class="version-pill">v{e(version_display)}</span>
-      <span class="version-pill">{e(last_run_str)}</span>
-      {"<span class='bootstrap-badge'>BASELINE ESTABLISHING</span>" if is_bootstrap else ""}
-      <div class="live-dot">LIVE</div>
+      <div class="topbar-logo">CJI SONAR &mdash; APP INTELLIGENCE</div>
+      <div class="brand-line">
+        <span class="brand-dot brand-dot-blue"></span>
+        <span>Live customer signals across market channels &mdash; continuously monitored and interpreted</span>
+      </div>
+      <div class="brand-line">
+        <span class="brand-dot brand-dot-teal"></span>
+        <span>Historical failure patterns applied to detect early risk &mdash; enabling Barclays to act before issues escalate</span>
+      </div>
+      <div class="topbar-pills" style="margin-top:auto;">
+        <span class="version-pill">v{e(version_display)}</span>
+        <span class="version-pill">{e(last_run_str)}</span>
+        {"<span class='bootstrap-badge'>BASELINE ESTABLISHING</span>" if is_bootstrap else ""}
+        <div class="live-dot">LIVE</div>
+      </div>
     </div>
   </div>
+
+{box2_html}
 {exec_alert_panel_html}
 </div>
 
@@ -1249,24 +1377,17 @@ a {{ color: var(--blue); text-decoration: none; }}
 <!-- -- Journey Sentiment Row ----------------------------------------------- -->
 {journey_row_html}
 
-<!-- -- Metrics Strip ------------------------------------------------------- -->
-{metrics_strip_html}
-
-<!-- -- Body ---------------------------------------------------------------- -->
+<!-- -- Body: Left + Right Columns ------------------------------------------ -->
 <div class="body-wrapper">
-
-  <!-- Left: Journey Stack -->
   <div class="left-col">
+    {metrics_strip_html}
     {journey_cards_html}
   </div>
-
-  <!-- Right: Side Panel -->
   <div class="right-col">
-    {inference_card_html}
     {chronicle_html}
+    {active_inferences_html}
     {sources_grid_html}
   </div>
-
 </div>
 
 <!-- -- Footer -------------------------------------------------------------- -->
@@ -1287,18 +1408,18 @@ a {{ color: var(--blue); text-decoration: none; }}
 </div>
 
 <!-- -- Ask Sonar Button ----------------------------------------------------- -->
-<button class="ask-sonar-btn" onclick="openChat()" aria-label="Ask Sonar">
+<button class="ask-sonar-btn" onclick="openChat()" aria-label="Ask CJI Pro">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
-  Ask Sonar
+  Ask CJI Pro
 </button>
 
 <!-- -- Chat Panel ----------------------------------------------------------- -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-    <span class="chat-title">Ask Sonar</span>
+    <span class="chat-title">Ask CJI Pro</span>
     <button class="chat-close" onclick="closeChat()">&#215;</button>
   </div>
   <div class="chat-messages" id="chatMessages">

@@ -19,7 +19,7 @@ Directory layout:
     CHR-001_tsb_2018/
     CHR-002_lloyds_2025/
     CHR-003_hsbc_2025/
-  /user/mil/enriched/                   — Qwen-enriched signals
+  /user/mil/enriched/                   — Refuel-8B enriched signals
   /user/mil/findings/                   — mil_findings.json permanent copies
 
 Data classification: public market signals only. No PII. No DPIA required.
@@ -64,6 +64,7 @@ MIL_HDFS_DIRS = [
     "/user/mil/chronicle_evidence/CHR-001_tsb_2018",
     "/user/mil/chronicle_evidence/CHR-002_lloyds_2025",
     "/user/mil/chronicle_evidence/CHR-003_hsbc_2025",
+    "/user/mil/chronicle_evidence/CHR-004_barclays_2026",
     "/user/mil/enriched",
     "/user/mil/findings",
 ]

@@ -48,9 +48,39 @@ services:
     ports: ["11434:11434"]
     volumes: ["./ollama-models:/root/.ollama"]
     networks: [dev-network]
-    command: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull qwen2.5-coder:14b && tail -f /dev/null"]
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 8 && ollama pull qwen2.5-coder:14b && wait"]
 
-  # --- NEW HDFS STAGING LAYER (THE HEARTBEAT) ---
+  # --- MIL SOVEREIGN HDFS (Zero Entanglement — Port 9871 only) ---
+  mil-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: mil-namenode
+    hostname: mil-namenode
+    ports: ["9871:9870", "8021:8020"]   # Host 9871 → Container 9870. Never share with CJI.
+    networks: [dev-network]
+    environment:
+      - CLUSTER_NAME=mil-sovereign
+      - CORE_CONF_fs_defaultFS=hdfs://mil-namenode:8020
+      - HDFS_CONF_dfs_replication=1
+    volumes:
+      - C:/Users/hussa/hdfs-volumes/mil-namenode:/hadoop/dfs/name
+
+  mil-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: mil-datanode
+    hostname: mil-datanode                  # must match hosts file entry: 127.0.0.1 mil-datanode
+    depends_on: [mil-namenode]
+    ports:
+      - "9864:9864"   # DataNode WebHDFS HTTP — WebHDFS redirect target for PUT writes
+      - "9866:9866"   # DataNode transfer port
+    networks: [dev-network]
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://mil-namenode:8020
+      - HDFS_CONF_dfs_replication=1
+      - SERVICE_PRECONDITION=mil-namenode:9870
+    volumes:
+      - C:/Users/hussa/hdfs-volumes/mil-datanode:/hadoop/dfs/data
+
+  # --- CJI PULSE HDFS (Port 9870 only) ---
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode
