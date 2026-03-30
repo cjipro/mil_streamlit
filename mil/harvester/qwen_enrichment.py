@@ -1,13 +1,13 @@
 """
-qwen_enrichment.py — MIL Refuel enrichment factory.
+qwen_enrichment.py --MIL Refuel enrichment factory.
 
 Reads historical backfill files from mil/data/historical/{source}/{competitor}/
 Processes records in batches via Refuel-8B (michaelborck/refuled:latest, Ollama).
 Appends three fields per record:
-  journey_attribution  — login / payments / onboarding / account_management /
+  journey_attribution  --login / payments / onboarding / account_management /
                          app_performance / other
-  severity_class       — P0 / P1 / P2
-  keywords             — list[str], up to 5
+  severity_class       --P0 / P1 / P2
+  keywords             --list[str], up to 5
 
 Writes enriched output to: mil/data/historical/enriched/
   One file per source per competitor:
@@ -38,13 +38,20 @@ BASE_URL = "http://127.0.0.1:11434/v1"
 OLLAMA_URL = f"{BASE_URL}/chat/completions"
 OLLAMA_MODEL = "michaelborck/refuled:latest"
 BATCH_SIZE = 50
-RECORDS_PER_PROMPT = 3    # records per call — Refuel 1.5B needs smaller batches
+RECORDS_PER_PROMPT = 3    # records per call --Refuel 1.5B needs smaller batches
 REQUEST_TIMEOUT = 180     # seconds per call
 MAX_RETRIES = 3           # retry attempts on connection/timeout errors
 
 JOURNEY_OPTIONS = [
-    "login", "payments", "onboarding",
-    "account_management", "app_performance", "other",
+    "Account Registration", "App Installation Issues", "App crashes or Slow",
+    "App not Opening", "Customer Inquiry", "Customer Support",
+    "Failed Transaction", "Feature Requests", "General Feedback",
+    "Login & Account Access", "Network Failure", "Other",
+    "Password Issues", "Transaction Charges", "UI/UX",
+]
+
+PRODUCT_OPTIONS = [
+    "Accounts", "Loans", "Money Transfer", "Payments", "Credit Cards", "Other",
 ]
 
 SYSTEM_PROMPT = (
@@ -54,12 +61,28 @@ SYSTEM_PROMPT = (
 )
 
 BATCH_PROMPT_TEMPLATE = (
-    "Classify each numbered banking app review below.\n"
-    "Return a JSON array with one object per review.\n"
-    "Each object must have exactly these keys:\n"
-    "  journey_attribution: one of login / payments / onboarding / account_management / app_performance / other\n"
-    "  severity_class: P0 (outage, cannot complete), P1 (significant friction), P2 (minor/cosmetic)\n"
-    "  keywords: list of up to 5 strings from the review text\n"
+    "Classify each numbered banking app review. "
+    "Return a JSON array, one object per review, with exactly these keys:\n"
+    "  journey_category: one of: Account Registration / App Installation Issues / "
+    "App crashes or Slow / App not Opening / Customer Inquiry / Customer Support / "
+    "Failed Transaction / Feature Requests / General Feedback / "
+    "Login & Account Access / Network Failure / Other / "
+    "Password Issues / Transaction Charges / UI/UX\n"
+    "  bank_product_type: one of: Accounts / Loans / Money Transfer / Payments / "
+    "Credit Cards / Other\n"
+    "  sentiment_score: number from -1.0 (very negative) to 1.0 (very positive)\n"
+    "  severity_class: use these rules strictly:\n"
+    "    P0 = complete block or outage (cannot login at all, payment completely fails, "
+    "app will not open, total loss of access)\n"
+    "    P1 = significant friction (repeated failures, biometric blocking, frequent "
+    "logouts, update broke a feature, cannot complete a key action after retrying)\n"
+    "    P2 = minor annoyance, cosmetic issue, general feedback, or positive review\n"
+    "    Extra rule: only assign P0 or P1 if journey_category is one of "
+    "Login & Account Access / App not Opening / Failed Transaction / "
+    "Password Issues / Network Failure AND bank_product_type is one of "
+    "Accounts / Loans / Money Transfer / Payments / Credit Cards. "
+    "All other combinations default to P2.\n"
+    "  reasoning: one sentence explaining the severity choice\n"
     "Reviews:\n{reviews}"
 )
 
@@ -80,19 +103,42 @@ def _get_review_text(record: dict) -> str:
 
 def _normalise_enrichment(obj: dict) -> dict:
     """Validate and normalise a single Refuel-returned classification object."""
-    journey = obj.get("journey_attribution", "other")
+    journey = obj.get("journey_category", "Other")
     if journey not in JOURNEY_OPTIONS:
-        journey = "other"
+        journey = "Other"
+
+    product = obj.get("bank_product_type", "Other")
+    if product not in PRODUCT_OPTIONS:
+        product = "Other"
+
+    try:
+        sentiment = float(obj.get("sentiment_score", 0.0))
+        sentiment = max(-1.0, min(1.0, sentiment))
+    except (TypeError, ValueError):
+        sentiment = 0.0
+
     severity = obj.get("severity_class", "P2")
     if severity not in ("P0", "P1", "P2"):
         severity = "P2"
-    keywords = obj.get("keywords", [])
-    if not isinstance(keywords, list):
-        keywords = []
+
+    # Enforce severity gate: P0/P1 only permitted for high-risk journey+product combos
+    HIGH_RISK_JOURNEYS = {
+        "Login & Account Access", "App not Opening", "Failed Transaction",
+        "Password Issues", "Network Failure",
+    }
+    HIGH_RISK_PRODUCTS = {"Accounts", "Loans", "Money Transfer", "Payments", "Credit Cards"}
+    if severity in ("P0", "P1"):
+        if journey not in HIGH_RISK_JOURNEYS or product not in HIGH_RISK_PRODUCTS:
+            severity = "P2"
+
+    reasoning = str(obj.get("reasoning", ""))[:200]
+
     return {
-        "journey_attribution": journey,
-        "severity_class": severity,
-        "keywords": [str(k) for k in keywords[:5]],
+        "journey_category":  journey,
+        "bank_product_type": product,
+        "sentiment_score":   round(sentiment, 3),
+        "severity_class":    severity,
+        "reasoning":         reasoning,
     }
 
 
@@ -104,7 +150,7 @@ def _repair_json(raw: str) -> object:
       1. Strip any text before the first '[' or '{' and after the last ']' or '}'
       2. Try standard json.loads()
       3. On failure, try json_repair.repair_json() as fallback
-      4. On second failure, raise ValueError — caller decides skip vs abort
+      4. On second failure, raise ValueError --caller decides skip vs abort
     """
     import re
 
@@ -140,10 +186,10 @@ def _classify_batch(records: list[dict], chunk_id: str = "?") -> tuple[list[dict
     """
     Call Refuel once for a list of records (up to RECORDS_PER_PROMPT).
     Returns (enrichment_dicts, skipped_count).
-    skipped_count > 0 means JSON repair failed — caller receives ENRICHMENT_FAILED entries.
-    Raises on network failure only — parse failures are handled here.
+    skipped_count > 0 means JSON repair failed --caller receives ENRICHMENT_FAILED entries.
+    Raises on network failure only --parse failures are handled here.
     """
-    # Build numbered list — truncate each review to keep prompt manageable
+    # Build numbered list --truncate each review to keep prompt manageable
     lines = []
     for i, rec in enumerate(records, 1):
         text = _get_review_text(rec)[:400].replace("\n", " ")
@@ -185,29 +231,33 @@ def _classify_batch(records: list[dict], chunk_id: str = "?") -> tuple[list[dict
     except ValueError as exc:
         logger.debug("_classify_batch chunk %s raw response: %s", chunk_id, raw)
         logger.warning(
-            "_classify_batch chunk %s: JSON repair failed (%s) — skipping %d records",
+            "_classify_batch chunk %s: JSON repair failed (%s) --skipping %d records",
             chunk_id, exc, len(records),
         )
         # Return ENRICHMENT_FAILED entries so caller never silently drops records
         failed = [{
-            "journey_attribution": "ENRICHMENT_FAILED",
-            "severity_class": "ENRICHMENT_FAILED",
-            "keywords": [],
-            "enrichment_error": f"JSON repair failed — chunk {chunk_id}",
+            "journey_category":  "ENRICHMENT_FAILED",
+            "bank_product_type": "ENRICHMENT_FAILED",
+            "sentiment_score":   0.0,
+            "severity_class":    "ENRICHMENT_FAILED",
+            "reasoning":         "",
+            "enrichment_error":  f"JSON repair failed -- chunk {chunk_id}",
         } for _ in records]
         return failed, len(records)
 
     if not isinstance(parsed, list):
         logger.debug("_classify_batch chunk %s raw response: %s", chunk_id, raw)
         logger.warning(
-            "_classify_batch chunk %s: Refuel returned non-list JSON — skipping %d records",
+            "_classify_batch chunk %s: Refuel returned non-list JSON -- skipping %d records",
             chunk_id, len(records),
         )
         failed = [{
-            "journey_attribution": "ENRICHMENT_FAILED",
-            "severity_class": "ENRICHMENT_FAILED",
-            "keywords": [],
-            "enrichment_error": f"Non-list JSON — chunk {chunk_id}",
+            "journey_category":  "ENRICHMENT_FAILED",
+            "bank_product_type": "ENRICHMENT_FAILED",
+            "sentiment_score":   0.0,
+            "severity_class":    "ENRICHMENT_FAILED",
+            "reasoning":         "",
+            "enrichment_error":  f"Non-list JSON -- chunk {chunk_id}",
         } for _ in records]
         return failed, len(records)
 
@@ -218,10 +268,11 @@ def _classify_batch(records: list[dict], chunk_id: str = "?") -> tuple[list[dict
             result.append(_normalise_enrichment(parsed[i]))
         else:
             result.append({
-                "journey_attribution": "other",
-                "severity_class": "P2",
-                "keywords": [],
-                "enrichment_note": "MISSING_FROM_RESPONSE",
+                "journey_category":  "Other",
+                "bank_product_type": "Other",
+                "sentiment_score":   0.0,
+                "severity_class":    "P2",
+                "reasoning":         "MISSING_FROM_RESPONSE",
             })
     return result, 0
 
@@ -245,7 +296,7 @@ def enrich_file(source: str, competitor: str, records: list[dict],
     for batch_idx in range(0, len(records), BATCH_SIZE):
         batch = records[batch_idx: batch_idx + BATCH_SIZE]
         batch_num = (batch_idx // BATCH_SIZE) + 1
-        logger.info("[%s] %s — batch %d/%d (%d records)",
+        logger.info("[%s] %s --batch %d/%d (%d records)",
                     source, competitor, batch_num, total_batches, len(batch))
 
         batch_results: list[dict] = []
@@ -264,7 +315,7 @@ def enrich_file(source: str, competitor: str, records: list[dict],
                 batch_skipped += skipped
                 batch_enriched += len(chunk) - skipped
             except Exception as exc:
-                logger.error("[%s] %s — chunk %s network error: %s",
+                logger.error("[%s] %s --chunk %s network error: %s",
                              source, competitor, chunk_id, exc)
                 for rec in chunk:
                     batch_results.append({
@@ -281,7 +332,7 @@ def enrich_file(source: str, competitor: str, records: list[dict],
         batches_skipped += batch_failed_chunks
 
         logger.info(
-            "[%s] %s — batch %d summary: %d enriched, %d skipped, %d failed chunks",
+            "[%s] %s --batch %d summary: %d enriched, %d skipped, %d failed chunks",
             source, competitor, batch_num, batch_enriched, batch_skipped, batch_failed_chunks,
         )
 
@@ -299,7 +350,7 @@ def run_enrichment(max_records_per_file: int = None) -> dict:
         logger.error("Ollama unreachable or %s not available. Stopping.", OLLAMA_MODEL)
         return {"error": f"Ollama unreachable or {OLLAMA_MODEL} not available"}
 
-    logger.info("Ollama confirmed — %s ready", OLLAMA_MODEL)
+    logger.info("Ollama confirmed --%s ready", OLLAMA_MODEL)
     ENRICHED_DIR.mkdir(parents=True, exist_ok=True)
 
     summary: dict = {}  # {source: {competitor: {"records": N, "batches_skipped": N}}}
@@ -322,7 +373,7 @@ def run_enrichment(max_records_per_file: int = None) -> dict:
 
             json_files = sorted(comp_dir.glob("*.json"))
             if not json_files:
-                logger.info("[%s] %s — no JSON files found, skipping", source_name, competitor_name)
+                logger.info("[%s] %s --no JSON files found, skipping", source_name, competitor_name)
                 continue
 
             # Merge records from all files for this competitor
@@ -332,14 +383,14 @@ def run_enrichment(max_records_per_file: int = None) -> dict:
                     data = json.loads(jf.read_text(encoding="utf-8"))
                     all_records.extend(data.get("records", []))
                 except Exception as exc:
-                    logger.warning("[%s] %s — failed to read %s: %s", source_name, competitor_name, jf.name, exc)
+                    logger.warning("[%s] %s --failed to read %s: %s", source_name, competitor_name, jf.name, exc)
 
             if not all_records:
-                logger.info("[%s] %s — 0 records after merge, skipping", source_name, competitor_name)
+                logger.info("[%s] %s --0 records after merge, skipping", source_name, competitor_name)
                 continue
 
             label = f"{len(all_records)} records" + (f" (capped at {max_records_per_file})" if max_records_per_file else "")
-            logger.info("[%s] %s — %s to enrich", source_name, competitor_name, label)
+            logger.info("[%s] %s --%s to enrich", source_name, competitor_name, label)
 
             enriched_records, batches_skipped = enrich_file(
                 source_name, competitor_name, all_records,
@@ -382,7 +433,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     mode = f"SAMPLE mode (first {args.sample} records/file)" if args.sample else "FULL mode"
-    logger.info("MIL Refuel Enrichment Factory — starting [%s]", mode)
+    logger.info("MIL Refuel Enrichment Factory --starting [%s]", mode)
     result = run_enrichment(max_records_per_file=args.sample)
 
     if "error" in result:
