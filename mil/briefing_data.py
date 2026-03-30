@@ -277,9 +277,19 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     # ----------------------------------------------------------
     # SECTION 1: OVERALL SENTIMENT
+    # Equal-weight per competitor: prevents dense scrapes (e.g. 334 Revolut records)
+    # from dominating competitors with sparser recent coverage (e.g. 25 Monzo records).
     # ----------------------------------------------------------
-    all_ratings   = [r["rating"] for r in records if r.get("rating")]
-    overall_score = _star_sentiment(all_ratings)
+    comp_ratings: dict[str, list] = defaultdict(list)
+    for r in records:
+        comp = r.get("_competitor")
+        if comp and r.get("rating"):
+            comp_ratings[comp].append(r["rating"])
+
+    comp_scores = [_star_sentiment(v) for v in comp_ratings.values() if v]
+    overall_score = round(sum(s for s in comp_scores if s >= 0) / len([s for s in comp_scores if s >= 0])) if comp_scores else -1
+
+    all_ratings   = [r["rating"] for r in records if r.get("rating")]  # kept for trend calc only
     overall_trend = _trend(records, today)
 
     # Baseline: full corpus avg (all dates, all files)
