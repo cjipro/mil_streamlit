@@ -952,6 +952,9 @@ def generate_html(
     defaults_used: list,
     exec_alert_override: str = "",
     issues_analysis: list | None = None,
+    top_quote: str = "",
+    top_quote_rating: int = 0,
+    top_quote_source: str = "",
 ) -> str:
     """Generate the full self-contained HTML briefing page."""
 
@@ -986,6 +989,28 @@ def generate_html(
     journey_cards_html = ""
     for j in _issues:
         journey_cards_html += build_journey_card_html(j)
+
+    # ── Quote box for Box 1 ───────────────────────────────────────────────────
+    _stars = ("★" * top_quote_rating + "☆" * (5 - top_quote_rating)) if top_quote_rating else "☆☆☆☆☆"
+    _src   = e(top_quote_source) if top_quote_source else ""
+    _rating_line = f'<div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;">{_stars} &middot; {_src}</div>' if top_quote else ""
+
+    if top_quote:
+        _qt = e(top_quote[:320])
+        # Short quote (<100 chars): centre vertically; long: top-left
+        _is_short = len(top_quote) < 100
+        _qt_align = "justify-content:center;align-items:center;text-align:center;" if _is_short else "justify-content:flex-start;align-items:flex-start;text-align:left;"
+        quote_box_html = (
+            f'<div style="height:104px;border:1px solid #003A5C;border-radius:8px;'
+            f'padding:10px 14px;display:flex;flex-direction:column;{_qt_align}'
+            f'background:#001E2E;overflow:hidden;">'
+            f'<div style="font-size:13px;color:#B8D4E0;font-style:italic;line-height:1.55;">'
+            f'&ldquo;{_qt}&rdquo;</div>'
+            f'{_rating_line}'
+            f'</div>'
+        )
+    else:
+        quote_box_html = ""
 
     published_at = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
@@ -1468,9 +1493,11 @@ a {{ color: var(--blue); text-decoration: none; }}
 <!-- -- Topbar -------------------------------------------------------------- -->
 <div class="topbar">
 
-  <!-- Box 1: Brand + Sentiment Baseline -->
+  <!-- Box 1: Brand + Sentiment + Quote -->
   <div class="topbar-box topbar-left">
-    <div class="sent-card-bar" style="height:2px;background:linear-gradient(90deg,#00AEEF,#0080C0);"></div>
+    <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+      <span class="topbar-logo" style="margin:0;">CJI SONAR &mdash; APP INTELLIGENCE</span>
+    </div>
     <div class="topbar-box-body" style="gap:8px;">
       <div class="topbar-sent-card" style="margin-top:0;">
         <div class="sent-card-bar"></div>
@@ -1490,14 +1517,14 @@ a {{ color: var(--blue); text-decoration: none; }}
           </div>
         </div>
       </div>
-      <div class="topbar-logo">CJI SONAR &mdash; APP INTELLIGENCE</div>
+      {quote_box_html}
       <div class="brand-line">
         <span class="brand-dot brand-dot-blue"></span>
-        <span>Live customer signals across market channels &mdash; continuously monitored and interpreted</span>
+        <span>Live signals from App Store, Google Play, news and social &mdash; updated daily</span>
       </div>
       <div class="brand-line">
         <span class="brand-dot brand-dot-teal"></span>
-        <span>Historical failure patterns applied to detect early risk &mdash; enabling Barclays to act before issues escalate</span>
+        <span>Historical failure patterns applied &mdash; act on intelligence, not on incident reports</span>
       </div>
       <div class="topbar-pills" style="margin-top:auto;">
         <span class="version-pill">v{e(version_display)}</span>
@@ -1803,6 +1830,9 @@ def main():
 
     # ── Briefing data layer (enriched Refuel-8B data) ─────────────────────────
     exec_alert_override_html = ""
+    bd_top_quote        = ""
+    bd_top_quote_rating = 0
+    bd_top_quote_source = ""
     if _BRIEFING_DATA_AVAILABLE:
         print("\n[3.5/5] Loading briefing data layer (enriched) …")
         try:
@@ -1853,6 +1883,9 @@ def main():
             ea = bd.get("executive_alert", {})
             exec_alert_override_html = build_bd_exec_alert_html(ea, lr_str)
             fid = ea.get("finding_id") or "NOMINAL"
+            bd_top_quote        = ea.get("top_quote", "")
+            bd_top_quote_rating = ea.get("top_quote_rating", 0)
+            bd_top_quote_source = ea.get("top_quote_source", "")
             print(f"  Exec alert: {fid}")
 
         except Exception as exc:
@@ -1884,6 +1917,9 @@ def main():
         defaults_used=all_defaults,
         exec_alert_override=exec_alert_override_html,
         issues_analysis=issues_analysis,
+        top_quote=bd_top_quote,
+        top_quote_rating=bd_top_quote_rating,
+        top_quote_source=bd_top_quote_source,
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

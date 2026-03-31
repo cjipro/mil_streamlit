@@ -646,6 +646,26 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         }
         chronicle_id, chronicle_sentence = _chronicle_match(barclays_issue_types)
 
+        # Top quote: most specific P0 review — prefer 60-150 chars, else shortest over 40
+        top_quote = ""
+        top_quote_rating = 0
+        top_quote_source = ""
+        _candidates = [
+            r for r in barclays_p01
+            if r.get("severity_class") == "P0"
+            and len((r.get("review") or r.get("content", "")).strip()) >= 40
+            and r.get("issue_type") != "Positive Feedback"
+        ]
+        if _candidates:
+            _in_range = [r for r in _candidates
+                         if 60 <= len((r.get("review") or r.get("content", "")).strip()) <= 200]
+            _pick = _in_range[0] if _in_range else sorted(
+                _candidates, key=lambda r: len((r.get("review") or r.get("content", "")))
+            )[0]
+            top_quote        = ((_pick.get("review") or _pick.get("content", ""))).strip()
+            top_quote_rating = _pick.get("rating", 0) or 0
+            top_quote_source = "App Store" if _pick.get("review") else "Google Play"
+
         # Description: Sonnet synthesis with template fallback
         description = _sonnet_description(barclays_p01, chronicle_sentence)
         if not description:
@@ -665,6 +685,9 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "p1":                 p1,
             "signal_strength":    _signal_strength(p0, cac),
             "description":        description,
+            "top_quote":          top_quote,
+            "top_quote_rating":   int(top_quote_rating),
+            "top_quote_source":   top_quote_source,
             "chronicle_id":       chronicle_id,
             "chronicle_sentence": chronicle_sentence,
             "intelligence_gap":   (
