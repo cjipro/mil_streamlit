@@ -1,0 +1,791 @@
+import streamlit as st
+from pathlib import Path
+
+st.set_page_config(
+    page_title="CJI Sonar — Command Dashboard",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# Hide Streamlit chrome
+hide_streamlit = """
+<style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    [data-testid="stDecoration"] {display: none;}
+    [data-testid="stStatusWidget"] {display: none;}
+</style>
+"""
+st.markdown(hide_streamlit, unsafe_allow_html=True)
+
+# ============================================================================
+# HTML CONTENT (Exact from briefing template)
+# ============================================================================
+
+HTML_CONTENT = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sonar — App Intelligence Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* -- Reset & Base ----------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #00273D;
+  --topbar-bg:   #001E30;
+  --ticker-bg:   #001828;
+  --journey-bg:  #001E30;
+  --summary-bg:  #002030;
+  --feed-bg:     #00273D;
+  --panel-bg:    #001828;
+  --card:        #002A3F;
+  --border:      #003A5C;
+  --blue:        #00AEEF;
+  --teal:        #00AFA0;
+  --amber:       #F5A623;
+  --red:         #CC0000;
+  --text:        #E8F4FA;
+  --text-2:      #7AACBF;
+  --text-3:      #4A7A8F;
+  --muted:       #3A6A7F;
+  --mono:        'DM Mono', monospace;
+  --sans:        'Plus Jakarta Sans', sans-serif;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a { color: var(--blue); text-decoration: none; }
+
+/* -- Topbar ----------------------------------------------------------------- */
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  align-items: stretch;
+}
+/* Topbar shared box style */
+.topbar-box { background: #002A3F; border: 1px solid #003A5C; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.topbar-box-header { padding: 10px 16px; border-bottom: 1px solid #003A5C; display: flex; align-items: center; justify-content: space-between; }
+.topbar-box-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.topbar-box-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+/* Box 1 brand */
+.topbar-left { display: flex; flex-direction: column; }
+/* Box 2 issues status */
+.issues-stat-row { display: flex; align-items: center; gap: 12px; }
+.issues-stat-num { font-family: var(--mono); font-size: 40px; font-weight: 800; line-height: 1; min-width: 52px; }
+.issues-stat-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; }
+.issues-stat-sub { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+.issues-divider { height: 1px; background: #003A5C; margin: 4px 0; }
+/* Journey list in box 2 */
+.journey-list-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #001E30; font-size: 14px; }
+.journey-list-item:last-child { border-bottom: none; }
+.journey-list-name { color: #7AACBF; font-weight: 600; }
+.journey-list-right { display: flex; align-items: center; gap: 6px; }
+.journey-list-score { font-family: var(--mono); font-size: 16px; font-weight: 700; }
+.journey-list-status { font-size: 10px; font-weight: 700; }
+.topbar-logo {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 1.5px;
+  color: var(--blue);
+  margin-bottom: 2px;
+}
+.brand-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+.brand-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.brand-dot-blue { background: #00AEEF; box-shadow: 0 0 4px rgba(0,174,239,0.5); }
+.brand-dot-teal { background: #00AFA0; box-shadow: 0 0 4px rgba(0,175,160,0.5); }
+
+/* Barclays sentiment card — compact 2-line */
+.topbar-sent-card { background: #002A3F; border: 1px solid #00AEEF; border-radius: 8px; overflow: hidden; margin-top: 0; margin-bottom: 0; max-width: 100%; width: 100%; }
+.sent-card-bar { height: 2px; background: linear-gradient(90deg, #00AEEF, #0080C0); }
+.sent-card-inner { padding: 8px 14px; display: flex; flex-direction: column; gap: 3px; }
+.sent-row-1 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sent-row-2 { display: flex; align-items: center; justify-content: space-between; }
+.sent-card-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #00AEEF; text-transform: uppercase; flex-shrink: 0; }
+.sent-card-score { font-family: var(--mono); font-size: 36px; font-weight: 800; color: #E8F4FA; line-height: 1; }
+.sent-card-delta { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+.sent-card-traj { font-size: 10px; font-weight: 700; margin-left: auto; white-space: normal; }
+.sent-card-baseline { font-family: var(--mono); font-size: 10px; color: #4A7A8F; }
+.sent-card-progress { height: 2px; background: #003A5C; border-radius: 1px; overflow: hidden; margin-top: 3px; }
+.sent-progress-fill { height: 2px; background: linear-gradient(90deg, #00AEEF, #0080C0); border-radius: 1px; }
+.sent-card-ts { font-family: var(--mono); font-size: 10px; color: #3A6A7F; }
+
+/* Pills row */
+.topbar-pills { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px; }
+.version-pill { font-family: var(--mono); font-size: 12px; color: var(--text-3); background: var(--card); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }
+.live-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal); font-weight: 600; letter-spacing: 0.05em; }
+.live-dot::before { content: ''; width: 7px; height: 7px; background: var(--teal); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,175,160,0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(0,175,160,0); }
+}
+.bootstrap-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(245,166,35,0.10); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); font-family: var(--mono); letter-spacing: 0.05em; }
+
+/* Executive Alert panel */
+.exec-alert-panel { background: #001828; border: 1px solid #CC0000; border-radius: 12px; overflow: hidden; }
+.exec-alert-header { background: #1A0000; border-bottom: 1px solid #CC0000; padding: 8px 14px; display: flex; align-items: center; gap: 8px; }
+.exec-alert-pulse { width: 7px; height: 7px; border-radius: 50%; background: #CC0000; animation: pulse-red 1.5s ease-in-out infinite; flex-shrink: 0; }
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(204,0,0,0.5); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(204,0,0,0); }
+}
+.exec-alert-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #CC0000; text-transform: uppercase; flex: 1; }
+.exec-alert-ts { font-family: var(--mono); font-size: 10px; color: #4A2A2A; }
+.exec-alert-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.exec-alert-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 6px; border-bottom: 1px solid #2A1010; }
+.exec-alert-row:last-child { border-bottom: none; padding-bottom: 0; }
+.exec-alert-key { font-size: 11px; color: #9A8080; }
+.exec-alert-val { font-size: 12px; font-weight: 600; font-family: var(--mono); }
+.exec-alert-status { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 1px; }
+.status-clear { background: rgba(0,175,160,0.12); color: #00AFA0; }
+.status-watch { background: rgba(245,166,35,0.12); color: #F5A623; }
+.status-alert { background: rgba(204,0,0,0.15); color: #FF4444; }
+/* Nominal state overrides */
+.exec-alert-nominal { border-color: #00AFA0; }
+.exec-alert-header-nominal { background: #001A18; border-bottom-color: #00AFA0; }
+.exec-alert-pulse-green { background: #00AFA0; animation: none; }
+.exec-alert-title-nominal { color: #00AFA0; }
+/* Finding + pills */
+.exec-alert-finding { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.exec-alert-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.exec-pill { font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.04em; }
+.exec-alert-section-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; margin-top: 8px; margin-bottom: 3px; padding-bottom: 4px; }
+.exec-alert-section-text { font-size: 13px; color: var(--text-2); line-height: 1.5; padding-bottom: 4px; }
+.exec-alert-footer { padding: 8px 14px; border-top: 1px solid #2A1010; }
+.exec-escalate-btn { background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.4); border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 14px; cursor: pointer; width: 100%; font-family: var(--sans); text-transform: uppercase; }
+.exec-escalate-btn:hover { background: rgba(204,0,0,0.25); }
+/* Nominal body text */
+.exec-nominal-badge { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: #00AFA0; margin-bottom: 8px; }
+.exec-nominal-text { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+
+/* -- Ticker ----------------------------------------------------------------- */
+.ticker-wrapper { overflow: hidden; background: var(--ticker-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 11px 0; }
+.ticker-track { overflow: hidden; white-space: nowrap; }
+.ticker-inner { display: inline-flex; align-items: center; animation: ticker-scroll 30s linear infinite; }
+.ticker-inner:hover { animation-play-state: paused; }
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item { display: inline-flex; align-items: center; gap: 6px; padding: 0 20px; }
+.ticker-barclays { background: rgba(0,174,239,0.06); border-radius: 4px; }
+.ticker-name { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.ticker-barclays .ticker-name { font-size: 13px; font-weight: 800; color: #00AEEF; }
+.ticker-score { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+.ticker-delta { font-family: var(--mono); font-size: 10px; }
+.ticker-sep { color: var(--border); padding: 0 4px; font-size: 18px; }
+
+/* -- Mini Bar --------------------------------------------------------------- */
+.mini-bar { display: inline-flex; align-items: center; width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.mini-bar-fill { height: 4px; border-radius: 2px; transition: width 0.3s ease; }
+
+/* -- Journey Row ------------------------------------------------------------ */
+.journey-row { display: flex; gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 2px solid var(--border); }
+.journey-cell { flex: 1; padding: 10px 32px; background: var(--journey-bg); cursor: default; transition: background 0.15s; }
+.journey-cell:hover { background: #002440; }
+.journey-cell-name { font-size: 13px; font-weight: 700; color: var(--text-2); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+.journey-cell-score { font-size: 30px; font-weight: 800; font-family: var(--mono); margin-bottom: 4px; }
+.journey-cell-meta { display: flex; align-items: center; gap: 6px; }
+.traj-icon { font-size: 14px; }
+.journey-status-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; font-family: var(--mono); color: var(--text-3); }
+
+/* -- Metrics Strip ---------------------------------------------------------- */
+.metrics-strip { display: flex; gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.metric-card { flex: 1; padding: 12px 32px; background: var(--summary-bg); }
+.metric-value { font-size: 28px; font-weight: 800; font-family: var(--mono); line-height: 1; margin-bottom: 4px; }
+.metric-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; }
+.metric-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+/* -- Body Layout ------------------------------------------------------------ */
+.body-wrapper { display: grid; grid-template-columns: 1fr 360px; gap: 1px; background: var(--border); min-height: calc(100vh - 200px); }
+.left-col { background: var(--feed-bg); padding: 18px 32px 24px; display: flex; flex-direction: column; gap: 16px; }
+.right-col { background: var(--panel-bg); padding: 16px 18px; display: flex; flex-direction: column; gap: 16px; }
+
+/* -- Journey Cards ---------------------------------------------------------- */
+.journey-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.card-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rank-num { font-family: var(--mono); font-size: 12px; font-weight: 800; color: var(--text-3); background: var(--border); width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.journey-name { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; }
+.badge { font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 2px 10px; border-radius: 12px; }
+.derived-note { font-size: 11px; font-family: var(--mono); color: var(--amber); background: rgba(245,166,35,0.08); padding: 3px 8px; border-radius: 12px; }
+.verdict-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; }
+.verdict-text { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.65; }
+.verdict-baseline { color: var(--text-3); font-weight: 400; font-style: italic; }
+.version-delta-row { display: flex; align-items: center; gap: 12px; }
+.version-label { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--blue); background: var(--border); padding: 2px 6px; border-radius: 4px; }
+.version-delta { font-family: var(--mono); font-size: 12px; font-weight: 500; background: var(--border); padding: 2px 8px; border-radius: 4px; }
+.signal-counts { display: flex; gap: 8px; }
+.sig-count { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 12px; }
+.sig-p1 { background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.2); }
+.sig-p2 { background: rgba(245,166,35,0.10); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+.voice-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }
+.pill-neg { background: #2A0010; color: #E08080; border: 1px solid #4A0020; }
+.pill-pos { background: #003A30; color: #7ADAC8; border: 1px solid #005A48; }
+.detected-pill { font-family: var(--mono); font-size: 11px; color: var(--text-2); background: var(--border); border-radius: 20px; padding: 1px 8px; }
+.market-note { font-size: 11px; color: var(--muted); font-style: italic; }
+
+/* -- Right Panel ------------------------------------------------------------ */
+.panel-section { display: flex; flex-direction: column; gap: 10px; }
+.panel-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+/* -- Inference Card --------------------------------------------------------- */
+.inference-card { background: var(--card); border: 1px solid var(--red); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.inference-header { display: flex; align-items: center; gap: 8px; }
+.inference-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--red); text-transform: uppercase; }
+.severity-badge { font-size: 10px; font-weight: 700; padding: 1px 8px; border-radius: 12px; }
+.severity-p0 { background: rgba(204,0,0,0.3); color: #FF4444; }
+.severity-p1 { background: rgba(204,0,0,0.15); color: #FF6666; }
+.inference-finding { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5; }
+.blind-spots { list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 4px; }
+.blind-spot-item { font-size: 11px; color: #9A8080; line-height: 1.5; padding-left: 12px; position: relative; }
+.blind-spot-item::before { content: 'A0'; position: absolute; left: 0; font-size: 9px; color: var(--amber); }
+.chronicle-anchor { font-family: var(--mono); font-size: 11px; color: var(--blue); }
+.inference-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.action-btn { background: #1A0000; color: var(--red); border: 1px solid #4A1010; border-radius: 12px; padding: 3px 10px; font-size: 10px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+.action-btn:hover { background: rgba(204,0,0,0.1); }
+
+/* -- Chronicle -------------------------------------------------------------- */
+.chronicle-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 5px; }
+.chronicle-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chronicle-id { font-family: var(--mono); font-size: 11px; font-weight: 600; color: #8BBCCC; }
+.chronicle-bank { font-size: 11px; font-weight: 600; color: #8BBCCC; flex: 1; }
+.chronicle-date { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.chronicle-active { font-size: 9px; font-weight: 700; letter-spacing: 1px; background: rgba(204,0,0,0.2); color: #FF6666; padding: 1px 5px; border-radius: 8px; }
+.chronicle-hold { font-size: 9px; font-weight: 700; background: rgba(74,122,143,0.2); color: var(--text-3); padding: 1px 5px; border-radius: 8px; }
+.chronicle-cap { font-size: 9px; color: var(--amber); background: rgba(245,166,35,0.1); padding: 1px 5px; border-radius: 8px; }
+.chronicle-type { font-size: 10px; color: #3A5A6F; }
+.chronicle-impact { font-size: 11px; font-weight: 700; color: var(--amber); font-family: var(--mono); }
+
+/* -- Sources Grid ----------------------------------------------------------- */
+.sources-grid { display: flex; flex-direction: column; gap: 4px; }
+.source-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.source-item:last-child { border-bottom: none; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--teal); box-shadow: 0 0 4px rgba(0,175,160,0.6); }
+.dot-amber { background: var(--amber); box-shadow: 0 0 4px rgba(245,166,35,0.5); }
+.dot-grey { background: var(--border); }
+.source-name { font-size: 11px; font-weight: 500; color: var(--muted); flex: 1; }
+.source-weight { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+/* -- Delta ------------------------------------------------------------------ */
+.delta { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+.delta-na { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+/* -- Defaults Banner -------------------------------------------------------- */
+.defaults-banner { margin: 12px 32px; padding: 10px 16px; background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.15); border-radius: 8px; font-size: 11px; color: var(--amber); }
+.defaults-banner ul { padding-left: 16px; margin-top: 4px; }
+.defaults-banner li { margin-top: 2px; }
+
+/* -- Footer ----------------------------------------------------------------- */
+.footer { background: var(--topbar-bg); border-top: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.footer-item { font-size: 11px; color: #2A5A6F; font-family: var(--mono); letter-spacing: 1px; }
+.footer-sep { color: var(--border); }
+.footer-sovereign { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--blue); background: rgba(0,174,239,0.08); padding: 2px 8px; border-radius: 8px; }
+
+/* -- Ask Sonar Button ------------------------------------------------------- */
+.ask-sonar-btn { position: fixed; bottom: 24px; right: 24px; background: #00AEEF; color: #001E30; border: none; border-radius: 24px; padding: 11px 20px 11px 16px; font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; z-index: 1000; box-shadow: 0 4px 24px rgba(0,174,239,0.4); transition: transform 0.15s, box-shadow 0.15s; display: flex; align-items: center; gap: 8px; }
+.ask-sonar-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(0,174,239,0.55); }
+.ask-sonar-btn svg { width: 16px; height: 16px; }
+
+/* -- Chat Panel ------------------------------------------------------------- */
+.chat-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+.chat-panel { position: fixed; bottom: 80px; right: 24px; width: 360px; max-height: 500px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; z-index: 1001; box-shadow: 0 8px 40px rgba(0,0,0,0.6); overflow: hidden; }
+.chat-panel.open { display: flex; }
+.chat-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.chat-title { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+.chat-close { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.chat-close:hover { color: var(--text); }
+.chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 160px; }
+.chat-chips { padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid var(--border); }
+.chip { background: var(--border); color: var(--blue); border: 1px solid rgba(0,174,239,0.2); border-radius: 14px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: background 0.15s; }
+.chip:hover { background: rgba(0,174,239,0.1); }
+.chat-input-row { padding: 10px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.chat-input { flex: 1; background: var(--topbar-bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: var(--sans); font-size: 12px; color: var(--text); outline: none; }
+.chat-input:focus { border-color: var(--blue); }
+.chat-send { background: var(--blue); color: #001E30; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; font-size: 12px; cursor: pointer; }
+.chat-msg { font-size: 12px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }
+.chat-msg.system { background: var(--border); color: var(--text); }
+.chat-msg.user { background: rgba(0,174,239,0.1); color: var(--blue); align-self: flex-end; }
+.chat-msg.error { background: rgba(204,0,0,0.1); color: #FF6666; }
+
+/* -- Responsive ------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .topbar { grid-template-columns: 1fr; gap: 12px; padding: 12px 16px; position: relative; }
+  .topbar-box { min-height: 280px; }
+  .sent-card-score { font-size: 48px; }
+  .body-wrapper { grid-template-columns: 1fr; }
+  .journey-row { flex-wrap: wrap; }
+  .journey-cell { min-width: 45%; }
+}
+</style>
+</head>
+<body>
+
+<!-- -- Topbar -------------------------------------------------------------- -->
+<div class="topbar">
+
+  <!-- Box 1: Brand + Sentiment Baseline -->
+  <div class="topbar-box topbar-left">
+    <div class="sent-card-bar" style="height:2px;background:linear-gradient(90deg,#00AEEF,#0080C0);"></div>
+    <div class="topbar-box-body" style="gap:8px;">
+      <div class="topbar-sent-card" style="margin-top:0;">
+        <div class="sent-card-bar"></div>
+        <div class="sent-card-inner">
+          <div class="sent-row-1">
+            <span class="sent-card-label">BARCLAYS SENTIMENT</span>
+            <span class="sent-card-score">89</span>
+            <span class="sent-card-delta" style="color:#ff4444;">— vs baseline</span>
+            <span class="sent-card-traj" style="color:#ff4444;">&#8600; WORSENING</span>
+          </div>
+          <div class="sent-row-2">
+            <span class="sent-card-baseline">Baseline: Establishing</span>
+            <span class="sent-card-ts">2026-03-30 13:37 UTC</span>
+          </div>
+          <div class="sent-card-progress">
+            <div class="sent-progress-fill" style="width:89%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-logo">CJI SONAR &mdash; APP INTELLIGENCE</div>
+      <div class="brand-line">
+        <span class="brand-dot brand-dot-blue"></span>
+        <span>Live customer signals across market channels &mdash; continuously monitored and interpreted</span>
+      </div>
+      <div class="brand-line">
+        <span class="brand-dot brand-dot-teal"></span>
+        <span>Historical failure patterns applied to detect early risk &mdash; enabling Barclays to act before issues escalate</span>
+      </div>
+      <div class="topbar-pills" style="margin-top:auto;">
+        <span class="version-pill">v8.20.1</span>
+        <span class="version-pill">2026-03-30 13:37 UTC</span>
+        
+        <div class="live-dot">LIVE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle: Issues Status box -->
+  <div class="topbar-box">
+    <div class="topbar-box-header" style="background:#001E30;">
+      <span class="topbar-box-title" style="color:#7AACBF;">ISSUES STATUS</span>
+      <span style="font-size:10px;color:#3A6A7F;">today's signal summary</span>
+    </div>
+    <div class="topbar-box-body">
+      <div class="issues-stat-row">
+        <span class="issues-stat-num" style="color:var(--red);">2</span>
+        <div><div class="issues-stat-label">Needs Attention</div><div class="issues-stat-sub">REGRESSION journeys</div></div>
+      </div>
+      <div class="issues-stat-row">
+        <span class="issues-stat-num" style="color:var(--amber);">0</span>
+        <div><div class="issues-stat-label">Watch</div><div class="issues-stat-sub">WATCH journeys</div></div>
+      </div>
+      <div class="issues-stat-row">
+        <span class="issues-stat-num" style="color:var(--teal);">3</span>
+        <div><div class="issues-stat-label">Performing Well</div><div class="issues-stat-sub">across all sources</div></div>
+      </div>
+      <div class="issues-divider"></div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">App not Opening</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#CC0000;">66</span>
+            <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">Failed Transaction</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#CC0000;">60</span>
+            <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">App crashes or Slow</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#00AFA0;">72</span>
+            <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">App Installation Issues</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#00AFA0;">90</span>
+            <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">UI/UX</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#00AFA0;">94</span>
+            <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
+          </span>
+        </div>
+    </div>
+  </div>
+  <!-- Right: Executive Alert panel (bd-wired) -->
+  <div class="topbar-box exec-alert-panel">
+    <div class="exec-alert-header">
+      <span class="exec-alert-pulse"></span>
+      <span class="exec-alert-title">Executive Alert</span>
+      <span class="exec-alert-ts">2026-03-30 13:37 UTC</span>
+    </div>
+    <div class="exec-alert-body">
+      <div class="exec-alert-finding">natwest J_SERVICE_01 -- CAC=0.652 CHR-001 -- CEILING</div>
+      <div class="exec-alert-pills">
+        <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);">P0 &nbsp;6</span>
+        <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;6</span>
+        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">CAC &nbsp;0.652</span>
+        <span class="exec-pill" style="background:rgba(0,175,160,0.10);color:#00AFA0;border:1px solid rgba(0,175,160,0.3);">Clark &nbsp;P1</span>
+      </div>
+      <div class="exec-alert-section-label">RISK INTERPRETATION</div>
+      <div class="exec-alert-section-text">Competitor (google_play_natwest) is experiencing P2/P0/P1 signal issues, indicating possible outage in their app</div>
+      <div class="exec-alert-section-label">BLIND SPOT</div>
+      <div class="exec-alert-section-text">Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.</div>
+      <div class="exec-alert-section-label">RECOMMENDED ACTION</div>
+      <div class="exec-alert-section-text">To confirm this I require internal HDFS telemetry data. Request Phase 2.</div>
+    </div>
+    <div class="exec-alert-footer">
+      <button class="exec-escalate-btn">Escalate</button>
+    </div>
+  </div>
+</div>
+
+<!-- -- Sentiment Ticker ---------------------------------------------------- -->
+<div class="ticker-wrapper">
+  <div class="ticker-track"><div class="ticker-inner"><span class="ticker-item"><span class="ticker-name" style="color:#e8a030;">NatWest</span><span class="ticker-score" style="color:#e8a030;">64.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:26px;background:#e8a030;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Lloyds</span><span class="ticker-score" style="color:#2a9a5a;">68.5</span><span class="mini-bar"><span class="mini-bar-fill" style="width:27px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#6b7088;">HSBC</span><span class="ticker-score" style="color:#6b7088;">—</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Monzo</span><span class="ticker-score" style="color:#2a9a5a;">83.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:33px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Revolut</span><span class="ticker-score" style="color:#2a9a5a;">84.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:34px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-barclays"><span class="ticker-name" style="color:#e8a030;">Barclays</span><span class="ticker-score" style="color:#e8a030;">88.8</span><span class="mini-bar"><span class="mini-bar-fill" style="width:36px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#e8a030;">NatWest</span><span class="ticker-score" style="color:#e8a030;">64.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:26px;background:#e8a030;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Lloyds</span><span class="ticker-score" style="color:#2a9a5a;">68.5</span><span class="mini-bar"><span class="mini-bar-fill" style="width:27px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#6b7088;">HSBC</span><span class="ticker-score" style="color:#6b7088;">—</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Monzo</span><span class="ticker-score" style="color:#2a9a5a;">83.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:33px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Revolut</span><span class="ticker-score" style="color:#2a9a5a;">84.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:34px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-barclays"><span class="ticker-name" style="color:#e8a030;">Barclays</span><span class="ticker-score" style="color:#e8a030;">88.8</span><span class="mini-bar"><span class="mini-bar-fill" style="width:36px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span></div></div>
+</div>
+
+<!-- -- Journey Sentiment Row ----------------------------------------------- -->
+<div class="journey-row"><div class="journey-cell" style="border-top:3px solid var(--amber);"><div class="journey-cell-name">Login &amp; Auth</div><div class="journey-cell-score" style="color:var(--amber);">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--amber);">→</span><span class="journey-status-label" style="color:var(--amber);">WATCH</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Payments</div><div class="journey-cell-score" style="color:var(--red);">60</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Onboarding</div><div class="journey-cell-score" style="color:var(--green);">90</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--green);">↗</span><span class="journey-status-label" style="color:var(--green);">PERFORMING WELL</span></div></div><div class="journey-cell" style="border-top:3px solid var(--amber);"><div class="journey-cell-name">Loans — Step 3</div><div class="journey-cell-score" style="color:var(--amber);">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--amber);">→</span><span class="journey-status-label" style="color:var(--amber);">WATCH</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Servicing</div><div class="journey-cell-score" style="color:var(--green);">94</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--green);">↗</span><span class="journey-status-label" style="color:var(--green);">PERFORMING WELL</span></div></div></div>
+
+<!-- -- Body: Left + Right Columns ------------------------------------------ -->
+<div class="body-wrapper">
+  <div class="left-col">
+    <div class="metrics-strip"><div class="metric-card"><div class="metric-value" style="color:var(--red);">2</div><div class="metric-label">Needs Attention</div><div class="metric-sub">REGRESSION journeys</div></div><div class="metric-card"><div class="metric-value" style="color:var(--amber);">0</div><div class="metric-label">Watch</div><div class="metric-sub">WATCH journeys</div></div><div class="metric-card"><div class="metric-value" style="color:var(--green);">3</div><div class="metric-label">Performing Well</div><div class="metric-sub">across all sources</div></div></div>
+    
+<div class="journey-card" style="border-left:3px solid var(--red);">
+  <div class="card-header">
+    <span class="rank-num">#1</span>
+    <span class="journey-name">App not Opening</span>
+    <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
+  </div>
+  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
+  <div class="verdict-label">VERDICT</div>
+  <div class="verdict-text">App not Opening -- 4 complete-block signals, volume stable.</div>
+  <div class="version-delta-row">
+    <span class="version-label">v—</span>
+    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
+  </div>
+  <div class="signal-counts">
+    <span class="sig-count sig-p1">P1: 10</span>
+    <span class="sig-count sig-p2">P2: 25</span>
+  </div>
+  
+  <div class="market-note">Market signal analysis — public app store data - 3.30 avg rating</div>
+</div>
+
+<div class="journey-card" style="border-left:3px solid var(--red);">
+  <div class="card-header">
+    <span class="rank-num">#2</span>
+    <span class="journey-name">Failed Transaction</span>
+    <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
+  </div>
+  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
+  <div class="verdict-label">VERDICT</div>
+  <div class="verdict-text">Failed Transaction -- 5 complete-block signals, volume stable.</div>
+  <div class="version-delta-row">
+    <span class="version-label">v—</span>
+    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
+  </div>
+  <div class="signal-counts">
+    <span class="sig-count sig-p1">P1: 7</span>
+    <span class="sig-count sig-p2">P2: 1</span>
+  </div>
+  
+  <div class="market-note">Market signal analysis — public app store data - 3.00 avg rating</div>
+</div>
+
+<div class="journey-card" style="border-left:3px solid var(--green);">
+  <div class="card-header">
+    <span class="rank-num">#3</span>
+    <span class="journey-name">App crashes or Slow</span>
+    <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
+  </div>
+  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
+  <div class="verdict-label">VERDICT</div>
+  <div class="verdict-text">App crashes or Slow -- 46 signals, minor issues only.</div>
+  <div class="version-delta-row">
+    <span class="version-label">v—</span>
+    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
+  </div>
+  <div class="signal-counts">
+    <span class="sig-count sig-p1">P1: 0</span>
+    <span class="sig-count sig-p2">P2: 46</span>
+  </div>
+  
+  <div class="market-note">Market signal analysis — public app store data - 3.60 avg rating</div>
+</div>
+
+<div class="journey-card" style="border-left:3px solid var(--green);">
+  <div class="card-header">
+    <span class="rank-num">#4</span>
+    <span class="journey-name">App Installation Issues</span>
+    <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
+  </div>
+  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
+  <div class="verdict-label">VERDICT</div>
+  <div class="verdict-text">App Installation Issues -- 45 signals, minor issues only.</div>
+  <div class="version-delta-row">
+    <span class="version-label">v—</span>
+    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
+  </div>
+  <div class="signal-counts">
+    <span class="sig-count sig-p1">P1: 0</span>
+    <span class="sig-count sig-p2">P2: 45</span>
+  </div>
+  
+  <div class="market-note">Market signal analysis — public app store data - 4.50 avg rating</div>
+</div>
+
+<div class="journey-card" style="border-left:3px solid var(--green);">
+  <div class="card-header">
+    <span class="rank-num">#5</span>
+    <span class="journey-name">UI/UX</span>
+    <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
+  </div>
+  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
+  <div class="verdict-label">VERDICT</div>
+  <div class="verdict-text">UI/UX -- 32 signals, minor issues only.</div>
+  <div class="version-delta-row">
+    <span class="version-label">v—</span>
+    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
+  </div>
+  <div class="signal-counts">
+    <span class="sig-count sig-p1">P1: 0</span>
+    <span class="sig-count sig-p2">P2: 32</span>
+  </div>
+  
+  <div class="market-note">Market signal analysis — public app store data - 4.70 avg rating</div>
+</div>
+
+  </div>
+  <div class="right-col">
+    
+<div class="panel-section">
+  <div class="panel-title">CHRONICLE — Failure Library</div>
+  
+<div class="chronicle-card">
+  <div class="chronicle-header">
+    <span class="chronicle-id">CHR-001</span>
+    <span class="chronicle-bank">TSB Bank</span>
+    <span class="chronicle-date">April 2018</span>
+    
+  </div>
+  <div class="chronicle-type">Core Banking Migration Failure</div>
+  <div class="chronicle-impact">£48.65M fine - 225,492 complaints - 1.9M locked out - 8 months disruption</div>
+</div>
+
+<div class="chronicle-card">
+  <div class="chronicle-header">
+    <span class="chronicle-id">CHR-002</span>
+    <span class="chronicle-bank">Lloyds Banking Group</span>
+    <span class="chronicle-date">March 2025</span>
+    <span class="chronicle-cap">CAP 0.6 — PARTIAL</span>
+  </div>
+  <div class="chronicle-type">API Defect — Data Exposure</div>
+  <div class="chronicle-impact">447,936 exposed - 114,182 viewed wrong data - £139K compensation</div>
+</div>
+
+<div class="chronicle-card">
+  <div class="chronicle-header">
+    <span class="chronicle-id">CHR-003</span>
+    <span class="chronicle-bank">HSBC UK</span>
+    <span class="chronicle-date">August 2025</span>
+    <span class="chronicle-hold">INFERENCE HOLD</span>
+  </div>
+  <div class="chronicle-type">App &amp; Online Banking Outage</div>
+  <div class="chronicle-impact">4,000+ DownDetector reports - ~5hr outage - ERR03 pattern</div>
+</div>
+
+<div class="chronicle-card">
+  <div class="chronicle-header">
+    <span class="chronicle-id">CHR-004</span>
+    <span class="chronicle-bank">Barclays</span>
+    <span class="chronicle-date">March 2026</span>
+    <span class="chronicle-hold">INFERENCE HOLD</span>
+  </div>
+  <div class="chronicle-type">App Friction — Cards Section Crash Cluster</div>
+  <div class="chronicle-impact">5 reviews 2026-03-23/25 — probable v8.20.1 regression — enrichment re-run pending</div>
+</div>
+
+</div>
+
+    
+<div class="panel-section">
+  <div class="panel-title">ACTIVE INFERENCES</div>
+<div class="inference-card">
+  <div class="inference-header">
+    <span class="inference-label">ACTIVE INFERENCE</span>
+    <span class="severity-badge severity-p1">P1</span>
+  </div>
+  <div class="inference-finding">Barclays Cards section crash cluster &#8212; probable v8.20.1 regression. OTP failure on account setup and payment auth loop detected.</div>
+  <ul class="blind-spots">
+    <li class="blind-spot-item">Root cause unconfirmed &#8212; enrichment re-run pending</li>
+    <li class="blind-spot-item">No CHRONICLE similarity score yet &#8212; awaiting Refuel classification</li>
+  </ul>
+  <div class="chronicle-anchor">CHRONICLE: CHR-004</div>
+  <div class="inference-actions">
+    <button class="action-btn">View Signals</button>
+    <button class="action-btn">CHRONICLE Check</button>
+  </div>
+</div>
+</div>
+
+    
+<div class="panel-section">
+  <div class="panel-title">Signal Sources</div>
+  <div class="sources-grid"><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">DownDetector</span><span class="source-weight">0.95</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">App Store</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">Google Play</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">Financial Times</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">City A.M.</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Reddit</span><span class="source-weight">0.85</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Trustpilot</span><span class="source-weight">0.80</span></div><div class="source-item"><span class="dot dot-amber"></span><span class="source-name">Facebook</span><span class="source-weight">0.75</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">YouTube</span><span class="source-weight">0.75</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Twitter/X</span><span class="source-weight">0.60</span></div></div>
+</div>
+
+  </div>
+</div>
+
+<!-- -- Footer -------------------------------------------------------------- -->
+<div class="footer">
+  <span class="footer-item">INFERENCE LOCAL</span>
+  <span class="footer-sep">-</span>
+  <span class="footer-item">PUBLISHED OUTPUT ONLY</span>
+  <span class="footer-sep">-</span>
+  <span class="footer-item">sonar.cjipro.com/briefing</span>
+  <span class="footer-sep">-</span>
+  <span class="footer-item">Sonar v0.6</span>
+  <span class="footer-sep">-</span>
+  <span class="footer-sovereign">SOVEREIGN</span>
+  <span class="footer-sep">-</span>
+  <span class="footer-item">Article Zero</span>
+  <span class="footer-sep">-</span>
+  <span class="footer-item">Published 2026-03-30 20:51 UTC</span>
+</div>
+
+<!-- -- Ask Sonar Button ----------------------------------------------------- -->
+<button class="ask-sonar-btn" onclick="openChat()" aria-label="Ask CJI Pro">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  Ask CJI Pro
+</button>
+
+<!-- -- Chat Panel ----------------------------------------------------------- -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+    <span class="chat-title">Ask CJI Pro</span>
+    <button class="chat-close" onclick="closeChat()">&#215;</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg system">Sonar is ready. Ask about any competitor journey, signal pattern, or CHRONICLE match.</div>
+  </div>
+  <div class="chat-chips">
+    <span class="chip" onclick="sendChip(this)">What is Barclays login score?</span>
+    <span class="chip" onclick="sendChip(this)">Any active P0 signals?</span>
+    <span class="chip" onclick="sendChip(this)">CHRONICLE match for Lloyds?</span>
+    <span class="chip" onclick="sendChip(this)">Which journey is regressing?</span>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Ask about market signals…" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+// -- Chat Panel ------------------------------------------------------------
+const PROXY_URL = 'https://sonar.cjipro.com/api/ask';
+
+function openChat() {
+  document.getElementById('chatPanel').classList.add('open');
+}
+function closeChat() {
+  document.getElementById('chatPanel').classList.remove('open');
+}
+function sendChip(el) {
+  document.getElementById('chatInput').value = el.textContent;
+  sendChat();
+}
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const messages = document.getElementById('chatMessages');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  // User message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.textContent = text;
+  messages.appendChild(userMsg);
+  messages.scrollTop = messages.scrollHeight;
+
+  // Send to proxy
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query: text, version: '8.20.1'})
+    });
+    const data = await res.json();
+    const reply = document.createElement('div');
+    reply.className = 'chat-msg system';
+    reply.textContent = data.response || 'No response from Sonar.';
+    messages.appendChild(reply);
+  } catch (err) {
+    const errMsg = document.createElement('div');
+    errMsg.className = 'chat-msg error';
+    errMsg.textContent = 'Proxy unavailable — sonar.cjipro.com/api/ask not reachable.';
+    messages.appendChild(errMsg);
+  }
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// Close on outside click
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('chatPanel');
+  const btn = document.querySelector('.ask-sonar-btn');
+  if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+    closeChat();
+  }
+});
+</script>
+
+</body>
+</html>
+"""
+
+st.components.v1.html(HTML_CONTENT, height=2400, scrolling=True)
