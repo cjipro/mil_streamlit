@@ -1041,9 +1041,25 @@ def generate_html(
     barcl_score_str = f"{barcl_score:.0f}" if barcl_score is not None else "—"
     barcl_pct = min(100, max(0, barcl_score or 0))
     barcl_p1 = barcl.get("p1", 0)
-    barcl_delta_str = "— vs baseline"
-    barcl_baseline_str = "Establishing"
-    barcl_trajectory = "WORSENING" if barcl_p1 > 0 else ("STABLE" if barcl_score and barcl_score > 65 else "WATCH")
+    # Baseline: Barclays all-time avg from enriched data; delta vs current score
+    _barcl_baseline_val = barcl.get("bd_baseline")
+    if _barcl_baseline_val is not None:
+        barcl_baseline_str = str(_barcl_baseline_val)
+        if barcl_score is not None:
+            _delta = round(barcl_score - _barcl_baseline_val)
+            _sign = "+" if _delta >= 0 else ""
+            barcl_delta_str = f"{_sign}{_delta} vs baseline"
+        else:
+            barcl_delta_str = "— vs baseline"
+    else:
+        barcl_baseline_str = "Establishing"
+        barcl_delta_str = "— vs baseline"
+    # Trend: use real 3d/4d split from enriched data if available
+    _barcl_trend_raw = barcl.get("bd_trend")
+    if _barcl_trend_raw in ("WORSENING", "IMPROVING", "STABLE"):
+        barcl_trajectory = _barcl_trend_raw
+    else:
+        barcl_trajectory = "WORSENING" if barcl_p1 > 0 else ("STABLE" if barcl_score and barcl_score > 65 else "WATCH")
     barcl_traj_color = "#ff4444" if barcl_trajectory == "WORSENING" else ("#e8a030" if barcl_trajectory == "WATCH" else "#2a9a5a")
     barcl_traj_arrow = "&#8600;" if barcl_trajectory == "WORSENING" else ("&#8594;" if barcl_trajectory == "WATCH" else "&#8599;")
 
@@ -1878,6 +1894,19 @@ def main():
                             "count": item.get("n_records", 0),
                             "avg_rating": None, "version": None, "reviews": [],
                         }
+            # Pull Barclays trend + baseline from enriched ticker
+            for item in bd.get("competitor_ticker", []):
+                if item.get("competitor", "").lower() == "barclays":
+                    # Match case-insensitively to the existing competitor_sentiment key
+                    _bk = next((k for k in competitor_sentiment if k.lower() == "barclays"), None)
+                    if _bk is None:
+                        _bk = item["competitor"]
+                        competitor_sentiment[_bk] = {
+                            "score": None, "p0": 0, "p1": 0, "p2": 0,
+                            "count": 0, "avg_rating": None, "version": None, "reviews": [],
+                        }
+                    competitor_sentiment[_bk]["bd_trend"]    = item.get("trend")
+                    competitor_sentiment[_bk]["bd_baseline"] = item.get("baseline")
             print(f"  Competitor scores updated from enriched data.")
 
             # Journey row — what customers were trying to do

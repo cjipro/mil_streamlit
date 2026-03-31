@@ -570,10 +570,28 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             cat_sev[cat] += (8 if sev == "P0" else 3 if sev == "P1" else 0)
         top_journey = max(cat_sev, key=cat_sev.get) if cat_sev else ""
 
+        # Baseline: all-time avg from enriched files for this competitor (no date filter)
+        c_baseline = None
+        if comp.lower() == "barclays":
+            _all_ratings = []
+            for _f in sorted(ENRICHED_DIR.glob("*.json")):
+                try:
+                    _p = json.loads(_f.read_text(encoding="utf-8"))
+                    if _p.get("competitor", "").lower() == "barclays":
+                        _all_ratings.extend(
+                            r["rating"] for r in _p.get("records", [])
+                            if r.get("rating") and r.get("severity_class") != "ENRICHMENT_FAILED"
+                        )
+                except Exception:
+                    pass
+            if _all_ratings:
+                c_baseline = _star_sentiment(_all_ratings)
+
         competitor_ticker.append({
             "competitor": comp,
             "score":      score if score >= 0 else "N/A",
             "trend":      c_trend,
+            "baseline":   c_baseline,
             "top_journey": top_journey,
             "n_records":  len(crecs),
         })
