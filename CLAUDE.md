@@ -80,7 +80,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - PULSE-2I: Command dashboard + scheduler.py + adapter shim (NOT_STARTED — Week 4)
 - PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
 
-## MIL Pipeline State — 2026-03-31
+## MIL Pipeline State — 2026-04-01
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -160,15 +160,37 @@ File: `mil/briefing_data.py`
 File: `mil/publish/publish.py`
 - Box 1 layout (top to bottom):
   1. Header: CJI SONAR — APP INTELLIGENCE
-  2. Barclays sentiment card (score, real 3d/4d trend, all-time baseline, delta)
-  3. **Dual quote boxes** — App Store quote (top) + Google Play quote (bottom), both Barclays only,
+  2. Barclays sentiment card — label 15px, score pushed right with margin-left:auto
+     (score, real 3d/4d trend, all-time Barclays baseline, delta vs baseline)
+  3. Dual quote boxes — App Store (top) + Google Play (bottom), both Barclays only,
      P0 first with P1 fallback, 104px fixed height, star rating + source + date stamp footer
   4. Brand lines (15px): "Live signals from App Store, Google Play..." + "Historical failure patterns..."
   5. Version pills
-- Executive alert: self-intelligence framing, signal strength, Sonnet synthesis, Chronicle (conditional)
-- Issues section: shows issue_type names (App Not Opening, Transfer Failed) not journey names
-- Brand line font: 15px (was 11px)
+  6. Footnote (10px, #3A6A7F): "Sentiment score: 7-day rolling avg · App Store & Google Play · Barclays only · star ratings inc. text-free reviews"
+- Box 2 (Issues Status): Barclays only — issue_type counts, trend, P0/P1. Direct quote at bottom
+  tied to top-ranked issue_type (P0->P1 fallback, de-duped vs Box 1 quotes, issue label in small caps)
+- Box 3 (Executive Alert): Barclays only — self-intelligence framing ("YOUR APP"), Sonnet synthesis,
+  Chronicle match conditional (CHR-001/CHR-002, intentional historical reference), YOUR CALL
+- All three boxes confirmed Barclays-scoped
+- Brand line font: 15px
 - Note: cjipro.com behind Cloudflare — cache purge may be needed after deploy to see changes immediately
+
+### Daily Pipeline — ONE COMMAND (fully agentic)
+```
+py run_daily.py
+```
+Steps (zero human intervention required):
+  1. Fetch — App Store + Google Play, all active competitors, dedup against existing
+  2. Enrich — Claude Haiku schema v3, skip already-enriched v3 records (< 1 second if nothing new)
+  3. Inference — mil_agent.py CAC + RAG, Chronicle matching, Designed Ceiling
+  4. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
+  5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
+
+Flags:
+  `--dry-run`    fetch + enrich only, skip inference + publish
+  `--skip-fetch` skip fetch + enrich, re-run inference + publish only
+
+Human is ONLY required for: governance review (CHR entries), M2 countersign, Jira ticket closure.
 
 ### MIL Jira — Kanban Board
 - MIL-1 through MIL-6: BUILT (2026-03-28)
