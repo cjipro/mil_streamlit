@@ -1025,7 +1025,7 @@ def generate_html(
 
     if _as_box or _gp_box:
         quote_box_html = (
-            f'<div style="display:flex;gap:8px;">'
+            f'<div style="display:flex;flex-direction:column;gap:8px;">'
             f'{_as_box}'
             f'{_gp_box}'
             f'</div>'
