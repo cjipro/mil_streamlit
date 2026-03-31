@@ -473,6 +473,30 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             f.get("confidence_score", 0),
         ))
         blind_spots = top.get("blind_spots", [])
+        p0          = top["signal_counts"]["P0"]
+        p1          = top["signal_counts"]["P1"]
+        keywords    = top.get("top_3_keywords", [])
+        comp_title  = top["competitor"].title()
+        ceiling     = top.get("designed_ceiling_reached", False)
+
+        _JOURNEY_LABELS = {
+            "J_SERVICE_01": "app crashing and service disruption",
+            "J_LOGIN_01":   "login and account access failures",
+            "J_PAY_01":     "payment failures",
+            "J_ONBOARD_01": "onboarding issues",
+        }
+        jlabel = _JOURNEY_LABELS.get(top.get("journey_id", ""), "service issues")
+
+        kw_part = f" Key terms: {', '.join(keywords[:3])}." if keywords else ""
+        risk_summary = (
+            f"{comp_title} customers are reporting {jlabel}. "
+            f"{p0} critical and {p1} high-severity signals detected in this window.{kw_part}"
+        )
+
+        # Primary blind spot: skip the ceiling message — it's not a real gap
+        real_blind_spots = [b for b in blind_spots if "HDFS" not in b and "telemetry" not in b.lower() and "Designed Ceiling" not in b]
+        primary_blind_spot = real_blind_spots[0] if real_blind_spots else ""
+
         executive_alert = {
             "finding_id":        top["finding_id"],
             "competitor":        top["competitor"],
@@ -481,15 +505,15 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "signal_severity":   top.get("signal_severity"),
             "finding_tier":      top.get("finding_tier"),
             "chronicle_id":      top["provenance"].get("chronicle_id"),
-            "designed_ceiling":  top.get("designed_ceiling_reached", False),
-            "p0":                top["signal_counts"]["P0"],
-            "p1":                top["signal_counts"]["P1"],
-            "summary":           top.get("finding_summary", "")[:160],
-            "top_keywords":      top.get("top_3_keywords", []),
-            "primary_blind_spot": blind_spots[0] if blind_spots else "",
+            "designed_ceiling":  ceiling,
+            "p0":                p0,
+            "p1":                p1,
+            "summary":           risk_summary,
+            "top_keywords":      keywords,
+            "primary_blind_spot": primary_blind_spot,
             "action_required": (
-                "To confirm this I require internal HDFS telemetry data. Request Phase 2."
-                if top.get("designed_ceiling_reached")
+                "Speak to the Channels Decision Intelligence team — internal journey data needed to confirm severity and next steps."
+                if ceiling
                 else "Monitor signal volume. Await human countersign before escalation."
             ),
         }

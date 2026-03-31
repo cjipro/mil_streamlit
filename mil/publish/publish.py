@@ -185,7 +185,7 @@ def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
     p0         = ea.get("p0", 0)
     p1         = ea.get("p1", 0)
     tier       = ea.get("finding_tier", "")
-    summary    = ea.get("summary", "")[:160]
+    summary    = ea.get("summary", "")[:300]
     action     = ea.get("action_required", "Monitor signal volume.")
     blind_spot = ea.get("primary_blind_spot", "")
     keywords   = ea.get("top_keywords", [])
