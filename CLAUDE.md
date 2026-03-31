@@ -80,30 +80,31 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - PULSE-2I: Command dashboard + scheduler.py + adapter shim (NOT_STARTED — Week 4)
 - PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
 
-## MIL Pipeline State — 2026-03-30
+## MIL Pipeline State — 2026-03-31
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
   - Zero Entanglement: MIL HDFS sovereign on 9871. CJI Pulse HDFS on 9870. Never shared.
   - WebHDFS 2-step PUT confirmed working: NameNode 9871 → DataNode 9864 redirect chain
   - HDFS volumes: C:/Users/hussa/hdfs-volumes/mil-namenode + mil-datanode
-- **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Refuel-8B is primary labeler.
+- **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Claude Haiku is now primary enrichment model.
 
-### Enrichment Pipeline (qwen_enrichment.py — schema v2)
-File: `mil/harvester/qwen_enrichment.py`
-- Model: michaelborck/refuled:latest via /v1/chat/completions (OpenAI-compat)
-- Batch size: 3 records per Refuel call (RECORDS_PER_PROMPT=3)
-- Schema v2 fields per record:
-  - journey_category: 15 classes (Login & Account Access, App not Opening, Failed Transaction, etc.)
-  - bank_product_type: Accounts / Loans / Money Transfer / Payments / Credit Cards / Other
+### Enrichment Pipeline (enrich_sonnet.py — schema v3) ← ACTIVE
+File: `mil/harvester/enrich_sonnet.py`
+- Model: claude-haiku-4-5-20251001 via Anthropic API
+- Batch size: 10 records per API call
+- Schema v3 fields per record:
+  - issue_type: 16 categories (App Not Opening, Login Failed, Payment Failed, etc.)
+  - customer_journey: 9 categories (Log In, Make a Payment, Transfer Money, etc.)
   - sentiment_score: float -1.0 to 1.0
-  - severity_class: P0 / P1 / P2 with severity gate enforced in _normalise_enrichment()
-  - reasoning: one-sentence explanation
-- **Severity gate**: P0/P1 only permitted when journey is high-risk (Login & Account Access,
-  App not Opening, Failed Transaction, Password Issues, Network Failure) AND product is
-  high-risk (Accounts/Loans/Money Transfer/Payments/Credit Cards). All else = P2.
+  - severity_class: P0 / P1 / P2 with severity gate in _normalise()
+  - reasoning: one sentence
+- **Severity gate**: P0/P1 only for blocking issues (App Not Opening, Login Failed, Payment Failed,
+  Transfer Failed, Account Locked, App Crashing). Positive Feedback always P2.
+- v3 skip logic: `_is_v3(r)` check — already-enriched records skipped, daily run < 1 second
 - JSON repair pipeline: trim → json.loads → json_repair fallback → ENRICHMENT_FAILED
-- Result: P0=48 (1.9%), P1=44 (1.8%), P2=2,394 (95.8%) across 2,500 records
+- **rsplit fix**: new source+competitor keys split on last `_` so `app_store_barclays` → source=`app_store`, competitor=`barclays`
+- Old pipeline (qwen_enrichment.py schema v2) — superseded, do not use for new enrichment
 
 ### Vault (vault_sync.py)
 File: `mil/vault/vault_sync.py`
@@ -111,12 +112,15 @@ File: `mil/vault/vault_sync.py`
 - Pushes to HDFS /user/mil/enriched/ via WebHDFS (port 9871)
 - DuckDB anchor log: mil/vault/mil_vault.db (vault_anchor_log table)
 - SKIPPED_WRONG_MODEL guard: blocks any file enriched with qwen model
-- Current state: **5/5 VAULTED** at 20260330_074849
-  - app_store_lloyds_enriched.json: 500 records VAULTED
-  - app_store_monzo_enriched.json: 500 records VAULTED
-  - google_play_barclays_enriched.json: 500 records VAULTED
-  - google_play_natwest_enriched.json: 500 records VAULTED
-  - google_play_revolut_enriched.json: 500 records VAULTED
+- **_needs_vault()**: re-vaults when record count OR model changes (not just by filename)
+- **Vault step wired into run_daily.py as Step 4b** (after inference, before publish)
+- Current state: **6/6 VAULTED** at 20260331_212732 — all claude-haiku-4-5-20251001
+  - app_store_barclays_enriched.json: 50 records VAULTED
+  - app_store_lloyds_enriched.json: 517 records VAULTED
+  - app_store_monzo_enriched.json: 508 records VAULTED
+  - google_play_barclays_enriched.json: 601 records VAULTED
+  - google_play_natwest_enriched.json: 598 records VAULTED
+  - google_play_revolut_enriched.json: 620 records VAULTED
 - Missing backfill: app_store/natwest + app_store/revolut (no raw data harvested yet)
 
 ### Inference Engine (mil_agent.py — MIL-8)
@@ -130,36 +134,51 @@ File: `mil/inference/mil_agent.py`
   - Output: "To confirm this I require internal HDFS telemetry data. Request Phase 2."
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
-- journey_category (v2) -> journey_id mapping in JOURNEY_MAP
-- Current findings: **43 total** | 34 anchored | 9 unanchored | 12 Designed Ceiling
-  - Clark P1: 4 findings | Clark P2: 12 | Clark P3: 18
-  - Top finding: NatWest J_SERVICE_01 CAC=0.652, P0, CHR-001 [CEILING]
-  - M2 candidate: NatWest J_SERVICE_01 CAC=0.652 — PENDING Hussain countersign
-  - M3 DEMONSTRATED: 12 Designed Ceiling triggers active
+- issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
+- Current findings: **61 total** | 34 anchored | 9 unanchored | 12 Designed Ceiling
 
 ### Briefing Data Layer (briefing_data.py)
 File: `mil/briefing_data.py`
-- Fully dynamic: no hardcoded journey list — groups by raw journey_category from Refuel
+- Fully dynamic: no hardcoded journey list
 - get_briefing_data() returns complete dict for publish.py and dashboard
 - Sentiment: avg star rating x20 (0-100), 7-day rolling window
-- Trend: 3-day vs 4-day split (WORSENING/IMPROVING/STABLE)
+- **Trend: real 3d/4d split per competitor** — anchor on latest review date, split -3 days,
+  compare avg rating earlier 4d vs current 3d. WORSENING if delta > 5pts, IMPROVING if +5pts.
 - Issue Score = Volume x Severity_Weight x Trend_Factor x CHRONICLE_Bonus
-- Current output (2026-03-30):
-  - Overall sentiment: 87/100, STABLE (baseline 81)
-  - #1 journey: App not Opening, score=93.75, P0=4, P1=6, sentiment=66, STABLE
-  - #2 journey: Failed Transaction, score=58.75, P0=5, P1=2, sentiment=60, STABLE
-  - Competitor ticker: Lloyds 72 (worst), NatWest 73, Revolut 87, Barclays 91, Monzo 94
-  - Issues status: 12 needs_attention / 4 watch / 36 performing_well
-  - Executive alert: NatWest J_SERVICE_01, CAC=0.652, P0, CHR-001, CEILING
+- Dual-lens output: issues_performance (what went wrong) + journey_performance (what customer tried)
+- **Barclays baseline**: all-time avg from both app_store + google_play enriched files (651 records)
+  - Current: score=89, baseline=90, delta=-1, trend=STABLE
+- Executive alert: self-intelligence framing ("YOUR APP"), Sonnet synthesis of P0 reviews,
+  conditional Chronicle match (keyword overlap >= 2), signal strength STRONG/MODERATE/EARLY SIGNAL
+- Chronicle matching: CHR-001 (TSB 2018) and CHR-002 (Lloyds 2025) on issue_type overlap
+- Top quote selection: P0 first, P1 fallback, 40+ chars, prefer 60-200 chars
+- Current output (2026-03-31):
+  - Barclays sentiment: 89/100, baseline 90, -1 vs baseline, STABLE
+  - Competitor ticker: NatWest worst, Barclays 89
+
+### Sonar Briefing — publish.py
+File: `mil/publish/publish.py`
+- Box 1 layout (top to bottom):
+  1. Header: CJI SONAR — APP INTELLIGENCE
+  2. Barclays sentiment card (score, real 3d/4d trend, all-time baseline, delta)
+  3. **Dual quote boxes** — App Store quote (top) + Google Play quote (bottom), both Barclays only,
+     P0 first with P1 fallback, 104px fixed height, star rating + source + date stamp footer
+  4. Brand lines (15px): "Live signals from App Store, Google Play..." + "Historical failure patterns..."
+  5. Version pills
+- Executive alert: self-intelligence framing, signal strength, Sonnet synthesis, Chronicle (conditional)
+- Issues section: shows issue_type names (App Not Opening, Transfer Failed) not journey names
+- Brand line font: 15px (was 11px)
+- Note: cjipro.com behind Cloudflare — cache purge may be needed after deploy to see changes immediately
 
 ### MIL Jira — Kanban Board
 - MIL-1 through MIL-6: BUILT (2026-03-28)
 - MIL-7: Teacher Agent + Synthetic Engine — NOT_STARTED (requires Sonnet API, Hussain gate)
 - MIL-8: mil_agent.py — **BUILT 2026-03-30** (commits 9f7ecc4, c3e35a7)
-- Next MIL ticket: MIL-9
+- MIL-9: Sonar Streamlit dashboard — BUILT (2026-03-31)
+- Next MIL ticket: MIL-10
 
 ### Day 30 Success Metrics — Current State
-- M1 (Signal Pipeline Live): Pipeline operational. Need 5 consecutive clean days. IN_PROGRESS.
+- M1 (Signal Pipeline Live): Pipeline operational. run_daily.py: fetch → enrich → inference → vault → publish. IN_PROGRESS (need 5 consecutive clean days).
 - M2 (One Validated Finding): NatWest J_SERVICE_01 CAC=0.652, CHR-001 anchor, PENDING Hussain countersign.
 - M3 (Designed Ceiling Trigger): **DEMONSTRATED** — 12 active ceiling triggers.
 
@@ -168,14 +187,15 @@ File: `mil/briefing_data.py`
 - CHR-003: Confirm HSBC root cause or leave inference_approved=false
 - M2: Countersign NatWest J_SERVICE_01 finding to close M2
 - app_store/natwest + app_store/revolut: backfill raw data still missing
-- Jira: close MIL-8 in UI (dual closure rule)
+- Jira: close MIL-8 + MIL-9 in UI (dual closure rule)
+- Cloudflare: purge cache after each briefing deploy if changes not visible
 
 ## MIL — Market Intelligence Layer
 
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps: NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays.
-**Current corpus: 2,500 enriched records (5 competitors × 500). Missing: app_store/natwest + app_store/revolut backfill.**
+**Current corpus: 2,894 enriched records across 6 files (schema v3, claude-haiku-4-5-20251001). Missing: app_store/natwest + app_store/revolut backfill.**
 
 ### MIL Zero Entanglement — HARD RULE
 
