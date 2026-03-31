@@ -89,7 +89,7 @@ competitors:
     display_name: "Barclays"
     p5: false
     p5_note: "MIL public data exception — Barclays appears as Barclays in all MIL outputs. P5 applies to CJI Pulse internal systems only."
-    app_store_id: "307871777"
+    app_store_id: "536248734"
     google_play_id: "com.barclays.android.barclaysmobilebanking"
     downdetector_slug: "barclays"
     trustpilot_slug: "barclays.co.uk"
