@@ -69,24 +69,40 @@ MAX_RETRIES     = 2
 # Severity volume multipliers per MIL_SCHEMA.yaml signal_severity
 SEV_MULTIPLIER = {"P0": 2.0, "P1": 1.5, "P2": 1.0, "ENRICHMENT_FAILED": 0.0}
 
-# journey_category (v2 schema) -> journey_id taxonomy (MIL_SCHEMA.yaml)
+# issue_type (v3 schema) -> journey_id taxonomy (MIL_SCHEMA.yaml)
+# Also retains v2 journey_category keys for backwards compatibility
 JOURNEY_MAP = {
-    "Login & Account Access":   "J_LOGIN_01",
-    "Password Issues":          "J_LOGIN_01",
-    "Failed Transaction":       "J_PAY_01",
-    "Transaction Charges":      "J_PAY_01",
-    "Account Registration":     "J_ONBOARD_01",
-    "App Installation Issues":  "J_ONBOARD_01",
-    "App crashes or Slow":      "J_SERVICE_01",
-    "App not Opening":          "J_SERVICE_01",
-    "Network Failure":          "J_SERVICE_01",
-    "Customer Support":         "J_SERVICE_01",
-    "Customer Inquiry":         "J_SERVICE_01",
-    "UI/UX":                    None,
-    "Feature Requests":         None,
-    "General Feedback":         None,
-    "Other":                    None,
-    "ENRICHMENT_FAILED":        None,
+    # v3 issue_type keys
+    "Login Failed":              "J_LOGIN_01",
+    "Biometric / Face ID Issue": "J_LOGIN_01",
+    "Account Locked":            "J_LOGIN_01",
+    "Payment Failed":            "J_PAY_01",
+    "Transfer Failed":           "J_PAY_01",
+    "Missing Transaction":       "J_PAY_01",
+    "App Not Opening":           "J_SERVICE_01",
+    "App Crashing":              "J_SERVICE_01",
+    "Slow Performance":          "J_SERVICE_01",
+    "Feature Broken":            "J_SERVICE_01",
+    "Notification Issue":        "J_SERVICE_01",
+    "Card Frozen or Blocked":    "J_SERVICE_01",
+    "Incorrect Balance":         "J_SERVICE_01",
+    "Customer Support Failure":  "J_SERVICE_01",
+    "Positive Feedback":         None,
+    "Other":                     None,
+    "ENRICHMENT_FAILED":         None,
+    # v2 journey_category keys (fallback)
+    "Login & Account Access":    "J_LOGIN_01",
+    "Password Issues":           "J_LOGIN_01",
+    "Failed Transaction":        "J_PAY_01",
+    "Transaction Charges":       "J_PAY_01",
+    "Account Registration":      "J_ONBOARD_01",
+    "App Installation Issues":   "J_ONBOARD_01",
+    "App crashes or Slow":       "J_SERVICE_01",
+    "App not Opening":           "J_SERVICE_01",
+    "Network Failure":           "J_SERVICE_01",
+    "Customer Support":          "J_SERVICE_01",
+    "Customer Inquiry":          "J_SERVICE_01",
+    "General Feedback":          None,
 }
 
 # Clark tier mapping on CAC score
@@ -644,7 +660,7 @@ def run_inference(sample_size: Optional[int] = None) -> list[dict]:
         # Aggregate by journey_category (v2 schema) cluster
         journey_clusters: dict[str, list[dict]] = defaultdict(list)
         for r in records:
-            attribution = r.get("journey_category") or r.get("journey_attribution", "Other")
+            attribution = r.get("issue_type") or r.get("journey_category") or r.get("journey_attribution", "Other")
             journey_clusters[attribution].append(r)
 
         for attribution, cluster in sorted(journey_clusters.items()):
@@ -675,10 +691,13 @@ def run_inference(sample_size: Optional[int] = None) -> list[dict]:
             all_keywords: list[str] = []
             for r in cluster:
                 all_keywords.extend(r.get("keywords", []))
-                # v2 schema: supplement with journey_category label and reasoning words
-                jcat = r.get("journey_category", "")
+                # v3 schema: supplement with issue_type + customer_journey labels
+                jcat = r.get("issue_type") or r.get("journey_category", "")
                 if jcat:
                     all_keywords.extend(jcat.lower().split())
+                cj = r.get("customer_journey", "")
+                if cj:
+                    all_keywords.extend(cj.lower().split())
                 reasoning = r.get("reasoning", "")
                 if reasoning:
                     all_keywords.extend(w.strip(".,;:\"'()").lower()

@@ -243,11 +243,9 @@ def main() -> None:
         total_new = sum(fetch_counts.values())
         logger.info("Fetch complete. Total new records: %d", total_new)
 
-        if total_new > 0:
-            logger.info("--- Step 2+3: Enrich new records ---")
-            enrich_new(fetch_counts)
-        else:
-            logger.info("No new records — skipping enrichment.")
+        logger.info("--- Step 2+3: Enrich (Sonnet) ---")
+        from mil.harvester.enrich_sonnet import run_enrichment as sonnet_enrich
+        sonnet_enrich()
     else:
         logger.info("--skip-fetch set: skipping fetch and enrichment.")
 

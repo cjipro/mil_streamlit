@@ -318,38 +318,70 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     }
 
     # ----------------------------------------------------------
-    # SECTION 2: JOURNEY PERFORMANCE
-    # Group by raw journey_category. No remapping in output.
+    # SECTION 2a: ISSUES — grouped by issue_type (what went wrong)
+    # Excludes Positive Feedback and Other unless they have P0/P1.
     # ----------------------------------------------------------
-
-    # Build per-journey groups from enriched records
-    jgroups: dict[str, list[dict]] = defaultdict(list)
+    issue_groups: dict[str, list[dict]] = defaultdict(list)
     for r in records:
-        cat = r.get("journey_category") or "Other"
-        jgroups[cat].append(r)
+        cat = r.get("issue_type") or "Other"
+        issue_groups[cat].append(r)
 
     rows = []
-    for cat, jrecs in jgroups.items():
-        # Skip "Other" / "General Feedback" unless they have P0/P1 signals
-        # (keeps the top-5 focused on actionable journeys)
+    for cat, jrecs in issue_groups.items():
         p0 = sum(1 for r in jrecs if r.get("severity_class") == "P0")
         p1 = sum(1 for r in jrecs if r.get("severity_class") == "P1")
         p2 = sum(1 for r in jrecs if r.get("severity_class") == "P2")
 
-        if cat in ("Other", "General Feedback") and p0 == 0 and p1 == 0:
-            continue    # pure noise -- no actionable signal
+        if cat in ("Positive Feedback", "Other") and p0 == 0 and p1 == 0:
+            continue
 
-        vol         = len(jrecs)
-        ratings     = [r["rating"] for r in jrecs if r.get("rating")]
-        sentiment   = _star_sentiment(ratings) if ratings else overall_score
-        j_trend     = _trend(jrecs, today)
-
-        # CHRONICLE bonus: look up via internal journey_id mapping
-        jid          = _CATEGORY_TO_JID.get(cat)
-        chron_ids    = jid_chronicles.get(jid, set()) if jid else set()
-        i_score      = _issue_score(vol, p0, p1, p2, j_trend, chron_ids)
+        vol       = len(jrecs)
+        ratings   = [r["rating"] for r in jrecs if r.get("rating")]
+        sentiment = _star_sentiment(ratings) if ratings else overall_score
+        j_trend   = _trend(jrecs, today)
+        i_score   = _issue_score(vol, p0, p1, p2, j_trend, set())
 
         rows.append({
+            "journey":         cat,
+            "sentiment_score": sentiment if sentiment >= 0 else overall_score,
+            "trend":           j_trend,
+            "issue_score":     i_score,
+            "p0":              p0,
+            "p1":              p1,
+            "p2":              p2,
+            "volume":          vol,
+            "chronicle_ids":   [],
+        })
+
+    rows.sort(key=lambda x: -x["issue_score"])
+
+    # ----------------------------------------------------------
+    # SECTION 2b: JOURNEY PERFORMANCE — grouped by customer_journey
+    # (what were they trying to do). Excludes General App Use unless P0/P1.
+    # ----------------------------------------------------------
+    journey_groups: dict[str, list[dict]] = defaultdict(list)
+    for r in records:
+        cat = r.get("customer_journey") or "General App Use"
+        journey_groups[cat].append(r)
+
+    journey_rows = []
+    for cat, jrecs in journey_groups.items():
+        p0 = sum(1 for r in jrecs if r.get("severity_class") == "P0")
+        p1 = sum(1 for r in jrecs if r.get("severity_class") == "P1")
+        p2 = sum(1 for r in jrecs if r.get("severity_class") == "P2")
+
+        if cat == "General App Use" and p0 == 0 and p1 == 0:
+            continue
+
+        vol       = len(jrecs)
+        ratings   = [r["rating"] for r in jrecs if r.get("rating")]
+        sentiment = _star_sentiment(ratings) if ratings else overall_score
+        j_trend   = _trend(jrecs, today)
+        jid       = _CATEGORY_TO_JID.get(cat)
+        chron_ids = jid_chronicles.get(jid, set()) if jid else set()
+        i_score   = _issue_score(vol, p0, p1, p2, j_trend, chron_ids)
+
+        journey_rows.append({
             "journey":         cat,
             "sentiment_score": sentiment if sentiment >= 0 else overall_score,
             "trend":           j_trend,
@@ -361,10 +393,27 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "chronicle_ids":   sorted(chron_ids),
         })
 
-    rows.sort(key=lambda x: -x["issue_score"])
+    journey_rows.sort(key=lambda x: -x["issue_score"])
 
-    journey_performance = []
+    # Top 5 issues (what went wrong)
+    issues_performance = []
     for rank, row in enumerate(rows[:5], 1):
+        issues_performance.append({
+            "rank":            rank,
+            "journey":         row["journey"],
+            "sentiment_score": row["sentiment_score"],
+            "trend":           row["trend"],
+            "issue_score":     row["issue_score"],
+            "p0":              row["p0"],
+            "p1":              row["p1"],
+            "p2":              row["p2"],
+            "verdict":         _verdict(row["journey"], row["trend"],
+                                        row["p0"], row["p1"], row["p2"]),
+        })
+
+    # Top 5 journeys (what were they trying to do)
+    journey_performance = []
+    for rank, row in enumerate(journey_rows[:5], 1):
         journey_performance.append({
             "rank":            rank,
             "journey":         row["journey"],
@@ -532,6 +581,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         "generated_at":        datetime.now(timezone.utc).isoformat(),
         "window_days":         window_days,
         "overall_sentiment":   overall_sentiment,
+        "issues_performance":  issues_performance,
         "journey_performance": journey_performance,
         "issues_status":       issues_status,
         "competitor_ticker":   competitor_ticker,
