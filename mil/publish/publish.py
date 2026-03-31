@@ -1316,7 +1316,7 @@ a {{ color: var(--blue); text-decoration: none; }}
 .sent-card-inner {{ padding: 8px 14px; display: flex; flex-direction: column; gap: 3px; }}
 .sent-row-1 {{ display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }}
 .sent-row-2 {{ display: flex; align-items: center; justify-content: space-between; }}
-.sent-card-label {{ font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #00AEEF; text-transform: uppercase; flex-shrink: 0; }}
+.sent-card-label {{ font-size: 15px; font-weight: 700; letter-spacing: 2px; color: #00AEEF; text-transform: uppercase; flex-shrink: 0; }}
 .sent-card-score {{ font-family: var(--mono); font-size: 36px; font-weight: 800; color: #E8F4FA; line-height: 1; }}
 .sent-card-delta {{ font-family: var(--mono); font-size: 16px; font-weight: 600; }}
 .sent-card-traj {{ font-size: 10px; font-weight: 700; margin-left: auto; white-space: normal; }}
@@ -1552,7 +1552,7 @@ a {{ color: var(--blue); text-decoration: none; }}
         <div class="sent-card-inner">
           <div class="sent-row-1">
             <span class="sent-card-label">BARCLAYS SENTIMENT</span>
-            <span class="sent-card-score">{barcl_score_str}</span>
+            <span class="sent-card-score" style="margin-left:auto;">{barcl_score_str}</span>
             <span class="sent-card-delta" style="color:{barcl_traj_color};">{barcl_delta_str}</span>
             <span class="sent-card-traj" style="color:{barcl_traj_color};">{barcl_traj_arrow} {barcl_trajectory}</span>
           </div>
