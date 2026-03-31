@@ -1290,7 +1290,7 @@ a {{ color: var(--blue); text-decoration: none; }}
   display: flex;
   align-items: flex-start;
   gap: 7px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
   color: var(--text-2);
   line-height: 1.4;
