@@ -50,12 +50,33 @@ def _ensure_anchor_table(con: duckdb.DuckDBPyConnection) -> None:
     """)
 
 
-def _already_vaulted(con: duckdb.DuckDBPyConnection, file_name: str) -> bool:
-    result = con.execute(
-        f"SELECT status FROM {ANCHOR_STATUS_TABLE} WHERE file_name = ? AND status = 'VAULTED'",
+def _needs_vault(
+    con: duckdb.DuckDBPyConnection,
+    file_name: str,
+    current_record_count: int,
+    current_model: str,
+) -> bool:
+    """
+    Returns True if the file needs vaulting:
+    - Never vaulted before
+    - Previously failed
+    - Record count changed since last vault (new records added)
+    - Model changed since last vault (e.g. Refuel -> Haiku v3)
+    """
+    row = con.execute(
+        f"SELECT status, record_count, model FROM {ANCHOR_STATUS_TABLE} WHERE file_name = ?",
         [file_name],
     ).fetchone()
-    return result is not None
+    if row is None:
+        return True  # never seen
+    status, vaulted_count, vaulted_model = row
+    if status != "VAULTED":
+        return True  # previous attempt failed
+    if vaulted_count != current_record_count:
+        return True  # new records appended
+    if vaulted_model != current_model:
+        return True  # enrichment model upgraded
+    return False  # already vaulted and unchanged
 
 
 def _upsert_status(
@@ -107,11 +128,6 @@ def sync_to_hdfs(dry_run: bool = False) -> dict:
     for enriched_file in enriched_files:
         fname = enriched_file.name
 
-        if _already_vaulted(con, fname):
-            logger.info("[VaultSync] %s --already VAULTED, skipping", fname)
-            summary[fname] = "SKIPPED"
-            continue
-
         try:
             payload = json.loads(enriched_file.read_text(encoding="utf-8"))
         except Exception as exc:
@@ -124,14 +140,18 @@ def sync_to_hdfs(dry_run: bool = False) -> dict:
         record_count = payload.get("enriched_count", len(payload.get("records", [])))
         model = payload.get("model", "unknown")
 
-        # Warn if this file was enriched with the decommissioned Qwen model
+        # Skip decommissioned Qwen model files
         if "qwen" in model.lower():
             logger.warning(
-                "[VaultSync] %s --enriched with DECOMMISSIONED model '%s'. "
-                "Re-enrich with Refuel-8B before anchoring. Skipping.",
+                "[VaultSync] %s --enriched with DECOMMISSIONED model '%s'. Skipping.",
                 fname, model,
             )
             summary[fname] = "SKIPPED_WRONG_MODEL"
+            continue
+
+        if not _needs_vault(con, fname, record_count, model):
+            logger.info("[VaultSync] %s --already VAULTED and unchanged, skipping", fname)
+            summary[fname] = "SKIPPED"
             continue
 
         hdfs_path = f"/user/mil/enriched/{source}_{competitor}_{timestamp}.json"

@@ -207,6 +207,23 @@ def run_inference_step() -> None:
 
 
 # ---------------------------------------------------------------------------
+# STEP 4b — Vault
+# ---------------------------------------------------------------------------
+
+def run_vault_step() -> None:
+    logger.info("[vault] running vault_sync.py...")
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "vault" / "vault_sync.py")],
+        cwd=str(REPO_ROOT),
+        capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[vault] vault_sync.py exited with code %d", result.returncode)
+    else:
+        logger.info("[vault] complete.")
+
+
+# ---------------------------------------------------------------------------
 # STEP 5 — Publish
 # ---------------------------------------------------------------------------
 
@@ -255,6 +272,9 @@ def main() -> None:
 
     logger.info("--- Step 4: Inference ---")
     run_inference_step()
+
+    logger.info("--- Step 4b: Vault ---")
+    run_vault_step()
 
     logger.info("--- Step 5: Publish ---")
     run_publish_step()

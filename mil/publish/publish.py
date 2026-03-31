@@ -955,6 +955,12 @@ def generate_html(
     top_quote: str = "",
     top_quote_rating: int = 0,
     top_quote_source: str = "",
+    as_quote: str = "",
+    as_quote_rating: int = 0,
+    as_quote_date: str = "",
+    gp_quote: str = "",
+    gp_quote_rating: int = 0,
+    gp_quote_date: str = "",
 ) -> str:
     """Generate the full self-contained HTML briefing page."""
 
@@ -990,23 +996,38 @@ def generate_html(
     for j in _issues:
         journey_cards_html += build_journey_card_html(j)
 
-    # ── Quote box for Box 1 ───────────────────────────────────────────────────
-    _stars = ("★" * top_quote_rating + "☆" * (5 - top_quote_rating)) if top_quote_rating else "☆☆☆☆☆"
-    _src   = e(top_quote_source) if top_quote_source else ""
-    _rating_line = f'<div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;">{_stars} &middot; {_src}</div>' if top_quote else ""
+    # ── Dual quote boxes for Box 1 (App Store + Google Play, Barclays only) ────
+    def _build_single_quote_box(text: str, rating: int, source_label: str, date_str: str) -> str:
+        if not text:
+            return ""
+        _qt   = e(text[:280])
+        _stars = "★" * rating + "☆" * (5 - rating) if rating else "☆☆☆☆☆"
+        _date_part = f" &middot; {e(date_str)}" if date_str else ""
+        _footer = (
+            f'<div style="font-size:11px;color:#4A7A8F;margin-top:6px;'
+            f'letter-spacing:0.03em;white-space:nowrap;">'
+            f'{_stars} &middot; {e(source_label)}{_date_part}</div>'
+        )
+        _is_short = len(text) < 100
+        _col_align = "justify-content:center;align-items:center;text-align:center;" if _is_short else "justify-content:flex-start;align-items:flex-start;text-align:left;"
+        return (
+            f'<div style="flex:1;height:104px;min-width:0;border:1px solid #003A5C;'
+            f'border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;'
+            f'{_col_align}background:#001E2E;overflow:hidden;">'
+            f'<div style="font-size:12px;color:#B8D4E0;font-style:italic;'
+            f'line-height:1.5;overflow:hidden;">&ldquo;{_qt}&rdquo;</div>'
+            f'{_footer}'
+            f'</div>'
+        )
 
-    if top_quote:
-        _qt = e(top_quote[:320])
-        # Short quote (<100 chars): centre vertically; long: top-left
-        _is_short = len(top_quote) < 100
-        _qt_align = "justify-content:center;align-items:center;text-align:center;" if _is_short else "justify-content:flex-start;align-items:flex-start;text-align:left;"
+    _as_box = _build_single_quote_box(as_quote, as_quote_rating, "App Store", as_quote_date)
+    _gp_box = _build_single_quote_box(gp_quote, gp_quote_rating, "Google Play", gp_quote_date)
+
+    if _as_box or _gp_box:
         quote_box_html = (
-            f'<div style="height:104px;border:1px solid #003A5C;border-radius:8px;'
-            f'padding:10px 14px;display:flex;flex-direction:column;{_qt_align}'
-            f'background:#001E2E;overflow:hidden;">'
-            f'<div style="font-size:13px;color:#B8D4E0;font-style:italic;line-height:1.55;">'
-            f'&ldquo;{_qt}&rdquo;</div>'
-            f'{_rating_line}'
+            f'<div style="display:flex;gap:8px;">'
+            f'{_as_box}'
+            f'{_gp_box}'
             f'</div>'
         )
     else:
@@ -1833,6 +1854,12 @@ def main():
     bd_top_quote        = ""
     bd_top_quote_rating = 0
     bd_top_quote_source = ""
+    bd_as_quote         = ""
+    bd_as_quote_rating  = 0
+    bd_as_quote_date    = ""
+    bd_gp_quote         = ""
+    bd_gp_quote_rating  = 0
+    bd_gp_quote_date    = ""
     if _BRIEFING_DATA_AVAILABLE:
         print("\n[3.5/5] Loading briefing data layer (enriched) …")
         try:
@@ -1886,6 +1913,12 @@ def main():
             bd_top_quote        = ea.get("top_quote", "")
             bd_top_quote_rating = ea.get("top_quote_rating", 0)
             bd_top_quote_source = ea.get("top_quote_source", "")
+            bd_as_quote         = ea.get("as_quote", "")
+            bd_as_quote_rating  = ea.get("as_quote_rating", 0)
+            bd_as_quote_date    = ea.get("as_quote_date", "")
+            bd_gp_quote         = ea.get("gp_quote", "")
+            bd_gp_quote_rating  = ea.get("gp_quote_rating", 0)
+            bd_gp_quote_date    = ea.get("gp_quote_date", "")
             print(f"  Exec alert: {fid}")
 
         except Exception as exc:
@@ -1920,6 +1953,12 @@ def main():
         top_quote=bd_top_quote,
         top_quote_rating=bd_top_quote_rating,
         top_quote_source=bd_top_quote_source,
+        as_quote=bd_as_quote,
+        as_quote_rating=bd_as_quote_rating,
+        as_quote_date=bd_as_quote_date,
+        gp_quote=bd_gp_quote,
+        gp_quote_rating=bd_gp_quote_rating,
+        gp_quote_date=bd_gp_quote_date,
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

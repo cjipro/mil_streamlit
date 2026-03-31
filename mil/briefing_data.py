@@ -666,6 +666,40 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             top_quote_rating = _pick.get("rating", 0) or 0
             top_quote_source = "App Store" if _pick.get("review") else "Google Play"
 
+        def _pick_quote(candidates: list, text_field: str, date_field: str) -> tuple:
+            """Return (text, rating, date_str) for worst available quote from a source.
+            Tries P0 first, falls back to P1."""
+            for sev in ("P0", "P1"):
+                _c = [
+                    r for r in candidates
+                    if r.get(text_field) and r.get("severity_class") == sev
+                    and len(r.get(text_field, "").strip()) >= 40
+                    and r.get("issue_type") != "Positive Feedback"
+                ]
+                if _c:
+                    break
+            if not _c:
+                return "", 0, ""
+            _in_range = [r for r in _c if 60 <= len(r.get(text_field, "").strip()) <= 200]
+            _p = _in_range[0] if _in_range else sorted(_c, key=lambda r: len(r.get(text_field, "")))[0]
+            _text = _p.get(text_field, "").strip()
+            _rating = int(_p.get("rating", 0) or 0)
+            _raw_date = str(_p.get(date_field, "") or "")[:10]
+            _date_str = ""
+            if _raw_date and len(_raw_date) >= 10:
+                try:
+                    from datetime import datetime as _dtp
+                    _dobj = _dtp.fromisoformat(_raw_date)
+                    _date_str = f"{_dobj.day} {_dobj.strftime('%b')}"
+                except Exception:
+                    _date_str = _raw_date
+            return _text, _rating, _date_str
+
+        # App Store quote (Barclays P0, has 'review' field and 'date')
+        as_quote, as_quote_rating, as_quote_date = _pick_quote(barclays_p01, "review", "date")
+        # Google Play quote (Barclays P0, has 'content' field and 'at')
+        gp_quote, gp_quote_rating, gp_quote_date = _pick_quote(barclays_p01, "content", "at")
+
         # Description: Sonnet synthesis with template fallback
         description = _sonnet_description(barclays_p01, chronicle_sentence)
         if not description:
@@ -688,6 +722,12 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "top_quote":          top_quote,
             "top_quote_rating":   int(top_quote_rating),
             "top_quote_source":   top_quote_source,
+            "as_quote":           as_quote,
+            "as_quote_rating":    as_quote_rating,
+            "as_quote_date":      as_quote_date,
+            "gp_quote":           gp_quote,
+            "gp_quote_rating":    gp_quote_rating,
+            "gp_quote_date":      gp_quote_date,
             "chronicle_id":       chronicle_id,
             "chronicle_sentence": chronicle_sentence,
             "intelligence_gap":   (

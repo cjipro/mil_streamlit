@@ -356,7 +356,8 @@ def run_enrichment() -> dict:
         if key in processed_keys:
             continue
         # Parse source and competitor from key (format: {source}_{competitor})
-        parts = key.split("_", 1)
+        # rsplit on last _ so "app_store_barclays" -> ("app_store", "barclays")
+        parts = key.rsplit("_", 1)
         if len(parts) != 2:
             continue
         source, competitor = parts
