@@ -120,17 +120,17 @@ _CATEGORY_TO_JID_PUB = {
 
 def _bd_to_journey_analysis(journey_performance: list) -> list:
     """
-    Translate briefing_data journey_performance list -> legacy journey_analysis format
-    expected by build_journey_row_html / build_journey_card_html / build_metrics_strip_html.
+    Translate briefing_data journey_performance (or issues_performance) list
+    into the journey_analysis format used by the HTML builders.
+    Fully dynamic — no hardcoded journey IDs or name mappings.
     """
     result = []
     for row in journey_performance:
-        p0   = row.get("p0", 0)
-        p1   = row.get("p1", 0)
-        p2   = row.get("p2", 0)
+        p0    = row.get("p0", 0)
+        p1    = row.get("p1", 0)
+        p2    = row.get("p2", 0)
         trend = row.get("trend", "STABLE")
 
-        # Derive legacy status from enriched data
         if p0 > 0 or (p1 >= 2 and trend == "WORSENING"):
             status = "REGRESSION"
         elif p1 > 0 or trend == "WORSENING":
@@ -138,23 +138,22 @@ def _bd_to_journey_analysis(journey_performance: list) -> list:
         else:
             status = "PERFORMING WELL"
 
-        jid = _CATEGORY_TO_JID_PUB.get(row.get("journey", ""), "J_SERVICE_01")
-
+        name = row.get("journey", "")
         result.append({
-            "rank":           row["rank"],
-            "journey_id":     jid,
-            "journey_name":   row["journey"],   # raw category string as display name
-            "status":         status,
-            "score":          row.get("sentiment_score"),
-            "avg_rating":     round(row.get("sentiment_score", 0) / 20, 2) if row.get("sentiment_score") else None,
-            "p1":             p0 + p1,           # collapse P0 into P1 bucket for display
-            "p2":             p2,
+            "rank":            row["rank"],
+            "journey_id":      name,   # use name as ID — no static mapping
+            "journey_name":    name,
+            "status":          status,
+            "score":           row.get("sentiment_score"),
+            "avg_rating":      round(row.get("sentiment_score", 0) / 20, 2) if row.get("sentiment_score") else None,
+            "p1":              p0 + p1,
+            "p2":              p2,
             "negative_weight": p0 * 8 + p1 * 3 + p2,
-            "neg_pills":      [],
-            "pos_pills":      [],
-            "verdict_text":   row.get("verdict", ""),
+            "neg_pills":       [],
+            "pos_pills":       [],
+            "verdict_text":    row.get("verdict", ""),
             "version_current": None,
-            "is_derived":     True,
+            "is_derived":      True,
         })
     return result
 
@@ -633,28 +632,25 @@ def build_ticker_html(competitor_sentiment: dict) -> str:
 
 
 def build_journey_row_html(journey_analysis: list, competitor_sentiment: dict) -> str:
-    """Build the 5-journey sentiment summary row."""
-    # Reorder by journey ID for display (not by rank)
-    by_id = {j["journey_id"]: j for j in journey_analysis}
+    """Build the journey sentiment summary row — fully dynamic, no hardcoded IDs."""
+    colors = {
+        "REGRESSION":     "var(--red)",
+        "WATCH":          "var(--amber)",
+        "PERFORMING WELL":"var(--green)",
+    }
+    trajectory_icons = {
+        "REGRESSION":     "↘",
+        "WATCH":          "→",
+        "PERFORMING WELL":"↗",
+    }
     cells = []
-    for jid in JOURNEY_IDS:
-        j = by_id.get(jid, {})
+    for j in journey_analysis:
         status = j.get("status", "WATCH")
-        score = j.get("score")
-        name = JOURNEY_NAMES.get(jid, jid)
-        colors = {
-            "REGRESSION": "var(--red)",
-            "WATCH": "var(--amber)",
-            "PERFORMING WELL": "var(--green)",
-        }
+        score  = j.get("score")
+        name   = j.get("journey_name") or j.get("journey", "")
         border_color = colors.get(status, "var(--amber)")
-        score_str = f"{score:.0f}" if score is not None else "—"
-        trajectory_icons = {
-            "REGRESSION": "↘",
-            "WATCH": "→",
-            "PERFORMING WELL": "↗",
-        }
-        traj = trajectory_icons.get(status, "→")
+        score_str    = f"{score:.0f}" if score is not None else "—"
+        traj         = trajectory_icons.get(status, "→")
         cells.append(
             f'<div class="journey-cell" style="border-top:3px solid {border_color};">'
             f'<div class="journey-cell-name">{e(name)}</div>'
