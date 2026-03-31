@@ -961,6 +961,7 @@ def generate_html(
     version_previous: str,
     defaults_used: list,
     exec_alert_override: str = "",
+    issues_analysis: list | None = None,
 ) -> str:
     """Generate the full self-contained HTML briefing page."""
 
@@ -981,16 +982,19 @@ def generate_html(
     version_display = version_current or "—"
     is_bootstrap = not bool(findings.get("findings"))
 
+    # issues_analysis drives the Issues section; journey_analysis drives the Journey row
+    _issues = issues_analysis if issues_analysis else journey_analysis
+
     ticker_html = build_ticker_html(competitor_sentiment)
     journey_row_html = build_journey_row_html(journey_analysis, competitor_sentiment)
-    metrics_strip_html = build_metrics_strip_html(journey_analysis, competitor_sentiment)
+    metrics_strip_html = build_metrics_strip_html(_issues, competitor_sentiment)
     inference_card_html = build_inference_card_html(findings)
     chronicle_html = build_chronicle_html()
     active_inferences_html = build_active_inferences_section_html()
     sources_grid_html = build_sources_grid_html(source_coverage)
 
     journey_cards_html = ""
-    for j in journey_analysis:
+    for j in _issues:
         journey_cards_html += build_journey_card_html(j)
 
     published_at = now_utc.strftime("%Y-%m-%d %H:%M UTC")
@@ -1010,7 +1014,7 @@ def generate_html(
     # ── Executive Alert panel data ────────────────────────────────────────────
     total_p0 = sum(d.get("p0", 0) for d in competitor_sentiment.values())
     total_p1 = sum(d.get("p1", 0) for d in competitor_sentiment.values())
-    watch_count_tb = sum(1 for j in journey_analysis if j.get("status") == "WATCH")
+    watch_count_tb = sum(1 for j in _issues if j.get("status") == "WATCH")
     alert_p0_str = str(total_p0) if total_p0 > 0 else "NONE"
     alert_p0_class = "status-alert" if total_p0 > 0 else "status-clear"
     alert_p1_count = str(total_p1)
@@ -1023,7 +1027,7 @@ def generate_html(
 
     # Worst journey from market signals — used as Barclays journey context
     _worst_j = max(journey_analysis, key=lambda j: j.get("p1", 0) * 1.5 + j.get("p2", 0)) if journey_analysis else {}
-    _worst_j_name = JOURNEY_NAMES.get(_worst_j.get("journey_id", ""), "App") if _worst_j else "App"
+    _worst_j_name = _worst_j.get("journey_name") or _worst_j.get("journey_id", "App") if _worst_j else "App"
 
     # Does Barclays have specific signals?
     _barcl_has_signal = barcl_p1 > 0 or (barcl_score is not None and barcl_score < 55)
@@ -1095,16 +1099,16 @@ def generate_html(
     if exec_alert_override:
         exec_alert_panel_html = exec_alert_override
 
-    # ── Box 2: Issues Status (pre-computed — metric rows + journey list) ──────
-    _reg_count = sum(1 for j in journey_analysis if j.get("status") == "REGRESSION")
-    _wat_count = sum(1 for j in journey_analysis if j.get("status") == "WATCH")
-    _perf_count = sum(1 for j in journey_analysis if j.get("status") == "PERFORMING WELL")
+    # ── Box 2: Issues Status (pre-computed — metric rows + issue list) ──────
+    _reg_count = sum(1 for j in _issues if j.get("status") == "REGRESSION")
+    _wat_count = sum(1 for j in _issues if j.get("status") == "WATCH")
+    _perf_count = sum(1 for j in _issues if j.get("status") == "PERFORMING WELL")
 
     _status_colors = {"REGRESSION": "#CC0000", "WATCH": "#F5A623", "PERFORMING WELL": "#00AFA0"}
     _status_arrows = {"REGRESSION": "&#8600;", "WATCH": "&#8594;", "PERFORMING WELL": "&#8599;"}
     _journey_rows = ""
-    for _j in journey_analysis:
-        _jname = _j.get("journey_name") or JOURNEY_NAMES.get(_j.get("journey_id", ""), _j.get("journey_id", ""))
+    for _j in _issues:
+        _jname = _j.get("journey_name") or _j.get("journey_id", "")
         _jscore = f'{_j["score"]:.0f}' if _j.get("score") is not None else "\u2014"
         _jstatus = _j.get("status", "WATCH")
         _jcolor = _status_colors.get(_jstatus, "#F5A623")
@@ -1788,6 +1792,7 @@ def main():
         print(f"  {comp:12s} score={d['score'] or '—':>6}  n={d['count']:>4}  P1={d['p1']}  P2={d['p2']}{marker}")
 
     journey_analysis = compute_journey_analysis(signals, competitor_sentiment)
+    issues_analysis = None  # populated from briefing_data.issues_performance if available
     source_coverage = detect_source_coverage(signals)
     version_current, version_previous = get_version_info(signals)
 
@@ -1828,13 +1833,18 @@ def main():
                         }
             print(f"  Competitor scores updated from enriched data.")
 
-            # Replace journey_analysis with bd-derived (enriched) version
+            # Journey row — what customers were trying to do
             bd_journeys = bd.get("journey_performance", [])
             if bd_journeys:
                 journey_analysis = _bd_to_journey_analysis(bd_journeys)
-                reg  = sum(1 for j in journey_analysis if j["status"] == "REGRESSION")
-                wtch = sum(1 for j in journey_analysis if j["status"] == "WATCH")
-                perf = sum(1 for j in journey_analysis if j["status"] == "PERFORMING WELL")
+
+            # Issues cards + metrics strip — what went wrong
+            bd_issues = bd.get("issues_performance", [])
+            if bd_issues:
+                issues_analysis = _bd_to_journey_analysis(bd_issues)
+                reg  = sum(1 for j in issues_analysis if j["status"] == "REGRESSION")
+                wtch = sum(1 for j in issues_analysis if j["status"] == "WATCH")
+                perf = sum(1 for j in issues_analysis if j["status"] == "PERFORMING WELL")
                 print(f"  Journey analysis: {len(journey_analysis)} journeys  "
                       f"REGRESSION={reg} WATCH={wtch} PERFORMING={perf}")
 
@@ -1883,6 +1893,7 @@ def main():
         version_previous=version_previous,
         defaults_used=all_defaults,
         exec_alert_override=exec_alert_override_html,
+        issues_analysis=issues_analysis,
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
