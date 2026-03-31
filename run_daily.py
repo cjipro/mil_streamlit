@@ -112,7 +112,7 @@ def fetch_new_records() -> dict[str, int]:
                 encoding="utf-8",
             )
             counts[f"{source_label}_{competitor}"] = len(new_records)
-            logger.info("[fetch] %s / %s — saved %d new records → %s",
+            logger.info("[fetch] %s / %s — saved %d new records -> %s",
                         source_label, competitor, len(new_records), out_file.name)
 
     return counts

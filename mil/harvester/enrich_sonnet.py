@@ -350,6 +350,43 @@ def run_enrichment() -> dict:
             "records_kept":     len(already_enriched),
         }
 
+    # Handle new source+competitor combos — live_ records exist but no enriched file yet
+    processed_keys = set(summary.keys())
+    for key, live_records in live_map.items():
+        if key in processed_keys:
+            continue
+        # Parse source and competitor from key (format: {source}_{competitor})
+        parts = key.split("_", 1)
+        if len(parts) != 2:
+            continue
+        source, competitor = parts
+
+        to_enrich = [_to_raw(r) for r in live_records]
+        logger.info("[enrich_sonnet] %s: new file — enriching %d records", key, len(to_enrich))
+
+        freshly_enriched = enrich_records(source, competitor, to_enrich) if to_enrich else []
+        if not freshly_enriched:
+            continue
+
+        enriched_file = ENRICHED_DIR / f"{key}_enriched.json"
+        enriched_file.write_text(
+            json.dumps({
+                "source":         source,
+                "competitor":     competitor,
+                "enriched_count": len(freshly_enriched),
+                "model":          MODEL,
+                "schema_version": "v3",
+                "records":        freshly_enriched,
+            }, indent=2, default=str),
+            encoding="utf-8",
+        )
+        logger.info("[enrich_sonnet] %s: created enriched file — %d records", key, len(freshly_enriched))
+        summary[key] = {
+            "records_total":    len(freshly_enriched),
+            "records_enriched": len(freshly_enriched),
+            "records_kept":     0,
+        }
+
     return summary
 
 
