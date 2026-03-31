@@ -1580,6 +1580,9 @@ a {{ color: var(--blue); text-decoration: none; }}
         {"<span class='bootstrap-badge'>BASELINE ESTABLISHING</span>" if is_bootstrap else ""}
         <div class="live-dot">LIVE</div>
       </div>
+      <div style="font-size:10px;color:#3A6A7F;margin-top:6px;line-height:1.4;">
+        Sentiment score: 7-day rolling avg &middot; App Store &amp; Google Play &middot; Barclays only &middot; star ratings inc. text-free reviews
+      </div>
     </div>
   </div>
 
