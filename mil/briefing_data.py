@@ -414,10 +414,11 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     # ----------------------------------------------------------
     # SECTION 2a: ISSUES — grouped by issue_type (what went wrong)
-    # Excludes Positive Feedback and Other unless they have P0/P1.
+    # Barclays records only. Excludes Positive Feedback and Other unless P0/P1.
     # ----------------------------------------------------------
+    barclays_records = [r for r in records if r.get("_competitor", "").lower() == "barclays"]
     issue_groups: dict[str, list[dict]] = defaultdict(list)
-    for r in records:
+    for r in barclays_records:
         cat = r.get("issue_type") or "Other"
         issue_groups[cat].append(r)
 
@@ -452,10 +453,10 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     # ----------------------------------------------------------
     # SECTION 2b: JOURNEY PERFORMANCE — grouped by customer_journey
-    # (what were they trying to do). Excludes General App Use unless P0/P1.
+    # Barclays records only. Excludes General App Use unless P0/P1.
     # ----------------------------------------------------------
     journey_groups: dict[str, list[dict]] = defaultdict(list)
-    for r in records:
+    for r in barclays_records:
         cat = r.get("customer_journey") or "General App Use"
         journey_groups[cat].append(r)
 
