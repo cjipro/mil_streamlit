@@ -242,14 +242,30 @@ def enrich_records(source: str, competitor: str, records: list[dict]) -> list[di
 def run_enrichment() -> dict:
     """
     Main entry point.
-    1. Re-enriches all existing enriched files with new schema.
-    2. Merges any unenriched live_ raw files for same competitor.
+    Records already enriched with schema v3 (issue_type + customer_journey present
+    and not ENRICHMENT_FAILED) are kept as-is — zero API calls for them.
+    Only enriches: new live_ records + any existing records missing v3 fields.
     Returns summary dict.
     """
     ENRICHED_DIR.mkdir(parents=True, exist_ok=True)
     summary = {}
 
-    # Build map of what live_ raw files exist per source+competitor
+    _V3_FIELDS = {"issue_type", "customer_journey", "sentiment_score", "severity_class"}
+    _RAW_FIELDS = ["rating", "title", "review", "content", "version",
+                   "date", "at", "author", "userName", "page",
+                   "thumbsUpCount", "reviewCreatedVersion"]
+
+    def _is_v3(r: dict) -> bool:
+        return (
+            all(f in r for f in _V3_FIELDS)
+            and r.get("severity_class") not in ("ENRICHMENT_FAILED", None)
+            and r.get("issue_type") not in ("ENRICHMENT_FAILED", None)
+        )
+
+    def _to_raw(r: dict) -> dict:
+        return {k: r[k] for k in _RAW_FIELDS if k in r}
+
+    # Build map of live_ raw records per source+competitor
     live_map: dict[str, list[dict]] = {}
     for source_dir in sorted(HIST_BASE.iterdir()):
         if not source_dir.is_dir() or source_dir.name == "enriched":
@@ -268,7 +284,7 @@ def run_enrichment() -> dict:
             if live_records:
                 live_map[key] = live_records
 
-    # Process each existing enriched file
+    # Process each enriched file
     for enriched_file in sorted(ENRICHED_DIR.glob("*.json")):
         try:
             payload = json.loads(enriched_file.read_text(encoding="utf-8"))
@@ -279,54 +295,60 @@ def run_enrichment() -> dict:
         source     = payload.get("source", "")
         competitor = payload.get("competitor", "")
         key        = f"{source}_{competitor}"
+        file_is_v3 = payload.get("schema_version") == "v3"
 
-        # Extract raw fields only — drop old enrichment fields
-        raw_fields = ["rating", "title", "review", "content", "version",
-                      "date", "at", "author", "userName", "page",
-                      "thumbsUpCount", "reviewCreatedVersion"]
-        existing_records = [
-            {k: r[k] for k in raw_fields if k in r}
-            for r in payload.get("records", [])
+        all_existing = payload.get("records", [])
+
+        # Partition existing: already v3 (keep) vs needs enrichment (re-enrich)
+        already_enriched = []
+        needs_enrichment = []
+        for r in all_existing:
+            if file_is_v3 and _is_v3(r):
+                already_enriched.append(r)
+            else:
+                needs_enrichment.append(_to_raw(r))
+
+        # New records from live_ files not already present
+        existing_texts = {
+            (r.get("review") or r.get("content", ""))[:80]
+            for r in all_existing
+        }
+        new_records = [
+            _to_raw(r) for r in live_map.get(key, [])
+            if (r.get("review") or r.get("content", ""))[:80] not in existing_texts
         ]
 
-        # Merge any live_ records not already in existing
-        live_records = live_map.get(key, [])
-        if live_records:
-            existing_texts = {
-                (r.get("review") or r.get("content", ""))[:80]
-                for r in existing_records
-            }
-            new_records = [
-                r for r in live_records
-                if (r.get("review") or r.get("content", ""))[:80] not in existing_texts
-            ]
-            all_records = existing_records + new_records
-            logger.info("[enrich_sonnet] %s: %d existing + %d new = %d total",
-                        key, len(existing_records), len(new_records), len(all_records))
-        else:
-            all_records = existing_records
-            logger.info("[enrich_sonnet] %s: %d records (no new raw files)",
-                        key, len(all_records))
+        to_enrich = needs_enrichment + new_records
 
-        if not all_records:
+        logger.info(
+            "[enrich_sonnet] %s: %d kept (v3) | %d re-enrich | %d new",
+            key, len(already_enriched), len(needs_enrichment), len(new_records),
+        )
+
+        freshly_enriched = enrich_records(source, competitor, to_enrich) if to_enrich else []
+
+        final_records = already_enriched + freshly_enriched
+        if not final_records:
             continue
 
-        enriched_records = enrich_records(source, competitor, all_records)
-
-        out = {
-            "source":         source,
-            "competitor":     competitor,
-            "enriched_count": len(enriched_records),
-            "model":          MODEL,
-            "schema_version": "v3",
-            "records":        enriched_records,
-        }
         enriched_file.write_text(
-            json.dumps(out, indent=2, default=str), encoding="utf-8"
+            json.dumps({
+                "source":         source,
+                "competitor":     competitor,
+                "enriched_count": len(final_records),
+                "model":          MODEL,
+                "schema_version": "v3",
+                "records":        final_records,
+            }, indent=2, default=str),
+            encoding="utf-8",
         )
-        logger.info("[enrich_sonnet] %s: wrote %d enriched records",
-                    key, len(enriched_records))
-        summary[key] = {"records_enriched": len(enriched_records)}
+        logger.info("[enrich_sonnet] %s: wrote %d records (%d new enrichments)",
+                    key, len(final_records), len(freshly_enriched))
+        summary[key] = {
+            "records_total":    len(final_records),
+            "records_enriched": len(freshly_enriched),
+            "records_kept":     len(already_enriched),
+        }
 
     return summary
 
