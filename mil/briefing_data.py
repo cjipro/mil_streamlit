@@ -242,6 +242,101 @@ def _build_journey_chronicle_map(findings: list[dict]) -> dict[str, set]:
 
 
 # ============================================================
+# EXECUTIVE ALERT HELPERS
+# ============================================================
+
+# Chronicle issue-type signatures — inference_approved only (CHR-001, CHR-002)
+_CHRONICLE_ISSUE_SIGS = {
+    "CHR-001": {
+        "label":       "TSB 2018",
+        "issue_types": {"App Not Opening", "Login Failed", "Account Locked", "App Crashing", "Transfer Failed"},
+        "min_overlap": 2,
+        "sentence":    "TSB saw this same sequence in 2018 — 1.9 million customers locked out, services unavailable for weeks.",
+    },
+    "CHR-002": {
+        "label":       "Lloyds 2025",
+        "issue_types": {"App Crashing", "Login Failed", "Feature Broken", "Missing Transaction"},
+        "min_overlap": 2,
+        "sentence":    "Lloyds hit this same pattern in 2025 — a software update triggered customer-visible harm before engineering caught it.",
+    },
+}
+
+
+def _chronicle_match(issue_types: set) -> tuple:
+    """Returns (chronicle_id, sentence) or ('', '') — best match by overlap count."""
+    best_id, best_sentence, best_overlap = "", "", 0
+    for cid, sig in _CHRONICLE_ISSUE_SIGS.items():
+        overlap = len(issue_types & sig["issue_types"])
+        if overlap >= sig["min_overlap"] and overlap > best_overlap:
+            best_id, best_sentence, best_overlap = cid, sig["sentence"], overlap
+    return best_id, best_sentence
+
+
+def _signal_strength(p0: int, cac: float) -> str:
+    if p0 >= 4 or cac >= 0.6:
+        return "STRONG SIGNAL"
+    elif p0 >= 2 or cac >= 0.4:
+        return "MODERATE SIGNAL"
+    return "EARLY SIGNAL"
+
+
+def _your_call(p0: int, trend: str) -> str:
+    if p0 >= 4 or (p0 >= 2 and trend == "WORSENING"):
+        return "Escalate now. If this isn't already on the incident board, it should be."
+    elif p0 >= 2 or trend == "WORSENING":
+        return "Confirm this is in hand. If not, flag to product immediately."
+    elif p0 >= 1:
+        return "Monitor. Raise with product team at next touchpoint."
+    return "Signal within normal range. No action required."
+
+
+def _sonnet_description(reviews: list, chronicle_sentence: str) -> str:
+    """
+    Call Claude Sonnet to synthesise top P0/P1 reviews into one plain-English sentence.
+    Returns empty string on any failure — caller uses template fallback.
+    """
+    try:
+        import anthropic
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            return ""
+        client = anthropic.Anthropic(api_key=api_key)
+
+        lines = []
+        for i, r in enumerate(reviews[:5], 1):
+            text = (r.get("review") or r.get("content", ""))[:120].strip()
+            if text:
+                lines.append(f"{i}. [{r.get('rating', '?')}/5] {text}")
+
+        if not lines:
+            return ""
+
+        context_line = (
+            f"\nFor context, this mirrors a known pattern: {chronicle_sentence}"
+            if chronicle_sentence else ""
+        )
+        prompt = (
+            "You are summarising customer app reviews for a bank CEO.\n"
+            "In one sentence (maximum 30 words), describe the core customer problem.\n"
+            "Be specific. Start with what customers cannot do. No preamble."
+            f"{context_line}\n\nReviews:\n" + "\n".join(lines)
+        )
+
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=80,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.content[0].text.strip().rstrip(".")
+    except Exception as exc:
+        logger.warning("[exec_alert] Sonnet synthesis failed: %s", exc)
+        return ""
+
+
+# ============================================================
 # VERDICT (deterministic)
 # ============================================================
 
@@ -509,9 +604,10 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     # ----------------------------------------------------------
     # SECTION 6: EXECUTIVE ALERT
-    # Always surfaces the top Barclays finding (P0/P1) first.
-    # Falls back to highest-priority anchored finding across all competitors
-    # only if no qualifying Barclays finding exists.
+    # Self-intelligence: Barclays is the client (TAQ Bank).
+    # Reads their own public app signals back to them before internal
+    # teams escalate. Chronicle surfaces only on issue_type keyword match
+    # against inference_approved entries (CHR-001, CHR-002).
     # ----------------------------------------------------------
     all_cands = [f for f in anchored
                  if f["signal_counts"]["P0"] + f["signal_counts"]["P1"] > 0]
@@ -520,61 +616,74 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     exec_cands = barclays_cands if barclays_cands else all_cands
 
     if exec_cands:
-        top = max(exec_cands, key=lambda f: (
+        top     = max(exec_cands, key=lambda f: (
             f["signal_counts"]["P0"] > 0,
             f.get("designed_ceiling_reached", False),
             f.get("confidence_score", 0),
         ))
-        blind_spots = top.get("blind_spots", [])
-        p0          = top["signal_counts"]["P0"]
-        p1          = top["signal_counts"]["P1"]
-        keywords    = top.get("top_3_keywords", [])
-        comp_title  = top["competitor"].title()
-        ceiling     = top.get("designed_ceiling_reached", False)
+        p0      = top["signal_counts"]["P0"]
+        p1      = top["signal_counts"]["P1"]
+        cac     = top.get("confidence_score") or 0.0
 
-        _JOURNEY_LABELS = {
-            "J_SERVICE_01": "app crashing and service disruption",
-            "J_LOGIN_01":   "login and account access failures",
-            "J_PAY_01":     "payment failures",
-            "J_ONBOARD_01": "onboarding issues",
-        }
-        jlabel = _JOURNEY_LABELS.get(top.get("journey_id", ""), "service issues")
-
-        kw_part = f" Key terms: {', '.join(keywords[:3])}." if keywords else ""
-        risk_summary = (
-            f"{comp_title} customers are reporting {jlabel}. "
-            f"{p0} critical and {p1} high-severity signals detected in this window.{kw_part}"
+        # Barclays P0/P1 records for Sonnet synthesis — P0 first
+        barclays_p01 = sorted(
+            [r for r in records
+             if r.get("_competitor", "").lower() == "barclays"
+             and r.get("severity_class") in ("P0", "P1")],
+            key=lambda r: 0 if r.get("severity_class") == "P0" else 1,
         )
 
-        # Primary blind spot: skip the ceiling message — it's not a real gap
-        real_blind_spots = [b for b in blind_spots if "HDFS" not in b and "telemetry" not in b.lower() and "Designed Ceiling" not in b]
-        primary_blind_spot = real_blind_spots[0] if real_blind_spots else ""
+        # Barclays trend from competitor_ticker (built above)
+        _b_ticker = next(
+            (c for c in competitor_ticker if c["competitor"].lower() == "barclays"), {}
+        )
+        barclays_trend = _b_ticker.get("trend", "STABLE")
+
+        # Chronicle matching — issue_types from Barclays P0/P1 records only
+        from collections import Counter as _Counter
+        barclays_issue_types = {
+            r.get("issue_type", "") for r in barclays_p01 if r.get("issue_type")
+        }
+        chronicle_id, chronicle_sentence = _chronicle_match(barclays_issue_types)
+
+        # Description: Sonnet synthesis with template fallback
+        description = _sonnet_description(barclays_p01, chronicle_sentence)
+        if not description:
+            top_issues = [
+                i.lower() for i, _ in _Counter(
+                    r.get("issue_type", "app issues") for r in barclays_p01
+                ).most_common(2)
+                if i and i != "Positive Feedback"
+            ]
+            issue_label = " and ".join(top_issues) if top_issues else "app issues"
+            description = f"Customers reporting {issue_label}"
 
         executive_alert = {
-            "finding_id":        top["finding_id"],
-            "competitor":        top["competitor"],
-            "journey_id":        top.get("journey_id", ""),
-            "confidence_score":  top.get("confidence_score"),
-            "signal_severity":   top.get("signal_severity"),
-            "finding_tier":      top.get("finding_tier"),
-            "chronicle_id":      top["provenance"].get("chronicle_id"),
-            "designed_ceiling":  ceiling,
-            "p0":                p0,
-            "p1":                p1,
-            "summary":           risk_summary,
-            "top_keywords":      keywords,
-            "primary_blind_spot": primary_blind_spot,
-            "action_required": (
-                "Speak to the Channels Decision Intelligence team — internal journey data needed to confirm severity and next steps."
-                if ceiling
-                else "Monitor signal volume. Await human countersign before escalation."
+            "finding_id":         top["finding_id"],
+            "competitor":         top["competitor"],
+            "p0":                 p0,
+            "p1":                 p1,
+            "signal_strength":    _signal_strength(p0, cac),
+            "description":        description,
+            "chronicle_id":       chronicle_id,
+            "chronicle_sentence": chronicle_sentence,
+            "intelligence_gap":   (
+                "Public signal only. Internal journey data would confirm "
+                "whether this is isolated or systemic."
             ),
+            "your_call":          _your_call(p0, barclays_trend),
         }
     else:
         executive_alert = {
-            "finding_id":     None,
-            "summary":        "No P0/P1 anchored findings in current window.",
-            "action_required": "No immediate action required.",
+            "finding_id":         None,
+            "p0":                 0,
+            "p1":                 0,
+            "signal_strength":    "CLEAR",
+            "description":        "No P0/P1 signals detected in current window.",
+            "chronicle_id":       "",
+            "chronicle_sentence": "",
+            "intelligence_gap":   "",
+            "your_call":          "No action required.",
         }
 
     return {

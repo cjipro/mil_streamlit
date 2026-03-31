@@ -176,39 +176,29 @@ def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
             '  </div>'
         )
 
-    comp       = ea.get("competitor", "")
-    jid        = ea.get("journey_id", "")
-    cac        = ea.get("confidence_score") or 0.0
-    chr_id     = ea.get("chronicle_id") or ""
-    ceiling    = ea.get("designed_ceiling", False)
-    p0         = ea.get("p0", 0)
-    p1         = ea.get("p1", 0)
-    tier       = ea.get("finding_tier", "")
-    summary    = ea.get("summary", "")[:300]
-    action     = ea.get("action_required", "Monitor signal volume.")
-    blind_spot = ea.get("primary_blind_spot", "")
-    keywords   = ea.get("top_keywords", [])
+    p0              = ea.get("p0", 0)
+    p1              = ea.get("p1", 0)
+    signal_strength = ea.get("signal_strength", "EARLY SIGNAL")
+    description     = ea.get("description", "")
+    chronicle_id    = ea.get("chronicle_id", "")
+    chronicle_sent  = ea.get("chronicle_sentence", "")
+    intel_gap       = ea.get("intelligence_gap", "")
+    your_call       = ea.get("your_call", "")
 
-    _JOURNEY_LABELS = {
-        "J_SERVICE_01": "App crashing and service disruption",
-        "J_LOGIN_01":   "Login and account access failures",
-        "J_PAY_01":     "Payment failures",
-        "J_ONBOARD_01": "Onboarding issues",
-    }
-    journey_label = _JOURNEY_LABELS.get(jid, jid)
-    kw_str = ", ".join(k.lower() for k in keywords[:3]) if keywords else ""
-    kw_suffix = f" — users reporting: {kw_str}" if kw_str else ""
-    title = f"{e(comp.title())} — {e(journey_label)}{e(kw_suffix)}"
+    p0_style  = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
+    p1_style  = "background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);"
+    sig_style = "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);"
 
-    p0_style = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
-    p1_style = "background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);"
-    cac_style = "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);"
-    tier_style = "background:rgba(0,175,160,0.10);color:#00AFA0;border:1px solid rgba(0,175,160,0.3);"
+    # Chronicle block — only rendered when there is a match
+    chronicle_html = (
+        f'      <div class="exec-alert-section-label">HISTORICAL CONTEXT</div>\n'
+        f'      <div class="exec-alert-section-text">{e(chronicle_sent)}</div>\n'
+    ) if chronicle_id and chronicle_sent else ""
 
-    blind_html = (
-        f'      <div class="exec-alert-section-label">BLIND SPOT</div>\n'
-        f'      <div class="exec-alert-section-text">{e(blind_spot)}</div>\n'
-    ) if blind_spot else ""
+    intel_html = (
+        f'      <div class="exec-alert-section-label">INTELLIGENCE GAP</div>\n'
+        f'      <div class="exec-alert-section-text">{e(intel_gap)}</div>\n'
+    ) if intel_gap else ""
 
     return (
         '  <!-- Right: Executive Alert panel (bd-wired) -->\n'
@@ -219,18 +209,18 @@ def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
         f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
         '    </div>\n'
         '    <div class="exec-alert-body">\n'
-        f'      <div class="exec-alert-finding">{title}</div>\n'
+        f'      <div class="exec-alert-finding">YOUR APP — {e(signal_strength)}</div>\n'
         '      <div class="exec-alert-pills">\n'
         f'        <span class="exec-pill" style="{p0_style}">P0 &nbsp;{p0}</span>\n'
         f'        <span class="exec-pill" style="{p1_style}">P1 &nbsp;{p1}</span>\n'
-        f'        <span class="exec-pill" style="{cac_style}">CAC &nbsp;{cac:.3f}</span>\n'
-        f'        <span class="exec-pill" style="{tier_style}">Clark &nbsp;{e(tier)}</span>\n'
+        f'        <span class="exec-pill" style="{sig_style}">{e(signal_strength)}</span>\n'
         '      </div>\n'
-        '      <div class="exec-alert-section-label">RISK INTERPRETATION</div>\n'
-        f'      <div class="exec-alert-section-text">{e(summary)}</div>\n'
-        f'{blind_html}'
-        '      <div class="exec-alert-section-label">RECOMMENDED ACTION</div>\n'
-        f'      <div class="exec-alert-section-text">{e(action)}</div>\n'
+        '      <div class="exec-alert-section-label">WHAT YOUR CUSTOMERS ARE SAYING</div>\n'
+        f'      <div class="exec-alert-section-text">{e(description)}</div>\n'
+        f'{chronicle_html}'
+        f'{intel_html}'
+        '      <div class="exec-alert-section-label">YOUR CALL</div>\n'
+        f'      <div class="exec-alert-section-text">{e(your_call)}</div>\n'
         '    </div>\n'
         '    <div class="exec-alert-footer">\n'
         '      <button class="exec-escalate-btn">Escalate</button>\n'
