@@ -53,11 +53,8 @@ if st.sidebar.button("Logout"):
     st.session_state["username"] = None
     st.rerun()
 
-st.sidebar.title("Navigation")
-page = st.sidebar.radio(
-    "Go to",
-    ["Home", "HDFS Live", "Analytics", "Reports", "Profile", "Settings"],
-)
+# Streamlit will auto-discover pages from app/pages/*.py
+# No custom navigation needed — sidebar shows pages automatically
 
 
 # ==============================
@@ -189,193 +186,27 @@ def render_governance_card(df=None):
 # ==============================
 # HOME PAGE
 # ==============================
-if page == "Home":
-    st.title("CJI Pulse Dashboard")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Total Journeys", "125K", "12%")
-    with col2:
-        st.metric("Pain Score", "6.2", "-0.8")
-    with col3:
-        st.metric("NPS", "42", "+3")
+st.title("CJI Pulse Dashboard")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Total Journeys", "125K", "12%")
+with col2:
+    st.metric("Pain Score", "6.2", "-0.8")
+with col3:
+    st.metric("NPS", "42", "+3")
 
-    st.subheader("Today's Top Findings")
-    st.info("• Loans journey Step 3 abandonment rate: +23% for vulnerable customers")
-    st.warning("• Payment failures on iOS: +8% vs yesterday")
-    st.success("• Onboarding completion rate: +5% after fix")
+st.subheader("Today's Top Findings")
+st.info("• Loans journey Step 3 abandonment rate: +23% for vulnerable customers")
+st.warning("• Payment failures on iOS: +8% vs yesterday")
+st.success("• Onboarding completion rate: +5% after fix")
 
-
-# ==============================
-# HDFS LIVE PAGE
-# ==============================
-elif page == "HDFS Live":
-    st.title("HDFS Live — Staged Data")
-
-    # ── Latency Monitor ───────────────────────────────────────────────────────
-    st.subheader("Latency Monitor")
-    parquet_path, parquet_size = find_latest_parquet()
-
-    if parquet_path:
-        st.caption(f"Source: Parquet · `{parquet_path}` · Cache TTL: 5 min")
-        with st.spinner("Reading Parquet from HDFS..."):
-            t_wall = time.time()
-            df, latency_ms, err = load_hdfs_parquet(parquet_path)
-            wall_ms = int((time.time() - t_wall) * 1000)
-        source_label = "Parquet (snappy)"
-        size_label = f"{parquet_size / (1024*1024):.1f} MB" if parquet_size else "—"
-    else:
-        st.caption(f"Source: CSV fallback · `{HDFS_URL}{HDFS_PATH}` · Cache TTL: 5 min")
-        with st.spinner("Reading CSV from HDFS (no Parquet found)..."):
-            t_wall = time.time()
-            df, err = load_hdfs_data()
-            latency_ms = int((time.time() - t_wall) * 1000)
-        source_label = "CSV (fallback)"
-        size_label = "35.4 MB"
-
-    col_l1, col_l2, col_l3, col_l4 = st.columns(4)
-    col_l1.metric("Load Latency", f"{latency_ms} ms")
-    col_l2.metric("Format", source_label)
-    col_l3.metric("File Size", size_label)
-    col_l4.metric("Cached", "Yes (5 min TTL)")
-    st.divider()
-
-    if err:
-        render_governance_card()
-        st.error(f"HDFS read failed: {err}")
-        st.code("docker exec namenode hdfs dfsadmin -report", language="bash")
-        st.stop()
-
-    render_governance_card(df)
-
-    # --- Summary metrics ---
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Event Rows", f"{len(df):,}")
-    col2.metric("Unique Sessions", f"{df['session_id'].nunique():,}")
-    col3.metric("Journey Steps", f"{df['journey_step'].nunique()}")
-    col4.metric("Outcomes", f"{df['outcome'].nunique()}")
-
-    st.divider()
-
-    # --- Journey Step × Outcome heatmap ---
-    st.subheader("Journey Step × Outcome — Event Distribution")
-    pivot = (
-        df.groupby(["journey_step", "outcome"])
-        .size()
-        .reset_index(name="count")
-    )
-    fig_heat = px.density_heatmap(
-        pivot,
-        x="outcome",
-        y="journey_step",
-        z="count",
-        color_continuous_scale="Blues",
-        title=f"Event counts across {len(df):,} rows — Client: {SEALED_ORG}",
-        height=500,
-    )
-    fig_heat.update_layout(
-        plot_bgcolor="#0d1117",
-        paper_bgcolor="#0d1117",
-        font_color="#e6edf3",
-        xaxis_title="Outcome",
-        yaxis_title="Journey Step",
-    )
-    st.plotly_chart(fig_heat, use_container_width=True)
-
-    # --- Bar chart: top steps by volume ---
-    st.subheader("Journey Step Volume (all outcomes)")
-    step_counts = df["journey_step"].value_counts().reset_index()
-    step_counts.columns = ["journey_step", "count"]
-    fig_bar = px.bar(
-        step_counts,
-        x="count",
-        y="journey_step",
-        orientation="h",
-        color="count",
-        color_continuous_scale="Blues",
-        title="Event rows per Journey Step",
-        height=450,
-    )
-    fig_bar.update_layout(
-        plot_bgcolor="#0d1117",
-        paper_bgcolor="#0d1117",
-        font_color="#e6edf3",
-        yaxis={"categoryorder": "total ascending"},
-        showlegend=False,
-    )
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-    # --- Outcome breakdown pie ---
-    st.subheader("Outcome Distribution")
-    outcome_counts = df["outcome"].value_counts().reset_index()
-    outcome_counts.columns = ["outcome", "count"]
-    fig_pie = px.pie(
-        outcome_counts,
-        names="outcome",
-        values="count",
-        color_discrete_sequence=px.colors.sequential.Blues_r,
-        title="Session outcomes across all paths",
-    )
-    fig_pie.update_layout(
-        plot_bgcolor="#0d1117",
-        paper_bgcolor="#0d1117",
-        font_color="#e6edf3",
-    )
-    st.plotly_chart(fig_pie, use_container_width=True)
-
-    # --- Channel split ---
-    st.subheader("Channel Split")
-    channel_counts = df["channel"].value_counts().reset_index()
-    channel_counts.columns = ["channel", "count"]
-    fig_ch = px.bar(
-        channel_counts,
-        x="channel",
-        y="count",
-        color="channel",
-        color_discrete_sequence=["#1f6feb", "#388bfd", "#58a6ff"],
-        title="Event rows by Channel (P5: BMB → APP)",
-    )
-    fig_ch.update_layout(
-        plot_bgcolor="#0d1117",
-        paper_bgcolor="#0d1117",
-        font_color="#e6edf3",
-        showlegend=False,
-    )
-    st.plotly_chart(fig_ch, use_container_width=True)
-
-    # --- Raw sample ---
-    with st.expander("Raw data sample (first 200 rows)"):
-        st.dataframe(df.head(200), use_container_width=True)
-
-
-# ==============================
-# ANALYTICS PAGE
-# ==============================
-elif page == "Analytics":
-    st.title("Journey Analytics")
-    st.info("Load the **HDFS Live** page to explore the 284k event dataset from HDFS.")
-
-
-# ==============================
-# REPORTS
-# ==============================
-elif page == "Reports":
-    st.title("Daily Reports")
-    st.write("Daily reports coming soon...")
-
-
-# ==============================
-# PROFILE
-# ==============================
-elif page == "Profile":
-    st.title("User Profile")
-    st.write(f"**Name:** {st.session_state['name']}")
-    st.write(f"**Username:** {st.session_state['username']}")
-    st.write(f"**Email:** {users_db[st.session_state['username']]['email']}")
-
-
-# ==============================
-# SETTINGS
-# ==============================
-elif page == "Settings":
-    st.title("Settings")
-    st.write("Application settings coming soon...")
+st.divider()
+st.subheader("Navigate using the sidebar →")
+st.markdown("""
+- **Sonar** — CJI Market Intelligence Dashboard
+- **HDFS Live** — Staged data explorer
+- **Analytics** — Journey analytics
+- **Reports** — Daily reports
+- **Profile** — User profile
+- **Settings** — Application settings
+""")
