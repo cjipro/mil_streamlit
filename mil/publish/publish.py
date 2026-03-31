@@ -961,6 +961,11 @@ def generate_html(
     gp_quote: str = "",
     gp_quote_rating: int = 0,
     gp_quote_date: str = "",
+    box2_quote: str = "",
+    box2_quote_rating: int = 0,
+    box2_quote_source: str = "",
+    box2_quote_date: str = "",
+    box2_issue_type: str = "",
 ) -> str:
     """Generate the full self-contained HTML briefing page."""
 
@@ -997,7 +1002,7 @@ def generate_html(
         journey_cards_html += build_journey_card_html(j)
 
     # ── Dual quote boxes for Box 1 (App Store + Google Play, Barclays only) ────
-    def _build_single_quote_box(text: str, rating: int, source_label: str, date_str: str) -> str:
+    def _build_single_quote_box(text: str, rating: int, source_label: str, date_str: str, label: str = "") -> str:
         if not text:
             return ""
         _qt   = e(text[:280])
@@ -1010,10 +1015,15 @@ def generate_html(
         )
         _is_short = len(text) < 100
         _col_align = "justify-content:center;align-items:center;text-align:center;" if _is_short else "justify-content:flex-start;align-items:flex-start;text-align:left;"
+        _label_html = (
+            f'<div style="font-size:10px;color:#3A6A7F;letter-spacing:0.1em;'
+            f'text-transform:uppercase;margin-bottom:4px;">{e(label)}</div>'
+        ) if label else ""
         return (
-            f'<div style="flex:1;height:104px;min-width:0;border:1px solid #003A5C;'
+            f'<div style="height:104px;border:1px solid #003A5C;'
             f'border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;'
             f'{_col_align}background:#001E2E;overflow:hidden;">'
+            f'{_label_html}'
             f'<div style="font-size:12px;color:#B8D4E0;font-style:italic;'
             f'line-height:1.5;overflow:hidden;">&ldquo;{_qt}&rdquo;</div>'
             f'{_footer}'
@@ -1197,6 +1207,7 @@ def generate_html(
         '      </div>\n'
         '      <div class="issues-divider"></div>\n'
         f'{_journey_rows}'
+        f'{_build_single_quote_box(box2_quote, box2_quote_rating, box2_quote_source, box2_quote_date, label=box2_issue_type)}'
         '    </div>\n'
         '  </div>'
     )
@@ -1876,6 +1887,11 @@ def main():
     bd_gp_quote         = ""
     bd_gp_quote_rating  = 0
     bd_gp_quote_date    = ""
+    bd_box2_quote       = ""
+    bd_box2_quote_rating = 0
+    bd_box2_quote_source = ""
+    bd_box2_quote_date  = ""
+    bd_box2_issue_type  = ""
     if _BRIEFING_DATA_AVAILABLE:
         print("\n[3.5/5] Loading briefing data layer (enriched) …")
         try:
@@ -1948,6 +1964,11 @@ def main():
             bd_gp_quote         = ea.get("gp_quote", "")
             bd_gp_quote_rating  = ea.get("gp_quote_rating", 0)
             bd_gp_quote_date    = ea.get("gp_quote_date", "")
+            bd_box2_quote       = bd.get("box2_quote", "")
+            bd_box2_quote_rating = bd.get("box2_quote_rating", 0)
+            bd_box2_quote_source = bd.get("box2_quote_source", "")
+            bd_box2_quote_date  = bd.get("box2_quote_date", "")
+            bd_box2_issue_type  = bd.get("box2_issue_type", "")
             print(f"  Exec alert: {fid}")
 
         except Exception as exc:
@@ -1988,6 +2009,11 @@ def main():
         gp_quote=bd_gp_quote,
         gp_quote_rating=bd_gp_quote_rating,
         gp_quote_date=bd_gp_quote_date,
+        box2_quote=bd_box2_quote,
+        box2_quote_rating=bd_box2_quote_rating,
+        box2_quote_source=bd_box2_quote_source,
+        box2_quote_date=bd_box2_quote_date,
+        box2_issue_type=bd_box2_issue_type,
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

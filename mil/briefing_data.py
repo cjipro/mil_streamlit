@@ -756,6 +756,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "your_call":          _your_call(p0, barclays_trend),
         }
     else:
+        as_quote = gp_quote = ""
         executive_alert = {
             "finding_id":         None,
             "p0":                 0,
@@ -768,6 +769,53 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "your_call":          "No action required.",
         }
 
+    # Box 2 quote: worst P0/P1 from the top-ranked issue_type, de-duped vs Box 1 quotes
+    box2_quote = ""
+    box2_quote_rating = 0
+    box2_quote_source = ""
+    box2_quote_date = ""
+    box2_issue_type = ""
+    if issues_performance:
+        _top_issue = issues_performance[0]["journey"]
+        box2_issue_type = _top_issue
+        _b2_pool = [
+            r for r in barclays_records
+            if r.get("issue_type") == _top_issue
+            and r.get("severity_class") in ("P0", "P1")
+            and len((r.get("review") or r.get("content", "")).strip()) >= 40
+            and r.get("issue_type") != "Positive Feedback"
+        ]
+        _b2_pool.sort(key=lambda r: 0 if r.get("severity_class") == "P0" else 1)
+        _b1_keys = {as_quote[:80], gp_quote[:80]} - {""}
+        # First pass: prefer 60-200 chars, not duplicate
+        for _b2r in _b2_pool:
+            _t = ((_b2r.get("review") or _b2r.get("content", ""))).strip()
+            if _t[:80] in _b1_keys:
+                continue
+            if 60 <= len(_t) <= 200:
+                box2_quote = _t
+                break
+        # Second pass: any non-duplicate
+        if not box2_quote:
+            for _b2r in _b2_pool:
+                _t = ((_b2r.get("review") or _b2r.get("content", ""))).strip()
+                if _t[:80] not in _b1_keys:
+                    box2_quote = _t
+                    break
+        if box2_quote:
+            _b2r = next(r for r in _b2_pool
+                        if (r.get("review") or r.get("content","")).strip() == box2_quote)
+            box2_quote_rating = int(_b2r.get("rating", 0) or 0)
+            box2_quote_source = "App Store" if _b2r.get("review") else "Google Play"
+            _b2_raw = str(_b2r.get("date") or _b2r.get("at", "") or "")[:10]
+            if len(_b2_raw) >= 10:
+                try:
+                    from datetime import datetime as _dtp3
+                    _b2d = _dtp3.fromisoformat(_b2_raw)
+                    box2_quote_date = f"{_b2d.day} {_b2d.strftime('%b')}"
+                except Exception:
+                    box2_quote_date = _b2_raw
+
     return {
         "generated_at":        datetime.now(timezone.utc).isoformat(),
         "window_days":         window_days,
@@ -775,6 +823,11 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         "issues_performance":  issues_performance,
         "journey_performance": journey_performance,
         "issues_status":       issues_status,
+        "box2_quote":          box2_quote,
+        "box2_quote_rating":   box2_quote_rating,
+        "box2_quote_source":   box2_quote_source,
+        "box2_quote_date":     box2_quote_date,
+        "box2_issue_type":     box2_issue_type,
         "competitor_ticker":   competitor_ticker,
         "top_findings":        top_findings,
         "executive_alert":     executive_alert,
