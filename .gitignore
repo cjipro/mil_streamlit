@@ -43,3 +43,4 @@ mil/data/findings/*
 
 # MIL HDFS volumes — outside repo, never committed
 C:/Users/hussa/hdfs-volumes/mil/
+.env
