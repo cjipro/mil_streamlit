@@ -188,9 +188,18 @@ def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
     summary    = ea.get("summary", "")[:160]
     action     = ea.get("action_required", "Monitor signal volume.")
     blind_spot = ea.get("primary_blind_spot", "")
+    keywords   = ea.get("top_keywords", [])
 
-    ceiling_tag = " -- CEILING" if ceiling else ""
-    title = f"{e(comp)} {e(jid)} -- CAC={cac:.3f} {e(chr_id)}{e(ceiling_tag)}"
+    _JOURNEY_LABELS = {
+        "J_SERVICE_01": "App crashing and service disruption",
+        "J_LOGIN_01":   "Login and account access failures",
+        "J_PAY_01":     "Payment failures",
+        "J_ONBOARD_01": "Onboarding issues",
+    }
+    journey_label = _JOURNEY_LABELS.get(jid, jid)
+    kw_str = ", ".join(k.lower() for k in keywords[:3]) if keywords else ""
+    kw_suffix = f" — users reporting: {kw_str}" if kw_str else ""
+    title = f"{e(comp.title())} — {e(journey_label)}{e(kw_suffix)}"
 
     p0_style = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
     p1_style = "background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);"

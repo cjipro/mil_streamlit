@@ -456,10 +456,15 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     # ----------------------------------------------------------
     # SECTION 6: EXECUTIVE ALERT
-    # Highest-priority anchored finding: P0 signals + Designed Ceiling first.
+    # Always surfaces the top Barclays finding (P0/P1) first.
+    # Falls back to highest-priority anchored finding across all competitors
+    # only if no qualifying Barclays finding exists.
     # ----------------------------------------------------------
-    exec_cands = [f for f in anchored
-                  if f["signal_counts"]["P0"] + f["signal_counts"]["P1"] > 0]
+    all_cands = [f for f in anchored
+                 if f["signal_counts"]["P0"] + f["signal_counts"]["P1"] > 0]
+    barclays_cands = [f for f in all_cands
+                      if f.get("competitor", "").lower() == "barclays"]
+    exec_cands = barclays_cands if barclays_cands else all_cands
 
     if exec_cands:
         top = max(exec_cands, key=lambda f: (
@@ -480,6 +485,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "p0":                top["signal_counts"]["P0"],
             "p1":                top["signal_counts"]["P1"],
             "summary":           top.get("finding_summary", "")[:160],
+            "top_keywords":      top.get("top_3_keywords", []),
             "primary_blind_spot": blind_spots[0] if blind_spots else "",
             "action_required": (
                 "To confirm this I require internal HDFS telemetry data. Request Phase 2."
