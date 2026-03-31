@@ -162,16 +162,20 @@ def _star_sentiment(ratings: list) -> int:
 def _trend(records: list[dict], today: date) -> str:
     """
     Compare current 3-day avg vs earlier 4-day avg on 0-100 scale.
-    Split point: today - 3 days.
-      earlier_4d  = records dated [today-6 .. today-3)
-      current_3d  = records dated [today-2 .. today]
+    Anchors on latest review date in the dataset (not today) so the
+    3-day window is never empty when run early in the day.
+    Split point: latest_review_date - 3 days.
+      earlier_4d  = records dated before split
+      current_3d  = records dated on or after split
     Returns STABLE when insufficient data for either window.
     """
-    split   = today - timedelta(days=3)
-    earlier = [r["rating"] for r in records
-               if r.get("rating") and r["_review_date"] < split]
-    current = [r["rating"] for r in records
-               if r.get("rating") and r["_review_date"] >= split]
+    dated = [r for r in records if r.get("rating") and r.get("_review_date")]
+    if not dated:
+        return "STABLE"
+    anchor = max(r["_review_date"] for r in dated)
+    split   = anchor - timedelta(days=3)
+    earlier = [r["rating"] for r in dated if r["_review_date"] < split]
+    current = [r["rating"] for r in dated if r["_review_date"] >= split]
 
     if len(earlier) < MIN_RECORDS_FOR_TREND or len(current) < MIN_RECORDS_FOR_TREND:
         return "STABLE"
