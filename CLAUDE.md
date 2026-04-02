@@ -73,14 +73,14 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - PULSE-2C: SOVEREIGN_BRIEF.md (BUILT — 2026-03-28)
 - PULSE-2D: apps_config.yaml + mil_findings.json bootstrap (BUILT — 2026-03-28)
 - PULSE-2E: Build validator + CLAUDE.md clean-up (IN_PROGRESS)
-- PULSE-2F: voice_intelligence_agent.py (NOT_STARTED — Week 2)
-- PULSE-2G: jax_synthetic_filter.py + rating_velocity_monitor.py (NOT_STARTED — Week 2)
-- PULSE-2H: teacher_agent.py + synthetic_engine.py + research_trigger.py (NOT_STARTED — Week 3)
+- PULSE-2F: voice_intelligence_agent.py (BUILT — 2026-03-28, commit 6fbf4cb)
+- PULSE-2G: jax_synthetic_filter.py + rating_velocity_monitor.py (BUILT — 2026-03-28, commit 6fbf4cb)
+- PULSE-2H: teacher_agent.py + synthetic_engine.py (BUILT — 2026-04-02, MIL-7, commits fb74936/47c9aad) + research_trigger.py (NOT_STARTED)
 - **mil_agent.py (MIL-8): BUILT — 2026-03-30** (see MIL Pipeline State below)
 - PULSE-2I: Command dashboard + scheduler.py + adapter shim (NOT_STARTED — Week 4)
 - PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
 
-## MIL Pipeline State — 2026-04-01 (updated 20:43 UTC)
+## MIL Pipeline State — 2026-04-02 (updated)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -195,22 +195,20 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 
 ### MIL Jira — Kanban Board
 - MIL-1 through MIL-6: BUILT (2026-03-28)
-- MIL-7: Teacher Agent + Synthetic Engine — NOT_STARTED (requires Sonnet API, Hussain gate)
+- MIL-7: Teacher Agent + Synthetic Engine — BUILT 2026-04-02 (commits fb74936/47c9aad). run_teacher.py wrapper. Pending Hussain Jira closure.
 - MIL-8: mil_agent.py — **BUILT 2026-03-30** (commits 9f7ecc4, c3e35a7)
 - MIL-9: Sonar Streamlit dashboard — BUILT (2026-03-31)
 - Next MIL ticket: MIL-10
 
 ### Day 30 Success Metrics — Current State
 - M1 (Signal Pipeline Live): Pipeline operational. run_daily.py: fetch → enrich → inference → vault → publish. IN_PROGRESS (need 5 consecutive clean days).
-- M2 (One Validated Finding): NatWest J_SERVICE_01 CAC=0.652, CHR-001 anchor, PENDING Hussain countersign.
+- M2 (One Validated Finding): NatWest J_SERVICE_01 CAC=0.652, CHR-001 anchor, COUNTERSIGNED 2026-04-02.
 - M3 (Designed Ceiling Trigger): **DEMONSTRATED** — 12 active ceiling triggers.
 
 ### Pending Human Actions (Hussain)
-- CHR-004: Review Barclays enrichment results, set inference_approved if satisfied
-- CHR-003: Confirm HSBC root cause or leave inference_approved=false
-- M2: Countersign NatWest J_SERVICE_01 finding to close M2
-- app_store/natwest + app_store/revolut: backfill raw data still missing
-- Jira: close MIL-8 + MIL-9 in UI (dual closure rule)
+- CHR-003: Confirm HSBC root cause or leave inference_approved=false (no public source available)
+- Jira: close MIL-7 in UI (dual closure rule — MIL-8 + MIL-9 already closed)
+- Run `py run_teacher.py` when ready (live Sonnet run — ~55 API calls, one-time)
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
 ## MIL — Market Intelligence Layer
