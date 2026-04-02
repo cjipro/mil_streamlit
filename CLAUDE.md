@@ -77,7 +77,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - PULSE-2G: jax_synthetic_filter.py + rating_velocity_monitor.py (BUILT — 2026-03-28, commit 6fbf4cb)
 - PULSE-2H: teacher_agent.py + synthetic_engine.py (BUILT — MIL-7, commits fb74936/47c9aad) + research_trigger.py (BUILT — 2026-04-02, commit e969354, Step 4a in run_daily.py)
 - **mil_agent.py (MIL-8): BUILT — 2026-03-30** (see MIL Pipeline State below)
-- PULSE-2I: Command dashboard + scheduler.py + adapter shim (NOT_STARTED — Week 4)
+- PULSE-2I: Command dashboard + scheduler.py + adapter shim (BUILT — 2026-04-02, commit 46d18ee)
 - PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
 
 ## MIL Pipeline State — 2026-04-02 (updated)
