@@ -77,7 +77,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-7: Teacher Agent + Synthetic Engine — run_teacher.py wrapper (BUILT + CLOSED — 2026-04-02, commits fb74936/47c9aad)
 - MIL-8: Research Trigger + MIL Agent — CAC + RAG, research_trigger.py Step 4a (BUILT + CLOSED — 2026-03-30/2026-04-02)
 - MIL-9: Command Dashboard + Scheduler — mil/command/app.py, mil/scheduler.py, app/pages/07_mil.py (BUILT + CLOSED — 2026-04-02, commit 46d18ee)
-- MIL-10: Publish + Domain — publish.py, cjipro.com/briefing (BUILT — Sonar live. Jira still open — Hussain to close)
+- MIL-10: Publish + Domain — publish.py, cjipro.com/briefing (BUILT + CLOSED — 2026-04-02)
 
 ## MIL Pipeline State — 2026-04-02 (updated)
 
