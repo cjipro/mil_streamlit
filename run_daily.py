@@ -207,6 +207,24 @@ def run_inference_step() -> None:
 
 
 # ---------------------------------------------------------------------------
+# STEP 4a — Research Trigger
+# ---------------------------------------------------------------------------
+
+def run_research_trigger_step() -> None:
+    logger.info("[research_trigger] scanning findings for P0/P1 weak-anchor signals...")
+    sys.path.insert(0, str(MIL_ROOT))
+    try:
+        from harvester.research_trigger import run as trigger_run
+        result = trigger_run()
+        logger.info(
+            "[research_trigger] complete — triggered=%d skipped=%d ignored=%d",
+            result["triggered"], result["skipped"], result["ignored"],
+        )
+    except Exception as exc:
+        logger.warning("[research_trigger] failed (non-fatal): %s", exc)
+
+
+# ---------------------------------------------------------------------------
 # STEP 4b — Vault
 # ---------------------------------------------------------------------------
 
@@ -272,6 +290,9 @@ def main() -> None:
 
     logger.info("--- Step 4: Inference ---")
     run_inference_step()
+
+    logger.info("--- Step 4a: Research Trigger ---")
+    run_research_trigger_step()
 
     logger.info("--- Step 4b: Vault ---")
     run_vault_step()
