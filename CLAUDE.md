@@ -80,7 +80,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - PULSE-2I: Command dashboard + scheduler.py + adapter shim (NOT_STARTED — Week 4)
 - PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
 
-## MIL Pipeline State — 2026-04-01
+## MIL Pipeline State — 2026-04-01 (updated 20:43 UTC)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -111,16 +111,17 @@ File: `mil/vault/vault_sync.py`
 - Reads from mil/data/historical/enriched/*.json
 - Pushes to HDFS /user/mil/enriched/ via WebHDFS (port 9871)
 - DuckDB anchor log: mil/vault/mil_vault.db (vault_anchor_log table)
+- **DataNode hostname rewrite**: `hdfs_client.py` rewrites redirect URL from `mil-datanode:9864` → `localhost:9864` before DataNode PUT — fixes 403 after Docker restarts
 - SKIPPED_WRONG_MODEL guard: blocks any file enriched with qwen model
 - **_needs_vault()**: re-vaults when record count OR model changes (not just by filename)
 - **Vault step wired into run_daily.py as Step 4b** (after inference, before publish)
-- Current state: **6/6 VAULTED** at 20260331_212732 — all claude-haiku-4-5-20251001
-  - app_store_barclays_enriched.json: 50 records VAULTED
-  - app_store_lloyds_enriched.json: 517 records VAULTED
-  - app_store_monzo_enriched.json: 508 records VAULTED
-  - google_play_barclays_enriched.json: 601 records VAULTED
-  - google_play_natwest_enriched.json: 598 records VAULTED
-  - google_play_revolut_enriched.json: 620 records VAULTED
+- Current state: **6/6 VAULTED** at 20260401_194330 — all claude-haiku-4-5-20251001
+  - app_store_barclays_enriched.json: 67 records VAULTED
+  - app_store_lloyds_enriched.json: 532 records VAULTED
+  - app_store_monzo_enriched.json: 524 records VAULTED
+  - google_play_barclays_enriched.json: 651 records VAULTED
+  - google_play_natwest_enriched.json: 612 records VAULTED
+  - google_play_revolut_enriched.json: 698 records VAULTED
 - Missing backfill: app_store/natwest + app_store/revolut (no raw data harvested yet)
 
 ### Inference Engine (mil_agent.py — MIL-8)
@@ -135,7 +136,7 @@ File: `mil/inference/mil_agent.py`
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- Current findings: **61 total** | 34 anchored | 9 unanchored | 12 Designed Ceiling
+- Current findings: **63 total** | 63 anchored | 0 unanchored | 22 Designed Ceiling
 
 ### Briefing Data Layer (briefing_data.py)
 File: `mil/briefing_data.py`
@@ -152,9 +153,9 @@ File: `mil/briefing_data.py`
   conditional Chronicle match (keyword overlap >= 2), signal strength STRONG/MODERATE/EARLY SIGNAL
 - Chronicle matching: CHR-001 (TSB 2018) and CHR-002 (Lloyds 2025) on issue_type overlap
 - Top quote selection: P0 first, P1 fallback, 40+ chars, prefer 60-200 chars
-- Current output (2026-03-31):
-  - Barclays sentiment: 89/100, baseline 90, -1 vs baseline, STABLE
-  - Competitor ticker: NatWest worst, Barclays 89
+- Current output (2026-04-01):
+  - Barclays sentiment: 88.8/100, baseline 90, -1.2 vs baseline, STABLE
+  - Competitor ticker: NatWest worst (64), Barclays 88.8
 
 ### Sonar Briefing — publish.py
 File: `mil/publish/publish.py`
@@ -217,7 +218,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps: NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays.
-**Current corpus: 2,894 enriched records across 6 files (schema v3, claude-haiku-4-5-20251001). Missing: app_store/natwest + app_store/revolut backfill.**
+**Current corpus: 3,084 enriched records across 6 files (schema v3, claude-haiku-4-5-20251001). Missing: app_store/natwest + app_store/revolut backfill.**
 
 ### MIL Zero Entanglement — HARD RULE
 

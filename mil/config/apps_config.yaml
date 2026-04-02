@@ -26,7 +26,7 @@ last_updated: "2026-03-28"
 competitors:
   - id: COMP_001
     name: "NatWest"
-    app_store_id: "466738371"
+    app_store_id: "334855322"
     google_play_id: "com.rbs.mobile.android.natwest"
     downdetector_slug: "natwest"
     trustpilot_slug: "natwest.com"
@@ -74,7 +74,7 @@ competitors:
 
   - id: COMP_005
     name: "Revolut"
-    app_store_id: "932493386"
+    app_store_id: "932493382"
     google_play_id: "com.revolut.revolut"
     downdetector_slug: "revolut"
     trustpilot_slug: "revolut.com"

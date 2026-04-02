@@ -176,17 +176,18 @@ CHRONICLE_ENTRIES = [
         "chronicle_id": "CHR-004",
         "bank": "Barclays",
         "incident_type": "app_friction_pattern_analysis",
-        "inference_approved": False,    # Pending enrichment re-run
+        "inference_approved": True,     # APPROVED — Hussain Ahmed 2026-04-02
         "confidence_cap": 0.50,
         "journey_tags": ["J_LOGIN_01", "J_SERVICE_01", "J_PAY_01"],
         "pattern_keywords": [
             "cards", "crash", "my cards", "pin", "card access", "payment",
             "authorisation", "otp", "2fa", "cannot access", "crashing",
-            "cards section", "barclays",
+            "cards section", "barclays", "feature", "broken", "slow",
         ],
         "pattern_description": (
-            "inference_approved: false -- enrichment re-run required. "
-            "Cards section crash cluster (v8.20.1). Payment auth loop. OTP failure."
+            "Barclays app friction pattern — Feature Broken (42), App Crashing (16), "
+            "Slow Performance (9). Payment/Transfer journey signals low volume but monitored. "
+            "No TSB-class collapse pattern. Baseline friction, not pre-incident signal."
         ),
     },
 ]
@@ -883,7 +884,8 @@ if __name__ == "__main__":
             f"CAC={f['confidence_score']:.4f} | {f['signal_severity']} | "
             f"tier={f['finding_tier']} | {anchor_tag}{ceiling_tag}"
         )
-        summary_safe = f['finding_summary'].encode('ascii', 'replace').decode('ascii')
+        summary_raw = f['finding_summary'] if isinstance(f['finding_summary'], str) else ' '.join(f['finding_summary'])
+        summary_safe = summary_raw.encode('ascii', 'replace').decode('ascii')
         print(f"    {summary_safe}")
         if f["is_unanchored"]:
             print("    ** UNANCHORED -- NO_CHRONICLE_MATCH -- held for Hussain review **")

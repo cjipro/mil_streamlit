@@ -37,6 +37,7 @@ Dual-write contract:
 """
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -154,7 +155,9 @@ class MILHDFSClient:
 
             if resp1.status_code == 307:
                 # Step 2: follow redirect to DataNode
+                # Rewrite container hostname to localhost so host-side client can reach it
                 datanode_url = resp1.headers.get("Location")
+                datanode_url = re.sub(r"http://[^/]+:(\d+)/", r"http://localhost:\1/", datanode_url)
                 resp2 = requests.put(
                     datanode_url,
                     data=payload,

@@ -3,12 +3,12 @@
   "_schema_version": "1.0",
   "_status": "LIVE",
   "_zero_entanglement": "mil/outputs/mil_findings.json is the only file CJI Pulse may read from mil/. No other mil/ file may be imported or read by external systems.",
-  "generated_at": "2026-03-30T13:37:52.215405+00:00",
+  "generated_at": "2026-04-02T21:52:35.719433+00:00",
   "summary": {
-    "total_findings": 43,
-    "anchored": 34,
-    "unanchored": 9,
-    "designed_ceiling_hits": 12,
+    "total_findings": 71,
+    "anchored": 71,
+    "unanchored": 0,
+    "designed_ceiling_hits": 28,
     "cac_weights": {
       "alpha": 0.4,
       "beta": 0.4,
@@ -18,192 +18,39 @@
   },
   "findings": [
     {
-      "finding_id": "MIL-F-20260330-001",
-      "generated_at": "2026-03-30T13:37:17.990605+00:00",
-      "competitor": "lloyds",
+      "finding_id": "MIL-F-20260402-001",
+      "generated_at": "2026-04-02T21:52:35.698189+00:00",
+      "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.076,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "account",
-        "registration",
-        "experience"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "High risk products and processes encountered in the Lloyds app store review.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 19,
-        "P0": 0,
-        "P1": 0,
-        "P2": 19,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.19,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-002",
-      "generated_at": "2026-03-30T13:37:18.824972+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.124,
+      "confidence_score": 0.1617,
       "blind_spots": [
-        "app_store_id",
-        "journey_start_time"
-      ],
-      "top_3_keywords": [
-        "installing",
-        "issues",
-        "multiple"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "App Store Lloyds app reinstall is found as an easier procedure than the previous version.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 31,
-        "P0": 0,
-        "P1": 0,
-        "P2": 31,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.31,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-003",
-      "generated_at": "2026-03-30T13:37:19.513138+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.64,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
-      ],
-      "top_3_keywords": [
-        "issue",
-        "reviewer",
-        "review"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P1",
-      "designed_ceiling_reached": true,
-      "finding_summary": "App Store page content not accessible for disabled users due to missing alt text on images.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 60,
-        "P0": 0,
-        "P1": 0,
-        "P2": 60,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.6,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-004",
-      "generated_at": "2026-03-30T13:37:20.368550+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.626,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+        "Internal app_store_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
         "access",
-        "account",
-        "review"
+        "customer",
+        "reports"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P1",
-      "designed_ceiling_reached": true,
-      "finding_summary": "The app_store_loyds has received a high signal count for J_SERVICE_01 journey on P2, which may indicate low satisfaction or poor performance.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_barclays J_SERVICE_01: 1 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 44,
-        "P0": 10,
-        "P1": 5,
-        "P2": 29,
+        "total": 1,
+        "P0": 1,
+        "P1": 0,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.5650000000000001,
-        "sim_hist": 1.0,
+        "vol_sig": 0.12658227848101267,
+        "sim_hist": 0.2777777777777778,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -212,233 +59,223 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "lloyds_0",
-          "lloyds_4",
-          "lloyds_6",
-          "lloyds_8",
-          "lloyds_13",
-          "lloyds_17",
-          "lloyds_22",
-          "lloyds_24",
-          "lloyds_25",
-          "lloyds_28",
-          "lloyds_30",
-          "lloyds_34",
-          "lloyds_35",
-          "lloyds_37",
-          "lloyds_38"
+          "barclays_0"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
+        "sim_hist_score": 0.2777777777777778,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-005",
-      "generated_at": "2026-03-30T13:37:21.148413+00:00",
-      "competitor": "lloyds",
+      "finding_id": "MIL-F-20260402-002",
+      "generated_at": "2026-04-02T21:52:35.698341+00:00",
+      "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.369,
+      "confidence_score": 0.1617,
       "blind_spots": [
-        "appstorelloyds"
+        "Internal app_store_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "general",
+        "complete",
         "customer",
-        "feedback"
+        "registration"
       ],
       "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
+      "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App Store Lloyds received 11 service-related mentions within the last 30 minutes.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_barclays J_SERVICE_01: 1 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 11,
-        "P0": 0,
+        "total": 1,
+        "P0": 1,
         "P1": 0,
-        "P2": 11,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.10999999999999999,
-        "sim_hist": 0.8125,
+        "vol_sig": 0.12658227848101267,
+        "sim_hist": 0.2777777777777778,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
-        "signal_ids": [],
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_0"
+        ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.8125,
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.2777777777777778,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-006",
-      "generated_at": "2026-03-30T13:37:22.063500+00:00",
-      "competitor": "lloyds",
+      "finding_id": "MIL-F-20260402-003",
+      "generated_at": "2026-04-02T21:52:35.698615+00:00",
+      "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.448,
-      "blind_spots": [
-        "app_store_lloyds",
-        "J_SERVICE_01",
-        ""
-      ],
-      "top_3_keywords": [
-        "account",
-        "complete",
-        "block"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": false,
-      "finding_summary": "The app store lloyds is missing from the journey chronicle for service J_ SERVICE _01.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 12,
-        "P0": 0,
-        "P1": 0,
-        "P2": 12,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.12,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-002",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-007",
-      "generated_at": "2026-03-30T13:37:22.815188+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.454,
+      "confidence_score": 0.4522,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "J_4"
+        "Internal app_store_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "payment",
-        "failed",
-        "transaction"
+        "customer",
+        "significant",
+        "functionality"
       ],
       "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_PAY_01",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App Store Lloyds is experiencing severe app issues causing service problems and important navigation features not available.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Signal cluster detected on app_store_barclays J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 9,
-        "P0": 3,
-        "P1": 3,
-        "P2": 3,
+        "total": 7,
+        "P0": 0,
+        "P1": 0,
+        "P2": 7,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.135,
-        "sim_hist": 1.0,
+        "vol_sig": 0.44303797468354433,
+        "sim_hist": 0.6875,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "lloyds_1",
-          "lloyds_2",
-          "lloyds_4",
-          "lloyds_5",
-          "lloyds_7",
-          "lloyds_8"
-        ],
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.6875,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-008",
-      "generated_at": "2026-03-30T13:37:23.642388+00:00",
-      "competitor": "lloyds",
+      "finding_id": "MIL-F-20260402-004",
+      "generated_at": "2026-04-02T21:52:35.698740+00:00",
+      "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.3736,
+      "confidence_score": 0.4664,
       "blind_spots": [
-        "competitor",
-        "journey",
-        "CHR-001"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
+        "login",
         "access",
-        "issues",
         "account"
       ],
       "human_countersign_status": "PENDING",
-      "signal_severity": "P1",
+      "signal_severity": "P0",
       "journey_id": "J_LOGIN_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Restricted Feedback Doesn't Help Lloyds App Store Login Process Slightly",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_barclays J_LOGIN_01: 1 P0 and 1 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 4,
-        "P0": 0,
+        "total": 2,
+        "P0": 1,
         "P1": 1,
-        "P2": 3,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.045,
+        "vol_sig": 0.22151898734177217,
+        "sim_hist": 0.9444444444444444,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_0",
+          "barclays_1"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.9444444444444444,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-005",
+      "generated_at": "2026-04-02T21:52:35.698851+00:00",
+      "competitor": "barclays",
+      "source": "app_store",
+      "confidence_score": 0.4695,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "significant",
+        "friction",
+        "payment"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P1",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_barclays J_PAY_01: 0 P0 and 3 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 3,
+        "P0": 0,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.28481012658227844,
         "sim_hist": 0.8888888888888888,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -448,11 +285,13 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "lloyds_0"
+          "barclays_0",
+          "barclays_1",
+          "barclays_2"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -463,38 +302,39 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-009",
-      "generated_at": "2026-03-30T13:37:24.853554+00:00",
+      "finding_id": "MIL-F-20260402-006",
+      "generated_at": "2026-04-02T21:52:35.699051+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.0382,
+      "confidence_score": 0.4223,
       "blind_spots": [
-        "app_4",
-        "unable_to_sign_in"
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "despite",
-        "being",
-        "strong"
+        "account",
+        "complete",
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "An increasing amount of messages sent through apps show apps as stagnated in being unable to sign in, for high-risk journey 01, for app_store_lloyds; these apps are not yet validated by the bank.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_LOGIN_01: 3 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
-        "P0": 1,
+        "P0": 3,
         "P1": 0,
-        "P2": 2,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04,
-        "sim_hist": 0.05555555555555555,
+        "vol_sig": 0.0558659217877095,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -503,137 +343,279 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "lloyds_1"
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.05555555555555555,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-010",
-      "generated_at": "2026-03-30T13:37:25.576168+00:00",
-      "competitor": "monzo",
+      "finding_id": "MIL-F-20260402-007",
+      "generated_at": "2026-04-02T21:52:35.699346+00:00",
+      "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.092,
-      "blind_spots": [
-        "app_store_monzo",
-        "J_ONTBOARD_01"
-      ],
-      "top_3_keywords": [
-        "account",
-        "monzo",
-        "registration"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "App Store Monzo users experience failing service issues.",
-      "failure_mode": "SILENCE",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 23,
-        "P0": 0,
-        "P1": 0,
-        "P2": 23,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.22999999999999998,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-011",
-      "generated_at": "2026-03-30T13:37:26.115891+00:00",
-      "competitor": "monzo",
-      "source": "app_store",
-      "confidence_score": 0.064,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "install",
-        "after",
-        "login"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Issue with Monzo app's performance after latest update detected",
-      "failure_mode": "SILENCE",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 16,
-        "P0": 0,
-        "P1": 0,
-        "P2": 16,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.16,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-012",
-      "generated_at": "2026-03-30T13:37:26.891654+00:00",
-      "competitor": "monzo",
-      "source": "app_store",
-      "confidence_score": 0.524,
+      "confidence_score": 0.467,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "competitor",
-        "top_keywords"
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
         "crashes",
+        "significant",
+        "repeated"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 3 P0 and 8 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 11,
+        "P0": 3,
+        "P1": 8,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.16759776536312848,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_10"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-008",
+      "generated_at": "2026-04-02T21:52:35.699636+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.4764,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
         "access",
+        "complete",
+        "block"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 8 P0 and 3 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 11,
+        "P0": 8,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.1908752327746741,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_10"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-009",
+      "generated_at": "2026-04-02T21:52:35.699766+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.2612,
+      "blind_spots": [
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "completely",
+        "complete"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_LOGIN_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 3,
+        "P0": 0,
+        "P1": 0,
+        "P2": 3,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.02793296089385475,
+        "sim_hist": 0.625,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.625,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-010",
+      "generated_at": "2026-04-02T21:52:35.699882+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.2112,
+      "blind_spots": [
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "complete",
+        "reports"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 3,
+        "P0": 0,
+        "P1": 0,
+        "P2": 3,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.02793296089385475,
+        "sim_hist": 0.5,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.5,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-011",
+      "generated_at": "2026-04-02T21:52:35.700429+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.4782,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "support",
         "significant"
       ],
       "human_countersign_status": "PENDING",
@@ -641,18 +623,73 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Monzo app service is not on top due to negative sentiment regarding significant deposits",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 31,
+        "total": 21,
         "P0": 0,
         "P1": 0,
-        "P2": 31,
+        "P2": 21,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.31,
+        "vol_sig": 0.19553072625698326,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-012",
+      "generated_at": "2026-04-02T21:52:35.701593+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.5974,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "feature",
+        "payment"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 53,
+        "P0": 0,
+        "P1": 0,
+        "P2": 53,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.49348230912476726,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -664,7 +701,7 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -675,38 +712,39 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-013",
-      "generated_at": "2026-03-30T13:37:27.719122+00:00",
-      "competitor": "monzo",
+      "finding_id": "MIL-F-20260402-013",
+      "generated_at": "2026-04-02T21:52:35.701881+00:00",
+      "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.554,
+      "confidence_score": 0.467,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "competitor_id",
-        "journey_context"
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
         "access",
-        "account",
-        "opening"
+        "repeated",
+        "account"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Journey 01 of app_store_monzo has high P2 counts.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_LOGIN_01: 3 P0 and 8 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 32,
+        "total": 11,
         "P0": 3,
-        "P1": 7,
-        "P2": 22,
+        "P1": 8,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.385,
+        "vol_sig": 0.16759776536312848,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -716,20 +754,21 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "monzo_0",
-          "monzo_1",
-          "monzo_4",
-          "monzo_7",
-          "monzo_13",
-          "monzo_14",
-          "monzo_19",
-          "monzo_25",
-          "monzo_29",
-          "monzo_31"
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_10"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -740,37 +779,93 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-014",
-      "generated_at": "2026-03-30T13:37:28.416754+00:00",
-      "competitor": "monzo",
+      "finding_id": "MIL-F-20260402-014",
+      "generated_at": "2026-04-02T21:52:35.701995+00:00",
+      "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.39,
+      "confidence_score": 0.1445,
       "blind_spots": [
-        "CHR-002"
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
         "customer",
-        "there",
-        "response"
+        "transaction",
+        "conversion"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_PAY_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 3,
+        "P0": 0,
+        "P1": 0,
+        "P2": 3,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.02793296089385475,
+        "sim_hist": 0.3333333333333333,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3333333333333333,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-015",
+      "generated_at": "2026-04-02T21:52:35.702213+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.2261,
+      "blind_spots": [
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "notification",
+        "persistent",
+        "critical"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The Monzo app's customer support system was having significant issues.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 10,
+        "total": 7,
         "P0": 0,
         "P1": 0,
-        "P2": 10,
+        "P2": 7,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.1,
-        "sim_hist": 0.875,
+        "vol_sig": 0.06517690875232775,
+        "sim_hist": 0.5,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -781,45 +876,50 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-002",
         "bank": "Lloyds Banking Group",
         "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.875,
+        "sim_hist_score": 0.5,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-015",
-      "generated_at": "2026-03-30T13:37:29.227376+00:00",
-      "competitor": "monzo",
+      "finding_id": "MIL-F-20260402-016",
+      "generated_at": "2026-04-02T21:52:35.702384+00:00",
+      "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.448,
-      "blind_spots": [],
+      "confidence_score": 0.4503,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
       "top_3_keywords": [
-        "service",
-        "complete",
-        "account"
+        "payment",
+        "customer",
+        "action"
       ],
       "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P2",
-      "designed_ceiling_reached": false,
-      "finding_summary": "App store ranking and total app store user rating indicates app_0 and app_store_2 have a significant difference.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_PAY_01: 3 P0 and 5 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 12,
-        "P0": 0,
-        "P1": 0,
-        "P2": 12,
+        "total": 8,
+        "P0": 3,
+        "P1": 5,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.12,
+        "vol_sig": 0.12569832402234637,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -827,53 +927,177 @@
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
-        "signal_ids": [],
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7"
+        ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
         "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-016",
-      "generated_at": "2026-03-30T13:37:30.223692+00:00",
-      "competitor": "monzo",
+      "finding_id": "MIL-F-20260402-017",
+      "generated_at": "2026-04-02T21:52:35.703216+00:00",
+      "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.2702,
+      "confidence_score": 0.5453,
       "blind_spots": [
-        "payment confirmation time",
-        "resolution status"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "transaction",
-        "issue",
-        "money"
+        "friction",
+        "performance",
+        "significant"
       ],
       "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 39,
+        "P0": 0,
+        "P1": 0,
+        "P2": 39,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.36312849162011174,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-018",
+      "generated_at": "2026-04-02T21:52:35.703351+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.0834,
+      "blind_spots": [
+        "Internal app_store_lloyds telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "transfer",
+        "after",
+        "banking"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P1",
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Monzo app signal cluster detected for pre-validated high-risk combination of payment journey and product with no response from the challenger side nor resolution confirmed by the app store.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Signal cluster detected on app_store_lloyds J_PAY_01: 0 P0 and 3 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 7,
-        "P0": 3,
-        "P1": 4,
+        "total": 3,
+        "P0": 0,
+        "P1": 3,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.12,
-        "sim_hist": 0.5555555555555556,
+        "vol_sig": 0.04189944134078212,
+        "sim_hist": 0.16666666666666666,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.16666666666666666,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-019",
+      "generated_at": "2026-04-02T21:52:35.704015+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.5803,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "account",
+        "access",
+        "complete"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_monzo J_LOGIN_01: 20 P0 and 5 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 25,
+        "P0": 20,
+        "P1": 5,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.4506641366223909,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -888,52 +1112,67 @@
           "monzo_3",
           "monzo_4",
           "monzo_5",
-          "monzo_6"
+          "monzo_6",
+          "monzo_7",
+          "monzo_8",
+          "monzo_9",
+          "monzo_10",
+          "monzo_11",
+          "monzo_12",
+          "monzo_13",
+          "monzo_14",
+          "monzo_15",
+          "monzo_16",
+          "monzo_17",
+          "monzo_18",
+          "monzo_19"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.5555555555555556,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-017",
-      "generated_at": "2026-03-30T13:37:30.912002+00:00",
+      "finding_id": "MIL-F-20260402-020",
+      "generated_at": "2026-04-02T21:52:35.704215+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.43,
+      "confidence_score": 0.2024,
       "blind_spots": [
-        "monzo"
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "login",
-        "monzo",
-        "refunded"
+        "significant",
+        "customer",
+        "device"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
-      "journey_id": "J_LOGIN_01",
-      "finding_tier": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Monzo app users have reported issues on login causing refunds for payment replacements",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 1 P0 and 3 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 4,
         "P0": 1,
         "P1": 3,
-        "P2": 1,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.075,
-        "sim_hist": 1.0,
+        "vol_sig": 0.06166982922201139,
+        "sim_hist": 0.4444444444444444,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -949,154 +1188,50 @@
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
+        "sim_hist_score": 0.4444444444444444,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-018",
-      "generated_at": "2026-03-30T13:37:32.047561+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.148,
-      "blind_spots": [
-        "Journey",
-        "Competitor"
-      ],
-      "top_3_keywords": [
-        "install",
-        "issues",
-        "could"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Blind spots in this data set include the names of journeys and competitors involved. P0/P1 is the validated high risk journey and product but cannot identify them specifically; SILENCE because there are other keywords which could describe a banking app signal cluster.",
-      "failure_mode": "NONE",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 37,
-        "P0": 0,
-        "P1": 0,
-        "P2": 37,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.37,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-019",
-      "generated_at": "2026-03-30T13:37:32.630359+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.568,
+      "finding_id": "MIL-F-20260402-021",
+      "generated_at": "2026-04-02T21:52:35.704465+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.4721,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "bank_specificity"
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "crashed",
-        "issues",
-        "crashing"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "Google Play Barclays is experiencing debit issues",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 42,
-        "P0": 0,
-        "P1": 0,
-        "P2": 42,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.42000000000000004,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-020",
-      "generated_at": "2026-03-30T13:37:33.252610+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.512,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "CHR-001"
-      ],
-      "top_3_keywords": [
-        "account",
-        "crashing",
-        "keeps"
+        "access",
+        "customer",
+        "complete"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Significant outage in Google Play Barclays app reported.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 8 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 24,
-        "P0": 2,
-        "P1": 4,
-        "P2": 18,
+        "total": 10,
+        "P0": 8,
+        "P1": 2,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.28,
+        "vol_sig": 0.18026565464895639,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1106,16 +1241,20 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "barclays_1",
-          "barclays_4",
-          "barclays_6",
-          "barclays_11",
-          "barclays_16",
-          "barclays_21"
+          "monzo_0",
+          "monzo_1",
+          "monzo_2",
+          "monzo_3",
+          "monzo_4",
+          "monzo_5",
+          "monzo_6",
+          "monzo_7",
+          "monzo_8",
+          "monzo_9"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -1126,37 +1265,94 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-021",
-      "generated_at": "2026-03-30T13:37:34.000292+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.141,
+      "finding_id": "MIL-F-20260402-022",
+      "generated_at": "2026-04-02T21:52:35.704752+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.438,
       "blind_spots": [
-        "financial institution"
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "about",
-        "asked",
-        "question"
+        "account",
+        "complete",
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "The Google Play Barclays app has 4 signal events related to customer inquiries about support and bank-related concerns.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 4,
+        "total": 10,
         "P0": 0,
         "P1": 0,
-        "P2": 4,
+        "P2": 10,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04,
-        "sim_hist": 0.3125,
+        "vol_sig": 0.09487666034155598,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-023",
+      "generated_at": "2026-04-02T21:52:35.705209+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.4645,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "support",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 17,
+        "P0": 0,
+        "P1": 0,
+        "P2": 17,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.16129032258064516,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -1167,48 +1363,275 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-002",
         "bank": "Lloyds Banking Group",
         "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.3125,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-022",
-      "generated_at": "2026-03-30T13:37:34.865787+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.058,
+      "finding_id": "MIL-F-20260402-024",
+      "generated_at": "2026-04-02T21:52:35.705946+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.4911,
       "blind_spots": [
-        "P0",
-        "P1"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "thank",
-        "helping",
-        "queries"
+        "feature",
+        "customer",
+        "account"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 24,
+        "P0": 0,
+        "P1": 0,
+        "P2": 24,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.22770398481973433,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-025",
+      "generated_at": "2026-04-02T21:52:35.706135+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.4342,
+      "blind_spots": [
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "account",
+        "access",
+        "login"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_monzo J_LOGIN_01: 3 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 5,
+        "P0": 3,
+        "P1": 2,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.08538899430740038,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "monzo_0",
+          "monzo_1",
+          "monzo_2",
+          "monzo_3",
+          "monzo_4"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-026",
+      "generated_at": "2026-04-02T21:52:35.706295+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.0902,
+      "blind_spots": [
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "notifications",
+        "settings"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The Google Play Barclays app experiences frequent customer queries and support issues. App chronicles may indicate more detailed incidents.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 2,
+        "total": 4,
         "P0": 0,
         "P1": 0,
-        "P2": 2,
+        "P2": 4,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.02,
+        "vol_sig": 0.03795066413662239,
+        "sim_hist": 0.1875,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.1875,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-027",
+      "generated_at": "2026-04-02T21:52:35.706385+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.2577,
+      "blind_spots": [
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "payment",
+        "customer",
+        "reports"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_monzo J_PAY_01: 1 P0 and 1 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 1,
+        "P1": 1,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.03320683111954459,
+        "sim_hist": 0.6111111111111112,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "monzo_0",
+          "monzo_1"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.6111111111111112,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-028",
+      "generated_at": "2026-04-02T21:52:35.706551+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.069,
+      "blind_spots": [
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "significantly",
+        "complete",
+        "banking"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_monzo J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 5,
+        "P0": 0,
+        "P1": 0,
+        "P2": 5,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.04743833017077799,
         "sim_hist": 0.125,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1220,7 +1643,7 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-002",
@@ -1231,38 +1654,484 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-023",
-      "generated_at": "2026-03-30T13:37:35.544478+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.1351,
+      "finding_id": "MIL-F-20260402-029",
+      "generated_at": "2026-04-02T21:52:35.706694+00:00",
+      "competitor": "monzo",
+      "source": "app_store",
+      "confidence_score": 0.1764,
       "blind_spots": [
-        "department",
-        "acknowledge"
+        "Internal app_store_monzo telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "service",
-        "transaction",
-        "payment"
+        "customer",
+        "transfer",
+        "complete"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "There is a significant number of service-related issues with the google play barclays app detected.",
+      "finding_summary": "Signal cluster detected on app_store_monzo J_PAY_01: 2 P0 and 1 P1 signals. CHRONICLE anchor: CHR-001.",
       "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
-        "P0": 3,
+        "P0": 2,
+        "P1": 1,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.05218216318785579,
+        "sim_hist": 0.3888888888888889,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "monzo_0",
+          "monzo_1",
+          "monzo_2"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3888888888888889,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-030",
+      "generated_at": "2026-04-02T21:52:35.706802+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.13,
+      "blind_spots": [
+        "Internal app_store_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "reports",
+        "never"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_natwest J_SERVICE_01: 1 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 1,
+        "P0": 1,
         "P1": 0,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.06,
-        "sim_hist": 0.2777777777777778,
+        "vol_sig": 0.2,
+        "sim_hist": 0.125,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [
+          "natwest_0"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.125,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-031",
+      "generated_at": "2026-04-02T21:52:35.706992+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.45,
+      "blind_spots": [
+        "Internal app_store_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "support",
+        "resolve"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 5,
+        "P0": 0,
+        "P1": 0,
+        "P2": 5,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.5,
+        "sim_hist": 0.625,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.625,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-032",
+      "generated_at": "2026-04-02T21:52:35.707237+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.6,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "friction",
+        "feature"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P1",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 8,
+        "P0": 0,
+        "P1": 0,
+        "P2": 8,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.8,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-033",
+      "generated_at": "2026-04-02T21:52:35.707362+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.6,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal app_store_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "access",
+        "login"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P1",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on app_store_natwest J_LOGIN_01: 1 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 3,
+        "P0": 1,
+        "P1": 2,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.5,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-034",
+      "generated_at": "2026-04-02T21:52:35.707454+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.1467,
+      "blind_spots": [
+        "Internal app_store_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "communication",
+        "financial",
+        "visibility"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_natwest J_PAY_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.2,
+        "sim_hist": 0.16666666666666666,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.16666666666666666,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-035",
+      "generated_at": "2026-04-02T21:52:35.707556+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.18,
+      "blind_spots": [
+        "Internal app_store_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "account",
+        "frustrated"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.2,
+        "sim_hist": 0.25,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.25,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-036",
+      "generated_at": "2026-04-02T21:52:35.707673+00:00",
+      "competitor": "revolut",
+      "source": "app_store",
+      "confidence_score": 0.13,
+      "blind_spots": [
+        "Internal app_store_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "satisfied",
+        "overall",
+        "notes"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on app_store_revolut J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.2,
+        "sim_hist": 0.125,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.125,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-037",
+      "generated_at": "2026-04-02T21:52:35.708116+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.4678,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "crashes",
+        "access"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 6 P0 and 8 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 15,
+        "P0": 6,
+        "P1": 8,
+        "P2": 1,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.16937669376693765,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -1273,67 +2142,22 @@
         "signal_ids": [
           "barclays_0",
           "barclays_1",
-          "barclays_2"
+          "barclays_2",
+          "barclays_3",
+          "barclays_4",
+          "barclays_5",
+          "barclays_6",
+          "barclays_7",
+          "barclays_8",
+          "barclays_9",
+          "barclays_10",
+          "barclays_12",
+          "barclays_13",
+          "barclays_14"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.2777777777777778,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-024",
-      "generated_at": "2026-03-30T13:37:36.564932+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.422,
-      "blind_spots": [
-        "specific competitors",
-        "journey type",
-        "product types"
-      ],
-      "top_3_keywords": [
-        "account",
-        "access",
-        "password"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P1",
-      "journey_id": "J_LOGIN_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": false,
-      "finding_summary": "None of the 5 top keywords found within the signal cluster indicates any significant issue, sentiment, or negative factor related to Barclays' Google Play app.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 5,
-        "P0": 0,
-        "P1": 1,
-        "P2": 4,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.05499999999999999,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "barclays_4"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -1344,37 +2168,39 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-025",
-      "generated_at": "2026-03-30T13:37:37.337278+00:00",
+      "finding_id": "MIL-F-20260402-038",
+      "generated_at": "2026-04-02T21:52:35.708297+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.1391,
+      "confidence_score": 0.4352,
       "blind_spots": [
-        "J_SERVICE_01"
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "network",
-        "payments",
-        "crashing"
+        "customer",
+        "access",
+        "complete"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Competitor google_play_barclays appears to be experiencing issues with lasting impact on significant purchases.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 5 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
-        "P0": 1,
+        "total": 7,
+        "P0": 5,
         "P1": 2,
-        "P2": 2,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.07,
-        "sim_hist": 0.2777777777777778,
+        "vol_sig": 0.08807588075880758,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -1383,171 +2209,17 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
+          "barclays_0",
           "barclays_1",
           "barclays_2",
-          "barclays_3"
+          "barclays_3",
+          "barclays_4",
+          "barclays_5",
+          "barclays_6"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.2777777777777778,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-026",
-      "generated_at": "2026-03-30T13:37:37.985067+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.052,
-      "blind_spots": [
-        "Competitor"
-      ],
-      "top_3_keywords": [
-        "account",
-        "users",
-        "positive"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Potential data leak in Natwest's google play app",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 13,
-        "P0": 0,
-        "P1": 0,
-        "P2": 13,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.13,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-027",
-      "generated_at": "2026-03-30T13:37:38.904375+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.148,
-      "blind_spots": [
-        "NatWest login credentials",
-        "User's experience with app navigation"
-      ],
-      "top_3_keywords": [
-        "install",
-        "issues",
-        "would"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Journey+Product compatibility issues encountered for Natwest on Google Play during journey J_ONBOARD_01.",
-      "failure_mode": "CONTRADICTION",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 37,
-        "P0": 0,
-        "P1": 0,
-        "P2": 37,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.37,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-028",
-      "generated_at": "2026-03-30T13:37:39.651050+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.624,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "competitor"
-      ],
-      "top_3_keywords": [
-        "access",
-        "account",
-        "feedback"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P1",
-      "designed_ceiling_reached": true,
-      "finding_summary": "The top keywords indicate that the service journey has been frustrating a large number of users",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 56,
-        "P0": 0,
-        "P1": 0,
-        "P2": 56,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.56,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -1558,153 +2230,39 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-029",
-      "generated_at": "2026-03-30T13:37:40.513166+00:00",
-      "competitor": "natwest",
+      "finding_id": "MIL-F-20260402-039",
+      "generated_at": "2026-04-02T21:52:35.708538+00:00",
+      "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.652,
+      "confidence_score": 0.3913,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "CRASHED"
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "access",
-        "account",
-        "after"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P1",
-      "designed_ceiling_reached": true,
-      "finding_summary": "Competitor (google_play_natwest) is experiencing P2/P0/P1 signal issues, indicating possible outage in their app",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 54,
-        "P0": 6,
-        "P1": 6,
-        "P2": 42,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.63,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "natwest_1",
-          "natwest_5",
-          "natwest_6",
-          "natwest_13",
-          "natwest_30",
-          "natwest_36",
-          "natwest_38",
-          "natwest_39",
-          "natwest_40",
-          "natwest_42",
-          "natwest_44",
-          "natwest_46"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-030",
-      "generated_at": "2026-03-30T13:37:41.387316+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.257,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "should",
-        "immediately",
-        "often"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Google Play NATWEST's J \uc11c\ube44\uc2a4 01 appears to have a negative user experience, with the top keywords indicating difficulty in communicating and understanding their app.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 8,
-        "P0": 0,
-        "P1": 0,
-        "P2": 8,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.08,
-        "sim_hist": 0.5625,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-002",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.5625,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-031",
-      "generated_at": "2026-03-30T13:37:42.157708+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.195,
-      "blind_spots": [
-        "banking"
-      ],
-      "top_3_keywords": [
+        "customer",
         "support",
-        "helped",
-        "mixed"
+        "significant"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The banking app signal with keywords recover, customer, problem, credit, and impossible was detected.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 6,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 6,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.05,
-        "sim_hist": 0.4375,
+        "vol_sig": 0.04065040650406505,
+        "sim_hist": 0.9375,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -1715,314 +2273,40 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-002",
         "bank": "Lloyds Banking Group",
         "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.4375,
+        "sim_hist_score": 0.9375,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-032",
-      "generated_at": "2026-03-30T13:37:42.796417+00:00",
-      "competitor": "natwest",
+      "finding_id": "MIL-F-20260402-040",
+      "generated_at": "2026-04-02T21:52:35.709326+00:00",
+      "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.3813,
-      "blind_spots": [
-        "app ID"
-      ],
-      "top_3_keywords": [
-        "failed",
-        "payment",
-        "completely"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_PAY_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Multiple customers reporting Natwest app issues",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 9,
-        "P0": 2,
-        "P1": 2,
-        "P2": 5,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.12,
-        "sim_hist": 0.8333333333333334,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "natwest_2",
-          "natwest_4",
-          "natwest_6",
-          "natwest_8"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.8333333333333334,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-033",
-      "generated_at": "2026-03-30T13:37:43.546262+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.482,
+      "confidence_score": 0.4949,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "J_LOGIN_01",
-        "google_play_natwest"
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "access",
-        "account",
-        "login"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_LOGIN_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "Broken login integration for NatWest on Google Play.",
-      "failure_mode": "SILENCE",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 15,
-        "P0": 5,
-        "P1": 1,
-        "P2": 9,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.20500000000000002,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "natwest_7",
-          "natwest_9",
-          "natwest_11",
-          "natwest_12",
-          "natwest_13",
-          "natwest_14"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-034",
-      "generated_at": "2026-03-30T13:37:44.505515+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.0524,
-      "blind_spots": [
-        "CHR-001"
-      ],
-      "top_3_keywords": [
-        "person's",
-        "internet",
-        "disconnected"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Signal cluster suggests minor access and connection issues with Natwest online banking services.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 2,
-        "P0": 0,
-        "P1": 0,
-        "P2": 2,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.02,
-        "sim_hist": 0.1111111111111111,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.1111111111111111,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-035",
-      "generated_at": "2026-03-30T13:37:45.683311+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.076,
-      "blind_spots": [
-        "J_ONTIME",
-        "total_process",
-        "there_confirmed"
-      ],
-      "top_3_keywords": [
-        "account",
-        "email",
-        "verification"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "The app has reported 19 blind spots and NO_ Chronicle_match for total process confirmation.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 19,
-        "P0": 0,
-        "P1": 0,
-        "P2": 19,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.19,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-036",
-      "generated_at": "2026-03-30T13:37:46.329107+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.136,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "installation",
-        "after",
-        "issue"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Unconfirmed details on the google play revolut app using process and friction",
-      "failure_mode": "CONTRADICTION",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 34,
-        "P0": 0,
-        "P1": 0,
-        "P2": 34,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.34,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-037",
-      "generated_at": "2026-03-30T13:37:47.217815+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.54,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "App rating",
-        "Market share size",
-        "Security features"
-      ],
-      "top_3_keywords": [
-        "crashing",
-        "issue",
-        "review"
+        "customer",
+        "feature",
+        "minor"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Competitor's app, google_play_Revolut, detected as significant friction based on sentiment analysis.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 35,
@@ -2032,7 +2316,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.35000000000000003,
+        "vol_sig": 0.23712737127371275,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2044,7 +2328,7 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -2055,38 +2339,256 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-038",
-      "generated_at": "2026-03-30T13:37:48.422865+00:00",
-      "competitor": "revolut",
+      "finding_id": "MIL-F-20260402-041",
+      "generated_at": "2026-04-02T21:52:35.709454+00:00",
+      "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.5,
+      "confidence_score": 0.3554,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "inquiry",
-        "CHR-001"
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "account",
-        "access",
-        "causing"
+        "issue",
+        "transaction",
+        "display"
       ],
       "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
+      "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "The signal is due to an unexpected outage in relation to the previous version of Revolut on Google Play (Revolut P2) and inquiries from customers regarding the inconvenience caused (Revolut P1 & 3).",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 21,
-        "P0": 3,
-        "P1": 2,
-        "P2": 16,
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.25,
+        "vol_sig": 0.013550135501355014,
+        "sim_hist": 0.875,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.875,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-042",
+      "generated_at": "2026-04-02T21:52:35.709535+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.1388,
+      "blind_spots": [
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "complete",
+        "registration"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_LOGIN_01: 1 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 1,
+        "P0": 1,
+        "P1": 0,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.013550135501355014,
+        "sim_hist": 0.3333333333333333,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_0"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3333333333333333,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-043",
+      "generated_at": "2026-04-02T21:52:35.709657+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.1442,
+      "blind_spots": [
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "issue",
+        "customer",
+        "statements"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_PAY_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 4,
+        "P0": 0,
+        "P1": 0,
+        "P2": 4,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.02710027100271003,
+        "sim_hist": 0.3333333333333333,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3333333333333333,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-044",
+      "generated_at": "2026-04-02T21:52:35.709854+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.3051,
+      "blind_spots": [
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "notifications",
+        "customer",
+        "payment"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 6,
+        "P0": 0,
+        "P1": 0,
+        "P2": 6,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.04065040650406505,
+        "sim_hist": 0.7222222222222222,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.7222222222222222,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-045",
+      "generated_at": "2026-04-02T21:52:35.709973+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.419,
+      "blind_spots": [
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "payment",
+        "causing",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_PAY_01: 2 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 4,
+        "P0": 2,
+        "P1": 2,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.04742547425474254,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2096,15 +2598,14 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "revolut_0",
-          "revolut_1",
-          "revolut_12",
-          "revolut_16",
-          "revolut_20"
+          "barclays_0",
+          "barclays_1",
+          "barclays_2",
+          "barclays_3"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
@@ -2115,34 +2616,38 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-039",
-      "generated_at": "2026-03-30T13:37:49.057637+00:00",
-      "competitor": "revolut",
+      "finding_id": "MIL-F-20260402-046",
+      "generated_at": "2026-04-02T21:52:35.710198+00:00",
+      "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.328,
-      "blind_spots": [],
+      "confidence_score": 0.3217,
+      "blind_spots": [
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
       "top_3_keywords": [
-        "customer",
-        "service",
-        "account"
+        "minor",
+        "prevent",
+        "friction"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "revolut has 0 pre-validated high-risk journeys and no mentions",
-      "failure_mode": "NO_ITCHMATCH",
+      "finding_summary": "Signal cluster detected on google_play_barclays J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 7,
+        "total": 8,
         "P0": 0,
         "P1": 0,
-        "P2": 7,
+        "P2": 8,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.07,
+        "vol_sig": 0.05420054200542006,
         "sim_hist": 0.75,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2154,7 +2659,7 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-002",
@@ -2165,37 +2670,405 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260330-040",
-      "generated_at": "2026-03-30T13:37:49.632142+00:00",
-      "competitor": "revolut",
+      "finding_id": "MIL-F-20260402-047",
+      "generated_at": "2026-04-02T21:52:35.710314+00:00",
+      "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.17,
+      "confidence_score": 0.1732,
       "blind_spots": [
-        "Competitor ranking"
+        "Internal google_play_barclays telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "terrible",
+        "significant",
+        "friction",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_barclays J_PAY_01: 1 P0 and 3 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 4,
+        "P0": 1,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.04403794037940379,
+        "sim_hist": 0.3888888888888889,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "barclays_0",
+          "barclays_1",
+          "barclays_2",
+          "barclays_3"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3888888888888889,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-048",
+      "generated_at": "2026-04-02T21:52:35.710575+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.4415,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "access",
+        "account",
+        "locked"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_LOGIN_01: 5 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 7,
+        "P0": 5,
+        "P1": 2,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.10366826156299841,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-049",
+      "generated_at": "2026-04-02T21:52:35.710779+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.3288,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "repeated",
+        "after",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 1 P0 and 7 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 8,
+        "P0": 1,
+        "P1": 7,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.09968102073365231,
+        "sim_hist": 0.7222222222222222,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6",
+          "natwest_7"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.7222222222222222,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-050",
+      "generated_at": "2026-04-02T21:52:35.711166+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.5069,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "access",
         "customer",
-        "service"
+        "complete"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 13 P0 and 5 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 18,
+        "P0": 13,
+        "P1": 5,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.2671451355661882,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6",
+          "natwest_7",
+          "natwest_8",
+          "natwest_9",
+          "natwest_10",
+          "natwest_11",
+          "natwest_12",
+          "natwest_13",
+          "natwest_14",
+          "natwest_15",
+          "natwest_16",
+          "natwest_17"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-051",
+      "generated_at": "2026-04-02T21:52:35.711391+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.4223,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "biometric",
+        "access",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_LOGIN_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 7,
+        "P0": 0,
+        "P1": 0,
+        "P2": 7,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.05582137161084529,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-052",
+      "generated_at": "2026-04-02T21:52:35.711527+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.2096,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer's",
+        "complete",
+        "displays"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Service issues highlighted by customer reviews",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 3,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 3,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.05,
-        "sim_hist": 0.375,
+        "vol_sig": 0.023923444976076555,
+        "sim_hist": 0.5,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.5,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-053",
+      "generated_at": "2026-04-02T21:52:35.711851+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.4383,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "support",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 12,
+        "P0": 0,
+        "P1": 0,
+        "P2": 12,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.09569377990430622,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -2206,49 +3079,471 @@
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-002",
         "bank": "Lloyds Banking Group",
         "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.375,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-041",
-      "generated_at": "2026-03-30T13:37:50.683600+00:00",
-      "competitor": "revolut",
+      "finding_id": "MIL-F-20260402-054",
+      "generated_at": "2026-04-02T21:52:35.713704+00:00",
+      "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.2884,
+      "confidence_score": 0.7126,
       "blind_spots": [
-        "competitor_product_details",
-        "customer_experience_rating"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
+        "feature",
+        "customer",
+        "update"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P1",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 98,
+        "P0": 0,
+        "P1": 0,
+        "P2": 98,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.7814992025518341,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-055",
+      "generated_at": "2026-04-02T21:52:35.714229+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.526,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "login",
+        "access",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_LOGIN_01: 10 P0 and 13 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 23,
+        "P0": 10,
+        "P1": 13,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.3149920255183413,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6",
+          "natwest_7",
+          "natwest_8",
+          "natwest_9",
+          "natwest_10",
+          "natwest_11",
+          "natwest_12",
+          "natwest_13",
+          "natwest_14",
+          "natwest_15",
+          "natwest_16",
+          "natwest_17",
+          "natwest_18",
+          "natwest_19"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-056",
+      "generated_at": "2026-04-02T21:52:35.714330+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.1397,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "information",
         "account",
+        "management"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_PAY_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.01594896331738437,
+        "sim_hist": 0.3333333333333333,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3333333333333333,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-057",
+      "generated_at": "2026-04-02T21:52:35.714573+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.3176,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "notifications",
+        "annoyance",
+        "payment"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 9,
+        "P0": 0,
+        "P1": 0,
+        "P2": 9,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.07177033492822966,
+        "sim_hist": 0.7222222222222222,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.7222222222222222,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-058",
+      "generated_at": "2026-04-02T21:52:35.714751+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.4526,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "payment",
+        "complete",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_PAY_01: 3 P0 and 7 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 10,
+        "P0": 3,
+        "P1": 7,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.13157894736842105,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5",
+          "natwest_6",
+          "natwest_7",
+          "natwest_8",
+          "natwest_9"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-059",
+      "generated_at": "2026-04-02T21:52:35.715128+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.451,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "usability",
+        "friction",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_natwest J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-002.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 16,
+        "P0": 0,
+        "P1": 0,
+        "P2": 16,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.12759170653907495,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-060",
+      "generated_at": "2026-04-02T21:52:35.715270+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.2763,
+      "blind_spots": [
+        "Internal google_play_natwest telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
         "transfer",
-        "almost"
+        "complete",
+        "functionality"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Some users report Revolut as a poor alternative to Google Play offerings, with top phrases like \"service\" not fully available and customer care being awful.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal cluster detected on google_play_natwest J_PAY_01: 2 P0 and 4 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 6,
-        "P0": 4,
-        "P1": 2,
+        "P0": 2,
+        "P1": 4,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.10999999999999999,
+        "vol_sig": 0.07974481658692184,
         "sim_hist": 0.6111111111111112,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2",
+          "natwest_3",
+          "natwest_4",
+          "natwest_5"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.6111111111111112,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-061",
+      "generated_at": "2026-04-02T21:52:35.715605+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4448,
+      "blind_spots": [
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "account",
+        "complete",
+        "access"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_LOGIN_01: 8 P0 and 1 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 9,
+        "P0": 8,
+        "P1": 1,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.1118925831202046,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -2262,107 +3557,58 @@
           "revolut_2",
           "revolut_3",
           "revolut_4",
-          "revolut_5"
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.6111111111111112,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-042",
-      "generated_at": "2026-03-30T13:37:51.384935+00:00",
+      "finding_id": "MIL-F-20260402-062",
+      "generated_at": "2026-04-02T21:52:35.715999+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.2807,
+      "confidence_score": 0.4652,
       "blind_spots": [
-        "CHR-001"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
-        "login",
-        "working",
-        "canada"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P1",
-      "journey_id": "J_LOGIN_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Competitor Google Play Revolut had issue about being happy",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 3,
-        "P0": 0,
-        "P1": 1,
-        "P2": 2,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.035,
-        "sim_hist": 0.6666666666666666,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "revolut_0"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.6666666666666666,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-043",
-      "generated_at": "2026-03-30T13:37:52.213995+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.1009,
-      "blind_spots": [
-        "COMPETITION",
-        "P2"
-      ],
-      "top_3_keywords": [
-        "account",
-        "could",
-        "better"
+        "crashes",
+        "access",
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Signal suggests Google Play and Revolut might have a service with the letter R.",
-      "failure_mode": "CONTRADICTION",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_SERVICE_01: 6 P0 and 9 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 2,
-        "P0": 1,
-        "P1": 0,
-        "P2": 1,
+        "total": 15,
+        "P0": 6,
+        "P1": 9,
+        "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.03,
-        "sim_hist": 0.2222222222222222,
+        "vol_sig": 0.16304347826086957,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -2371,460 +3617,292 @@
       "provenance": {
         "chronicle_id": "CHR-001",
         "signal_ids": [
-          "revolut_0"
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11",
+          "revolut_12",
+          "revolut_13",
+          "revolut_14"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.2222222222222222,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
-    }
-  ],
-  "unanchored_signals": [
-    {
-      "finding_id": "MIL-F-20260330-001",
-      "generated_at": "2026-03-30T13:37:17.990605+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.076,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "account",
-        "registration",
-        "experience"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "High risk products and processes encountered in the Lloyds app store review.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 19,
-        "P0": 0,
-        "P1": 0,
-        "P2": 19,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.19,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
     },
     {
-      "finding_id": "MIL-F-20260330-002",
-      "generated_at": "2026-03-30T13:37:18.824972+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.124,
-      "blind_spots": [
-        "app_store_id",
-        "journey_start_time"
-      ],
-      "top_3_keywords": [
-        "installing",
-        "issues",
-        "multiple"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "App Store Lloyds app reinstall is found as an easier procedure than the previous version.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 31,
-        "P0": 0,
-        "P1": 0,
-        "P2": 31,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.31,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-010",
-      "generated_at": "2026-03-30T13:37:25.576168+00:00",
-      "competitor": "monzo",
-      "source": "app_store",
-      "confidence_score": 0.092,
-      "blind_spots": [
-        "app_store_monzo",
-        "J_ONTBOARD_01"
-      ],
-      "top_3_keywords": [
-        "account",
-        "monzo",
-        "registration"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "App Store Monzo users experience failing service issues.",
-      "failure_mode": "SILENCE",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 23,
-        "P0": 0,
-        "P1": 0,
-        "P2": 23,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.22999999999999998,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-011",
-      "generated_at": "2026-03-30T13:37:26.115891+00:00",
-      "competitor": "monzo",
-      "source": "app_store",
-      "confidence_score": 0.064,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "install",
-        "after",
-        "login"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Issue with Monzo app's performance after latest update detected",
-      "failure_mode": "SILENCE",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 16,
-        "P0": 0,
-        "P1": 0,
-        "P2": 16,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.16,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-018",
-      "generated_at": "2026-03-30T13:37:32.047561+00:00",
-      "competitor": "barclays",
-      "source": "google_play",
-      "confidence_score": 0.148,
-      "blind_spots": [
-        "Journey",
-        "Competitor"
-      ],
-      "top_3_keywords": [
-        "install",
-        "issues",
-        "could"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Blind spots in this data set include the names of journeys and competitors involved. P0/P1 is the validated high risk journey and product but cannot identify them specifically; SILENCE because there are other keywords which could describe a banking app signal cluster.",
-      "failure_mode": "NONE",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 37,
-        "P0": 0,
-        "P1": 0,
-        "P2": 37,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.37,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-026",
-      "generated_at": "2026-03-30T13:37:37.985067+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.052,
-      "blind_spots": [
-        "Competitor"
-      ],
-      "top_3_keywords": [
-        "account",
-        "users",
-        "positive"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Potential data leak in Natwest's google play app",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 13,
-        "P0": 0,
-        "P1": 0,
-        "P2": 13,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.13,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-027",
-      "generated_at": "2026-03-30T13:37:38.904375+00:00",
-      "competitor": "natwest",
-      "source": "google_play",
-      "confidence_score": 0.148,
-      "blind_spots": [
-        "NatWest login credentials",
-        "User's experience with app navigation"
-      ],
-      "top_3_keywords": [
-        "install",
-        "issues",
-        "would"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Journey+Product compatibility issues encountered for Natwest on Google Play during journey J_ONBOARD_01.",
-      "failure_mode": "CONTRADICTION",
-      "is_unanchored": true,
-      "signal_counts": {
-        "total": 37,
-        "P0": 0,
-        "P1": 0,
-        "P2": 37,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.37,
-        "sim_hist": 0.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": null,
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260330-035",
-      "generated_at": "2026-03-30T13:37:45.683311+00:00",
+      "finding_id": "MIL-F-20260402-063",
+      "generated_at": "2026-04-02T21:52:35.716286+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.076,
+      "confidence_score": 0.4703,
       "blind_spots": [
-        "J_ONTIME",
-        "total_process",
-        "there_confirmed"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "access",
+        "complete",
+        "device"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_SERVICE_01: 13 P0 and 1 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 14,
+        "P0": 13,
+        "P1": 1,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.1758312020460358,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11",
+          "revolut_12",
+          "revolut_13"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-064",
+      "generated_at": "2026-04-02T21:52:35.716555+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.423,
+      "blind_spots": [
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
       ],
       "top_3_keywords": [
         "account",
-        "email",
+        "customer",
         "verification"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
-      "finding_tier": "P3",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "The app has reported 19 blind spots and NO_ Chronicle_match for total process confirmation.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_LOGIN_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
       "signal_counts": {
-        "total": 19,
+        "total": 9,
         "P0": 0,
         "P1": 0,
-        "P2": 19,
+        "P2": 9,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.19,
-        "sim_hist": 0.0,
+        "vol_sig": 0.05754475703324809,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": null,
+        "chronicle_id": "CHR-001",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260330-036",
-      "generated_at": "2026-03-30T13:37:46.329107+00:00",
+      "finding_id": "MIL-F-20260402-065",
+      "generated_at": "2026-04-02T21:52:35.716661+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.136,
-      "blind_spots": [],
+      "confidence_score": 0.1829,
+      "blind_spots": [
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
       "top_3_keywords": [
-        "installation",
-        "after",
-        "issue"
+        "account",
+        "funds",
+        "completely"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_ONBOARD_01",
+      "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unconfirmed details on the google play revolut app using process and friction",
-      "failure_mode": "CONTRADICTION",
-      "is_unanchored": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.012787723785166242,
+        "sim_hist": 0.4444444444444444,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.4444444444444444,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-066",
+      "generated_at": "2026-04-02T21:52:35.717255+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4639,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "support",
+        "customer",
+        "account"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 25,
+        "P0": 0,
+        "P1": 0,
+        "P2": 25,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.159846547314578,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-067",
+      "generated_at": "2026-04-02T21:52:35.717990+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.487,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "minor",
+        "feature"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
       "signal_counts": {
         "total": 34,
         "P0": 0,
@@ -2833,27 +3911,271 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.34,
-        "sim_hist": 0.0,
+        "vol_sig": 0.21739130434782608,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": null,
+        "chronicle_id": "CHR-001",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
-        "refuel_narrative_called": true
+        "refuel_narrative_called": false
       },
       "chronicle_match": {
-        "chronicle_id": null,
-        "bank": null,
-        "incident_type": null,
-        "sim_hist_score": 0.0,
-        "inference_approved": false
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-068",
+      "generated_at": "2026-04-02T21:52:35.718266+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4524,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "account",
+        "complete"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_LOGIN_01: 8 P0 and 3 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 11,
+        "P0": 8,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.13107416879795397,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-069",
+      "generated_at": "2026-04-02T21:52:35.718419+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.1436,
+      "blind_spots": [
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "notification",
+        "minor",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_SERVICE_01: 0 P0 and 0 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 4,
+        "P0": 0,
+        "P1": 0,
+        "P2": 4,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.025575447570332484,
+        "sim_hist": 0.3333333333333333,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.3333333333333333,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-070",
+      "generated_at": "2026-04-02T21:52:35.718578+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4307,
+      "blind_spots": [
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "payment",
+        "customer",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_PAY_01: 3 P0 and 4 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 7,
+        "P0": 3,
+        "P1": 4,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.07672634271099744,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260402-071",
+      "generated_at": "2026-04-02T21:52:35.718710+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.2452,
+      "blind_spots": [
+        "Internal google_play_revolut telemetry unavailable -- cannot confirm actual error rate",
+        "Review volume is public-only -- silent failures not captured",
+        "Model-generated narrative not available -- Refuel-8B unreachable"
+      ],
+      "top_3_keywords": [
+        "complete",
+        "transfer",
+        "critical"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Signal cluster detected on google_play_revolut J_PAY_01: 3 P0 and 2 P1 signals. CHRONICLE anchor: CHR-001.",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 5,
+        "P0": 3,
+        "P1": 2,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.05754475703324809,
+        "sim_hist": 0.5555555555555556,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": false
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.5555555555555556,
+        "inference_approved": true
       }
     }
-  ]
+  ],
+  "unanchored_signals": []
 }
