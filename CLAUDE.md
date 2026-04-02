@@ -195,7 +195,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 
 ### MIL Jira — Kanban Board
 - MIL-1 through MIL-6: BUILT (2026-03-28)
-- MIL-7: Teacher Agent + Synthetic Engine — BUILT 2026-04-02 (commits fb74936/47c9aad). run_teacher.py wrapper. Pending Hussain Jira closure.
+- MIL-7: Teacher Agent + Synthetic Engine — BUILT + CLOSED 2026-04-02 (commits fb74936/47c9aad). run_teacher.py wrapper.
 - MIL-8: mil_agent.py — **BUILT 2026-03-30** (commits 9f7ecc4, c3e35a7)
 - MIL-9: Sonar Streamlit dashboard — BUILT (2026-03-31)
 - Next MIL ticket: MIL-10
@@ -207,7 +207,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 
 ### Pending Human Actions (Hussain)
 - CHR-003: Confirm HSBC root cause or leave inference_approved=false (no public source available)
-- Jira: close MIL-7 in UI (dual closure rule — MIL-8 + MIL-9 already closed)
+- Jira: MIL-7/8/9 all closed ✓
 - Run `py run_teacher.py` when ready (live Sonnet run — ~55 API calls, one-time)
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
