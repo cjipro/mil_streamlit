@@ -183,8 +183,10 @@ Steps (zero human intervention required):
   1. Fetch — App Store + Google Play, all active competitors, dedup against existing
   2. Enrich — Claude Haiku schema v3, skip already-enriched v3 records (< 1 second if nothing new)
   3. Inference — mil_agent.py CAC + RAG, Chronicle matching, Designed Ceiling
-  4. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
+  4a. Research Trigger — flags P0/P1 weak-anchor findings → mil/data/research_queue.jsonl
+  4b. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
+  6. Log Run — appends to mil/data/daily_run_log.jsonl, reports M1 streak
 
 Flags:
   `--dry-run`    fetch + enrich only, skip inference + publish
@@ -193,21 +195,18 @@ Flags:
 Human is ONLY required for: governance review (CHR entries), M2 countersign, Jira ticket closure.
 
 ### MIL Jira — Kanban Board
-- MIL-1 through MIL-6: BUILT (2026-03-28)
-- MIL-7: Teacher Agent + Synthetic Engine — BUILT + CLOSED 2026-04-02 (commits fb74936/47c9aad). run_teacher.py wrapper.
-- MIL-8: mil_agent.py — **BUILT 2026-03-30** (commits 9f7ecc4, c3e35a7)
-- MIL-9: Sonar Streamlit dashboard — BUILT (2026-03-31)
-- Next MIL ticket: MIL-10
+- MIL-1 through MIL-10: ALL BUILT + CLOSED (Phase 0 complete — 2026-04-02)
+- Next ticket: MIL-11 (unscoped — scope before building)
 
 ### Day 30 Success Metrics — Current State
-- M1 (Signal Pipeline Live): Pipeline operational. run_daily.py: fetch → enrich → inference → vault → publish. IN_PROGRESS (need 5 consecutive clean days).
-- M2 (One Validated Finding): NatWest J_SERVICE_01 CAC=0.652, CHR-001 anchor, COUNTERSIGNED 2026-04-02.
-- M3 (Designed Ceiling Trigger): **DEMONSTRATED** — 12 active ceiling triggers.
+- M1 (Signal Pipeline Live): **Run #1 — 2026-04-03 CLEAN. Streak 1/5.** Tracker: mil/data/daily_run_log.jsonl
+- M2 (One Validated Finding): **DONE** — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, COUNTERSIGNED 2026-04-02
+- M3 (Designed Ceiling Trigger): **DONE** — 22 active ceiling triggers
 
 ### Pending Human Actions (Hussain)
-- CHR-003: Confirm HSBC root cause or leave inference_approved=false (no public source available)
-- Jira: MIL-7/8/9 all closed ✓
-- Run `py run_teacher.py` when ready (live Sonnet run — ~55 API calls, one-time)
+- M1: run `py run_daily.py` daily — 4 more clean runs closes M1
+- Top up Anthropic API credits → then run `py run_teacher.py` (live Sonnet autopsies, one-time)
+- CHR-003: confirm HSBC root cause if source ever becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
 ## MIL — Market Intelligence Layer
