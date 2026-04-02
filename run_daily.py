@@ -300,7 +300,80 @@ def main() -> None:
     logger.info("--- Step 5: Publish ---")
     run_publish_step()
 
+    logger.info("--- Step 6: Log Run ---")
+    _log_run(fetch_counts)
+
     logger.info("=== Done ===")
+
+
+# ---------------------------------------------------------------------------
+# Run log — M1 streak tracker
+# ---------------------------------------------------------------------------
+
+RUN_LOG = REPO_ROOT / "mil" / "data" / "daily_run_log.jsonl"
+
+def _log_run(fetch_counts: dict) -> None:
+    """Append a run record to daily_run_log.jsonl and report M1 streak."""
+    import json as _json
+
+    RUN_LOG.parent.mkdir(parents=True, exist_ok=True)
+
+    # Read existing log to compute run number and streak
+    runs = []
+    if RUN_LOG.exists():
+        for line in RUN_LOG.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line:
+                try:
+                    runs.append(_json.loads(line))
+                except _json.JSONDecodeError:
+                    pass
+
+    run_number = len(runs) + 1
+    today      = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Compute M1 streak: consecutive days ending today
+    streak = 1
+    for prev in reversed(runs):
+        from datetime import timedelta
+        prev_date = prev.get("date", "")
+        expected  = (datetime.now(timezone.utc) - timedelta(days=streak)).strftime("%Y-%m-%d")
+        if prev_date == expected and prev.get("status") == "CLEAN":
+            streak += 1
+        else:
+            break
+
+    # Load findings count
+    findings_count = 0
+    findings_path  = MIL_ROOT / "outputs" / "mil_findings.json"
+    if findings_path.exists():
+        try:
+            fd = _json.loads(findings_path.read_text(encoding="utf-8"))
+            findings_count = len(fd.get("findings", []))
+        except Exception:
+            pass
+
+    entry = {
+        "run":          run_number,
+        "date":         today,
+        "timestamp":    datetime.now(timezone.utc).isoformat(),
+        "status":       "CLEAN",
+        "new_records":  sum(fetch_counts.values()),
+        "findings":     findings_count,
+        "m1_streak":    streak,
+        "m1_target":    5,
+        "m1_done":      streak >= 5,
+    }
+
+    with RUN_LOG.open("a", encoding="utf-8") as f:
+        f.write(_json.dumps(entry) + "\n")
+
+    logger.info("Run #%d logged — date=%s streak=%d/5 new_records=%d findings=%d",
+                run_number, today, streak, entry["new_records"], findings_count)
+    if entry["m1_done"]:
+        logger.info("*** M1 ACHIEVED — 5 consecutive clean runs complete ***")
+    else:
+        logger.info("M1 progress: %d/5 clean runs", streak)
 
 
 if __name__ == "__main__":
