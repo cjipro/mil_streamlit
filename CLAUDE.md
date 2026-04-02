@@ -68,17 +68,16 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 **Next after PULSE-11:** PULSE-16 — Create all Jira tickets
 
 ### Sprint 2 — MIL Phase 0 (Active from 2026-03-28)
-- PULSE-2A: MIL_SCHEMA.yaml (BUILT — 2026-03-28)
-- PULSE-2B: mil/CHRONICLE.md — CHR-001/002/003/004 + ARCH-001 logged (REVIEW REQUIRED by Hussain)
-- PULSE-2C: SOVEREIGN_BRIEF.md (BUILT — 2026-03-28)
-- PULSE-2D: apps_config.yaml + mil_findings.json bootstrap (BUILT — 2026-03-28)
-- PULSE-2E: Build validator + CLAUDE.md clean-up (IN_PROGRESS)
-- PULSE-2F: voice_intelligence_agent.py (BUILT — 2026-03-28, commit 6fbf4cb)
-- PULSE-2G: jax_synthetic_filter.py + rating_velocity_monitor.py (BUILT — 2026-03-28, commit 6fbf4cb)
-- PULSE-2H: teacher_agent.py + synthetic_engine.py (BUILT — MIL-7, commits fb74936/47c9aad) + research_trigger.py (BUILT — 2026-04-02, commit e969354, Step 4a in run_daily.py)
-- **mil_agent.py (MIL-8): BUILT — 2026-03-30** (see MIL Pipeline State below)
-- PULSE-2I: Command dashboard + scheduler.py + adapter shim (BUILT — 2026-04-02, commit 46d18ee)
-- PULSE-2J: publish.py (BUILT — Sonar briefing live at https://cjipro.com/briefing)
+- MIL-1: Constitutional Docs — MIL_SCHEMA.yaml, CHRONICLE.md, SOVEREIGN_BRIEF.md (BUILT — 2026-03-28)
+- MIL-2: Config + Bootstrap — apps_config.yaml, mil_findings.json (BUILT — 2026-03-28)
+- MIL-3: Validator + CLAUDE.md — Zero Entanglement enforcement (BUILT — 2026-03-28)
+- MIL-4: Harvester Stack — voice_intelligence_agent.py, 9 sources (BUILT — 2026-03-28, commit 6fbf4cb)
+- MIL-5: Jax Filter + Rating Velocity Monitor (BUILT — 2026-03-28, commit 6fbf4cb)
+- MIL-6: HDFS Storage Layer — dual-write, port 9871 (BUILT — 2026-03-28)
+- MIL-7: Teacher Agent + Synthetic Engine — run_teacher.py wrapper (BUILT + CLOSED — 2026-04-02, commits fb74936/47c9aad)
+- MIL-8: Research Trigger + MIL Agent — CAC + RAG, research_trigger.py Step 4a (BUILT + CLOSED — 2026-03-30/2026-04-02)
+- MIL-9: Command Dashboard + Scheduler — mil/command/app.py, mil/scheduler.py, app/pages/07_mil.py (BUILT + CLOSED — 2026-04-02, commit 46d18ee)
+- MIL-10: Publish + Domain — publish.py, cjipro.com/briefing (BUILT — Sonar live. Jira still open — Hussain to close)
 
 ## MIL Pipeline State — 2026-04-02 (updated)
 
