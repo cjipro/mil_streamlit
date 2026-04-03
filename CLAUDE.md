@@ -197,7 +197,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 
 ### MIL Jira — Kanban Board
 - MIL-1 through MIL-10: ALL BUILT + CLOSED (Phase 0 complete — 2026-04-02)
-- Next ticket: MIL-11 (unscoped — scope before building)
+- MIL-11: Config-driven model routing — model_routing.yaml + get_model() utility (TO DO — gated on M1 close)
 
 ### Day 30 Success Metrics — Current State
 - M1 (Signal Pipeline Live): **Run #1 — 2026-04-03 CLEAN. Streak 1/5.** Tracker: mil/data/daily_run_log.jsonl
