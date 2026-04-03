@@ -115,14 +115,15 @@ File: `mil/vault/vault_sync.py`
 - SKIPPED_WRONG_MODEL guard: blocks any file enriched with qwen model
 - **_needs_vault()**: re-vaults when record count OR model changes (not just by filename)
 - **Vault step wired into run_daily.py as Step 4b** (after inference, before publish)
-- Current state: **6/6 VAULTED** at 20260401_194330 — all claude-haiku-4-5-20251001
-  - app_store_barclays_enriched.json: 67 records VAULTED
-  - app_store_lloyds_enriched.json: 532 records VAULTED
-  - app_store_monzo_enriched.json: 524 records VAULTED
-  - google_play_barclays_enriched.json: 651 records VAULTED
-  - google_play_natwest_enriched.json: 612 records VAULTED
-  - google_play_revolut_enriched.json: 698 records VAULTED
-- Missing backfill: app_store/natwest + app_store/revolut (no raw data harvested yet)
+- Current state: **8/8 VAULTED** at 20260403_170009 — all claude-haiku-4-5-20251001
+  - app_store_barclays_enriched.json: VAULTED
+  - app_store_lloyds_enriched.json: VAULTED
+  - app_store_monzo_enriched.json: VAULTED
+  - app_store_natwest_enriched.json: VAULTED (new — 2026-04-03)
+  - app_store_revolut_enriched.json: VAULTED (new — 2026-04-03)
+  - google_play_barclays_enriched.json: VAULTED
+  - google_play_natwest_enriched.json: VAULTED
+  - google_play_revolut_enriched.json: VAULTED
 
 ### Inference Engine (mil_agent.py — MIL-8)
 File: `mil/inference/mil_agent.py`
@@ -200,13 +201,15 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 - MIL-11: Config-driven model routing — model_routing.yaml + get_model() utility (TO DO — gated on M1 close)
 
 ### Day 30 Success Metrics — Current State
-- M1 (Signal Pipeline Live): **Run #1 — 2026-04-03 CLEAN. Streak 1/5.** Tracker: mil/data/daily_run_log.jsonl
+- M1 (Signal Pipeline Live): **Run #1 + Run #2 — 2026-04-03 CLEAN (same calendar day, streak 1/5). 3 more calendar days needed.** Tracker: mil/data/daily_run_log.jsonl
 - M2 (One Validated Finding): **DONE** — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, COUNTERSIGNED 2026-04-02
 - M3 (Designed Ceiling Trigger): **DONE** — 22 active ceiling triggers
 
 ### Pending Human Actions (Hussain)
-- M1: run `py run_daily.py` daily — 4 more clean runs closes M1
-- Top up Anthropic API credits → then run `py run_teacher.py` (live Sonnet autopsies, one-time)
+- M1: run `py run_daily.py` daily — 3 more calendar days closes M1
+- Top up Anthropic API credits (console.anthropic.com) — $5 covers 1–3 months. Unblocks: enrichment for new records + teacher autopsies
+- Run `py run_teacher.py` after credits topped up (live Sonnet autopsies, one-time)
+- MIL-11: implement ARCH-002 exec alert switch — change briefing_data.py to qwen3:14b via Ollama (after M1 closes)
 - CHR-003: confirm HSBC root cause if source ever becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
@@ -215,7 +218,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps: NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays.
-**Current corpus: 3,084 enriched records across 6 files (schema v3, claude-haiku-4-5-20251001). Missing: app_store/natwest + app_store/revolut backfill.**
+**Current corpus: 3,587 enriched records across 8 files (schema v3, claude-haiku-4-5-20251001). app_store/natwest + app_store/revolut now live as of 2026-04-03.**
 
 ### MIL Zero Entanglement — HARD RULE
 
