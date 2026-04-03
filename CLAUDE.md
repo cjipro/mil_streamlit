@@ -87,6 +87,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
   - WebHDFS 2-step PUT confirmed working: NameNode 9871 → DataNode 9864 redirect chain
   - HDFS volumes: C:/Users/hussa/hdfs-volumes/mil-namenode + mil-datanode
 - **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Claude Haiku is now primary enrichment model.
+- **ARCH-002**: qwen3:14b evaluated for enrichment (2026-04-03). 20-record blind test vs Haiku baseline: schema compliance 100%, issue_type agreement 90%, severity agreement 95%. DISQUALIFIED for enrichment — downgraded a P0 blocking issue to P2. P0 accuracy is non-negotiable for MIL. Haiku retained for enrichment. qwen3 approved for exec alert synthesis (Box 3) — pending implementation in briefing_data.py.
 
 ### Enrichment Pipeline (enrich_sonnet.py — schema v3) ← ACTIVE
 File: `mil/harvester/enrich_sonnet.py`
@@ -245,10 +246,12 @@ TAQ Bank (the client) does not appear in MIL because the client is not a monitor
 | `mil/config/apps_config.yaml` | Full signal stack — 10 sources, 5 competitors, trust weights |
 | `mil/outputs/mil_findings.json` | THE ONLY EXIT POINT — sole data crossing from MIL to CJI Pulse |
 
-### MIL Model Routing
+### MIL Model Routing — Updated 2026-04-03
 
 - **Refuel-8B (local):** Signal classification, journey attribution, MIL inference (CAC + RAG), Adversarial Attacker evaluation — `michaelborck/refuled:latest` at `http://127.0.0.1:11434/v1`
-- **Qwen (local):** YAML/Markdown generation, narrative generation, non-inference scripting — `qwen2.5-coder:14b` at `http://127.0.0.1:11434`
+- **Qwen 2.5-Coder (local):** YAML/Markdown generation, narrative generation, non-inference scripting — `qwen2.5-coder:14b` at `http://127.0.0.1:11434`
+- **Qwen3 (local):** Executive alert synthesis (Box 3 in publish.py) ONLY — `qwen3:14b` at `http://127.0.0.1:11434`. Approved by ARCH-002. Not approved for enrichment. PENDING implementation in briefing_data.py.
+- **Haiku (Claude API):** Enrichment ONLY — `claude-haiku-4-5-20251001`. Retained per ARCH-002. P0 severity accuracy critical.
 - **Sonnet (Claude API):** Teacher autopsies only — TSB, Lloyds, HSBC deep causal analysis + synthetic instruction pair generation
 - **RTX 5070 Ti:** QLoRA fine-tuning — POST-DAY 30 ONLY, gated on 5 conditions
 
@@ -301,11 +304,11 @@ Session 5 Part 2 (2026-03-12):
 | `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 |
 | `manifests/data_dictionary_master.yaml` | PULSE-11 — master source, never read directly |
 | `CHRONICLE.md` | **Operational Lessons Learned** — port conflicts, HDFS lessons, Airflow 3.x rules |
-| `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, ARCH-001 |
+| `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, ARCH-001, ARCH-002 |
 
-## Model Routing — Updated 2026-03-29
+## Model Routing — Updated 2026-04-03
 
-**MIL inference now routes to Refuel-8B. Qwen remains default for all non-inference tasks. Conserve Sonnet tokens.**
+**MIL inference routes to Refuel-8B. Enrichment stays on Haiku (ARCH-002). Exec alert (Box 3) approved for qwen3:14b — pending implementation. Qwen 2.5-Coder remains default for non-inference tasks. Conserve Sonnet tokens.**
 
 **DEFAULT: Qwen** (qwen2.5-coder:14b at http://127.0.0.1:11434)
 
@@ -328,7 +331,7 @@ Use Refuel for:
 Use Sonnet when:
 - MIL Teacher autopsies (deep causal reasoning — explicitly required by plan)
 - MIL synthetic instruction pair generation (500+ pairs — reasoning chain quality critical)
-- Qwen fails after one attempt
+- Qwen (2.5-Coder or qwen3) fails after one attempt on any task — general escalation path
 - Multi-manifest logic spanning 3+ files
 - Explicitly instructed by Hussain
 
