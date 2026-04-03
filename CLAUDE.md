@@ -324,7 +324,7 @@ Use Qwen for:
 
 Use Refuel for:
 - Signal classification (journey attribution, severity, keywords)
-- MIL enrichment pipeline (`mil/harvester/qwen_enrichment.py`)
+- MIL enrichment evaluation baseline (historical only — active enrichment is on Haiku via enrich_sonnet.py)
 - CAC + RAG inference
 - Adversarial Attacker evaluation
 
