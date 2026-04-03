@@ -140,8 +140,9 @@ def sync_to_hdfs(dry_run: bool = False) -> dict:
         record_count = payload.get("enriched_count", len(payload.get("records", [])))
         model = payload.get("model", "unknown")
 
-        # Skip decommissioned Qwen model files
-        if "qwen" in model.lower():
+        # Skip decommissioned qwen2.5 model files only
+        # qwen3:14b is approved for YouTube enrichment (ARCH-002)
+        if "qwen2.5" in model.lower():
             logger.warning(
                 "[VaultSync] %s --enriched with DECOMMISSIONED model '%s'. Skipping.",
                 fname, model,
