@@ -119,6 +119,77 @@ def fetch_new_records() -> dict[str, int]:
 
 
 # ---------------------------------------------------------------------------
+# STEP 1b — YouTube comments fetch
+# ---------------------------------------------------------------------------
+
+def fetch_youtube_comments() -> dict[str, int]:
+    """
+    Fetch YouTube comments for all active competitors.
+    Deduplicates on comment_id. Stores to mil/data/historical/youtube/{competitor}/.
+    Compatible with enrich_sonnet.py — uses 'review' field for comment text.
+    Quota: ~300 units per competitor (search) + ~1 unit per comment page.
+    Returns {'{competitor}': new_comment_count}.
+    """
+    from mil.harvester.sources.youtube import build_all_sources as build_yt
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    counts: dict[str, int] = {}
+
+    for src in build_yt(APPS_CONFIG, REPO_ROOT / ".env"):
+        competitor = src.competitor.lower().replace(" ", "_")
+        raw_dir = HIST_BASE / "youtube" / competitor
+        raw_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load existing comment IDs for deduplication
+        existing_ids: set[str] = set()
+        for existing_file in raw_dir.glob("*.json"):
+            try:
+                data = json.loads(existing_file.read_text(encoding="utf-8"))
+                for r in data.get("records", []):
+                    cid = r.get("comment_id", "")
+                    if cid:
+                        existing_ids.add(cid)
+            except Exception:
+                pass
+
+        logger.info("[youtube] %s — existing comment IDs: %d", competitor, len(existing_ids))
+
+        try:
+            raw = src.fetch()
+        except Exception as exc:
+            logger.warning("[youtube] %s — FAILED: %s", competitor, exc)
+            counts[competitor] = 0
+            continue
+
+        new_comments = [
+            r for r in raw
+            if r.get("comment_id", "") not in existing_ids
+        ]
+        logger.info("[youtube] %s — %d fetched, %d new", competitor, len(raw), len(new_comments))
+
+        if not new_comments:
+            counts[competitor] = 0
+            continue
+
+        out_file = raw_dir / f"live_{timestamp}.json"
+        out_file.write_text(
+            json.dumps({
+                "source": "youtube",
+                "competitor": competitor,
+                "fetch_timestamp": timestamp,
+                "record_count": len(new_comments),
+                "records": new_comments,
+            }, indent=2, default=str),
+            encoding="utf-8",
+        )
+        counts[competitor] = len(new_comments)
+        logger.info("[youtube] %s — saved %d new comments -> %s",
+                    competitor, len(new_comments), out_file.name)
+
+    return counts
+
+
+# ---------------------------------------------------------------------------
 # STEP 2+3 — Enrich new records only, append to enriched files
 # ---------------------------------------------------------------------------
 
@@ -277,6 +348,15 @@ def main() -> None:
         fetch_counts = fetch_new_records()
         total_new = sum(fetch_counts.values())
         logger.info("Fetch complete. Total new records: %d", total_new)
+
+        logger.info("--- Step 1b: YouTube Comments ---")
+        try:
+            yt_counts = fetch_youtube_comments()
+            yt_total = sum(yt_counts.values())
+            fetch_counts.update({f"youtube_{k}": v for k, v in yt_counts.items()})
+            logger.info("YouTube fetch complete. New comments: %d", yt_total)
+        except Exception as exc:
+            logger.warning("[youtube] fetch failed (non-fatal): %s", exc)
 
         logger.info("--- Step 2+3: Enrich (Sonnet) ---")
         from mil.harvester.enrich_sonnet import run_enrichment as sonnet_enrich
