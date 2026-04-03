@@ -215,7 +215,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 - MIL-19: Source Activation: Reddit — narrative context, 0.85 trust weight. INCLUDE via free tier OAuth. (3–4h)
 - MIL-20: Source Evaluation: Trustpilot — DEFERRED. Legal risk, ToS prohibits scraping, no public API. Re-evaluate Day 60.
 - MIL-21: Source Evaluation: Facebook — EXCLUDED. Poor ROI, Graph API restricted, low signal quality.
-- MIL-22: Source Activation: YouTube — comments + metadata, 0.75 trust weight. INCLUDE via Data API v3 (free). (2–3h)
+- MIL-22: Source Activation: YouTube — comments + metadata, 0.75 trust weight. BUILT — commit c2a0277 (2026-04-03)
 - MIL-23: Source Evaluation: Twitter/X — EXCLUDED. Cost prohibitive ($200/mo minimum), unusable free tier.
 - MIL-24: Source Evaluation: Glassdoor — EXCLUDED. Out of MIL scope (employee intelligence, not market intelligence).
 
