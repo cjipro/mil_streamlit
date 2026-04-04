@@ -210,7 +210,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 - MIL-16: Teacher Autopsies (live run) — Sonnet API execution of run_teacher.py (1–2h, gated on API credit top-up, NOT M1)
 
 **Source Activation — Queued (all To Do)**
-- MIL-17: Source Activation: DownDetector — outage detection, 0.95 trust weight. INCLUDE. (2–3h)
+- MIL-17: Source Activation: DownDetector — outage detection, 0.95 trust weight. BUILT — collect_downdetector.py, cloudscraper + Haiku enrichment (2026-04-04)
 - MIL-18: Source Activation: Financial Times + City A.M. — news signals, 0.90 trust weight. CityAM INCLUDE / FT DEFER (paywall). (3–4h)
 - MIL-19: Source Activation: Reddit — narrative context, 0.85 trust weight. INCLUDE via free tier OAuth. (3–4h)
 - MIL-20: Source Evaluation: Trustpilot — DEFERRED. Legal risk, ToS prohibits scraping, no public API. Re-evaluate Day 60.
@@ -224,7 +224,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 |--------|-------------|--------|
 | App Store | 0.90 | LIVE |
 | Google Play | 0.90 | LIVE |
-| DownDetector | 0.95 | ACTIVATE (MIL-17) |
+| DownDetector | 0.95 | LIVE (MIL-17) |
 | City A.M. | 0.90 | ACTIVATE (MIL-18) |
 | Reddit | 0.85 | ACTIVATE (MIL-19) |
 | YouTube | 0.75 | ACTIVATE (MIL-22) |

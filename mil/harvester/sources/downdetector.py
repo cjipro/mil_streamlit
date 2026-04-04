@@ -7,14 +7,12 @@ Often first mover before Twitter peaks.
 Zero Entanglement: no imports from internal modules.
 """
 import time
-import random
 import logging
 import re
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
 import yaml
 
 from .base import SignalSource, RawSignal
@@ -22,18 +20,18 @@ from .base import SignalSource, RawSignal
 logger = logging.getLogger(__name__)
 
 TRUST_WEIGHT = 0.95
-RATE_LIMIT_SECONDS = 30
+RATE_LIMIT_SECONDS = 3          # global delay between any two DD requests (same IP)
 
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
-]
 
-# Severity thresholds (spike multiplier vs baseline)
-P0_MULTIPLIER = 5.0
-P1_MULTIPLIER = 2.0
-P2_MULTIPLIER = 1.5
+def _fetch_html(url: str) -> str:
+    """Fetch page HTML via cloudscraper to bypass Cloudflare bot protection."""
+    import cloudscraper
+    scraper = cloudscraper.create_scraper(
+        browser={"browser": "chrome", "platform": "windows", "mobile": False}
+    )
+    resp = scraper.get(url, timeout=20)
+    resp.raise_for_status()
+    return resp.text
 
 _last_request_time: dict[str, float] = {}
 
@@ -49,87 +47,76 @@ class DowndetectorSource(SignalSource):
         self.url = f"https://downdetector.co.uk/status/{self.slug}/"
 
     def fetch(self) -> str:
-        # Rate limiting — 30s minimum between requests per slug
+        # Global rate limiting — minimum gap between any two DD requests
         now = time.time()
-        last = _last_request_time.get(self.slug, 0)
+        last = _last_request_time.get("_global", 0)
         wait = RATE_LIMIT_SECONDS - (now - last)
         if wait > 0:
-            logger.debug("[downdetector] Rate limiting %s — waiting %.1fs", self.slug, wait)
+            logger.debug("[downdetector] Rate limiting — waiting %.1fs", wait)
             time.sleep(wait)
 
-        ua = random.choice(USER_AGENTS)
-        headers = {
-            "User-Agent": ua,
-            "Accept": "text/html,application/xhtml+xml",
-            "Accept-Language": "en-GB,en;q=0.9",
-        }
-        resp = requests.get(self.url, headers=headers, timeout=15)
-        resp.raise_for_status()
-        _last_request_time[self.slug] = time.time()
-        return resp.text
+        html = _fetch_html(self.url)
+        _last_request_time["_global"] = time.time()
+        return html
 
     def parse(self, raw: str) -> list[dict]:
         """
-        Extract report count from Downdetector page.
-        Downdetector embeds chart data as JSON in a script tag.
-        Falls back to regex on the visible count if JSON not found.
-        """
-        results = []
+        Extract outage status from DownDetector page HTML.
 
-        # Try JSON embed first (more reliable)
-        json_match = re.search(
-            r'window\.DD\.currentStatus\s*=\s*(\{[^;]+\})',
-            raw, re.DOTALL
-        )
-        if json_match:
+        Primary signal: window.PogoConfig.outage (bool) — most reliable.
+        Secondary: H1 status text for warning/danger distinction.
+        Tertiary: most-reported-problems breakdown for issue context.
+        """
+        from bs4 import BeautifulSoup
+
+        # 1. PogoConfig — primary status source
+        outage = False
+        pogo_match = re.search(r'window\.PogoConfig\s*=\s*(\{[^}]+\})', raw)
+        if pogo_match:
             try:
-                data = json.loads(json_match.group(1))
-                results.append({
-                    "current_report_count": data.get("reports", 0),
-                    "status": data.get("status", "unknown"),
-                    "baseline_report_count": data.get("baseline", 0),
-                    "source_url": self.url,
-                    "parse_method": "json_embed",
-                })
-                return results
+                pogo = json.loads(pogo_match.group(1))
+                outage = pogo.get("outage", False)
             except (json.JSONDecodeError, KeyError):
                 pass
 
-        # Fallback — look for report count in page text
-        count_match = re.search(r'(\d+)\s+(?:reports?|problem reports?)\s+in\s+the\s+last\s+24\s+hours', raw, re.IGNORECASE)
-        count = int(count_match.group(1)) if count_match else 0
+        soup = BeautifulSoup(raw, "html.parser")
 
-        status_match = re.search(r'class="[^"]*status-[^"]*"[^>]*>([^<]+)<', raw)
-        status_text = status_match.group(1).strip() if status_match else "unknown"
+        # 2. H1 status text — distinguish warning vs danger
+        h1 = soup.find("h1")
+        status_text = h1.get_text(strip=True) if h1 else ""
 
-        results.append({
-            "current_report_count": count,
-            "status": status_text,
-            "baseline_report_count": 0,   # baseline not available in fallback
+        # Derive status_level: danger if outage=true, warning if partial, normal otherwise
+        status_lower = status_text.lower()
+        if outage or "problems" in status_lower and "no current" not in status_lower:
+            if "no current" in status_lower or "no problem" in status_lower:
+                status_level = "normal"
+            else:
+                status_level = "danger" if outage else "warning"
+        else:
+            status_level = "normal"
+
+        # 3. Most-reported-problems breakdown (e.g. "67% App 22% Online Banking")
+        problems_breakdown = ""
+        body_text = soup.get_text(" ", strip=True)
+        prob_match = re.search(r"Most reported problems(.{0,200})", body_text, re.IGNORECASE)
+        if prob_match:
+            problems_breakdown = re.sub(r"\s+", " ", prob_match.group(1)).strip()[:150]
+
+        return [{
+            "current_report_count": 0,       # chart data is API-gated; use status_level for severity
+            "baseline_report_count": 0,
+            "status": status_level,
+            "status_text": status_text[:120],
+            "problems_breakdown": problems_breakdown,
             "source_url": self.url,
-            "parse_method": "regex_fallback",
-        })
-        return results
+            "parse_method": "pogo_config",
+        }]
 
     def to_signal(self, parsed_item: dict) -> RawSignal:
-        current = parsed_item.get("current_report_count", 0)
-        baseline = parsed_item.get("baseline_report_count", 0)
-
-        spike_detected = False
-        severity_class = "INFO"
-        spike_multiplier = None
-
-        if baseline > 0:
-            spike_multiplier = current / baseline
-            if spike_multiplier >= P0_MULTIPLIER:
-                severity_class = "P0"
-                spike_detected = True
-            elif spike_multiplier >= P1_MULTIPLIER:
-                severity_class = "P1"
-                spike_detected = True
-            elif spike_multiplier >= P2_MULTIPLIER:
-                severity_class = "P2"
-                spike_detected = True
+        status = parsed_item.get("status", "normal")
+        severity_map = {"danger": "P0", "warning": "P1", "normal": "P2"}
+        severity_class = severity_map.get(status, "P2")
+        spike_detected = status in ("danger", "warning")
 
         return RawSignal(
             source=self.source_name,
@@ -138,12 +125,11 @@ class DowndetectorSource(SignalSource):
             severity_class=severity_class,
             spike_detected=spike_detected,
             raw_data={
-                "current_report_count": current,
-                "baseline_report_count": baseline,
-                "spike_multiplier": spike_multiplier,
-                "status": parsed_item.get("status"),
-                "source_url": parsed_item.get("source_url"),
-                "parse_method": parsed_item.get("parse_method"),
+                "status":              status,
+                "status_text":         parsed_item.get("status_text", ""),
+                "problems_breakdown":  parsed_item.get("problems_breakdown", ""),
+                "source_url":          parsed_item.get("source_url"),
+                "parse_method":        parsed_item.get("parse_method"),
             },
         )
 
