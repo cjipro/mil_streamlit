@@ -238,14 +238,18 @@ def _generate_pairs_batch(
             import anthropic
             response = client.messages.create(
                 model=TEACHER_MODEL,
-                max_tokens=4096,
+                max_tokens=8192,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
             )
             raw = response.content[0].text.strip()
             raw = re.sub(r'^```(?:json)?\s*', '', raw)
             raw = re.sub(r'\s*```$', '', raw)
-            pairs = json.loads(raw)
+            try:
+                pairs = json.loads(raw)
+            except json.JSONDecodeError:
+                from json_repair import repair_json
+                pairs = json.loads(repair_json(raw))
             if not isinstance(pairs, list):
                 raise ValueError(f"Expected JSON array, got {type(pairs)}")
             return pairs

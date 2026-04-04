@@ -1,0 +1,312 @@
+[
+  {
+    "chronicle_id": "CHR-001",
+    "title": "TSB Bank IT Migration Failure",
+    "bank": "TSB Bank",
+    "incident_type": "core_banking_migration_failure",
+    "inference_approved": true,
+    "confidence_score": 1.0,
+    "teacher_model": "claude-sonnet-4-6",
+    "autopsy_timestamp": "2026-04-04T19:58:53.364354+00:00",
+    "quarantine": false,
+    "causal_analysis": "The TSB 2018 failure is a compound systems failure with a clear business pressure origin. TSB was divested from Lloyds Banking Group in 2013 but remained contractually dependent on Lloyds' infrastructure, paying approximately £10M per month in platform licence fees. This created a sustained, quantifiable cost pressure that compressed the migration timeline and incentivised a high-risk big-bang cutover approach rather than a phased migration. The strategic decision to rebuild on Proteo4UK — a platform developed by SABIS, a subsidiary of TSB's Spanish parent Sabadell — introduced a critical governance gap: TSB failed to adequately assess SABIS's capability to manage a large-scale UK delivery, and SABIS itself relied on a supply chain of 85 sub-suppliers whose compliance with TSB's Group Outsourcing policy was never verified. This is a textbook outsourcing governance failure nested inside a parent-subsidiary dependency. The engineering execution compounded the governance failure. Of 34,671 defects logged during the build phase, 4,424 remained open at go-live on 22 April 2018. More critically, 840 severity 1 or 2 defects — the most serious classification — remained open just 12 days before cutover on 10 April 2018. The two data centres intended to operate identically were configured inconsistently, meaning redundancy and failover assumptions were architecturally invalid before a single customer was migrated. Under real production load, the platform failed immediately: 1.9 million customers were locked out on day one, and a data confidentiality failure allowed some customers to view other customers' account data — a breach of both operational and regulatory obligations. The internal telemetry reported migration completion, creating a critical inference gap where leadership acted on reported uptime metrics while customer reality was catastrophic. This 'Vane pattern' — stable internal signals against external collapse — delayed incident recognition and response. Complaint volume reached 33,000+ in the second week alone, more than 10x normal volume, overwhelming support infrastructure. The disruption lasted approximately 8 months before full business-as-usual was restored in December 2018. CEO Paul Pester resigned on 4 August 2018. Regulatory consequences were severe and delayed: FCA and PRA issued a combined fine of £48,650,000 in December 2022, and in a landmark precedent, former CIO Carlos Abarca was individually fined £81,620 by the PRA on 13 April 2023 — the PRA's first-ever SMCR conduct enforcement action against an individual. Total provisioned cost to TSB was approximately £330M.",
+    "failure_modes": [
+      "big-bang cutover — all 5.2M customers migrated simultaneously in a single weekend with no phased fallback",
+      "outsourcing governance gap — SABIS supply chain of 85 sub-suppliers not verified for Group Outsourcing policy compliance",
+      "parent-subsidiary capability misassessment — TSB did not adequately validate SABIS's ability to deliver at UK scale",
+      "defect backlog suppression — 4,424 open defects at go-live; 840 severity 1/2 defects open 12 days before cutover",
+      "infrastructure configuration drift — two data centres specified as identical but configured inconsistently",
+      "internal telemetry decoupling from customer reality — Vane pattern: uptime reported as stable while 1.9M customers were locked out",
+      "data confidentiality boundary failure — some customers could view other customers' account data",
+      "complaint infrastructure saturation — support capacity overwhelmed by 10x complaint volume spike",
+      "cost-pressure-driven timeline compression — ~£10M/month licence dependency accelerated an inadequately prepared migration",
+      "SMCR accountability failure — senior individual accountability mechanisms not exercised until post-incident regulatory action"
+    ],
+    "early_warning_signals": [
+      {
+        "signal_type": "downdetector_surge",
+        "detection_window": "Within hours of go-live (22 April 2018, evening)",
+        "source_hint": "Downdetector.co.uk real-time outage reports for TSB",
+        "description": "A sudden vertical spike in user-reported outage submissions on Downdetector for TSB, concentrated on login and account access categories, within the first hours post-cutover. Sustained elevation — not a transient blip — is the distinguishing feature of a systemic failure versus a routine incident."
+      },
+      {
+        "signal_type": "complaint_spike",
+        "detection_window": "24–72 hours post-cutover",
+        "source_hint": "TSB's own published complaints data; FCA complaints dataset (published semi-annually with lag); Parliamentary coverage",
+        "description": "33,000+ complaints in week two alone — more than 10x normal volume. Any public-facing complaints data or media reporting referencing volume anomalies in the first week would be an early signal. Note: FCA complaints data has a publication lag and would not be real-time."
+      },
+      {
+        "signal_type": "social_media_volume_surge",
+        "detection_window": "Within 2–6 hours of go-live",
+        "source_hint": "Twitter/X Premium+ full archive search using keywords: TSB, TSB down, TSB locked out, TSB app, TSBfail (query window 2018-04-22 to 2018-04-30 — PENDING Hussain sign-off per twitter_archive field)",
+        "description": "Organic social media posts describing inability to log in, app failures, and account lockouts would precede any official communication. Volume and sentiment trajectory (not just isolated complaints) would distinguish systemic failure from routine maintenance. NOTE: Twitter archive data for this window is marked PENDING_HUSSAIN in the Chronicle — this signal description is structurally valid but the empirical volume data is unconfirmed."
+      },
+      {
+        "signal_type": "app_store_rating_drop",
+        "detection_window": "24–96 hours post-cutover",
+        "source_hint": "Apple App Store and Google Play Store review feeds for TSB Mobile Banking app",
+        "description": "A surge in 1-star reviews citing login failure, account access, and app crashes following a known migration date. Rating drops are lagging by hours to days relative to the incident but precede regulatory and media confirmation."
+      },
+      {
+        "signal_type": "media_coverage_escalation",
+        "detection_window": "48–96 hours post-cutover",
+        "source_hint": "Computer Weekly, The Register, BBC News, Sky News financial desks",
+        "description": "Technology and consumer finance press would begin reporting on scale of outage, customer lockouts, and data confidentiality incidents within 48–96 hours. The data confidentiality angle (customers viewing other customers' data) would accelerate media interest beyond a routine outage story."
+      },
+      {
+        "signal_type": "executive_statement_anomaly",
+        "detection_window": "24–72 hours post-cutover",
+        "source_hint": "TSB press releases; CEO social media and media appearances",
+        "description": "Public statements from leadership that describe the migration as substantially complete or successful while social and media signals indicate widespread customer failure are a strong indicator of the internal telemetry decoupling pattern (Vane pattern). Discordance between official narrative and public signal volume is a high-confidence early warning."
+      },
+      {
+        "signal_type": "parliamentary_or_regulatory_inquiry_signal",
+        "detection_window": "2–6 weeks post-cutover",
+        "source_hint": "UK Parliament Treasury Committee correspondence logs; FCA public statements",
+        "description": "Parliamentary Treasury Committee correspondence or FCA public requests for information directed at a bank following a technology incident signal that regulators have assessed the incident as material and are beginning formal oversight. This is a lagging but high-confidence confirmation signal."
+      }
+    ],
+    "inference_lessons": [
+      "When a competitor announces a major platform migration with a defined cutover weekend, treat the cutover date as a surveillance trigger: activate Downdetector, social media, and app store monitoring from T-24 hours.",
+      "Big-bang cutover architecture — all customers migrated simultaneously with no phased rollback — is the single strongest structural predictor of catastrophic customer impact magnitude. Phased migrations absorb failures; big-bang migrations amplify them.",
+      "A gap between internal system telemetry (uptime reported as stable) and external customer signals (login failures, complaint spikes) is not a data quality problem — it is a Vane pattern indicator of systemic architectural failure. Treat the discordance itself as the signal.",
+      "Outsourcing to a parent-company subsidiary does not reduce delivery risk. The SABIS/TSB case demonstrates that intra-group relationships can obscure capability gaps and reduce scrutiny that an arm's-length vendor would face.",
+      "Open defect counts at go-live are a quantifiable risk proxy. If a competitor's pre-migration communications or regulatory filings reference unresolved defect backlogs, treat this as a leading indicator of post-cutover instability.",
+      "Data confidentiality failures (customers viewing other customers' data) following a migration are not secondary incidents — they trigger regulatory obligations under GDPR and FCA rules that escalate the severity and response timeline independent of the operational outage.",
+      "SMCR accountability now extends to individual fines post-incident. Competitors observing a peer's migration failure should anticipate that named executives (CIO, CTO, CEO) face individual regulatory exposure, which affects leadership stability and decision-making in the recovery phase.",
+      "A £10M/month licence dependency on a legacy platform is a board-level cost pressure that creates conditions for timeline compression. When a competitor bank has a similar structural dependency (e.g. post-acquisition platform separation), monitor for signs of accelerated migration decision-making.",
+      "Complaint volume exceeding 10x normal in week two is not a linear escalation — it indicates support infrastructure saturation, which itself becomes a secondary failure amplifier as customer frustration compounds.",
+      "Regulatory fines materialise years after the incident (TSB: 2022 fine for 2018 failure). MIL should treat any current competitor operational failure as a future regulatory liability signal, not just a short-term reputational event."
+    ],
+    "blind_spots": [
+      "MIL cannot determine from public signals alone the internal defect count or severity classification at any competitor's go-live — this data is internal and was only surfaced through the Slaughter and May independent review.",
+      "The specific configuration inconsistencies between TSB's two data centres were not publicly disclosed in real time — they were revealed only in the post-incident independent review published 18 months later.",
+      "MIL cannot observe a competitor's supplier chain depth (e.g. number of sub-suppliers) or their compliance status with internal outsourcing policies from public data alone.",
+      "The internal telemetry decoupling — where leadership was receiving stable uptime metrics while customers were locked out — is invisible in public signals. MIL can detect the customer-side failure but cannot confirm whether leadership is aware of the true scale in real time.",
+      "Twitter/X archive data for the 22–30 April 2018 window is marked PENDING_HUSSAIN in the Chronicle. MIL cannot confirm social media volume or sentiment specifics for this incident until that data is supplied and approved.",
+      "The precise timeline of internal decision-making — specifically when TSB leadership decided to proceed despite 840 open severity 1/2 defects 12 days before go-live — is not reconstructable from public sources alone.",
+      "MIL cannot determine whether a competitor currently in migration is using a phased or big-bang approach unless this is disclosed in regulatory filings, press releases, or verified media reporting.",
+      "The £330M remediation provisioning figure is attributed to TSB but the breakdown between customer remediation, operational costs, and legal/regulatory costs is not publicly itemised in the Chronicle's verified facts.",
+      "MIL cannot detect data confidentiality failures (customers viewing other customers' data) from external public signals in real time — these typically surface through individual customer reports aggregated by media, not through system-level monitoring."
+    ],
+    "confidence_note": "This autopsy carries high confidence across all primary dimensions (dates, impact figures, root cause, regulatory outcome) as confirmed by the Chronicle's confidence fields and multiple verified public sources including the Slaughter and May independent review, PRA/FCA Final Notices, and PRA SMCR enforcement notice; the sole unconfirmed data element is the Twitter/X archive analysis, which is marked PENDING_HUSSAIN and has been explicitly excluded from any verified inference."
+  },
+  {
+    "chronicle_id": "CHR-002",
+    "title": "Lloyds Banking Group — Transaction Data Exposure",
+    "bank": "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)",
+    "incident_type": "api_defect_data_exposure",
+    "inference_approved": true,
+    "confidence_score": 0.6,
+    "teacher_model": "claude-sonnet-4-6",
+    "autopsy_timestamp": "2026-04-04T19:59:40.128654+00:00",
+    "quarantine": false,
+    "causal_analysis": "On the night of 11–12 March 2025, Lloyds Banking Group deployed an overnight IT update that introduced a software defect in the API layer responsible for handling transaction data. The defect caused the API to return transaction data belonging to other customers during mobile app sessions, breaking the account boundary that should isolate each customer's financial data. Up to 447,936 customers across Lloyds, Halifax, and Bank of Scotland were potentially exposed; of these, 114,182 customers actively clicked on and may have viewed the erroneous data. Exposed data potentially included account details, National Insurance numbers, and payment references — categories that carry significant downstream fraud and identity theft risk. The failure chain is relatively compact: a routine software update introduced a boundary-violating defect in the API layer, which propagated immediately to live customer sessions before detection. Lloyds identified and resolved the defect within the same calendar day, limiting the exposure window. However, the harm — data crossing account boundaries and being actively viewed by unauthorised customers — was irreversible once it occurred. Same-day remediation cannot un-expose data already seen. The causal pressure context is significant: the UK Treasury Committee's own data records 158 IT failures across major UK banks between January 2023 and February 2025, totalling over 803 hours of disruption, indicating systemic deployment pipeline risk across the sector. The Parliamentary Treasury Committee described this specific incident as 'alarming', signalling that regulatory and political tolerance for API-layer data boundary failures is low. FCA was notified within 72 hours as required; ICO began enquiries. As of the public record date, no final enforcement determination has been published. Lloyds paid £139,000 in compensation to 3,625 customers for distress and inconvenience — a figure that implies compensated customers represent less than 1% of those potentially exposed, which may indicate either selective eligibility criteria or that financial loss could not be demonstrated at scale. The deeper technical root cause beyond 'software defect in API' has not been publicly disclosed, which constrains full causal attribution.",
+    "failure_modes": [
+      "API boundary leak — transaction data returned to wrong customer sessions",
+      "Overnight deployment without adequate pre-production boundary testing",
+      "Insufficient API-layer regression testing for cross-account data isolation",
+      "Change management gap — defect introduced by routine update, not major migration",
+      "Detection lag — defect reached live customer sessions before internal monitoring flagged it",
+      "Irreversibility of exposure — same-day resolution did not prevent data already viewed",
+      "Multi-brand blast radius — single API defect propagated across Lloyds, Halifax, and Bank of Scotland simultaneously"
+    ],
+    "early_warning_signals": [
+      {
+        "signal_type": "social_media_wrong_account_reports",
+        "detection_window": "Within 1–3 hours of update going live, given same-day resolution timeline",
+        "source_hint": "Twitter/X public posts, Downdetector comments, Facebook banking group posts",
+        "description": "Customers posting phrases such as 'I can see someone else's transactions', 'Lloyds app showing wrong account', 'Halifax showing another person's details' — highly specific language distinguishable from generic outage complaints"
+      },
+      {
+        "signal_type": "downdetector_surge",
+        "detection_window": "Within 1–2 hours of deployment completing overnight",
+        "source_hint": "Downdetector.co.uk — Lloyds, Halifax, Bank of Scotland profile pages",
+        "description": "Spike in reports concentrated on 'wrong information' or 'transactions' categories rather than pure login failure — pattern distinct from access outage"
+      },
+      {
+        "signal_type": "app_store_rating_drop",
+        "detection_window": "Same day to 48 hours post-incident",
+        "source_hint": "Google Play Store and Apple App Store reviews for Lloyds Mobile Banking, Halifax Mobile Banking, Bank of Scotland Mobile Banking apps",
+        "description": "One-star reviews citing data privacy concerns, wrong account data, or 'saw someone else's account' — qualitatively different from performance complaints"
+      },
+      {
+        "signal_type": "complaint_spike",
+        "detection_window": "Within hours of defect going live, based on same-day identification",
+        "source_hint": "Bank's own complaint intake would not be publicly visible; proxy via social media volume and Trustpilot reviews",
+        "description": "Sudden cluster of complaints with data-visibility language rather than access-denial language — indicates API boundary failure rather than standard outage"
+      },
+      {
+        "signal_type": "parliamentary_or_regulatory_public_statement",
+        "detection_window": "Days to weeks after incident",
+        "source_hint": "UK Parliament Treasury Committee correspondence; FCA/ICO press releases",
+        "description": "Formal letters from Treasury Committee to bank leadership; ICO announcement of 'making enquiries' — these lag the incident but confirm severity assessment by authorities"
+      }
+    ],
+    "inference_lessons": [
+      "When a competitor's social media signal includes 'saw someone else's account' or 'wrong transactions' language — especially within hours of a known overnight deployment window — this is a high-confidence API boundary defect signal, not a generic outage. Treat as data exposure incident until proven otherwise.",
+      "Multi-brand banking groups (e.g. those operating two or more retail brands on a shared platform) carry a multiplied blast radius for API-layer defects. A single defect can simultaneously expose customers across all brands. Competitor headcount signals should be scaled by brand count.",
+      "Same-day resolution does not neutralise regulatory and reputational harm. The ICO and FCA treat data exposure as harm-on-occurrence, not harm-on-duration. A one-hour window of API boundary failure affecting 100,000+ customers is sufficient to trigger formal regulatory inquiry.",
+      "Routine overnight IT updates are a higher-risk deployment category than commonly assumed. The TSB failure (CHR-001) involved a planned big-bang migration; CHR-002 demonstrates that incremental updates carry analogous API boundary risk without the advance warning signals of a major migration.",
+      "The gap between 'potentially exposed' (447,936) and 'confirmed viewed' (114,182) customers represents a known analytical challenge. MIL should not assume the lower confirmed figure understates severity — regulators treat the full potential exposure population as the risk-relevant number.",
+      "Compensation quantum (£139,000 across 3,625 customers) is a trailing, partial signal. It should not be used to calibrate incident severity. The regulatory determination — still open at record date — is the more meaningful severity marker.",
+      "A pattern of 158 IT failures across UK banks over 25 months (Treasury Committee data) indicates that deployment pipeline controls across the sector are systemically weak. Any competitor deploying updates at scale should be treated as carrying latent API boundary risk."
+    ],
+    "blind_spots": [
+      "The deeper technical root cause of the API defect — specific code change, dependency update, configuration error, or testing pipeline failure — has not been publicly disclosed and cannot be determined from public signals alone.",
+      "The precise deployment pipeline and testing regime that failed to catch the defect before production release is not publicly known.",
+      "Whether Lloyds' internal monitoring systems detected the defect independently or whether it was reported first by customers is not confirmed in the public record.",
+      "The final regulatory outcome from FCA and ICO investigations is unknown as of the record date. The magnitude of any fine or enforcement action cannot be predicted from current public data.",
+      "The Twitter/X archive data for the incident window (12–14 March 2025) is marked PENDING_HUSSAIN and has not been supplied. Social media velocity and sentiment data for this incident are therefore absent from this autopsy.",
+      "It is unknown whether the 114,182 customers who actively viewed affected data have subsequently experienced fraud or identity theft attributable to the exposure — no downstream harm data is in the public record.",
+      "The specific API architecture (vendor, version, microservices structure) underlying the defect is not publicly disclosed, limiting transferability of technical lessons to competitor monitoring.",
+      "Whether this defect was isolated to this update or whether similar boundary conditions existed in prior updates that went undetected is unknown."
+    ],
+    "confidence_note": "This autopsy is constrained by a PARTIAL verified_facts status and a capped confidence score of 0.60 per Chronicle governance rules; the root cause is confirmed only at the level of 'software defect in API layer' with no deeper technical disclosure, regulatory outcome remains open, and Twitter archive data for the incident window has not been supplied, leaving social signal analysis incomplete."
+  },
+  {
+    "chronicle_id": "CHR-003",
+    "title": "HSBC UK — App and Online Banking Outage",
+    "bank": "HSBC UK (and First Direct)",
+    "incident_type": "app_online_banking_outage",
+    "inference_approved": false,
+    "confidence_score": 0.4,
+    "teacher_model": "claude-sonnet-4-6",
+    "autopsy_timestamp": "2026-04-04T20:00:27.252861+00:00",
+    "quarantine": true,
+    "causal_analysis": "CHR-003 documents a ~5-hour outage of HSBC UK's mobile app and online banking on 27 August 2025, beginning approximately 11:00 BST. The simultaneous failure of both HSBC UK and First Direct — a distinct HSBC-owned brand — is the most analytically significant verified fact in this entry. It strongly implies failure at a shared infrastructure layer: either a shared authentication service, a shared API gateway, or a shared identity/access management component that both brands depend upon. The ERR03 error code displayed to customers is consistent with an access control or session authentication failure class, but HSBC did not publicly disclose the root cause, and no official explanation of ERR03 has been published. This causal mechanism is therefore UNCONFIRMED in the public record and must not be treated as established. What is confirmed: 4,000+ DownDetector reports arrived within the first hour, HSBC's first public acknowledgement came at approximately 11:45 BST — roughly 45 minutes after outage onset — and services were restored the same afternoon. The outage lasted approximately 5 hours. No customer financial losses were reported, and no specific FCA or PRA enforcement action has been publicly documented for this incident. The HSBC Treasury Committee correspondence dated 30 April 2025 regarding IT failures is noted but its content is not public, preventing any inference about whether this incident was anticipated or whether prior warnings existed. The business pressure context — a bank holiday weekend date (27 August 2025 is a UK Bank Holiday Monday) — is not explicitly noted in the chronicle but is analytically relevant as a period of elevated consumer banking demand coinciding with reduced operational support capacity. This cannot be confirmed from the chronicle entry alone. The causal chain that can be traced from verified facts only is: shared infrastructure component fails → ERR03 errors surface across HSBC UK app and online banking and First Direct simultaneously → DownDetector receives 4,000+ reports within 60 minutes → HSBC acknowledges 45 minutes after onset → services restored in approximately 5 hours. Everything below 'shared infrastructure failure' in the causal chain is inference, not confirmed fact.",
+    "failure_modes": [
+      "shared authentication or API gateway single point of failure — cross-brand failure of HSBC UK and First Direct implies a common dependency",
+      "delayed public acknowledgement — ~45 minute lag between outage onset and first HSBC public statement",
+      "opaque error surfacing — ERR03 error code displayed to customers with no official explanation, increasing confusion and complaint volume",
+      "root cause non-disclosure — HSBC did not publicly disclose the causal mechanism, preventing external accountability assessment",
+      "possible high-demand period timing — outage on what is likely a UK Bank Holiday Monday, elevated consumer load, reduced support capacity (NOTE: bank holiday date is analyst inference, not confirmed in chronicle)"
+    ],
+    "early_warning_signals": [
+      {
+        "signal_type": "downdetector_surge",
+        "detection_window": "0–15 minutes after outage onset, confirmed within first 60 minutes",
+        "source_hint": "DownDetector public dashboard for HSBC UK and First Direct",
+        "description": "4,000+ reports confirmed within first hour per verified facts. DownDetector showed HSBC UK and First Direct spikes simultaneously — cross-brand co-incident spike is the distinctive pattern. A MIL monitoring threshold of >500 reports in any 15-minute window for a single institution, or simultaneous spikes across two related brands, should trigger an alert."
+      },
+      {
+        "signal_type": "complaint_spike",
+        "detection_window": "Within first 60 minutes of outage onset",
+        "source_hint": "DownDetector, social media platforms, Apple App Store and Google Play Store reviews",
+        "description": "Volume of public complaints consistent with access denial at login layer — customers unable to reach accounts via app or web. ERR03 error string appearing repeatedly across public complaint channels is a specific detectable signal."
+      },
+      {
+        "signal_type": "cross_brand_simultaneous_failure",
+        "detection_window": "Detectable within minutes of outage onset if monitoring multiple brand channels",
+        "source_hint": "DownDetector dashboards for both HSBC UK and First Direct; social media search across both brand handles",
+        "description": "HSBC UK and First Direct both affected simultaneously. When two brands sharing infrastructure fail at the same time, it signals a shared dependency failure rather than a brand-specific application fault. This pattern suggests deeper infrastructure impact and potentially longer resolution time."
+      },
+      {
+        "signal_type": "error_code_emergence",
+        "detection_window": "Within minutes of outage onset",
+        "source_hint": "Social media public posts, community forums such as Reddit (r/UKPersonalFinance), Twitter/X",
+        "description": "ERR03 error code appearing uniformly across customer reports. Standardised error codes spreading through public channels indicate a systemic rather than isolated failure. Tracking novel or recurring error code strings is a low-cost signal source."
+      },
+      {
+        "signal_type": "institutional_acknowledgement_lag",
+        "detection_window": "Detectable as absence of official statement in first 30–45 minutes following complaint spike",
+        "source_hint": "HSBC UK official Twitter/X account, HSBC UK website status page",
+        "description": "HSBC acknowledged the outage publicly at approximately 11:45 BST, roughly 45 minutes after the outage began. A monitoring system watching for absence of institutional acknowledgement during a confirmed complaint spike provides a secondary severity signal — longer lag correlates with larger or more complex failures."
+      }
+    ],
+    "inference_lessons": [
+      "When DownDetector spikes appear simultaneously for two brands known to share infrastructure (e.g. HSBC UK and First Direct), treat it as a shared-layer failure signal, not two independent incidents. Apply a severity multiplier.",
+      "ERR03-class errors — access denied, information unavailable, authentication failure at login — should cross-reference CHR-003 for HSBC competitor pattern matching, with a confidence penalty applied because root cause is unconfirmed.",
+      "A ~45-minute institutional acknowledgement lag following a confirmed complaint spike is itself a signal. It suggests the internal detection-to-response chain is not real-time, meaning the actual customer impact window may be larger than the official timeline implies.",
+      "Simultaneous app and online banking failure — rather than one channel alone — is a stronger severity indicator. It suggests the failure is at a shared authentication or gateway layer, not a front-end application fault, and is more likely to resist quick resolution.",
+      "Absence of disclosed root cause after incident resolution is a persistent blind spot for external monitoring. It limits similarity matching confidence for CHR-003 and requires a standing confidence penalty on any inference that invokes this entry.",
+      "DownDetector confirmed its first-mover status in CHR-003 as in CHR-001 and CHR-002. MIL should maintain trust_weight: 0.95 for DownDetector as an early warning source for UK banking access failures.",
+      "The HSBC Treasury Committee correspondence dated 30 April 2025 — predating this August incident — suggests HSBC was already under parliamentary scrutiny for IT resilience before this outage. When a bank has prior regulatory or parliamentary correspondence on IT failures, subsequent outages carry elevated inference weight."
+    ],
+    "blind_spots": [
+      "Actual number of customers affected is unconfirmed. The 14.5M figure is HSBC's total UK customer base, not a confirmed affected count. MIL cannot use this figure in any inference or output.",
+      "Root cause has not been publicly disclosed by HSBC. ERR03 error code has no official explanation. Whether this was an authentication failure, API gateway fault, database issue, software deployment, or infrastructure maintenance error cannot be determined from public signals.",
+      "Whether this incident was related to the IT failures referenced in HSBC's Treasury Committee correspondence of 30 April 2025 cannot be established — that correspondence is not public.",
+      "No compensation or remediation figures have been published. Financial impact to HSBC cannot be assessed from public record.",
+      "Twitter/X archive data for 2025-08-27 to 2025-08-28 is listed as PENDING_HUSSAIN in the chronicle. This data gap means social sentiment volume and trajectory during the incident is unquantified.",
+      "No FCA or PRA enforcement action has been documented. Whether this incident triggered supervisory engagement or formal investigation is unknown from public record.",
+      "Duration of any internal detection-to-remediation process is unknown. The 5-hour customer-facing outage duration does not reveal when HSBC internally identified the fault or how long the technical resolution itself took.",
+      "Whether First Direct customers experienced identical or different symptoms to HSBC UK customers is not specified in the verified facts — the nature of the shared dependency is unconfirmed."
+    ],
+    "confidence_note": "This autopsy carries materially limited confidence: CHR-003 has an assigned confidence_score of 0.40, inference_approved is false, root cause is UNCONFIRMED, affected customer count is UNCONFIRMED, and Twitter archive data is pending — all causal claims below the level of observable customer symptoms are inferred, not established, and must not be used as training signal without Hussain sign-off and root cause resolution."
+  },
+  {
+    "chronicle_id": "CHR-004",
+    "title": "Barclays App Friction Pattern Analysis",
+    "bank": "Barclays",
+    "incident_type": "app_friction_pattern_analysis",
+    "inference_approved": true,
+    "confidence_score": 0.5,
+    "teacher_model": "claude-sonnet-4-6",
+    "autopsy_timestamp": "2026-04-04T20:01:16.017474+00:00",
+    "quarantine": false,
+    "causal_analysis": "CHR-004 does not describe a discrete banking failure. It is a MIL enrichment analysis of 817 Barclays App Store and Google Play reviews spanning January 2025 to April 2026. The causal structure is therefore not a failure event chain but a sustained friction accumulation pattern. The data reveals that 83.6% of reviews are positive, but the remaining 16.4% — 134 negative or friction-tagged reviews across 817 total — cluster around Feature Broken (42), App Crashing (16), Slow Performance (9), App Not Opening (8), Payment Failed (7), and Notification Issues (7). The severity distribution of P0=18 and P1=20 against P2=779 indicates that the overwhelming majority of issues are low-urgency, but 38 reviews reach high-severity thresholds. The payment and transfer journey signals (Make a Payment: 28, Transfer Money: 28) are the highest-volume journey complaints and intersect with the most financially critical user actions. The root cause as assessed by the chronicle is 'incremental release debt' — a pattern where iterative feature releases accumulate unresolved defects without triggering a discrete outage. This is categorically different from a CHR-001-class big-bang migration failure. No acute outage signal, no regulatory enforcement, and no CEO-level event are recorded or implied. The causal path is: ongoing product delivery cadence → insufficient regression coverage or defect backlog management → persistent low-level user friction → sustained complaint presence across both app platforms → reputational drag without acute crisis. Root cause confidence is marked MEDIUM in the source, reflecting that MIL enrichment via LLM classification (claude-haiku-4-5-20251001) introduces categorisation uncertainty, and no independent verification of the enrichment taxonomy has been cited. Regulatory outcome is explicitly N/A.",
+    "failure_modes": [
+      "incremental release debt accumulation",
+      "feature regression without resolution — Feature Broken cluster (42 reviews)",
+      "app stability degradation — App Crashing (16) and App Not Opening (8)",
+      "payment journey friction — Payment Failed (7) and Transfer Failed (4) at high-severity journeys",
+      "customer support channel failure — Customer Support Failure (6) indicating escalation pathway degradation",
+      "LLM enrichment taxonomy uncertainty — root cause confidence capped at MEDIUM due to classification model limitations",
+      "absence of trend baseline — no prior CHR-004-class Barclays dataset to measure regression against"
+    ],
+    "early_warning_signals": [
+      {
+        "signal_type": "app_store_rating_drop",
+        "detection_window": "2 to 4 weeks before friction becomes statistically significant in complaint volumes",
+        "source_hint": "App Store and Google Play public review feeds — both captured in CHR-004 source files",
+        "description": "Incremental decline in average star rating on App Store or Google Play, particularly reviews mentioning 'Feature Broken' or 'App Crashing' — the two dominant complaint clusters in CHR-004. A rising share of 1-2 star reviews against a stable total review volume is the key signal."
+      },
+      {
+        "signal_type": "payment_journey_complaint_spike",
+        "detection_window": "1 to 2 weeks — payment failures surface rapidly in public reviews given financial urgency",
+        "source_hint": "App Store and Google Play reviews filtered by journey tag 'Make a Payment' or 'Transfer Money' — highest-volume journey complaints in CHR-004",
+        "description": "Payment Failed and Transfer Failed review counts rising above the CHR-004 baseline of 7 and 4 respectively. Given the high financial severity of these journeys, even a doubling of these counts warrants escalation to P0 monitoring."
+      },
+      {
+        "signal_type": "downdetector_surge",
+        "detection_window": "Hours to 1 day before app store reviews accumulate — Downdetector captures real-time self-reported outages",
+        "source_hint": "Downdetector public dashboard for Barclays",
+        "description": "A spike in Barclays reports on Downdetector coinciding with App Crashing or App Not Opening review clusters would indicate a shift from background friction to acute degradation. CHR-004 baseline shows no such surge — any deviation is a regression signal."
+      },
+      {
+        "signal_type": "complaint_spike",
+        "detection_window": "1 to 3 weeks — formal complaints lag real-time review signals",
+        "source_hint": "FCA published complaints data (semi-annual) and Barclays own complaints disclosures",
+        "description": "A rise in Barclays mobile banking complaints in FCA published data above the CHR-004-implied baseline friction level. Feature Broken and Customer Support Failure clusters in CHR-004 are the precursor categories most likely to convert to formal FCA-reportable complaints."
+      },
+      {
+        "signal_type": "support_channel_saturation_signal",
+        "detection_window": "1 to 2 weeks — visible in social media customer service mentions",
+        "source_hint": "Public Twitter/X mentions of @BarclaysUKHelp or equivalent support handle — CHR-004 Twitter archive is PENDING_HUSSAIN and not yet populated",
+        "description": "Rising volume of unanswered or negatively-resolved support interactions on public social channels. Customer Support Failure (6 reviews in CHR-004) is a leading indicator that the support channel is beginning to saturate — consistent with the TSB CHR-001 pattern where complaint infrastructure was overwhelmed before management recognised scale."
+      }
+    ],
+    "inference_lessons": [
+      "A high positive review percentage (83.6%) does not preclude a meaningful friction pattern — always examine the absolute counts and severity distribution of the negative tail, not just the headline positive rate.",
+      "Feature Broken as the dominant complaint cluster is a proxy for release cadence outpacing regression coverage — when this cluster grows faster than total review volume, it signals systemic quality degradation rather than isolated bugs.",
+      "Payment and Transfer journey complaints are disproportionately high severity regardless of low volume — 7 Payment Failed reviews out of 817 total warrants monitoring because payment failure has immediate financial harm to customers and regulatory salience.",
+      "Sustained low-level friction without an acute incident can still represent reputational drag and a CHR-001-class failure in slow motion — the absence of a discrete outage does not mean the risk trajectory is benign.",
+      "LLM-enriched review data (as used in CHR-004) introduces taxonomy uncertainty — any inference drawn from enrichment classifications must carry the root_cause: MEDIUM confidence flag and should not be treated as equivalent to human-verified complaint data.",
+      "A stable internal metric environment (high positive review share) can mask a deteriorating minority experience — the TSB CHR-001 pattern of stable internal telemetry coexisting with catastrophic customer reality applies at a lower severity level here.",
+      "The CHR-004 dataset provides a Barclays-specific baseline — future regression detection requires comparing new signal volumes against this baseline, not against absolute thresholds.",
+      "Customer Support Failure complaints are a second-order signal: they indicate not only product failure but failure of the remediation pathway, which amplifies customer harm and complaint escalation risk."
+    ],
+    "blind_spots": [
+      "MIL cannot determine from public app store reviews alone whether the Feature Broken cluster reflects a single systemic defect or multiple unrelated issues across different app versions or device types.",
+      "The enrichment was performed by claude-haiku-4-5-20251001 — MIL cannot verify the accuracy of issue type classifications without manual audit of the underlying review text, and root cause is explicitly marked MEDIUM confidence.",
+      "MIL cannot determine Barclays' internal defect backlog count, open severity 1/2 bug volumes, or release governance posture — the CHR-004 data reflects customer-facing output only, not engineering input.",
+      "The review sample of 817 records across an approximately 15-month window may not be representative of total complaint volume — App Store and Google Play reviews are a self-selected subset of dissatisfied customers and do not capture users who churned silently.",
+      "MIL cannot determine whether the Payment Failed (7) and Transfer Failed (4) signals represent the same underlying technical fault or distinct issues across different payment rails.",
+      "The Twitter archive for CHR-004 is not referenced — social media sentiment data is absent from this analysis and could materially alter the friction severity assessment.",
+      "MIL cannot assess whether Barclays has already identified and triaged these issues internally — the public signal may lag internal remediation by weeks or months.",
+      "Regulatory outcome is N/A in the source — MIL cannot determine whether any of the friction signals have triggered FCA supervisory attention or informal engagement."
+    ],
+    "confidence_note": "Autopsy confidence is materially limited by the fact that CHR-004 is an LLM enrichment analysis of public app reviews rather than a verified incident record — root cause is MEDIUM confidence per the source, the enrichment taxonomy is unaudited against raw review text, and the overall confidence score is capped at 0.50 pending full Hussain review sign-off."
+  }
+]

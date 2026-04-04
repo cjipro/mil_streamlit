@@ -156,7 +156,7 @@ def _run_autopsy(client, entry: dict, chronicle_full: str, dry_run: bool = False
             import anthropic
             response = client.messages.create(
                 model=TEACHER_MODEL,
-                max_tokens=2048,
+                max_tokens=8192,
                 system=AUTOPSY_SYSTEM,
                 messages=[{"role": "user", "content": user_prompt}],
             )
@@ -166,7 +166,11 @@ def _run_autopsy(client, entry: dict, chronicle_full: str, dry_run: bool = False
             raw = re.sub(r'^```(?:json)?\s*', '', raw)
             raw = re.sub(r'\s*```$', '', raw)
 
-            result = json.loads(raw)
+            try:
+                result = json.loads(raw)
+            except json.JSONDecodeError:
+                from json_repair import repair_json
+                result = json.loads(repair_json(raw))
             break
 
         except (json.JSONDecodeError, anthropic.APIError) as exc:
