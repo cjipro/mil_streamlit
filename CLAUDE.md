@@ -212,7 +212,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 **Source Activation — Queued (all To Do)**
 - MIL-17: Source Activation: DownDetector — outage detection, 0.95 trust weight. BUILT — collect_downdetector.py, cloudscraper + Haiku enrichment (2026-04-04)
 - MIL-18: Source Activation: Financial Times + City A.M. — news signals, 0.90 trust weight. BUILT — collect_cityam.py, RSS + Haiku enrichment. Both feeds live (FT headlines via RSS, CityAM full feed). (2026-04-04)
-- MIL-19: Source Activation: Reddit — narrative context, 0.85 trust weight. INCLUDE via free tier OAuth. (3–4h)
+- MIL-19: Source Activation: Reddit — narrative context, 0.85 trust weight. INCLUDE via free tier OAuth. BLOCKED — awaiting Reddit API credentials (REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET in .env). Source class built (reddit.py + PRAW). Collector not yet written.
 - MIL-20: Source Evaluation: Trustpilot — DEFERRED. Legal risk, ToS prohibits scraping, no public API. Re-evaluate Day 60.
 - MIL-21: Source Evaluation: Facebook — EXCLUDED. Poor ROI, Graph API restricted, low signal quality.
 - MIL-22: Source Activation: YouTube — comments + metadata, 0.75 trust weight. BUILT — commit c2a0277 (2026-04-03)
@@ -226,22 +226,22 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Google Play | 0.90 | LIVE |
 | DownDetector | 0.95 | LIVE (MIL-17) |
 | City A.M. | 0.90 | LIVE (MIL-18) |
-| Reddit | 0.85 | ACTIVATE (MIL-19) |
-| YouTube | 0.75 | ACTIVATE (MIL-22) |
+| Reddit | 0.85 | BLOCKED — needs API creds (MIL-19) |
+| YouTube | 0.75 | LIVE (MIL-22) |
 
 Next ticket: MIL-25
 Build order after M1: MIL-11 → MIL-12 → MIL-13 → MIL-15 → MIL-14. Source activation tickets can run in parallel.
 
 ### Day 30 Success Metrics — Current State
-- M1 (Signal Pipeline Live): **Run #1 + Run #2 — 2026-04-03 CLEAN (same calendar day, streak 1/5). 3 more calendar days needed.** Tracker: mil/data/daily_run_log.jsonl
+- M1 (Signal Pipeline Live): **Streak 4/5 — 2026-04-04 is day 4 (streak started 2026-04-01). 1 more calendar day closes M1.** Streak origin hardcoded in run_daily.py (2026-04-01). Tracker: mil/data/daily_run_log.jsonl
 - M2 (One Validated Finding): **DONE** — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, COUNTERSIGNED 2026-04-02
 - M3 (Designed Ceiling Trigger): **DONE** — 22 active ceiling triggers
 
 ### Pending Human Actions (Hussain)
-- M1: run `py run_daily.py` daily — 3 more calendar days closes M1
-- Top up Anthropic API credits (console.anthropic.com) — $5 covers 1–3 months. Unblocks: enrichment for new records + teacher autopsies
-- Run `py run_teacher.py` after credits topped up (live Sonnet autopsies, one-time)
+- M1: run `py run_daily.py` tomorrow (2026-04-05) — closes M1 at 5/5
+- MIL-19: add REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET to .env (reddit.com/prefs/apps → create script app)
 - MIL-11: implement ARCH-002 exec alert switch — change briefing_data.py to qwen3:14b via Ollama (after M1 closes)
+- Run `py run_teacher.py` (live Sonnet autopsies, one-time — credits now topped up)
 - CHR-003: confirm HSBC root cause if source ever becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
