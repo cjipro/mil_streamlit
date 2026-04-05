@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from mil.briefing_data import get_briefing_data
 from mil.command.components.vane_chart import render_vane_chart
 from mil.command.components.inference_cards import render_inference_cards
+from mil.command.components.exit_strategy import render_exit_strategy_panel
 
 # ============================================================================
 # STREAMLIT CONFIG
@@ -522,6 +523,19 @@ def render_dashboard():
     st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Inference Cards</div>", unsafe_allow_html=True)
     render_inference_cards(limit=15)
     
+    # ========================================================================
+    # EXIT STRATEGY — PHASE 2 DEMAND LOG (MIL-15)
+    # ========================================================================
+    st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Exit Strategy — Phase 2 Demand</div>", unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-size:10px;color:#3A6A7F;margin-bottom:12px;">'
+        'Designed Ceiling findings cannot be confirmed from public data alone. '
+        'Each request below logs demand for Phase 2 internal telemetry access.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    render_exit_strategy_panel(limit=20)
+
     # ========================================================================
     # PUBLISH BUTTON
     # ========================================================================
