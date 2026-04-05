@@ -18,6 +18,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from mil.briefing_data import get_briefing_data
+from mil.command.components.vane_chart import render_vane_chart
 
 # ============================================================================
 # STREAMLIT CONFIG
@@ -400,6 +401,12 @@ def render_dashboard():
     ticker_html += '</div>'
     st.markdown(ticker_html, unsafe_allow_html=True)
     
+    # ========================================================================
+    # VANE TRAJECTORY CHART (MIL-12)
+    # ========================================================================
+    st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Vane Trajectory</div>", unsafe_allow_html=True)
+    render_vane_chart(window_days=14)
+
     # ========================================================================
     # METRICS STRIP
     # ========================================================================
