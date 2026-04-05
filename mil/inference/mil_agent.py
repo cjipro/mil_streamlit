@@ -539,6 +539,8 @@ def build_finding(
         cac_score = min(cac_score, chronicle_entry["confidence_cap"])
 
     blind_spots = refuel_output.get("blind_spots", [])
+    if isinstance(blind_spots, str):
+        blind_spots = [blind_spots] if blind_spots else []
     if designed_ceiling_reached:
         blind_spots.insert(0,
             "Designed Ceiling reached: to confirm this finding I require "

@@ -1,1 +1,6 @@
-{"run": 1, "date": "2026-04-03", "timestamp": "2026-04-03T00:07:33+00:00", "status": "CLEAN", "new_records": 5, "findings": 71, "m1_streak": 1, "m1_target": 5, "m1_done": false}
+{"run": 1, "date": "2026-04-03", "timestamp": "2026-04-03T00:07:33+00:00", "status": "CLEAN", "new_records": 5, "findings": 71, "m1_streak": 3, "m1_target": 5, "m1_done": false}
+{"run": 2, "date": "2026-04-03", "timestamp": "2026-04-03T17:00:14.602470+00:00", "status": "CLEAN", "new_records": 231, "findings": 71, "m1_streak": 3, "m1_target": 5, "m1_done": false}
+{"run": 3, "date": "2026-04-04", "timestamp": "2026-04-04T09:37:19.960306+00:00", "status": "CLEAN", "new_records": 182, "findings": 91, "m1_streak": 4, "m1_target": 5, "m1_done": false}
+{"run": 4, "date": "2026-04-04", "timestamp": "2026-04-04T10:53:28.717521+00:00", "status": "CLEAN", "new_records": 3, "findings": 94, "m1_streak": 4, "m1_target": 5, "m1_done": false}
+{"run": 5, "date": "2026-04-05", "timestamp": "2026-04-05T06:26:33.183648+00:00", "status": "CLEAN", "new_records": 161, "findings": 94, "m1_streak": 5, "m1_target": 5, "m1_done": true}
+{"run": 6, "date": "2026-04-05", "timestamp": "2026-04-05T06:28:43.240964+00:00", "status": "CLEAN", "new_records": 0, "findings": 110, "m1_streak": 5, "m1_target": 5, "m1_done": true}
