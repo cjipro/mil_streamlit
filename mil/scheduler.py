@@ -118,6 +118,28 @@ def job_p1_downgrade():
 
 
 # ---------------------------------------------------------------------------
+# Job: Clark Escalation — scan findings, log new escalations + downgrade stale
+# ---------------------------------------------------------------------------
+
+def job_clark_escalation():
+    """
+    Clark Protocol scan: evaluate all findings, log new CLARK-1/2/3 escalations.
+    Then auto-downgrade CLARK-2/3 older than 48h by one tier.
+    Runs after morning_briefing so fresh inference is available.
+    """
+    logger.info("[clark_escalation] scanning findings")
+    try:
+        sys.path.insert(0, str(REPO_ROOT))
+        from mil.command.components.clark_protocol import scan_and_escalate, scan_and_downgrade
+        new    = scan_and_escalate()
+        dg     = scan_and_downgrade()
+        total  = sum(new.values())
+        logger.info("[clark_escalation] %d new escalations %s | %d downgraded", total, new, dg)
+    except Exception as exc:
+        logger.error("[clark_escalation] FAILED: %s", exc)
+
+
+# ---------------------------------------------------------------------------
 # Job: Rating Velocity — re-scan latest enriched files
 # ---------------------------------------------------------------------------
 
@@ -213,10 +235,11 @@ def job_research_batch():
 # ---------------------------------------------------------------------------
 
 JOBS = {
-    "morning_briefing": job_morning_briefing,
-    "p1_downgrade":     job_p1_downgrade,
-    "rating_velocity":  job_rating_velocity,
-    "research_batch":   job_research_batch,
+    "morning_briefing":  job_morning_briefing,
+    "p1_downgrade":      job_p1_downgrade,
+    "clark_escalation":  job_clark_escalation,
+    "rating_velocity":   job_rating_velocity,
+    "research_batch":    job_research_batch,
 }
 
 
@@ -244,6 +267,15 @@ def build_scheduler():
         CronTrigger(hour=11, minute=0),
         id="p1_downgrade",
         name="P1 Auto-Downgrade 48h",
+        misfire_grace_time=300,
+    )
+
+    # Clark Escalation — 06:30 UTC daily (30 min after morning briefing)
+    scheduler.add_job(
+        job_clark_escalation,
+        CronTrigger(hour=6, minute=30),
+        id="clark_escalation",
+        name="Clark Protocol — escalation scan",
         misfire_grace_time=300,
     )
 
@@ -294,8 +326,9 @@ def main():
 
     logger.info("=" * 60)
     logger.info("MIL Scheduler starting")
-    logger.info("  06:00 UTC  morning_briefing  — full pipeline")
-    logger.info("  11:00 UTC  p1_downgrade      — age P1 → P2 after 48h")
+    logger.info("  06:00 UTC  morning_briefing   — full pipeline")
+    logger.info("  06:30 UTC  clark_escalation  — Clark Protocol scan")
+    logger.info("  11:00 UTC  p1_downgrade      — age P1 -> P2 after 48h")
     logger.info("  0/6/12/18h rating_velocity   — velocity scan")
     logger.info("  23:00 UTC  research_batch    — overnight queue log")
     logger.info("=" * 60)

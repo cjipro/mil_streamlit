@@ -728,6 +728,13 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             issue_label = " and ".join(top_issues) if top_issues else "app issues"
             description = f"Customers reporting {issue_label}"
 
+        # Clark tier for top finding
+        try:
+            from mil.command.components.clark_protocol import get_clark_tier_for_finding
+            clark_tier = get_clark_tier_for_finding(top["finding_id"])
+        except Exception:
+            clark_tier = "CLARK-0"
+
         executive_alert = {
             "finding_id":         top["finding_id"],
             "competitor":         top["competitor"],
@@ -751,6 +758,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
                 "whether this is isolated or systemic."
             ),
             "your_call":          _your_call(p0, barclays_trend),
+            "clark_tier":         clark_tier,
         }
     else:
         as_quote = gp_quote = ""

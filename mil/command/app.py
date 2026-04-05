@@ -21,6 +21,7 @@ from mil.briefing_data import get_briefing_data
 from mil.command.components.vane_chart import render_vane_chart
 from mil.command.components.inference_cards import render_inference_cards
 from mil.command.components.exit_strategy import render_exit_strategy_panel
+from mil.command.components.clark_protocol import render_clark_panel
 
 # ============================================================================
 # STREAMLIT CONFIG
@@ -523,6 +524,12 @@ def render_dashboard():
     st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Inference Cards</div>", unsafe_allow_html=True)
     render_inference_cards(limit=15)
     
+    # ========================================================================
+    # CLARK PROTOCOL — P1 ESCALATION LADDER (MIL-14)
+    # ========================================================================
+    st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Clark Protocol — Escalation Status</div>", unsafe_allow_html=True)
+    render_clark_panel()
+
     # ========================================================================
     # EXIT STRATEGY — PHASE 2 DEMAND LOG (MIL-15)
     # ========================================================================
