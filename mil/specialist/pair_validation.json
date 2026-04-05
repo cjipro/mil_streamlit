@@ -1,0 +1,8 @@
+{
+  "approved_by": "Hussain Ahmed",
+  "approved_at": "2026-04-05T22:39:03.180281+00:00",
+  "pairs_reviewed": 3,
+  "total_pairs": 450,
+  "gate_2_status": "APPROVED",
+  "note": "Human review: synthetic pairs align with real findings."
+}
