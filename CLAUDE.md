@@ -260,7 +260,27 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-25 — undefined. Day 30 sprint complete.**
+**Next ticket: MIL-26 (undefined)**
+
+### MIL-25 — QLoRA Gate Clearance (BUILT 2026-04-05)
+Specialist stack: `mil/specialist/`
+
+| Gate | Condition | Status |
+|------|-----------|--------|
+| 1 | 14+ days real signal data | PENDING — clears ~2026-04-19 with daily runs |
+| 2 | Synthetic pairs validated (human) | PASS — countersigned by Hussain 2026-04-05 |
+| 3 | CAC weights approved on real corpus | PASS — retained, approved by Hussain 2026-04-05 |
+| 4 | Adversarial Attacker passes evaluation | PASS — 80% survival rate on high-CAC findings |
+| 5 | Collision Lock baseline recorded | PASS — pre-training LOCKED documented |
+
+- `mil/specialist/adversarial_attacker.py` — Gate 4: stress-tests high-CAC findings via Refuel-8B. Pass = >=80% survival.
+- `mil/specialist/collision_lock.py` — Gate 5: Haiku vs qwen3 P0/P1 agreement check. Pre-training LOCKED expected. Re-run post-training to confirm ACTIVE.
+- `mil/specialist/cac_calibrator.py` — Gate 3: CAC weight analysis on real corpus. RETAIN confirmed (100% chr match, 37.7% ceiling rate). `--approve` records human sign-off.
+- `mil/specialist/validate_pairs.py` — Gate 2: side-by-side synthetic pair vs real finding review. `--sign` records countersignature.
+- `mil/specialist/train_qwen.py` — entry point: gate check + QLoRA training. Run `--check` to see gate status. Training only executes when all 5 pass.
+
+Gate check: `py mil/specialist/train_qwen.py --check`
+Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
 - **M1**: DONE — 5/5 streak closed 2026-04-05. Streak origin: 2026-04-01. Tracker: mil/data/daily_run_log.jsonl
@@ -274,8 +294,9 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 - Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
-- Close MIL-11 through MIL-22 in Jira UI
-- Define MIL-25
+- Close MIL-11 through MIL-25 in Jira UI
+- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19
+- Post Gate 1: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
