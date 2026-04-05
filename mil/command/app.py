@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from mil.briefing_data import get_briefing_data
 from mil.command.components.vane_chart import render_vane_chart
+from mil.command.components.inference_cards import render_inference_cards
 
 # ============================================================================
 # STREAMLIT CONFIG
@@ -516,26 +517,10 @@ def render_dashboard():
         """, unsafe_allow_html=True)
     
     # ========================================================================
-    # ACTIVE INFERENCES
+    # INFERENCE CARDS (MIL-13)
     # ========================================================================
-    st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Active Inferences</div>", unsafe_allow_html=True)
-    
-    inferences = data.get('active_inferences', [])
-    if inferences:
-        for inf in inferences:
-            st.markdown(f"""
-            <div class="inference-card">
-                <div class="inference-label">⚠️ Active Inference</div>
-                <div style="font-size: 13px; font-weight: 700; color: #E8F4FA; margin-bottom: 8px;">
-                    {inf.get('finding', 'N/A')}
-                </div>
-                <div style="font-size: 11px; color: #7AACBF; line-height: 1.5;">
-                    {inf.get('description', 'N/A')}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='font-size: 11px; color: #3A6A7F;'>No active inferences.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='topbar-title' style='margin-top: 24px; margin-left: 0;'>Inference Cards</div>", unsafe_allow_html=True)
+    render_inference_cards(limit=15)
     
     # ========================================================================
     # PUBLISH BUTTON
