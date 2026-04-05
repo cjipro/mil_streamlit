@@ -290,20 +290,16 @@ def _your_call(p0: int, trend: str) -> str:
     return "Signal within normal range. No action required."
 
 
-def _sonnet_description(reviews: list, chronicle_sentence: str) -> str:
+def _exec_alert_description(reviews: list, chronicle_sentence: str) -> str:
     """
-    Call Claude Sonnet to synthesise top P0/P1 reviews into one plain-English sentence.
+    Synthesise top P0/P1 reviews into one plain-English sentence for Box 3.
+    Routes to qwen3:14b via Ollama (ARCH-002 — zero API cost for exec alert).
     Returns empty string on any failure — caller uses template fallback.
     """
     try:
-        import anthropic
-        import os
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            return ""
-        client = anthropic.Anthropic(api_key=api_key)
+        from openai import OpenAI
+        from mil.config.get_model import get_model
+        cfg = get_model("exec_alert")
 
         lines = []
         for i, r in enumerate(reviews[:5], 1):
@@ -325,14 +321,15 @@ def _sonnet_description(reviews: list, chronicle_sentence: str) -> str:
             f"{context_line}\n\nReviews:\n" + "\n".join(lines)
         )
 
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=80,
+        client = OpenAI(base_url=cfg["api_compat_url"], api_key="ollama")
+        response = client.chat.completions.create(
+            model=cfg["model"],
+            max_tokens=cfg["max_tokens"],
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip().rstrip(".")
+        return response.choices[0].message.content.strip().rstrip(".")
     except Exception as exc:
-        logger.warning("[exec_alert] Sonnet synthesis failed: %s", exc)
+        logger.warning("[exec_alert] qwen3 synthesis failed: %s", exc)
         return ""
 
 
@@ -720,7 +717,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         gp_quote, gp_quote_rating, gp_quote_date = _pick_quote(barclays_p01, "content", "at")
 
         # Description: Sonnet synthesis with template fallback
-        description = _sonnet_description(barclays_p01, chronicle_sentence)
+        description = _exec_alert_description(barclays_p01, chronicle_sentence)
         if not description:
             top_issues = [
                 i.lower() for i, _ in _Counter(

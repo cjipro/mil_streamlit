@@ -42,6 +42,9 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from mil.config.get_model import get_model as _get_model
+
 MIL_ROOT     = Path(__file__).parent.parent
 ENRICHED_DIR = MIL_ROOT / "data" / "historical" / "enriched"
 FINDINGS_FILE = MIL_ROOT / "outputs" / "mil_findings.json"
@@ -58,10 +61,11 @@ DESIGNED_CEILING_THRESHOLD = 0.45
 MIN_CLUSTER_SIZE_P2 = 2
 MIN_CLUSTER_SIZE_P0 = 1  # Single P0 signal is worth flagging
 
-# Refuel-8B config (same as qwen_enrichment.py per ARCH-001)
-OLLAMA_URL      = "http://127.0.0.1:11434/v1/chat/completions"
-OLLAMA_MODEL    = "michaelborck/refuled:latest"
-CLASS_VER       = "michaelborck/refuled:latest"
+# Inference model — routed via mil/config/model_routing.yaml
+_INFERENCE_CFG  = _get_model("inference")
+OLLAMA_URL      = f"{_INFERENCE_CFG['api_compat_url']}/chat/completions"
+OLLAMA_MODEL    = _INFERENCE_CFG["model"]
+CLASS_VER       = _INFERENCE_CFG["model"]
 TEACHER_VER     = None      # MIL-7 not yet built -- explicitly None
 REQUEST_TIMEOUT = 120
 MAX_RETRIES     = 2

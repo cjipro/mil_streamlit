@@ -1,0 +1,76 @@
+schema_version: "1.0"
+spec_id: "MIL-MODEL-001"
+name: "MIL Model Routing — Canonical Task-to-Model Map"
+owner: "Hussain Ahmed"
+created: "2026-04-05"
+last_updated: "2026-04-05"
+
+# Decisions:
+#   ARCH-001: Qwen-14B decommissioned from enrichment. Haiku is primary enrichment model.
+#   ARCH-002: qwen3:14b disqualified for enrichment (downgraded P0 to P2 in blind test).
+#             Haiku retained for enrichment. qwen3 approved for exec_alert synthesis only.
+
+providers:
+  anthropic:
+    base_url: null          # uses SDK default
+    auth: env:ANTHROPIC_API_KEY
+
+  ollama:
+    base_url: "http://127.0.0.1:11434"
+    api_compat_url: "http://127.0.0.1:11434/v1"   # OpenAI-compat endpoint
+    auth: null              # no auth required
+
+routes:
+  # ── Enrichment ────────────────────────────────────────────────
+  enrichment:
+    model: "claude-haiku-4-5-20251001"
+    provider: anthropic
+    max_tokens: 8192
+    note: >
+      Schema v3 enrichment. P0 severity accuracy critical (ARCH-002).
+      Blind test: 100% schema compliance, 95% severity agreement, P0 intact.
+
+  # ── MIL Inference (CAC + RAG) ─────────────────────────────────
+  inference:
+    model: "michaelborck/refuled:latest"
+    provider: ollama
+    max_tokens: 512
+    note: >
+      CAC formula, RAG against CHRONICLE, signal classification.
+      Deterministic fallback if Refuel unavailable (Article Zero).
+
+  # ── Executive Alert Synthesis (Box 3) ─────────────────────────
+  exec_alert:
+    model: "qwen3:14b"
+    provider: ollama
+    max_tokens: 80
+    note: >
+      Box 3 executive alert synthesis only. Approved ARCH-002.
+      Not approved for enrichment — P0 accuracy risk.
+
+  # ── YouTube Enrichment ────────────────────────────────────────
+  youtube_enrichment:
+    model: "qwen3:14b"
+    provider: ollama
+    max_tokens: 2048
+    note: >
+      YouTube comment enrichment. Zero API cost.
+      qwen3 acceptable here — YouTube signals are lower trust weight (0.75).
+
+  # ── Narrative / YAML Generation ───────────────────────────────
+  narrative:
+    model: "qwen2.5-coder:14b"
+    provider: ollama
+    max_tokens: 4096
+    note: >
+      YAML edits, Markdown generation, non-inference scripting.
+      Default local model for well-defined tasks.
+
+  # ── Teacher Autopsies ─────────────────────────────────────────
+  teacher:
+    model: "claude-sonnet-4-6"
+    provider: anthropic
+    max_tokens: 8192
+    note: >
+      TSB/Lloyds/HSBC deep causal analysis, synthetic instruction pair generation.
+      Conserve tokens — only for teacher autopsy sessions.

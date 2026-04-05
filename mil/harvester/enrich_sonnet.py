@@ -25,11 +25,15 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from mil.config.get_model import get_model as _get_model
+
 MIL_ROOT      = Path(__file__).parent.parent
 ENRICHED_DIR  = MIL_ROOT / "data" / "historical" / "enriched"
 HIST_BASE     = MIL_ROOT / "data" / "historical"
 
-MODEL         = "claude-haiku-4-5-20251001"
+MODEL         = _get_model("enrichment")["model"]
 BATCH_SIZE    = 10   # records per API call — Sonnet handles larger batches cleanly
 MAX_RETRIES   = 3
 
