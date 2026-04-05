@@ -67,7 +67,9 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 **In progress:** PULSE-11 v2.0 — blocked on Hussain populating 6 pending tables in data_dictionary_master.yaml.
 **Next after PULSE-11:** PULSE-16 — Create all Jira tickets
 
-### Sprint 2 — MIL Phase 0 (Active from 2026-03-28)
+### Sprint 2 — MIL Phase 0 + Phase 1 (COMPLETE — 2026-04-05)
+
+**Phase 0 — ALL BUILT + CLOSED**
 - MIL-1: Constitutional Docs — MIL_SCHEMA.yaml, CHRONICLE.md, SOVEREIGN_BRIEF.md (BUILT — 2026-03-28)
 - MIL-2: Config + Bootstrap — apps_config.yaml, mil_findings.json (BUILT — 2026-03-28)
 - MIL-3: Validator + CLAUDE.md — Zero Entanglement enforcement (BUILT — 2026-03-28)
@@ -79,7 +81,32 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-9: Command Dashboard + Scheduler — mil/command/app.py, mil/scheduler.py, app/pages/07_mil.py (BUILT + CLOSED — 2026-04-02, commit 46d18ee)
 - MIL-10: Publish + Domain — publish.py, cjipro.com/briefing (BUILT + CLOSED — 2026-04-02)
 
-## MIL Pipeline State — 2026-04-02 (updated)
+**Phase 1 — ALL BUILT (2026-04-05, pending Hussain Jira closure)**
+- MIL-11: Config-driven model routing — mil/config/model_routing.yaml + mil/config/get_model.py (BUILT — 2026-04-05)
+- MIL-12: Vane Trajectory Chart — mil/command/components/vane_chart.py, 14-day Plotly (BUILT — 2026-04-05)
+- MIL-13: Inference Cards — mil/command/components/inference_cards.py, top-N by CAC (BUILT — 2026-04-05)
+- MIL-14: Clark Protocol + Scheduler — clark_protocol.py, clark_log.jsonl, APScheduler 06:30 UTC (BUILT — 2026-04-05)
+- MIL-15: Exit Strategy Button — exit_strategy.py, click_log.jsonl, Phase 2 demand tracker (BUILT — 2026-04-05)
+- MIL-16: Teacher Autopsies — 4 autopsies (CHR-001/002/003/004) + 550 pairs (450 fine-tune ready) (BUILT — 2026-04-04, validated 2026-04-05)
+- MIL-17: Source Activation: DownDetector — collect_downdetector.py, cloudscraper + Haiku (BUILT — 2026-04-04)
+- MIL-18: Source Activation: City A.M. + FT RSS — collect_cityam.py, both feeds live (BUILT — 2026-04-04)
+- MIL-19: Source Activation: Reddit — collect_reddit.py, public JSON endpoints, 371 posts first run (BUILT — 2026-04-04)
+- MIL-20: Trustpilot — DEFERRED (legal risk, ToS prohibits scraping). Re-evaluate Day 60.
+- MIL-21: Facebook — EXCLUDED (poor ROI, Graph API restricted)
+- MIL-22: Source Activation: YouTube — comments + metadata, 0.75 trust weight (BUILT — 2026-04-03, commit c2a0277)
+- MIL-23: Twitter/X — EXCLUDED (cost prohibitive, $200/mo minimum)
+- MIL-24: Glassdoor — EXCLUDED (employee intelligence, out of MIL scope)
+
+**Sonar V2 — LIVE (2026-04-05)**
+- File: `mil/publish/publish_v2.py`
+- URL: https://cjipro.com/briefing-v2
+- V1 at cjipro.com/briefing FROZEN — never touch
+- V2 extends V1 with: Vane Trajectory Chart (MIL-12), Inference Cards (MIL-13), Clark Protocol (MIL-14), Phase 2 Demand (MIL-15)
+- All V2 sections use `.topbar-box` chrome — same width/padding as Box 1/2/3, mobile-optimised
+
+**Next ticket: MIL-25 (undefined — Day 30 sprint complete)**
+
+## MIL Pipeline State — 2026-04-05 (updated)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -87,7 +114,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
   - WebHDFS 2-step PUT confirmed working: NameNode 9871 → DataNode 9864 redirect chain
   - HDFS volumes: C:/Users/hussa/hdfs-volumes/mil-namenode + mil-datanode
 - **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Claude Haiku is now primary enrichment model.
-- **ARCH-002**: qwen3:14b evaluated for enrichment (2026-04-03). 20-record blind test vs Haiku baseline: schema compliance 100%, issue_type agreement 90%, severity agreement 95%. DISQUALIFIED for enrichment — downgraded a P0 blocking issue to P2. P0 accuracy is non-negotiable for MIL. Haiku retained for enrichment. qwen3 approved for exec alert synthesis (Box 3) — pending implementation in briefing_data.py.
+- **ARCH-002**: qwen3:14b evaluated for enrichment (2026-04-03). 20-record blind test vs Haiku baseline: schema compliance 100%, issue_type agreement 90%, severity agreement 95%. DISQUALIFIED for enrichment — downgraded a P0 blocking issue to P2. P0 accuracy is non-negotiable for MIL. Haiku retained for enrichment. qwen3 approved for exec alert synthesis (Box 3) — **IMPLEMENTED 2026-04-05** in briefing_data.py via `_exec_alert_description()` using OpenAI-compat Ollama call + `get_model("exec_alert")`.
 
 ### Enrichment Pipeline (enrich_sonnet.py — schema v3) ← ACTIVE
 File: `mil/harvester/enrich_sonnet.py`
@@ -137,7 +164,8 @@ File: `mil/inference/mil_agent.py`
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- Current findings: **63 total** | 63 anchored | 0 unanchored | 22 Designed Ceiling
+- Current findings: **110 total** | 110 anchored | 0 unanchored | 36 Designed Ceiling
+- **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
 
 ### Briefing Data Layer (briefing_data.py)
 File: `mil/briefing_data.py`
@@ -150,32 +178,35 @@ File: `mil/briefing_data.py`
 - Dual-lens output: issues_performance (what went wrong) + journey_performance (what customer tried)
 - **Barclays baseline**: all-time avg from both app_store + google_play enriched files (651 records)
   - Current: score=89, baseline=90, delta=-1, trend=STABLE
-- Executive alert: self-intelligence framing ("YOUR APP"), Sonnet synthesis of P0 reviews,
+- Executive alert: self-intelligence framing ("YOUR APP"), **qwen3:14b** synthesis of P0 reviews (ARCH-002 implemented),
   conditional Chronicle match (keyword overlap >= 2), signal strength STRONG/MODERATE/EARLY SIGNAL
+- **clark_tier** added to executive_alert dict — sourced from clark_protocol.get_clark_tier_for_finding()
 - Chronicle matching: CHR-001 (TSB 2018) and CHR-002 (Lloyds 2025) on issue_type overlap
 - Top quote selection: P0 first, P1 fallback, 40+ chars, prefer 60-200 chars
 - Current output (2026-04-01):
   - Barclays sentiment: 88.8/100, baseline 90, -1.2 vs baseline, STABLE
   - Competitor ticker: NatWest worst (64), Barclays 88.8
 
-### Sonar Briefing — publish.py
+### Sonar Briefing — publish.py (V1, FROZEN)
 File: `mil/publish/publish.py`
-- Box 1 layout (top to bottom):
-  1. Header: CJI SONAR — APP INTELLIGENCE
-  2. Barclays sentiment card — label 15px, score pushed right with margin-left:auto
-     (score, real 3d/4d trend, all-time Barclays baseline, delta vs baseline)
-  3. Dual quote boxes — App Store (top) + Google Play (bottom), both Barclays only,
-     P0 first with P1 fallback, 104px fixed height, star rating + source + date stamp footer
-  4. Brand lines (15px): "Live signals from App Store, Google Play..." + "Historical failure patterns..."
-  5. Version pills
-  6. Footnote (10px, #3A6A7F): "Sentiment score: 7-day rolling avg · App Store & Google Play · Barclays only · star ratings inc. text-free reviews"
-- Box 2 (Issues Status): Barclays only — issue_type counts, trend, P0/P1. Direct quote at bottom
-  tied to top-ranked issue_type (P0->P1 fallback, de-duped vs Box 1 quotes, issue label in small caps)
-- Box 3 (Executive Alert): Barclays only — self-intelligence framing ("YOUR APP"), Sonnet synthesis,
-  Chronicle match conditional (CHR-001/CHR-002, intentional historical reference), YOUR CALL
-- All three boxes confirmed Barclays-scoped
-- Brand line font: 15px
-- Note: cjipro.com behind Cloudflare — cache purge may be needed after deploy to see changes immediately
+- **V1 is FROZEN** — live at cjipro.com/briefing. Do not modify.
+- Box 1: Barclays sentiment + dual quote boxes (App Store/Google Play) + brand lines + version pills
+- Box 2: Issues Status — Barclays issue_type counts, trend, P0/P1, direct quote
+- Box 3: Executive Alert — "YOUR APP" framing, qwen3:14b synthesis, Chronicle match, YOUR CALL
+- All three boxes Barclays-scoped
+- Note: cjipro.com behind Cloudflare — cache purge needed after deploy if changes not visible
+
+### Sonar Briefing V2 — publish_v2.py (LIVE)
+File: `mil/publish/publish_v2.py`
+- **V2 LIVE** at cjipro.com/briefing-v2 (2026-04-05)
+- Loads V1 HTML from mil/publish/output/index.html, injects V2 sections before `</body>`
+- V2 sections (all use `.topbar-box` chrome — same width/mobile behaviour as Box 1/2/3):
+  - **Vane Trajectory** — 14-day Plotly chart, App Store + Google Play, all competitors
+  - **Intelligence Findings** — top 10 by CAC, with tier/severity/chronicle/ceiling badges
+  - **Clark Protocol** — live escalation status, tier strip + active finding rows
+  - **Phase 2 Demand** — ceiling finding list, request counter, by-competitor pills
+- Local copy: mil/publish/output/index_v2.html
+- Run: `py mil/publish/publish_v2.py`
 
 ### Daily Pipeline — ONE COMMAND (fully agentic)
 ```
@@ -198,28 +229,28 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 
 ### MIL Jira — Kanban Board
 
-**Phase 0 — COMPLETE**
-- MIL-1 through MIL-10: ALL BUILT + CLOSED (2026-04-02)
+**Phase 0 — ALL BUILT + CLOSED**
+**Phase 1 — ALL BUILT (2026-04-05, pending Hussain Jira closure)**
 
-**Phase 1 — Queued (all To Do, gated on M1 closure unless noted)**
-- MIL-11: Config-driven model routing — model_routing.yaml + get_model() utility (3–4h)
-- MIL-12: Vane Trajectory Chart — mil/command/components/vane_chart.py (2–3h)
-- MIL-13: Inference Cards — mil/command/components/inference_cards.py (2–3h)
-- MIL-14: Clark Protocol + Scheduler — P1 escalation, auto-downgrade, APScheduler (4–5h, depends on MIL-12/13)
-- MIL-15: Exit Strategy Button — click_log.jsonl, Phase 2 demand evidence (1–2h, depends on MIL-13)
-- MIL-16: Teacher Autopsies (live run) — Sonnet API execution of run_teacher.py (1–2h, gated on API credit top-up, NOT M1)
+| Ticket | Component | Status |
+|--------|-----------|--------|
+| MIL-1 to MIL-10 | Phase 0 full stack | BUILT + CLOSED |
+| MIL-11 | model_routing.yaml + get_model() | BUILT 2026-04-05 |
+| MIL-12 | vane_chart.py — 14-day Plotly | BUILT 2026-04-05 |
+| MIL-13 | inference_cards.py — top-N by CAC | BUILT 2026-04-05 |
+| MIL-14 | clark_protocol.py + scheduler 06:30 UTC | BUILT 2026-04-05 |
+| MIL-15 | exit_strategy.py + click_log.jsonl | BUILT 2026-04-05 |
+| MIL-16 | Teacher autopsies — 4 × CHR, 550 pairs | BUILT 2026-04-04 |
+| MIL-17 | collect_downdetector.py (0.95 trust) | BUILT 2026-04-04 |
+| MIL-18 | collect_cityam.py — City A.M. + FT RSS | BUILT 2026-04-04 |
+| MIL-19 | collect_reddit.py — public JSON, no OAuth | BUILT 2026-04-04 |
+| MIL-20 | Trustpilot | DEFERRED — legal risk, re-evaluate Day 60 |
+| MIL-21 | Facebook | EXCLUDED — poor ROI |
+| MIL-22 | collect_youtube.py (0.75 trust) | BUILT 2026-04-03 |
+| MIL-23 | Twitter/X | EXCLUDED — cost prohibitive |
+| MIL-24 | Glassdoor | EXCLUDED — out of MIL scope |
 
-**Source Activation — Queued (all To Do)**
-- MIL-17: Source Activation: DownDetector — outage detection, 0.95 trust weight. BUILT — collect_downdetector.py, cloudscraper + Haiku enrichment (2026-04-04)
-- MIL-18: Source Activation: Financial Times + City A.M. — news signals, 0.90 trust weight. BUILT — collect_cityam.py, RSS + Haiku enrichment. Both feeds live (FT headlines via RSS, CityAM full feed). (2026-04-04)
-- MIL-19: Source Activation: Reddit — narrative context, 0.85 trust weight. BUILT — collect_reddit.py, public JSON endpoints (no OAuth/creds). 371 posts on first run, Haiku enrichment. (2026-04-04)
-- MIL-20: Source Evaluation: Trustpilot — DEFERRED. Legal risk, ToS prohibits scraping, no public API. Re-evaluate Day 60.
-- MIL-21: Source Evaluation: Facebook — EXCLUDED. Poor ROI, Graph API restricted, low signal quality.
-- MIL-22: Source Activation: YouTube — comments + metadata, 0.75 trust weight. BUILT — commit c2a0277 (2026-04-03)
-- MIL-23: Source Evaluation: Twitter/X — EXCLUDED. Cost prohibitive ($200/mo minimum), unusable free tier.
-- MIL-24: Source Evaluation: Glassdoor — EXCLUDED. Out of MIL scope (employee intelligence, not market intelligence).
-
-**Revised Source Stack (6 active sources):**
+**Source Stack (6 active):**
 | Source | Trust Weight | Status |
 |--------|-------------|--------|
 | App Store | 0.90 | LIVE |
@@ -229,20 +260,23 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-Next ticket: MIL-25
-Build order after M1: MIL-11 → MIL-12 → MIL-13 → MIL-15 → MIL-14. Source activation tickets can run in parallel.
+**Next ticket: MIL-25 — undefined. Day 30 sprint complete.**
 
-### Day 30 Success Metrics — Current State
-- M1 (Signal Pipeline Live): **Streak 4/5 — 2026-04-04 is day 4 (streak started 2026-04-01). 1 more calendar day closes M1.** Streak origin hardcoded in run_daily.py (2026-04-01). Tracker: mil/data/daily_run_log.jsonl
-- M2 (One Validated Finding): **DONE** — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, COUNTERSIGNED 2026-04-02
-- M3 (Designed Ceiling Trigger): **DONE** — 22 active ceiling triggers
+### Day 30 Success Metrics — ALL DONE (2026-04-05)
+- **M1**: DONE — 5/5 streak closed 2026-04-05. Streak origin: 2026-04-01. Tracker: mil/data/daily_run_log.jsonl
+- **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
+- **M3**: DONE — 36 ceiling triggers (threshold was 22)
+
+### Clark Protocol — First Scan (2026-04-05)
+- 2x CLARK-3 (NatWest — ACT NOW)
+- 1x CLARK-2 (Barclays — ESCALATE)
+- 3x CLARK-1 (Lloyds, Monzo, NatWest — WATCH)
+- Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
-- M1: run `py run_daily.py` tomorrow (2026-04-05) — closes M1 at 5/5
-- MIL-19: add REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET to .env (reddit.com/prefs/apps → create script app)
-- MIL-11: implement ARCH-002 exec alert switch — change briefing_data.py to qwen3:14b via Ollama (after M1 closes)
-- Run `py run_teacher.py` (live Sonnet autopsies, one-time — credits now topped up)
-- CHR-003: confirm HSBC root cause if source ever becomes available
+- Close MIL-11 through MIL-22 in Jira UI
+- Define MIL-25
+- CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
 ## MIL — Market Intelligence Layer
@@ -250,7 +284,7 @@ Build order after M1: MIL-11 → MIL-12 → MIL-13 → MIL-15 → MIL-14. Source
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 3,587 enriched records across 8 files (schema v3, claude-haiku-4-5-20251001). app_store/natwest + app_store/revolut now live as of 2026-04-03.**
+**Current corpus: 3,700+ enriched records across 8 files (schema v3, claude-haiku-4-5-20251001). 110 findings | 36 Designed Ceiling. All Day 30 metrics achieved 2026-04-05.**
 
 ### MIL Zero Entanglement — HARD RULE
 
@@ -281,13 +315,16 @@ TAQ Bank (the client) does not appear in MIL because the client is not a monitor
 | `mil/config/apps_config.yaml` | Full signal stack — 10 sources, 5 competitors, trust weights |
 | `mil/outputs/mil_findings.json` | THE ONLY EXIT POINT — sole data crossing from MIL to CJI Pulse |
 
-### MIL Model Routing — Updated 2026-04-03
+### MIL Model Routing — Updated 2026-04-05
 
-- **Refuel-8B (local):** Signal classification, journey attribution, MIL inference (CAC + RAG), Adversarial Attacker evaluation — `michaelborck/refuled:latest` at `http://127.0.0.1:11434/v1`
+Config: `mil/config/model_routing.yaml` + `mil/config/get_model.py` (MIL-11)
+Use `get_model(task)` everywhere — never hardcode model names.
+
+- **Refuel-8B (local):** Signal classification, journey attribution, MIL inference (CAC + RAG), Adversarial Attacker — `michaelborck/refuled:latest` at `http://127.0.0.1:11434/v1`
 - **Qwen 2.5-Coder (local):** YAML/Markdown generation, narrative generation, non-inference scripting — `qwen2.5-coder:14b` at `http://127.0.0.1:11434`
-- **Qwen3 (local):** Executive alert synthesis (Box 3 in publish.py) ONLY — `qwen3:14b` at `http://127.0.0.1:11434`. Approved by ARCH-002. Not approved for enrichment. PENDING implementation in briefing_data.py.
+- **Qwen3 (local):** Executive alert synthesis (Box 3) — `qwen3:14b` at `http://127.0.0.1:11434`. ARCH-002 approved. **LIVE** in briefing_data.py `_exec_alert_description()`.
 - **Haiku (Claude API):** Enrichment ONLY — `claude-haiku-4-5-20251001`. Retained per ARCH-002. P0 severity accuracy critical.
-- **Sonnet (Claude API):** Teacher autopsies only — TSB, Lloyds, HSBC deep causal analysis + synthetic instruction pair generation
+- **Sonnet (Claude API):** Teacher autopsies only — deep causal analysis + synthetic pair generation
 - **RTX 5070 Ti:** QLoRA fine-tuning — POST-DAY 30 ONLY, gated on 5 conditions
 
 ### MIL Dashboard
@@ -341,9 +378,9 @@ Session 5 Part 2 (2026-03-12):
 | `CHRONICLE.md` | **Operational Lessons Learned** — port conflicts, HDFS lessons, Airflow 3.x rules |
 | `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, ARCH-001, ARCH-002 |
 
-## Model Routing — Updated 2026-04-03
+## Model Routing — Updated 2026-04-05
 
-**MIL inference routes to Refuel-8B. Enrichment stays on Haiku (ARCH-002). Exec alert (Box 3) approved for qwen3:14b — pending implementation. Qwen 2.5-Coder remains default for non-inference tasks. Conserve Sonnet tokens.**
+**MIL inference routes to Refuel-8B. Enrichment on Haiku (ARCH-002). Exec alert (Box 3) on qwen3:14b — LIVE (MIL-11). Routing config in mil/config/model_routing.yaml. Always use get_model(task). Conserve Sonnet tokens.**
 
 **DEFAULT: Qwen** (qwen2.5-coder:14b at http://127.0.0.1:11434)
 
