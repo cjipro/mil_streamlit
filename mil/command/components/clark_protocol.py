@@ -66,10 +66,16 @@ CLARK_LABELS = {
 }
 
 # Thresholds — not tuned before Day 30
-CLARK3_CAC_THRESHOLD = 0.65
-CLARK2_CAC_THRESHOLD = 0.45
-CLARK1_CAC_THRESHOLD = 0.55
-DOWNGRADE_HOURS      = 48
+CLARK3_CAC_THRESHOLD  = 0.65
+CLARK2_CAC_THRESHOLD  = 0.45
+CLARK1_CAC_THRESHOLD  = 0.55
+DOWNGRADE_HOURS       = 48
+
+# P0 override: bypass CAC threshold when raw signal severity is extreme.
+# P0 ≥ this count + Designed Ceiling + Chronicle anchor → CLARK-3 regardless of CAC.
+# Rationale: Vol_sig dilution against large source pools can suppress CAC below CLARK-3
+# even when the cluster is entirely blocking-severity (P0) signals.
+CLARK3_P0_OVERRIDE    = 5
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -89,6 +95,16 @@ def evaluate_clark_tier(finding: dict) -> tuple[str, str]:
     chr_match = finding.get("chronicle_match") or {}
     chr_id   = chr_match.get("chronicle_id")
     has_chr  = bool(chr_id and chr_match.get("inference_approved", True))
+
+    # CLARK-3 (P0 override): raw blocking signals bypass CAC dilution
+    # P0 ≥ 5 + Designed Ceiling + Chronicle anchor → ACT NOW regardless of CAC score
+    p0_count = finding.get("signal_counts", {}).get("P0", 0)
+    if p0_count >= CLARK3_P0_OVERRIDE and ceiling and has_chr:
+        reason = (
+            f"P0 override: {p0_count} blocking signals >= {CLARK3_P0_OVERRIDE} "
+            f"+ ceiling + {chr_id}"
+        )
+        return "CLARK-3", reason
 
     # CLARK-3: P1 tier + high CAC + chronicle + ceiling
     if ftier == "P1" and cac >= CLARK3_CAC_THRESHOLD and has_chr and ceiling:

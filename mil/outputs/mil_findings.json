@@ -3,12 +3,12 @@
   "_schema_version": "1.0",
   "_status": "LIVE",
   "_zero_entanglement": "mil/outputs/mil_findings.json is the only file CJI Pulse may read from mil/. No other mil/ file may be imported or read by external systems.",
-  "generated_at": "2026-04-05T06:28:34.487870+00:00",
+  "generated_at": "2026-04-10T22:41:42.951653+00:00",
   "summary": {
-    "total_findings": 110,
-    "anchored": 110,
+    "total_findings": 117,
+    "anchored": 117,
     "unanchored": 0,
-    "designed_ceiling_hits": 36,
+    "designed_ceiling_hits": 37,
     "cac_weights": {
       "alpha": 0.4,
       "beta": 0.4,
@@ -18,13 +18,13 @@
   },
   "findings": [
     {
-      "finding_id": "MIL-F-20260405-001",
-      "generated_at": "2026-04-05T06:27:10.546517+00:00",
+      "finding_id": "MIL-F-20260410-001",
+      "generated_at": "2026-04-10T22:40:11.609876+00:00",
       "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.1582,
+      "confidence_score": 0.1447,
       "blind_spots": [
-        "bank_name"
+        "app_store_barclays"
       ],
       "top_3_keywords": [
         "access",
@@ -36,7 +36,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App store Barclays support app appears for customers with J_ SERVICE_01",
+      "finding_summary": "App Store Barclays account creation requires use of bank block",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -47,7 +47,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.11764705882352941,
+        "vol_sig": 0.08403361344537814,
         "sim_hist": 0.2777777777777778,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -72,11 +72,11 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-002",
-      "generated_at": "2026-04-05T06:27:11.234542+00:00",
+      "finding_id": "MIL-F-20260410-002",
+      "generated_at": "2026-04-10T22:40:12.439398+00:00",
       "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.1582,
+      "confidence_score": 0.1447,
       "blind_spots": [],
       "top_3_keywords": [
         "complete",
@@ -88,8 +88,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "",
-      "failure_mode": "NONE",
+      "finding_summary": "Pre-validate Barclays app for Android Journey J_SERVICE_01 had no mentions of 'complete or' and missing keywords",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 1,
@@ -99,7 +99,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.11764705882352941,
+        "vol_sig": 0.08403361344537814,
         "sim_hist": 0.2777777777777778,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -124,38 +124,37 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-003",
-      "generated_at": "2026-04-05T06:27:12.037948+00:00",
+      "finding_id": "MIL-F-20260410-003",
+      "generated_at": "2026-04-10T22:40:13.192731+00:00",
       "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.5,
+      "confidence_score": 0.5849,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "app_store_1st",
-        "app_store_bancom"
+        "app_store_barclays"
       ],
       "top_3_keywords": [
         "customer",
         "significant",
-        "functionality"
+        "friction"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App Store - Banking cluster signal detected with J_ SERVICE_01 journey.",
+      "finding_summary": "No significant finding related to app store Barclays",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 7,
+        "total": 11,
         "P0": 0,
         "P1": 0,
-        "P2": 7,
+        "P2": 11,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.4117647058823529,
+        "vol_sig": 0.46218487394957986,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -163,31 +162,81 @@
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-004",
+        "chronicle_id": "CHR-002",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-004",
-        "bank": "Barclays",
-        "incident_type": "app_friction_pattern_analysis",
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
         "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-004",
-      "generated_at": "2026-04-05T06:27:12.580471+00:00",
+      "finding_id": "MIL-F-20260410-004",
+      "generated_at": "2026-04-10T22:40:13.946354+00:00",
       "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.4601,
+      "confidence_score": 0.3336,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Competitor",
-        "Top keywords"
+        "app_store_uk",
+        "app_store",
+        "blayeslides_com"
       ],
+      "top_3_keywords": [
+        "customer",
+        "reports",
+        "being"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "App name confusion with Barclays appstore.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.08403361344537814,
+        "sim_hist": 0.75,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.75,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-005",
+      "generated_at": "2026-04-10T22:40:14.719679+00:00",
+      "competitor": "barclays",
+      "source": "app_store",
+      "confidence_score": 0.4366,
+      "blind_spots": [],
       "top_3_keywords": [
         "login",
         "access",
@@ -197,9 +246,9 @@
       "signal_severity": "P0",
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "Invalid journey detected in banking app signals; no chronicle match.",
-      "failure_mode": "NONE",
+      "designed_ceiling_reached": false,
+      "finding_summary": "App Store users may experience access issues with Barclays account logins after a significant login attempt.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -209,7 +258,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.20588235294117646,
+        "vol_sig": 0.14705882352941177,
         "sim_hist": 0.9444444444444444,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -235,37 +284,39 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-005",
-      "generated_at": "2026-04-05T06:27:13.358031+00:00",
+      "finding_id": "MIL-F-20260410-006",
+      "generated_at": "2026-04-10T22:40:15.456496+00:00",
       "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.4614,
+      "confidence_score": 0.5008,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "App Store Barclays",
+        "invalid authentication credentials"
       ],
       "top_3_keywords": [
+        "payment",
         "significant",
-        "friction",
-        "payment"
+        "friction"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P1",
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Signal cluster is dominated by pre-validated payment process indicating an app for mobile banking, but does not confirm the Barclays brand.",
+      "finding_summary": "User reported invalid credentials and the app automatically corrected it.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 3,
+        "total": 4,
         "P0": 0,
-        "P1": 3,
+        "P1": 4,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.2647058823529412,
-        "sim_hist": 0.8888888888888888,
+        "vol_sig": 0.25210084033613445,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -276,7 +327,8 @@
         "signal_ids": [
           "barclays_0",
           "barclays_1",
-          "barclays_2"
+          "barclays_2",
+          "barclays_3"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -286,20 +338,76 @@
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.8888888888888888,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-006",
-      "generated_at": "2026-04-05T06:27:14.239762+00:00",
+      "finding_id": "MIL-F-20260410-007",
+      "generated_at": "2026-04-10T22:40:16.215519+00:00",
+      "competitor": "barclays",
+      "source": "app_store",
+      "confidence_score": 0.1336,
+      "blind_spots": [
+        "app_store",
+        "barclays'], ",
+        "finding_summary\": \"Service usage reviews for app store barclays without mentioning slow experience",
+        {
+          "failure_mode": "NO_CHRONICLE_MATCH"
+        }
+      ],
+      "top_3_keywords": [
+        "minor",
+        "functional",
+        "found"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.08403361344537814,
+        "sim_hist": 0.25,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.25,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-008",
+      "generated_at": "2026-04-10T22:40:17.138200+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.4216,
+      "confidence_score": 0.4207,
       "blind_spots": [
-        "competitor",
-        "journey",
-        "signal counts"
+        "J_ LOGIN_01",
+        "CHR-001"
       ],
       "top_3_keywords": [
         "account",
@@ -311,7 +419,7 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "J_LOGIN_01 had an app store issue with a negative feedback rating of 4 instead of the typical 5.",
+      "finding_summary": "Unusual P0 signal count with potential breach and access concerns.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -322,7 +430,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.053956834532374105,
+        "vol_sig": 0.05163511187607574,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -349,83 +457,19 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-007",
-      "generated_at": "2026-04-05T06:27:14.828628+00:00",
+      "finding_id": "MIL-F-20260410-009",
+      "generated_at": "2026-04-10T22:40:17.953209+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.4647,
+      "confidence_score": 0.4688,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Competitor"
+        "competing app",
+        "competitor apps"
       ],
       "top_3_keywords": [
         "crashes",
         "significant",
-        "repeated"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "Unusually high signal count for app_store_lloyds competitor",
-      "failure_mode": "SILENCE",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 11,
-        "P0": 3,
-        "P1": 8,
-        "P2": 0,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.1618705035971223,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "lloyds_0",
-          "lloyds_1",
-          "lloyds_2",
-          "lloyds_3",
-          "lloyds_4",
-          "lloyds_5",
-          "lloyds_6",
-          "lloyds_7",
-          "lloyds_8",
-          "lloyds_9",
-          "lloyds_10"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-008",
-      "generated_at": "2026-04-05T06:27:15.550945+00:00",
-      "competitor": "lloyds",
-      "source": "app_store",
-      "confidence_score": 0.4809,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "P2"
-      ],
-      "top_3_keywords": [
-        "access",
-        "complete",
         "customer"
       ],
       "human_countersign_status": "PENDING",
@@ -433,18 +477,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "app_store_lloyds has low signal in primary screening and function blocked with a fails chronicles",
+      "finding_summary": "A cluster of app store interactions signal potential competition from an unidentified app.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 12,
-        "P0": 9,
-        "P1": 3,
+        "P0": 4,
+        "P1": 8,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.20233812949640287,
+        "vol_sig": 0.1721170395869191,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -480,13 +524,79 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-009",
-      "generated_at": "2026-04-05T06:27:16.207644+00:00",
+      "finding_id": "MIL-F-20260410-010",
+      "generated_at": "2026-04-10T22:40:19.166148+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.2608,
+      "confidence_score": 0.4775,
       "blind_spots": [
-        "CHR_002"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "P1: App Store Lloyds app usage"
+      ],
+      "top_3_keywords": [
+        "access",
+        "complete",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "App Store Lloyd's frequent apps seem to be blocked when traveling abroad due to high risk journey/product combos.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 12,
+        "P0": 9,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.193631669535284,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "lloyds_0",
+          "lloyds_1",
+          "lloyds_2",
+          "lloyds_3",
+          "lloyds_4",
+          "lloyds_5",
+          "lloyds_6",
+          "lloyds_7",
+          "lloyds_8",
+          "lloyds_9",
+          "lloyds_10",
+          "lloyds_11"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-011",
+      "generated_at": "2026-04-10T22:40:19.809668+00:00",
+      "competitor": "lloyds",
+      "source": "app_store",
+      "confidence_score": 0.2603,
+      "blind_spots": [
+        "app_store_lloyds"
       ],
       "top_3_keywords": [
         "customer",
@@ -498,7 +608,7 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App store lloyd's login attempt may have invalid ID and face recognition",
+      "finding_summary": "App Store Lloyds is not mentioned in chronological logs.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -509,7 +619,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.026978417266187053,
+        "vol_sig": 0.02581755593803787,
         "sim_hist": 0.625,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -532,15 +642,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-010",
-      "generated_at": "2026-04-05T06:27:16.883275+00:00",
+      "finding_id": "MIL-F-20260410-012",
+      "generated_at": "2026-04-10T22:40:21.014726+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.2858,
+      "confidence_score": 0.2853,
       "blind_spots": [
-        "Competitor",
-        "Journey",
-        "Signal counts"
+        "Functionality, account type or other specifics of the customer",
+        "User experience from customer perspective"
       ],
       "top_3_keywords": [
         "customer",
@@ -552,8 +661,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Lloyds banking app is blocked during restricted functionalities.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "The mobile app for Lloyds has issues with functionality as reported by customers and may not fully reflect all account types on its interface",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -563,7 +672,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.026978417266187053,
+        "vol_sig": 0.02581755593803787,
         "sim_hist": 0.6875,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -586,16 +695,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-011",
-      "generated_at": "2026-04-05T06:27:17.678701+00:00",
+      "finding_id": "MIL-F-20260410-013",
+      "generated_at": "2026-04-10T22:40:21.611086+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.4791,
+      "confidence_score": 0.4792,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "CHR-002",
-        "None",
-        "reports"
+        "trust"
       ],
       "top_3_keywords": [
         "customer",
@@ -607,18 +714,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Conflicting Reports of Unreliable Recovery Service for App Store on Lloyd's, with Limited User Feedback",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "App Store Lloyds received a warning on needs and breach",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 22,
+        "total": 23,
         "P0": 0,
         "P1": 0,
-        "P2": 22,
+        "P2": 23,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.19784172661870503,
+        "vol_sig": 0.19793459552495699,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -641,14 +748,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-012",
-      "generated_at": "2026-04-05T06:27:18.404761+00:00",
+      "finding_id": "MIL-F-20260410-014",
+      "generated_at": "2026-04-10T22:40:22.306307+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.5978,
+      "confidence_score": 0.5997,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "competitor's exact product offerings"
+        "invalid credentials and incorrect service combination"
       ],
       "top_3_keywords": [
         "feature",
@@ -660,18 +767,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "J_SERVICE_01 has a higher than average signal count in the top keywords.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Potential security breach reported for Lloyds banking app.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 55,
+        "total": 58,
         "P0": 0,
         "P1": 0,
-        "P2": 55,
+        "P2": 58,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.49460431654676257,
+        "vol_sig": 0.49913941480206536,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -694,13 +801,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-013",
-      "generated_at": "2026-04-05T06:27:19.296115+00:00",
+      "finding_id": "MIL-F-20260410-015",
+      "generated_at": "2026-04-10T22:40:23.194921+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.4647,
+      "confidence_score": 0.462,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "app_store_lloyds",
+        "CHR-001"
       ],
       "top_3_keywords": [
         "access",
@@ -712,8 +821,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "J_ LOGIN_01 has experienced a high number of issues with users seeing \"Lloyds app support process\" errors and unresponsive apps as they attempt to login; no chronicles match",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "\"J_ LOGIN_01: High-risk journey and app_store_lloyds have no chronicle match\"",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 11,
@@ -723,7 +832,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.1618705035971223,
+        "vol_sig": 0.1549053356282272,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -758,14 +867,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-014",
-      "generated_at": "2026-04-05T06:27:20.220072+00:00",
+      "finding_id": "MIL-F-20260410-016",
+      "generated_at": "2026-04-10T22:40:24.364298+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.1699,
+      "confidence_score": 0.1693,
       "blind_spots": [
-        "app_store_screenshot",
-        "customer_feedback"
+        "App Store",
+        "Lloyds"
       ],
       "top_3_keywords": [
         "customer",
@@ -777,8 +886,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App store feedback shows that the system cannot confirm whether reports of currency visibility have occurred in J_PAY_01; analysis needed for SILENCE contradiction mode",
-      "failure_mode": "SILENCE",
+      "finding_summary": "The app_store_lloyds is the competitor related to the top keywords and the signal count for P2 are found, but there's not enough public data to confirm anything else about this journey.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -788,7 +897,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.03597122302158273,
+        "vol_sig": 0.034423407917383825,
         "sim_hist": 0.3888888888888889,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -811,14 +920,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-015",
-      "generated_at": "2026-04-05T06:27:20.999157+00:00",
+      "finding_id": "MIL-F-20260410-017",
+      "generated_at": "2026-04-10T22:40:25.268990+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.2788,
+      "confidence_score": 0.3386,
       "blind_spots": [
-        "Journey",
-        "CHR-002"
+        "journey",
+        "app_store_lloyds"
       ],
       "top_3_keywords": [
         "notification",
@@ -830,7 +939,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reports of Lloyds banking app monitoring notifications increasing user frustration due to lack of response from app support.",
+      "finding_summary": "Competitor Lloyds' app is being used for low-risk journeys with high volumes on the anchor 'CHR-003'.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -841,38 +950,38 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.07194244604316546,
-        "sim_hist": 0.625,
+        "vol_sig": 0.06884681583476765,
+        "sim_hist": 0.7777777777777778,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-003",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.625,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.7777777777777778,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-016",
-      "generated_at": "2026-04-05T06:27:21.784739+00:00",
+      "finding_id": "MIL-F-20260410-018",
+      "generated_at": "2026-04-10T22:40:26.037639+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.4558,
+      "confidence_score": 0.4534,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "payment method",
-        "Journey success rate"
+        "CHR-001",
+        "invalid user details"
       ],
       "top_3_keywords": [
         "payment",
@@ -884,8 +993,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "The app_store_loyds app offers reliable payment functionality, despite concerns about availability for certain users.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Signal suggests users are experiencing issues completing a recurring bank transaction through the app",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 9,
@@ -895,7 +1004,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.1393884892086331,
+        "vol_sig": 0.1333907056798623,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -928,11 +1037,11 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-017",
-      "generated_at": "2026-04-05T06:27:22.402353+00:00",
+      "finding_id": "MIL-F-20260410-019",
+      "generated_at": "2026-04-10T22:40:26.784699+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.5439,
+      "confidence_score": 0.5446,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
@@ -946,18 +1055,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App Store review signals for Lloyds contain top keywords indicating navigation issues.",
+      "finding_summary": "App store lloyd's app encountered issues with launching and timing; this may suggest potential emergency situation.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 40,
+        "total": 42,
         "P0": 0,
         "P1": 0,
-        "P2": 40,
+        "P2": 42,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.3597122302158273,
+        "vol_sig": 0.3614457831325301,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -980,12 +1089,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-018",
-      "generated_at": "2026-04-05T06:27:22.983265+00:00",
+      "finding_id": "MIL-F-20260410-020",
+      "generated_at": "2026-04-10T22:40:27.640267+00:00",
       "competitor": "lloyds",
       "source": "app_store",
-      "confidence_score": 0.0829,
-      "blind_spots": [],
+      "confidence_score": 0.0822,
+      "blind_spots": [
+        "Disrupting and multiple failures",
+        "Product/service"
+      ],
       "top_3_keywords": [
         "transfer",
         "after",
@@ -996,7 +1108,7 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App store app generates alerts with no confirmation possible from public data",
+      "finding_summary": "App store Lloyds has a top keyword \"retries,\" an indicator of failure mode.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -1007,7 +1119,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.040467625899280574,
+        "vol_sig": 0.0387263339070568,
         "sim_hist": 0.16666666666666666,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1034,14 +1146,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-019",
-      "generated_at": "2026-04-05T06:27:23.718156+00:00",
+      "finding_id": "MIL-F-20260410-021",
+      "generated_at": "2026-04-10T22:40:28.449957+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.5782,
+      "confidence_score": 0.5813,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "high risk product"
+        "Journey",
+        "app_store_igetmybenefits"
       ],
       "top_3_keywords": [
         "account",
@@ -1053,18 +1166,18 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App Store app Monzo has had high-risk login attempts with some reports of blocked screens and barriers",
+      "finding_summary": "Unusual volume of high-risk activity on a financial app landing page.",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 25,
-        "P0": 20,
+        "total": 26,
+        "P0": 21,
         "P1": 5,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.4455909943714822,
+        "vol_sig": 0.4532967032967033,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1108,14 +1221,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-020",
-      "generated_at": "2026-04-05T06:27:24.651414+00:00",
+      "finding_id": "MIL-F-20260410-022",
+      "generated_at": "2026-04-10T22:40:29.228092+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.2244,
+      "confidence_score": 0.2905,
       "blind_spots": [
-        "app_store_au",
-        "app_store_it"
+        "Monzo"
       ],
       "top_3_keywords": [
         "significant",
@@ -1127,8 +1239,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Signal data found for app_ore_mnzo, journey J_SERVICE_01 suggests a possible blind spot in the system's internal monitoring process.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Monzo app user had use issues on service J_01, with crashes and recovery requests mentioned",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -1138,15 +1250,15 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.06097560975609756,
-        "sim_hist": 0.5,
+        "vol_sig": 0.05952380952380952,
+        "sim_hist": 0.6666666666666666,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-004",
+        "chronicle_id": "CHR-003",
         "signal_ids": [
           "monzo_0",
           "monzo_1",
@@ -1158,23 +1270,22 @@
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-004",
-        "bank": "Barclays",
-        "incident_type": "app_friction_pattern_analysis",
-        "sim_hist_score": 0.5,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.6666666666666666,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-021",
-      "generated_at": "2026-04-05T06:27:25.694866+00:00",
+      "finding_id": "MIL-F-20260410-023",
+      "generated_at": "2026-04-10T22:40:30.084173+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.4713,
+      "confidence_score": 0.4696,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "monetary",
-        "transactional"
+        "App store app version"
       ],
       "top_3_keywords": [
         "access",
@@ -1186,8 +1297,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App Store (Monzo) Journey Service 01 is being used to request banking app functional updates, including total resulting monetary transactions and receiving of funds.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Monzo and one other bank (signal 3) dominate the App Store charts for iOS16+ app updates.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 10,
@@ -1197,7 +1308,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.17823639774859287,
+        "vol_sig": 0.17399267399267399,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1231,14 +1342,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-022",
-      "generated_at": "2026-04-05T06:27:26.561539+00:00",
+      "finding_id": "MIL-F-20260410-024",
+      "generated_at": "2026-04-10T22:40:30.810533+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.4375,
+      "confidence_score": 0.4366,
       "blind_spots": [
-        "pre-validated high-risk",
-        "monzo"
+        "public data"
       ],
       "top_3_keywords": [
         "account",
@@ -1250,8 +1360,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "App users report experiencing issues and status updates; signal data shows zero validated high-risk events occurred during journey.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "App Store Monzo has potential privacy issues as it blocks out content without explicit consent.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 10,
@@ -1261,7 +1371,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.09380863039399626,
+        "vol_sig": 0.09157509157509158,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1284,14 +1394,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-023",
-      "generated_at": "2026-04-05T06:27:27.215599+00:00",
+      "finding_id": "MIL-F-20260410-025",
+      "generated_at": "2026-04-10T22:40:31.633586+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.4638,
+      "confidence_score": 0.4659,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "reinstall"
+        "underlying"
       ],
       "top_3_keywords": [
         "customer",
@@ -1303,18 +1413,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Reports indicate dissatisfaction with Monzo's app reinstallation process",
+      "finding_summary": "App Store page for Monzo app shows 'Trust us to protect your money' as a top keyword",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 17,
+        "total": 18,
         "P0": 0,
         "P1": 0,
-        "P2": 17,
+        "P2": 18,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.15947467166979362,
+        "vol_sig": 0.16483516483516483,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1337,14 +1447,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-024",
-      "generated_at": "2026-04-05T06:27:27.907820+00:00",
+      "finding_id": "MIL-F-20260410-026",
+      "generated_at": "2026-04-10T22:40:32.503827+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.4901,
+      "confidence_score": 0.4879,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "app_usage_data"
+        "app_store_monzo",
+        "J_SERVICE_01"
       ],
       "top_3_keywords": [
         "feature",
@@ -1356,7 +1467,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App users report high levels of frustration and inaccuracy from a split, false reports",
+      "finding_summary": "Monzo app service has a weak journey for completing needs tracking and charge remains unconfirmed",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -1367,7 +1478,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.225140712945591,
+        "vol_sig": 0.2197802197802198,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1390,13 +1501,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-025",
-      "generated_at": "2026-04-05T06:27:28.714715+00:00",
+      "finding_id": "MIL-F-20260410-027",
+      "generated_at": "2026-04-10T22:40:33.227737+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.4338,
+      "confidence_score": 0.4403,
       "blind_spots": [
-        "COMPETITOR_Services"
+        "app credentials",
+        "session data"
       ],
       "top_3_keywords": [
         "account",
@@ -1408,18 +1520,18 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "App Store signal cluster around user logging into Monzo and encountering a purchase process error or delay on their phone due to an update.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "The user is experiencing technical difficulties when trying to complete their payment",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
-        "P0": 3,
+        "total": 6,
+        "P0": 4,
         "P1": 2,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.08442776735459663,
+        "vol_sig": 0.10073260073260074,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1433,7 +1545,8 @@
           "monzo_1",
           "monzo_2",
           "monzo_3",
-          "monzo_4"
+          "monzo_4",
+          "monzo_5"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -1448,66 +1561,63 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-026",
-      "generated_at": "2026-04-05T06:27:29.578631+00:00",
+      "finding_id": "MIL-F-20260410-028",
+      "generated_at": "2026-04-10T22:40:33.909869+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.1188,
-      "blind_spots": [
-        "app_store_3p_app",
-        "J_2"
-      ],
+      "confidence_score": 0.1775,
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "notifications",
-        "feature"
+        "functionality"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Competitor apps without the words 'support' or 'general support', with fewer than three top keywords in name",
+      "finding_summary": "App and service data indicates users prefer the Monzo app for its creating and managing notifications",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 6,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 6,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04690431519699813,
-        "sim_hist": 0.25,
+        "vol_sig": 0.05494505494505495,
+        "sim_hist": 0.3888888888888889,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-003",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.25,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.3888888888888889,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-027",
-      "generated_at": "2026-04-05T06:27:30.250703+00:00",
+      "finding_id": "MIL-F-20260410-029",
+      "generated_at": "2026-04-10T22:40:34.562650+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.2576,
+      "confidence_score": 0.2573,
       "blind_spots": [
-        "monzo_token"
+        "Stolen account credentials"
       ],
       "top_3_keywords": [
         "payment",
@@ -1519,8 +1629,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Monzo app receives suspicious payment update reports; not supported by Monzo themselves",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "App Store Monzo app may have security breaches",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -1530,7 +1640,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.03283302063789869,
+        "vol_sig": 0.03205128205128205,
         "sim_hist": 0.6111111111111112,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1556,35 +1666,38 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-028",
-      "generated_at": "2026-04-05T06:27:30.979094+00:00",
+      "finding_id": "MIL-F-20260410-030",
+      "generated_at": "2026-04-10T22:40:35.214631+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.1688,
-      "blind_spots": [],
+      "confidence_score": 0.222,
+      "blind_spots": [
+        "competitor",
+        "material"
+      ],
       "top_3_keywords": [
         "significantly",
         "complete",
-        "banking"
+        "accessing"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App store Monzo's user experience has been reported as slow and difficult to navigate, with some users experiencing search issues.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Monzo banking app slow material creation",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 6,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 6,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04690431519699813,
-        "sim_hist": 0.375,
+        "vol_sig": 0.05494505494505495,
+        "sim_hist": 0.5,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -1601,19 +1714,19 @@
         "chronicle_id": "CHR-004",
         "bank": "Barclays",
         "incident_type": "app_friction_pattern_analysis",
-        "sim_hist_score": 0.375,
+        "sim_hist_score": 0.5,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-029",
-      "generated_at": "2026-04-05T06:27:31.673847+00:00",
+      "finding_id": "MIL-F-20260410-031",
+      "generated_at": "2026-04-10T22:40:35.967463+00:00",
       "competitor": "monzo",
       "source": "app_store",
-      "confidence_score": 0.1762,
+      "confidence_score": 0.1757,
       "blind_spots": [
-        "Competitor",
-        "Product"
+        "substantial",
+        "significant"
       ],
       "top_3_keywords": [
         "customer",
@@ -1625,8 +1738,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "App Store Monzo with support and credit issues during J_ PAY_01.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "The app store monzo has a potential lack of transparency regarding access and creating accounts.",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -1636,7 +1749,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.051594746716697934,
+        "vol_sig": 0.05036630036630037,
         "sim_hist": 0.3888888888888889,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1663,15 +1776,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-030",
-      "generated_at": "2026-04-05T06:27:32.510961+00:00",
+      "finding_id": "MIL-F-20260410-032",
+      "generated_at": "2026-04-10T22:40:36.759611+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.1135,
+      "confidence_score": 0.1256,
       "blind_spots": [
-        "app_store_www",
-        "appstore",
-        "apple"
+        "User preferences",
+        "Device type"
       ],
       "top_3_keywords": [
         "customer",
@@ -1683,7 +1795,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The app store natwest signal cluster may be related to Natwest banking app's ranking on apple app store.",
+      "finding_summary": "App Store Natwest app is being used without indicating or using all of its complete functionality",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -1694,15 +1806,15 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.15873015873015872,
-        "sim_hist": 0.125,
+        "vol_sig": 0.09174311926605505,
+        "sim_hist": 0.2222222222222222,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-003",
         "signal_ids": [
           "natwest_0"
         ],
@@ -1711,45 +1823,46 @@
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.125,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.2222222222222222,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-031",
-      "generated_at": "2026-04-05T06:27:33.347660+00:00",
+      "finding_id": "MIL-F-20260410-033",
+      "generated_at": "2026-04-10T22:40:37.443149+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.4087,
+      "confidence_score": 0.5284,
       "blind_spots": [
-        "app_name"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "[]"
       ],
       "top_3_keywords": [
         "customer",
         "support",
-        "resolve"
+        "despite"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
-      "designed_ceiling_reached": false,
-      "finding_summary": "Signal from app Store in J_SERVICE_01 indicates Natwest app may be experiencing issues with actual functionality and unfulfilled user support on one product.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Natwest app store gets mixed reviews on product/service availability and fraud concerns",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 7,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 7,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.3968253968253968,
-        "sim_hist": 0.625,
+        "vol_sig": 0.3211009174311927,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -1766,20 +1879,20 @@
         "chronicle_id": "CHR-002",
         "bank": "Lloyds Banking Group",
         "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.625,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-032",
-      "generated_at": "2026-04-05T06:27:34.285351+00:00",
+      "finding_id": "MIL-F-20260410-034",
+      "generated_at": "2026-04-10T22:40:38.240535+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.6857,
+      "confidence_score": 0.7119,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Competitor",
-        "app_store_natwest"
+        "Journey",
+        "Competitor"
       ],
       "top_3_keywords": [
         "customer",
@@ -1791,18 +1904,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P1",
       "designed_ceiling_reached": true,
-      "finding_summary": "NatWest app's J_ SERVICE_01 has 9 P2 signal reports (visibility, information, feature, cheque) and is unconfirmed via public data.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "App_Store_Natwest shows an activity around J_SERVICE_01 journey and online related events.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 9,
+        "total": 17,
         "P0": 0,
         "P1": 0,
-        "P2": 9,
+        "P2": 17,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.7142857142857142,
+        "vol_sig": 0.7798165137614679,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1825,13 +1938,68 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-033",
-      "generated_at": "2026-04-05T06:27:34.904010+00:00",
+      "finding_id": "MIL-F-20260410-035",
+      "generated_at": "2026-04-10T22:40:38.864092+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.5587,
+      "confidence_score": 0.3117,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+        "app store natwest"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "reports",
+        "funds"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "App Store Natwest is the top competitor",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.09174311926605505,
+        "sim_hist": 0.6875,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.6875,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-036",
+      "generated_at": "2026-04-10T22:40:39.736521+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.4917,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "competing app",
+        "recovery",
+        "failures"
       ],
       "top_3_keywords": [
         "customer",
@@ -1843,7 +2011,7 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Pre-validation on high-risk app_storeNatwest J_LOGIN_01 is low",
+      "finding_summary": "Pre-validated high-risk journey+product combination detection on Natwest App Store",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -1854,7 +2022,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.3968253968253968,
+        "vol_sig": 0.22935779816513763,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1881,15 +2049,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-034",
-      "generated_at": "2026-04-05T06:27:35.805455+00:00",
+      "finding_id": "MIL-F-20260410-037",
+      "generated_at": "2026-04-10T22:40:40.610252+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.1302,
+      "confidence_score": 0.1034,
       "blind_spots": [
-        "app_store_id",
-        "app_store_category",
-        "user_segment_id"
+        "Competitor",
+        "journey"
       ],
       "top_3_keywords": [
         "communication",
@@ -1901,7 +2068,7 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unknown app and user segment may have similar signals of visibility and large communication.",
+      "finding_summary": "App Store NatWest does not exist with 2 'creating' and 'showing' keywords in J_PAY_01 journey",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -1912,7 +2079,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.15873015873015872,
+        "vol_sig": 0.09174311926605505,
         "sim_hist": 0.16666666666666666,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -1935,66 +2102,126 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-035",
-      "generated_at": "2026-04-05T06:27:36.531711+00:00",
+      "finding_id": "MIL-F-20260410-038",
+      "generated_at": "2026-04-10T22:40:41.401465+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.3972,
+      "confidence_score": 0.5352,
       "blind_spots": [
-        "Competitor",
-        "app_store_natwest"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "invalid_user_inputs",
+        "user_session_id_not_unique"
       ],
       "top_3_keywords": [
-        "customer",
-        "frustrated",
-        "excessive"
+        "review",
+        "banking",
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "The app's functionality is still not up to the general expectations of public business users.",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "An excessive amount of competitors have started using notifications and completely different journeys to bypass app validation",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 7,
+        "total": 11,
         "P0": 0,
         "P1": 0,
-        "P2": 7,
+        "P2": 11,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.5555555555555556,
-        "sim_hist": 0.4375,
+        "vol_sig": 0.5045871559633028,
+        "sim_hist": 0.8333333333333334,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-001",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.4375,
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.8333333333333334,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-036",
-      "generated_at": "2026-04-05T06:27:37.154171+00:00",
+      "finding_id": "MIL-F-20260410-039",
+      "generated_at": "2026-04-10T22:40:42.222024+00:00",
+      "competitor": "natwest",
+      "source": "app_store",
+      "confidence_score": 0.4603,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "P2",
+        "usage"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "payment",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P1",
+      "journey_id": "J_PAY_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "App Store Natwest user experienced blind spot with app usage metrics for J_ PAY_01.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 3,
+        "P0": 0,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.20642201834862386,
+        "sim_hist": 0.9444444444444444,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "natwest_0",
+          "natwest_1",
+          "natwest_2"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 0.9444444444444444,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-040",
+      "generated_at": "2026-04-10T22:40:43.029149+00:00",
       "competitor": "revolut",
       "source": "app_store",
-      "confidence_score": 0.1604,
+      "confidence_score": 0.1442,
       "blind_spots": [
-        "Competitor"
+        "J_SERVICE_01",
+        "CHR-001"
       ],
       "top_3_keywords": [
         "complete",
@@ -2006,7 +2233,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The Revolut app is under scrutiny for user account security",
+      "finding_summary": "Alert to potential blind spot, signal is in alert log to prevent contact",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -2017,7 +2244,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.06756756756756757,
+        "vol_sig": 0.027247956403269755,
         "sim_hist": 0.3333333333333333,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2042,15 +2269,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-037",
-      "generated_at": "2026-04-05T06:27:38.458580+00:00",
+      "finding_id": "MIL-F-20260410-041",
+      "generated_at": "2026-04-10T22:40:43.794537+00:00",
       "competitor": "revolut",
       "source": "app_store",
-      "confidence_score": 0.4676,
+      "confidence_score": 0.4381,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "COMPETITOR",
-        "JOURNEY_3"
+        "J_SERVICE_01 app usage"
       ],
       "top_3_keywords": [
         "customer",
@@ -2061,19 +2286,19 @@
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "User satisfaction surveys on the app store show 'app_store_revolut' ranks high for general functionality and customer feedback about their satisfaction with transfer services; the app doesn't have an official reordering option but is not flagged as having issues and no P0/P1 pre-validation for those transfers.",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Competitor app store has high signal for use limitation notes in journey",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 7,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 7,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.16891891891891891,
+        "vol_sig": 0.09536784741144415,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2096,13 +2321,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-038",
-      "generated_at": "2026-04-05T06:27:39.104158+00:00",
+      "finding_id": "MIL-F-20260410-042",
+      "generated_at": "2026-04-10T22:40:44.560036+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.3906,
+      "confidence_score": 0.3881,
       "blind_spots": [
-        "payment confirmation"
+        "J_ LOGIN_01",
+        "a competitor"
       ],
       "top_3_keywords": [
         "customer",
@@ -2114,7 +2340,7 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The customer is experiencing issues with total payments in their Barclays account using Google Play",
+      "finding_summary": "Google Play Barclays login journey was not found in chronicle data.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -2125,7 +2351,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.03205128205128205,
+        "vol_sig": 0.025749063670411982,
         "sim_hist": 0.9444444444444444,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2152,37 +2378,38 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-039",
-      "generated_at": "2026-04-05T06:27:39.840312+00:00",
+      "finding_id": "MIL-F-20260410-043",
+      "generated_at": "2026-04-10T22:40:45.384991+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.4699,
+      "confidence_score": 0.4684,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "CHR-001"
+        "CHR-001",
+        "J_SERVICE_01"
       ],
       "top_3_keywords": [
-        "customer",
         "crashes",
-        "access"
+        "customer",
+        "friction"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Cluster detection indicates top keywords might be relevant in specific financial context, but lack of public data prevents further analysis.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Google Play Barclays has multitasking, negative, sometimes and completing top keywords. Failure mode for this system is SILENCE.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 18,
-        "P0": 7,
-        "P1": 10,
+        "total": 22,
+        "P0": 8,
+        "P1": 13,
         "P2": 1,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.17482517482517484,
+        "vol_sig": 0.17088014981273408,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2208,7 +2435,10 @@
           "barclays_14",
           "barclays_15",
           "barclays_16",
-          "barclays_17"
+          "barclays_17",
+          "barclays_18",
+          "barclays_19",
+          "barclays_20"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -2223,13 +2453,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-040",
-      "generated_at": "2026-04-05T06:27:40.535163+00:00",
+      "finding_id": "MIL-F-20260410-044",
+      "generated_at": "2026-04-10T22:40:46.452721+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.435,
+      "confidence_score": 0.4421,
       "blind_spots": [
-        "COMPETITOR_TYPE"
+        "J_SERVICE_01 JOURNEY AND PRODUCT COMBS FOR COMPETITORS google_play_barclays"
       ],
       "top_3_keywords": [
         "customer",
@@ -2241,18 +2471,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Increased signal count of \"support\" and \"reports\" for the Barclays service.",
+      "finding_summary": "There is limited data for 'google play barclays', a high-risk journey-product combination.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 8,
-        "P0": 6,
-        "P1": 2,
+        "total": 12,
+        "P0": 9,
+        "P1": 3,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.08741258741258742,
+        "vol_sig": 0.10533707865168539,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2269,7 +2499,11 @@
           "barclays_4",
           "barclays_5",
           "barclays_6",
-          "barclays_7"
+          "barclays_7",
+          "barclays_8",
+          "barclays_9",
+          "barclays_10",
+          "barclays_11"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -2284,14 +2518,67 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-041",
-      "generated_at": "2026-04-05T06:27:41.125350+00:00",
+      "finding_id": "MIL-F-20260410-045",
+      "generated_at": "2026-04-10T22:40:47.232234+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.1797,
+      "confidence_score": 0.2287,
       "blind_spots": [
-        "CHRISTMAS",
-        "usage"
+        "Product specific user experience",
+        "User satisfaction level"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "reports",
+        "two-factor"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Google Play Barclays is providing voice-based access to devices and faces losing interest for users.",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.009363295880149813,
+        "sim_hist": 0.5625,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.5625,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-046",
+      "generated_at": "2026-04-10T22:40:47.929797+00:00",
+      "competitor": "barclays",
+      "source": "google_play",
+      "confidence_score": 0.1787,
+      "blind_spots": [
+        "CHR-004",
+        "bank"
       ],
       "top_3_keywords": [
         "resolution",
@@ -2303,8 +2590,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Top keywords suggest potential issues during the holiday period",
-      "failure_mode": "None",
+      "finding_summary": "This cluster suggests a potential Barclays app error on the Google Play services",
+      "failure_mode": "INFORMATIONONLY",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -2314,7 +2601,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.011655011655011656,
+        "vol_sig": 0.009363295880149813,
         "sim_hist": 0.4375,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2337,14 +2624,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-042",
-      "generated_at": "2026-04-05T06:27:41.970011+00:00",
+      "finding_id": "MIL-F-20260410-047",
+      "generated_at": "2026-04-10T22:40:48.753834+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.4163,
+      "confidence_score": 0.4243,
       "blind_spots": [
-        "J_OLLY",
-        "GODIEX"
+        "J_SERVICE_01"
       ],
       "top_3_keywords": [
         "customer",
@@ -2356,18 +2642,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "\"Google Play Barclays\" has few user complaints on support and reports",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Cluster with low signal counts and top keywords may indicate the need to verify user behavior in relation to Barclays app",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 7,
+        "total": 13,
         "P0": 0,
         "P1": 0,
-        "P2": 7,
+        "P2": 13,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04079254079254079,
+        "vol_sig": 0.060861423220973786,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2390,16 +2676,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-043",
-      "generated_at": "2026-04-05T06:27:42.846757+00:00",
+      "finding_id": "MIL-F-20260410-048",
+      "generated_at": "2026-04-10T22:40:49.443370+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.5002,
+      "confidence_score": 0.5049,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "function",
-        "convenience",
-        "top_other_competitor"
+        "User account and password"
       ],
       "top_3_keywords": [
         "customer",
@@ -2411,18 +2695,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Banks advertising on Google Play with terms like 'Reports' and 'Function', likely indicating more than just banking",
+      "finding_summary": "The Barclays app appears to be less secure compared with competitors",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 43,
+        "total": 56,
         "P0": 0,
         "P1": 0,
-        "P2": 43,
+        "P2": 56,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.2505827505827506,
+        "vol_sig": 0.2621722846441948,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2445,34 +2729,36 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-044",
-      "generated_at": "2026-04-05T06:27:43.392367+00:00",
+      "finding_id": "MIL-F-20260410-049",
+      "generated_at": "2026-04-10T22:40:50.155209+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.407,
-      "blind_spots": [],
+      "confidence_score": 0.4075,
+      "blind_spots": [
+        "J_SERVICE_01"
+      ],
       "top_3_keywords": [
-        "issue",
         "transaction",
-        "access"
+        "balance",
+        "display"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Google Play Barclays app format display has been recently updated",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Issue reported by a user who found incorrect account information on the Barclays app",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 3,
+        "total": 4,
         "P0": 0,
         "P1": 0,
-        "P2": 3,
+        "P2": 4,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.017482517482517484,
+        "vol_sig": 0.018726591760299626,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2495,37 +2781,37 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-045",
-      "generated_at": "2026-04-05T06:27:44.041847+00:00",
+      "finding_id": "MIL-F-20260410-050",
+      "generated_at": "2026-04-10T22:40:50.794035+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.297,
+      "confidence_score": 0.4103,
       "blind_spots": [
-        "P2 signal"
+        "Journey"
       ],
       "top_3_keywords": [
         "customer",
         "complete",
-        "registration"
+        "access"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_LOGIN_01",
-      "finding_tier": "P3",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "J_ LOGIN_01 google_play_barclays process phone though fails cannot",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Access to Barclays account was failing or being improved on Google Play",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 2,
-        "P0": 1,
+        "total": 3,
+        "P0": 2,
         "P1": 1,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.020396270396270396,
-        "sim_hist": 0.7222222222222222,
+        "vol_sig": 0.025749063670411982,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -2535,7 +2821,8 @@
         "chronicle_id": "CHR-001",
         "signal_ids": [
           "barclays_0",
-          "barclays_1"
+          "barclays_1",
+          "barclays_2"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -2545,18 +2832,18 @@
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.7222222222222222,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-046",
-      "generated_at": "2026-04-05T06:27:44.719320+00:00",
+      "finding_id": "MIL-F-20260410-051",
+      "generated_at": "2026-04-10T22:40:51.460400+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.2617,
+      "confidence_score": 0.2862,
       "blind_spots": [
-        "J_PAY_01 competitor name mismatch"
+        "CHR-004"
       ],
       "top_3_keywords": [
         "issue",
@@ -2568,19 +2855,19 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unusual 'payment' mentions with no P0/P1 matches",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "The Google Play Barclays app has a known issue with rendering and proper displaying.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
+        "total": 6,
         "P0": 0,
         "P1": 0,
-        "P2": 5,
+        "P2": 6,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.02913752913752914,
-        "sim_hist": 0.625,
+        "vol_sig": 0.028089887640449437,
+        "sim_hist": 0.6875,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -2597,19 +2884,18 @@
         "chronicle_id": "CHR-004",
         "bank": "Barclays",
         "incident_type": "app_friction_pattern_analysis",
-        "sim_hist_score": 0.625,
+        "sim_hist_score": 0.6875,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-047",
-      "generated_at": "2026-04-05T06:27:45.517857+00:00",
+      "finding_id": "MIL-F-20260410-052",
+      "generated_at": "2026-04-10T22:40:52.613870+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.3163,
+      "confidence_score": 0.3131,
       "blind_spots": [
-        "validity",
-        "product_name"
+        "valid"
       ],
       "top_3_keywords": [
         "notifications",
@@ -2621,8 +2907,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The Barclays app's functionality and payment features may be limited, forcing users to seek alternative services when the app fails.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Competitor google_play_barclays has a significant presence on the 'J_ SERVICE_01' cluster, using words like \"confirmation\",\"use\", \"creating\", \"notifications\", and \"notification\"",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 7,
@@ -2632,7 +2918,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04079254079254079,
+        "vol_sig": 0.03277153558052435,
         "sim_hist": 0.75,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2655,37 +2941,36 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-048",
-      "generated_at": "2026-04-05T06:27:46.199048+00:00",
+      "finding_id": "MIL-F-20260410-053",
+      "generated_at": "2026-04-10T22:40:53.350391+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.4198,
+      "confidence_score": 0.4225,
       "blind_spots": [
-        "google_play_entrance",
-        "login_credentials"
+        "banking_app_signal_cluster_analysis"
       ],
       "top_3_keywords": [
         "payment",
-        "causing",
-        "friction"
+        "friction",
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Possible banking app signal from high-risk journey and product combination.",
+      "finding_summary": "Google Play Barclays app users reported temporary disappearances of the creating and completing functionality.",
       "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 5,
-        "P0": 2,
-        "P1": 3,
+        "total": 7,
+        "P0": 3,
+        "P1": 4,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.04953379953379953,
+        "vol_sig": 0.056179775280898875,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2699,7 +2984,9 @@
           "barclays_1",
           "barclays_2",
           "barclays_3",
-          "barclays_4"
+          "barclays_4",
+          "barclays_5",
+          "barclays_6"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -2714,65 +3001,67 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-049",
-      "generated_at": "2026-04-05T06:27:46.787397+00:00",
+      "finding_id": "MIL-F-20260410-054",
+      "generated_at": "2026-04-10T22:40:54.396202+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.396,
-      "blind_spots": [],
+      "confidence_score": 0.4225,
+      "blind_spots": [
+        "journey",
+        "competitor",
+        "chronicle",
+        "validation level"
+      ],
       "top_3_keywords": [
         "friction",
         "minor",
-        "prevent"
+        "performance"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Pre-validation of the journey reports missing notifications and failures in sessions.",
+      "finding_summary": "Cluster with high dependency on journey and competitor, moderate dependence on chronicles, and low to no pre-validation found.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 9,
+        "total": 12,
         "P0": 0,
         "P1": 0,
-        "P2": 9,
+        "P2": 12,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.05244755244755245,
-        "sim_hist": 0.9375,
+        "vol_sig": 0.056179775280898875,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-004",
+        "chronicle_id": "CHR-002",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-004",
-        "bank": "Barclays",
-        "incident_type": "app_friction_pattern_analysis",
-        "sim_hist_score": 0.9375,
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-050",
-      "generated_at": "2026-04-05T06:27:47.660308+00:00",
+      "finding_id": "MIL-F-20260410-055",
+      "generated_at": "2026-04-10T22:40:55.015543+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.1707,
-      "blind_spots": [
-        "banking_system_safety",
-        "credit_report"
-      ],
+      "confidence_score": 0.1677,
+      "blind_spots": [],
       "top_3_keywords": [
         "significant",
         "friction",
@@ -2783,8 +3072,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "High-risk pre-validated banking app uses Barclays as a competitor with an unconfirmed safety profile and visibility in the product.",
-      "failure_mode": "NO_ETCHCHRONICLE_MATCH",
+      "finding_summary": "High-risk Barclays account creation attempts were detected on Google Play.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -2794,7 +3083,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.03787878787878788,
+        "vol_sig": 0.030430711610486893,
         "sim_hist": 0.3888888888888889,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2822,14 +3111,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-051",
-      "generated_at": "2026-04-05T06:27:48.373308+00:00",
+      "finding_id": "MIL-F-20260410-056",
+      "generated_at": "2026-04-10T22:40:56.318183+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.4392,
+      "confidence_score": 0.4359,
       "blind_spots": [
-        "banking_app",
-        "google_play_2fa"
+        "Account balance",
+        "Transaction history"
       ],
       "top_3_keywords": [
         "access",
@@ -2841,8 +3130,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unconfirmed app activity related to Google Play NatWest re-registration",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Sudden spike in use of the NatWest Bank app; 5 pre-validated usage logs using \"bank\" and \"online\" keywords with 'J_ LOGIN_01' context (journey) on Google Play NATWEST",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 7,
@@ -2852,7 +3141,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.09803921568627451,
+        "vol_sig": 0.08977900552486187,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -2883,13 +3172,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-052",
-      "generated_at": "2026-04-05T06:27:48.983885+00:00",
+      "finding_id": "MIL-F-20260410-057",
+      "generated_at": "2026-04-10T22:40:56.915299+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.3377,
+      "confidence_score": 0.4401,
       "blind_spots": [
-        "app store"
+        "competing services"
       ],
       "top_3_keywords": [
         "repeated",
@@ -2899,28 +3188,28 @@
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Signal indicates users need help with NatWest mobile app.",
+      "finding_summary": "Potential issues with bank app management due to competition",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 8,
-        "P0": 1,
+        "total": 9,
+        "P0": 2,
         "P1": 7,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.0942684766214178,
-        "sim_hist": 0.75,
+        "vol_sig": 0.10013812154696133,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-004",
+        "chronicle_id": "CHR-001",
         "signal_ids": [
           "natwest_0",
           "natwest_1",
@@ -2929,29 +3218,29 @@
           "natwest_4",
           "natwest_5",
           "natwest_6",
-          "natwest_7"
+          "natwest_7",
+          "natwest_8"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-004",
-        "bank": "Barclays",
-        "incident_type": "app_friction_pattern_analysis",
-        "sim_hist_score": 0.75,
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-053",
-      "generated_at": "2026-04-05T06:27:49.891731+00:00",
+      "finding_id": "MIL-F-20260410-058",
+      "generated_at": "2026-04-10T22:40:57.613628+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.5116,
+      "confidence_score": 0.5077,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "screen size impact"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "access",
@@ -2963,18 +3252,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "google_play_natwest has 14 pre-validated high-risk journey+product combos for J_SERVICE_01, indicating it is the top player for this specific journey on this day",
+      "finding_summary": "The cluster 'completely' is suspicious for being potentially used for illegal purposes",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 20,
-        "P0": 14,
+        "total": 21,
+        "P0": 15,
         "P1": 6,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.2790346907993967,
+        "vol_sig": 0.26933701657458564,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3018,15 +3307,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-054",
-      "generated_at": "2026-04-05T06:27:50.788560+00:00",
+      "finding_id": "MIL-F-20260410-059",
+      "generated_at": "2026-04-10T22:40:58.280157+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.4241,
+      "confidence_score": 0.4304,
       "blind_spots": [
-        "app signal",
-        "google_play_natwest",
-        "pre-validated high-risk journey"
+        "rejection"
       ],
       "top_3_keywords": [
         "biometric",
@@ -3038,18 +3325,18 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "The competitors might not be able to access app and the user might have issues while logging in to natwest.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Google Play Natwest failed in 11 rejections despite having no visible improvements.",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 8,
+        "total": 11,
         "P0": 0,
         "P1": 0,
-        "P2": 8,
+        "P2": 11,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.06033182503770739,
+        "vol_sig": 0.07596685082872928,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3072,13 +3359,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-055",
-      "generated_at": "2026-04-05T06:27:51.425070+00:00",
+      "finding_id": "MIL-F-20260410-060",
+      "generated_at": "2026-04-10T22:40:58.863653+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.209,
+      "confidence_score": 0.2083,
       "blind_spots": [
-        "journey type"
+        "None"
       ],
       "top_3_keywords": [
         "customer's",
@@ -3090,8 +3377,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "This indicates some problems related to reinstalls and technical support",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "The blind spot is the competitor's name and the specific journey.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -3101,7 +3388,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.022624434389140274,
+        "vol_sig": 0.020718232044198894,
         "sim_hist": 0.5,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3124,14 +3411,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-056",
-      "generated_at": "2026-04-05T06:27:52.156536+00:00",
+      "finding_id": "MIL-F-20260410-061",
+      "generated_at": "2026-04-10T22:40:59.599901+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.4392,
+      "confidence_score": 0.4414,
       "blind_spots": [
-        "Natwest login",
-        "Journey functionality"
+        "Competitor"
       ],
       "top_3_keywords": [
         "customer",
@@ -3143,18 +3429,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Competitor app reported more frustration and chatbot problems with Natwest service.",
+      "finding_summary": "The bank app signal cluster has a low risk journey with password as a top keyword",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 13,
+        "total": 15,
         "P0": 0,
         "P1": 0,
-        "P2": 13,
+        "P2": 15,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.09803921568627451,
+        "vol_sig": 0.10359116022099447,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3177,14 +3463,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-057",
-      "generated_at": "2026-04-05T06:27:52.862837+00:00",
+      "finding_id": "MIL-F-20260410-062",
+      "generated_at": "2026-04-10T22:41:00.501151+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.7198,
+      "confidence_score": 0.726,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Natwest app login"
+        "spending limit",
+        "bank balance"
       ],
       "top_3_keywords": [
         "feature",
@@ -3196,18 +3483,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P1",
       "designed_ceiling_reached": true,
-      "finding_summary": "False NatWest banking account reports for the competitor app on a journey with divergent report functions",
-      "failure_mode": "SILENCE",
+      "finding_summary": "NatWest online account credentials could be guessed using password cracking techniques on the NatWest app's stage 2 login process.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 106,
+        "total": 118,
         "P0": 0,
         "P1": 0,
-        "P2": 106,
+        "P2": 118,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.7993966817496229,
+        "vol_sig": 0.8149171270718232,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3230,19 +3517,71 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-058",
-      "generated_at": "2026-04-05T06:27:53.604386+00:00",
+      "finding_id": "MIL-F-20260410-063",
+      "generated_at": "2026-04-10T22:41:01.122994+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.5237,
+      "confidence_score": 0.3805,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "app name",
-        "competitor name"
+        "invalidated",
+        "low_risk",
+        "inactive"
       ],
       "top_3_keywords": [
-        "login",
+        "customer",
+        "account",
+        "charged"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "None",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.013812154696132596,
+        "sim_hist": 0.9375,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.9375,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-064",
+      "generated_at": "2026-04-10T22:41:02.153276+00:00",
+      "competitor": "natwest",
+      "source": "google_play",
+      "confidence_score": 0.5188,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+      ],
+      "top_3_keywords": [
         "access",
+        "login",
         "customer"
       ],
       "human_countersign_status": "PENDING",
@@ -3250,18 +3589,18 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Competitor's reinstallation journey fails to register a chronicle match in the NatWest app",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Google Play Natwest may not work with certain bank account passwords and vendors that do not fully resolve issues can cause trouble logging in to Natwest Online Banking app.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 24,
-        "P0": 10,
+        "total": 25,
+        "P0": 11,
         "P1": 14,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.3092006033182504,
+        "vol_sig": 0.2969613259668508,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3305,13 +3644,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-059",
-      "generated_at": "2026-04-05T06:27:54.372106+00:00",
+      "finding_id": "MIL-F-20260410-065",
+      "generated_at": "2026-04-10T22:41:02.939609+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.1394,
+      "confidence_score": 0.1389,
       "blind_spots": [
-        "journey+product combinations"
+        "J_PAY",
+        "creating",
+        "information"
       ],
       "top_3_keywords": [
         "information",
@@ -3323,7 +3664,7 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The signal's top keywords indicate a problem in resolving payment credit information on natwest from Google Play",
+      "finding_summary": "Google Play Natwest bank app has low signal for trusted information creation and seeing.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -3334,7 +3675,7 @@
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.015082956259426848,
+        "vol_sig": 0.013812154696132596,
         "sim_hist": 0.3333333333333333,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3357,37 +3698,37 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-060",
-      "generated_at": "2026-04-05T06:27:55.107751+00:00",
+      "finding_id": "MIL-F-20260410-066",
+      "generated_at": "2026-04-10T22:41:03.573022+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.4332,
+      "confidence_score": 0.4387,
       "blind_spots": [
-        "GooglePlayNatwest",
-        "high-risk journey"
+        "Journey",
+        "Top Keywords"
       ],
       "top_3_keywords": [
         "notifications",
-        "annoyance",
-        "customer"
+        "customer",
+        "minor"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "This app signal cluster pertains to competitors using Google Play and a feature monitoring system",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Unexpected conditions causing issues for customers",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 11,
+        "total": 14,
         "P0": 0,
         "P1": 0,
-        "P2": 11,
+        "P2": 14,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.08295625942684766,
+        "vol_sig": 0.09668508287292818,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3395,29 +3736,28 @@
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-001",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
         "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-061",
-      "generated_at": "2026-04-05T06:27:55.732403+00:00",
+      "finding_id": "MIL-F-20260410-067",
+      "generated_at": "2026-04-10T22:41:04.274172+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.4558,
+      "confidence_score": 0.4566,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "credit_card_numbers"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "payment",
@@ -3429,18 +3769,18 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Google Play Natwest Banking App payment and purchase frustration",
+      "finding_summary": "A potential NatWest account creation fraud, with suspicious clustering of Google Play keywords.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 11,
-        "P0": 4,
+        "total": 12,
+        "P0": 5,
         "P1": 7,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.13951734539969834,
+        "vol_sig": 0.14157458563535913,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3460,7 +3800,8 @@
           "natwest_7",
           "natwest_8",
           "natwest_9",
-          "natwest_10"
+          "natwest_10",
+          "natwest_11"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -3475,17 +3816,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-062",
-      "generated_at": "2026-04-05T06:27:56.446630+00:00",
+      "finding_id": "MIL-F-20260410-068",
+      "generated_at": "2026-04-10T22:41:04.909129+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.4483,
-      "blind_spots": [
-        "top_keywords"
-      ],
+      "confidence_score": 0.4497,
+      "blind_spots": [],
       "top_3_keywords": [
-        "usability",
         "friction",
+        "usability",
         "significant"
       ],
       "human_countersign_status": "PENDING",
@@ -3493,18 +3832,18 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Google Play Natwest app may be experiencing issues with navigation and memory usage; more research needed",
+      "finding_summary": "Memory and sign-in issues reported for Natwest banking app",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 16,
+        "total": 18,
         "P0": 0,
         "P1": 0,
-        "P2": 16,
+        "P2": 18,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.12066365007541478,
+        "vol_sig": 0.12430939226519336,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3512,53 +3851,52 @@
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-001",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
         "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-063",
-      "generated_at": "2026-04-05T06:27:57.179521+00:00",
+      "finding_id": "MIL-F-20260410-069",
+      "generated_at": "2026-04-10T22:41:05.745493+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.2746,
+      "confidence_score": 0.3207,
       "blind_spots": [
-        "app rating",
-        "security features"
+        "Journey details"
       ],
       "top_3_keywords": [
         "transfer",
         "complete",
-        "functionality"
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "NatWest Google Play app may have security concerns and artificial functionality in its payment support",
+      "finding_summary": "J_PAY_01 signal with top keywords unable, impedes, recurring, switching, design may indicate lack of customer satisfaction",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 6,
+        "total": 7,
         "P0": 2,
-        "P1": 4,
+        "P1": 5,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.07541478129713423,
-        "sim_hist": 0.6111111111111112,
+        "vol_sig": 0.07941988950276244,
+        "sim_hist": 0.7222222222222222,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -3572,7 +3910,8 @@
           "natwest_2",
           "natwest_3",
           "natwest_4",
-          "natwest_5"
+          "natwest_5",
+          "natwest_6"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -3582,42 +3921,42 @@
         "chronicle_id": "CHR-001",
         "bank": "TSB Bank",
         "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.6111111111111112,
+        "sim_hist_score": 0.7222222222222222,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-064",
-      "generated_at": "2026-04-05T06:27:57.954377+00:00",
+      "finding_id": "MIL-F-20260410-070",
+      "generated_at": "2026-04-10T22:41:06.394678+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.4473,
+      "confidence_score": 0.4625,
       "blind_spots": [
-        "revolut_debit_cards",
-        "revolut_card_limit"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "top_keywords"
       ],
       "top_3_keywords": [
         "account",
         "complete",
-        "access"
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
-      "designed_ceiling_reached": false,
-      "finding_summary": "App signal indicates concerns about terminated/restricted register for Revolut debit cards",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Revolut app's search volume suddenly jumps; possible security breach",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 12,
-        "P0": 10,
-        "P1": 2,
+        "total": 21,
+        "P0": 17,
+        "P1": 4,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.1183127572016461,
+        "vol_sig": 0.156128024980484,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3638,7 +3977,15 @@
           "revolut_8",
           "revolut_9",
           "revolut_10",
-          "revolut_11"
+          "revolut_11",
+          "revolut_12",
+          "revolut_13",
+          "revolut_14",
+          "revolut_15",
+          "revolut_16",
+          "revolut_17",
+          "revolut_18",
+          "revolut_19"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -3653,37 +4000,451 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-065",
-      "generated_at": "2026-04-05T06:27:58.616457+00:00",
+      "finding_id": "MIL-F-20260410-071",
+      "generated_at": "2026-04-10T22:41:07.286195+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.4556,
+      "confidence_score": 0.4601,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "google_play Revolut App"
+        "CHR-001",
+        "high-risk customer"
       ],
       "top_3_keywords": [
         "crashes",
-        "access",
-        "significant"
+        "significant",
+        "customer"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "App removal issue affects users of both iOS and Android devices",
+      "finding_summary": "The signal cluster for google_play_revolut highlights user retention issues among a small but high-risk group of users.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 16,
-        "P0": 6,
-        "P1": 10,
+        "total": 23,
+        "P0": 8,
+        "P1": 15,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.1388888888888889,
+        "vol_sig": 0.15027322404371585,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11",
+          "revolut_12",
+          "revolut_13",
+          "revolut_14",
+          "revolut_15",
+          "revolut_16",
+          "revolut_17",
+          "revolut_18",
+          "revolut_19"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-072",
+      "generated_at": "2026-04-10T22:41:07.877868+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4679,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "Google account access"
+      ],
+      "top_3_keywords": [
+        "access",
+        "complete",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Discontinued app with memory and launch issues",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 22,
+        "P0": 21,
+        "P1": 1,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.16978922716627637,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [
+          "revolut_0",
+          "revolut_1",
+          "revolut_2",
+          "revolut_3",
+          "revolut_4",
+          "revolut_5",
+          "revolut_6",
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11",
+          "revolut_12",
+          "revolut_13",
+          "revolut_14",
+          "revolut_15",
+          "revolut_16",
+          "revolut_17",
+          "revolut_18",
+          "revolut_19"
+        ],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-073",
+      "generated_at": "2026-04-10T22:41:08.727766+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4219,
+      "blind_spots": [
+        "revulut",
+        "excessive",
+        "without"
+      ],
+      "top_3_keywords": [
+        "account",
+        "access",
+        "customer"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The app seems to be offering a unique camera feature at a strong level without proper validation.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 14,
+        "P0": 0,
+        "P1": 0,
+        "P2": 14,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.0546448087431694,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-074",
+      "generated_at": "2026-04-10T22:41:09.336727+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4125,
+      "blind_spots": [
+        "google_play_3ds",
+        "banking_app"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "access",
+        "causing"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "None",
+      "failure_mode": "NO_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 8,
+        "P0": 0,
+        "P1": 0,
+        "P2": 8,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.0312256049960968,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-075",
+      "generated_at": "2026-04-10T22:41:10.178556+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4609,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "recovery",
+        "trust"
+      ],
+      "top_3_keywords": [
+        "support",
+        "customer",
+        "significant"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "J_SERVICE_01 is being discussed for recovery and trust due to CHRONICLE anchor CHR-001 as well as coverage.",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 39,
+        "P0": 0,
+        "P1": 0,
+        "P2": 39,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.1522248243559719,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-076",
+      "generated_at": "2026-04-10T22:41:10.933567+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4937,
+      "blind_spots": [
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+      ],
+      "top_3_keywords": [
+        "customer",
+        "feature",
+        "friction"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": true,
+      "finding_summary": "Uncommon keywords found related to Google Play Revolut account management",
+      "failure_mode": "NONE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 60,
+        "P0": 0,
+        "P1": 0,
+        "P2": 60,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.234192037470726,
+        "sim_hist": 1.0,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-001",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-001",
+        "bank": "TSB Bank",
+        "incident_type": "core_banking_migration_failure",
+        "sim_hist_score": 1.0,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-077",
+      "generated_at": "2026-04-10T22:41:11.623079+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.3281,
+      "blind_spots": [
+        "invalid credentials"
+      ],
+      "top_3_keywords": [
+        "reports",
+        "account",
+        "could"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P2",
+      "journey_id": "J_SERVICE_01",
+      "finding_tier": "P3",
+      "designed_ceiling_reached": false,
+      "finding_summary": "Google Play Revolut app displays inaccurate or incorrect balances for some users",
+      "failure_mode": "SILENCE",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 2,
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.0078064012490242,
+        "sim_hist": 0.8125,
+        "delta_tel": 0.0,
+        "alpha": 0.4,
+        "beta": 0.4,
+        "delta": 0.2
+      },
+      "provenance": {
+        "chronicle_id": "CHR-002",
+        "signal_ids": [],
+        "classification_version": "michaelborck/refuled:latest",
+        "teacher_model_version": null,
+        "refuel_narrative_called": true
+      },
+      "chronicle_match": {
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.8125,
+        "inference_approved": true
+      }
+    },
+    {
+      "finding_id": "MIL-F-20260410-078",
+      "generated_at": "2026-04-10T22:41:12.332776+00:00",
+      "competitor": "revolut",
+      "source": "google_play",
+      "confidence_score": 0.4476,
+      "blind_spots": [
+        "days",
+        "format"
+      ],
+      "top_3_keywords": [
+        "customer",
+        "complete",
+        "access"
+      ],
+      "human_countersign_status": "PENDING",
+      "signal_severity": "P0",
+      "journey_id": "J_LOGIN_01",
+      "finding_tier": "P2",
+      "designed_ceiling_reached": false,
+      "finding_summary": "The app provides guidance on password strength and recommends specific or formatting options.",
+      "failure_mode": "No_CHRONICLE_MATCH",
+      "is_unanchored": false,
+      "signal_counts": {
+        "total": 16,
+        "P0": 13,
+        "P1": 3,
+        "P2": 0,
+        "failed": 0
+      },
+      "cac_components": {
+        "vol_sig": 0.11904761904761904,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -3723,441 +4484,88 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-066",
-      "generated_at": "2026-04-05T06:27:59.220649+00:00",
+      "finding_id": "MIL-F-20260410-079",
+      "generated_at": "2026-04-10T22:41:13.016586+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.4689,
+      "confidence_score": 0.2344,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "[]"
-      ],
-      "top_3_keywords": [
-        "access",
-        "complete",
-        "device"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "The banking app signal cluster is related to a possible memory issue.",
-      "failure_mode": "SILENCE",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 17,
-        "P0": 16,
-        "P1": 1,
-        "P2": 0,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.17232510288065844,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "revolut_0",
-          "revolut_1",
-          "revolut_2",
-          "revolut_3",
-          "revolut_4",
-          "revolut_5",
-          "revolut_6",
-          "revolut_7",
-          "revolut_8",
-          "revolut_9",
-          "revolut_10",
-          "revolut_11",
-          "revolut_12",
-          "revolut_13",
-          "revolut_14",
-          "revolut_15",
-          "revolut_16"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-067",
-      "generated_at": "2026-04-05T06:27:59.793952+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.4247,
-      "blind_spots": [
-        "CHR-001"
-      ],
-      "top_3_keywords": [
-        "account",
-        "access",
-        "customer"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_LOGIN_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": false,
-      "finding_summary": "User research on Competitor's banking app",
-      "failure_mode": "SILENCE",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 12,
-        "P0": 0,
-        "P1": 0,
-        "P2": 12,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.06172839506172839,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-068",
-      "generated_at": "2026-04-05T06:28:00.331745+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.3638,
-      "blind_spots": [],
-      "top_3_keywords": [
-        "access",
-        "customer",
-        "account"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
-      "designed_ceiling_reached": false,
-      "finding_summary": "No information about competitors or products is found",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 4,
-        "P0": 0,
-        "P1": 0,
-        "P2": 4,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.020576131687242802,
-        "sim_hist": 0.8888888888888888,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.8888888888888888,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-069",
-      "generated_at": "2026-04-05T06:28:01.250402+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.4576,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "J_03AFT",
-        "J_04AFT",
-        "J_05AFT"
-      ],
-      "top_3_keywords": [
-        "support",
-        "customer",
-        "friction"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "Top keywords reveal customer frustration and concerns about recoveries from rejections in the Google Play Revolut service.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 28,
-        "P0": 0,
-        "P1": 0,
-        "P2": 28,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.1440329218106996,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-070",
-      "generated_at": "2026-04-05T06:28:01.905049+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.4926,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "google_play_revolut"
-      ],
-      "top_3_keywords": [
-        "customer",
-        "feature",
-        "minor"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "The bank service's mobile app is receiving mixed reviews from its users.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 45,
-        "P0": 0,
-        "P1": 0,
-        "P2": 45,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.23148148148148145,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-071",
-      "generated_at": "2026-04-05T06:28:02.636123+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.4545,
-      "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "P2",
-        "failure"
-      ],
-      "top_3_keywords": [
-        "customer",
-        "complete",
-        "access"
-      ],
-      "human_countersign_status": "PENDING",
-      "signal_severity": "P0",
-      "journey_id": "J_LOGIN_01",
-      "finding_tier": "P2",
-      "designed_ceiling_reached": true,
-      "finding_summary": "The app experienced screen issues and the 'forced register' failure in a pre-validated journey.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
-      "is_unanchored": false,
-      "signal_counts": {
-        "total": 14,
-        "P0": 11,
-        "P1": 3,
-        "P2": 0,
-        "failed": 0
-      },
-      "cac_components": {
-        "vol_sig": 0.13631687242798354,
-        "sim_hist": 1.0,
-        "delta_tel": 0.0,
-        "alpha": 0.4,
-        "beta": 0.4,
-        "delta": 0.2
-      },
-      "provenance": {
-        "chronicle_id": "CHR-001",
-        "signal_ids": [
-          "revolut_0",
-          "revolut_1",
-          "revolut_2",
-          "revolut_3",
-          "revolut_4",
-          "revolut_5",
-          "revolut_6",
-          "revolut_7",
-          "revolut_8",
-          "revolut_9",
-          "revolut_10",
-          "revolut_11",
-          "revolut_12",
-          "revolut_13"
-        ],
-        "classification_version": "michaelborck/refuled:latest",
-        "teacher_model_version": null,
-        "refuel_narrative_called": true
-      },
-      "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 1.0,
-        "inference_approved": true
-      }
-    },
-    {
-      "finding_id": "MIL-F-20260405-072",
-      "generated_at": "2026-04-05T06:28:04.013790+00:00",
-      "competitor": "revolut",
-      "source": "google_play",
-      "confidence_score": 0.1416,
-      "blind_spots": [
-        "Competitor: google_play_omnibank",
-        "Journey: J_SERVICE_02",
-        "Signal counts -- P0: 1, P2: 2"
+        "banking_app_signal_counts"
       ],
       "top_3_keywords": [
         "notification",
         "minor",
-        "customer"
+        "about"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The Google Play Revolut app had no pre-validated high-risk journeys with desktop usability or general functionalities as top keywords but 4 validated issues with general functionalities were found.",
+      "finding_summary": "High signaling indicates potential issues with bank app notifications",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 4,
+        "total": 6,
         "P0": 0,
         "P1": 0,
-        "P2": 4,
+        "P2": 6,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.020576131687242802,
-        "sim_hist": 0.3333333333333333,
+        "vol_sig": 0.023419203747072598,
+        "sim_hist": 0.5625,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-001",
+        "chronicle_id": "CHR-002",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.3333333333333333,
+        "chronicle_id": "CHR-002",
+        "bank": "Lloyds Banking Group",
+        "incident_type": "api_defect_data_exposure",
+        "sim_hist_score": 0.5625,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-073",
-      "generated_at": "2026-04-05T06:28:04.686390+00:00",
+      "finding_id": "MIL-F-20260410-080",
+      "generated_at": "2026-04-10T22:41:13.943618+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.4278,
+      "confidence_score": 0.432,
       "blind_spots": [
-        "CHRONICLE",
-        "validation"
+        "banking app"
       ],
       "top_3_keywords": [
         "customer",
         "payment",
-        "reports"
+        "significant"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "This banking apps cluster suggests a product feature improvement related to payment and merchant functionality.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "This cluster indicates possible issues with Google Play's Revolut banking app when withdrawing funds at J_PAY_01, including excess withdrawals and authorization problems.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 8,
-        "P0": 3,
-        "P1": 5,
+        "total": 12,
+        "P0": 5,
+        "P1": 7,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.06944444444444445,
+        "vol_sig": 0.08001561280249805,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -4174,7 +4582,11 @@
           "revolut_4",
           "revolut_5",
           "revolut_6",
-          "revolut_7"
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10",
+          "revolut_11"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -4189,37 +4601,38 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-074",
-      "generated_at": "2026-04-05T06:28:05.566810+00:00",
+      "finding_id": "MIL-F-20260410-081",
+      "generated_at": "2026-04-10T22:41:14.760717+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.1812,
+      "confidence_score": 0.4109,
       "blind_spots": [
-        "CHR-004"
+        "P0 signal",
+        "Journey: J_SERVICE_01"
       ],
       "top_3_keywords": [
         "friction",
-        "repeated",
-        "update"
+        "significant",
+        "creating"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
       "journey_id": "J_SERVICE_01",
-      "finding_tier": "P3",
+      "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "An app with 'update', 'payment', 'slow' and 'process' as top keywords reported issues about payment processes to Google Play",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Slow service leads to excessive periods in Google Play Revolut Competitor.",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 3,
+        "total": 7,
         "P0": 0,
         "P1": 0,
-        "P2": 3,
+        "P2": 7,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.015432098765432098,
-        "sim_hist": 0.4375,
+        "vol_sig": 0.0273224043715847,
+        "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
@@ -4236,41 +4649,42 @@
         "chronicle_id": "CHR-004",
         "bank": "Barclays",
         "incident_type": "app_friction_pattern_analysis",
-        "sim_hist_score": 0.4375,
+        "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-075",
-      "generated_at": "2026-04-05T06:28:06.372516+00:00",
+      "finding_id": "MIL-F-20260410-082",
+      "generated_at": "2026-04-10T22:41:15.656589+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.4298,
+      "confidence_score": 0.4312,
       "blind_spots": [
-        "competitor: google_play_revolut"
+        "competitor",
+        "j_00d7pay_02"
       ],
       "top_3_keywords": [
         "complete",
         "transfer",
-        "critical"
+        "failure"
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P0",
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Revolut app has high-risk interactions with bank apps for functionality and support.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Withdrawals have been temporarily blocked or rejected by google_play_ Revolut, despite situation .",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
-        "total": 8,
-        "P0": 5,
-        "P1": 3,
+        "total": 11,
+        "P0": 7,
+        "P1": 4,
         "P2": 0,
         "failed": 0
       },
       "cac_components": {
-        "vol_sig": 0.07458847736625514,
+        "vol_sig": 0.078064012490242,
         "sim_hist": 1.0,
         "delta_tel": 0.0,
         "alpha": 0.4,
@@ -4287,7 +4701,10 @@
           "revolut_4",
           "revolut_5",
           "revolut_6",
-          "revolut_7"
+          "revolut_7",
+          "revolut_8",
+          "revolut_9",
+          "revolut_10"
         ],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
@@ -4302,8 +4719,8 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-076",
-      "generated_at": "2026-04-05T06:28:07.249658+00:00",
+      "finding_id": "MIL-F-20260410-083",
+      "generated_at": "2026-04-10T22:41:16.370515+00:00",
       "competitor": "hsbc",
       "source": "reddit",
       "confidence_score": 0.3187,
@@ -4318,7 +4735,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit HSBC users reported issues with service support and needed assistance for reports by email.",
+      "finding_summary": "Reddit HSBC banking app users have reported multiple instances of immediate incorrect or unresolvable issues with their accounts.",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
@@ -4352,15 +4769,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-077",
-      "generated_at": "2026-04-05T06:28:08.300131+00:00",
+      "finding_id": "MIL-F-20260410-084",
+      "generated_at": "2026-04-10T22:41:17.366795+00:00",
       "competitor": "hsbc",
       "source": "reddit",
       "confidence_score": 0.5,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Journey: J_ANNUNCIATION_TUTORIAL",
-        "Journey: J_DATA_UPLOAD_SUCCEEDED"
+        "Journey's P0/P1 signals",
+        "J_SERVICE_01"
       ],
       "top_3_keywords": [
         "reports",
@@ -4372,8 +4789,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Reddit HSBC reports silent excluded feature signup from pre-validated journeys P0/P1",
-      "failure_mode": "SILENCE",
+      "finding_summary": "reddit_hsbc competitor shows signal cluster with keywords suggesting unconfirmed HSBC account login issues, journey-specific to J_SERVICE_01",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 9,
@@ -4406,13 +4823,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-078",
-      "generated_at": "2026-04-05T06:28:09.099674+00:00",
+      "finding_id": "MIL-F-20260410-085",
+      "generated_at": "2026-04-10T22:41:18.226393+00:00",
       "competitor": "monzo",
       "source": "reddit",
       "confidence_score": 0.2017,
       "blind_spots": [
-        "J_QUELLE_VARIANTE"
+        "Journey category",
+        "Specific product(s)"
       ],
       "top_3_keywords": [
         "monzo",
@@ -4424,8 +4842,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit users concerned about monzo's support and processes; need for better poll management.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "Reddit's Monzo banking app has been flagged for possible blind spot issues related to support and display features.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -4458,14 +4876,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-079",
-      "generated_at": "2026-04-05T06:28:09.958497+00:00",
+      "finding_id": "MIL-F-20260410-086",
+      "generated_at": "2026-04-10T22:41:18.847252+00:00",
       "competitor": "monzo",
       "source": "reddit",
       "confidence_score": 0.5,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Functionality details"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "customer",
@@ -4477,7 +4894,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Competitor reddit\\_monzo has 0 pre-validation journey and product failures with visibility issues in reports but without confirmed false reports.",
+      "finding_summary": "Monitoring reports indicate monitoring cluster and/or blind spot anomalies",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -4511,12 +4928,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-080",
-      "generated_at": "2026-04-05T06:28:10.552673+00:00",
+      "finding_id": "MIL-F-20260410-087",
+      "generated_at": "2026-04-10T22:41:19.568317+00:00",
       "competitor": "monzo",
       "source": "reddit",
       "confidence_score": 0.1678,
-      "blind_spots": [],
+      "blind_spots": [
+        "Journey",
+        "CHR-001"
+      ],
       "top_3_keywords": [
         "account",
         "customer",
@@ -4527,8 +4947,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unvalidated journeys detected for competitor Monzo on the Pay feature.",
-      "failure_mode": "NO_TIME_MATCH",
+      "finding_summary": "Unexpected access in monzo app for unknown purpose",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -4561,13 +4981,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-081",
-      "generated_at": "2026-04-05T06:28:11.220086+00:00",
+      "finding_id": "MIL-F-20260410-088",
+      "generated_at": "2026-04-10T22:41:20.294669+00:00",
       "competitor": "natwest",
       "source": "reddit",
       "confidence_score": 0.2859,
       "blind_spots": [
-        "Journey metadata"
+        "app version",
+        "geo location"
       ],
       "top_3_keywords": [
         "customer",
@@ -4579,8 +5000,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "NatWest was flagged as not being a valid product by a user",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "Access and troubleshooting issues for NatWest banking app across regions detected",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 1,
@@ -4615,13 +5036,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-082",
-      "generated_at": "2026-04-05T06:28:11.835459+00:00",
+      "finding_id": "MIL-F-20260410-089",
+      "generated_at": "2026-04-10T22:41:20.971581+00:00",
       "competitor": "natwest",
       "source": "reddit",
       "confidence_score": 0.4372,
       "blind_spots": [
-        "Journey title"
+        "J_ SERVICE_01"
       ],
       "top_3_keywords": [
         "customer",
@@ -4633,7 +5054,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit user reports NatWest has imposed restrictions on Samsung functionality and process",
+      "finding_summary": "Potential blind spots found in a Reddit/NatWest banking app signal cluster",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
@@ -4667,14 +5088,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-083",
-      "generated_at": "2026-04-05T06:28:12.638787+00:00",
+      "finding_id": "MIL-F-20260410-090",
+      "generated_at": "2026-04-10T22:41:21.615198+00:00",
       "competitor": "natwest",
       "source": "reddit",
       "confidence_score": 0.2081,
       "blind_spots": [
-        "Reddit Natwest",
-        "J_PAY_01"
+        "mortgage provider"
       ],
       "top_3_keywords": [
         "customer",
@@ -4686,8 +5106,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Cluster points at potential credit payment process issue, confirmed by reports on Reddit Natwest account.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Reddit NatWest is advertising a mortgage product",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -4720,15 +5140,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-084",
-      "generated_at": "2026-04-05T06:28:13.327888+00:00",
+      "finding_id": "MIL-F-20260410-091",
+      "generated_at": "2026-04-10T22:41:22.221893+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.5316,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "banking app",
-        "J_ LOGIN_01"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "account",
@@ -4740,8 +5158,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Reddit Revolut users experienced payment issues during login.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "RedditRevolut has low signal coverage for J_LOGIN_01",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -4779,13 +5197,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-085",
-      "generated_at": "2026-04-05T06:28:14.028373+00:00",
+      "finding_id": "MIL-F-20260410-092",
+      "generated_at": "2026-04-10T22:41:23.165511+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.2351,
       "blind_spots": [
-        "Journey details"
+        "timeframe",
+        "reachability"
       ],
       "top_3_keywords": [
         "after",
@@ -4797,7 +5216,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit is discussing Revolut's update that added biometric authorization to its screen",
+      "finding_summary": "Reddit thread about Revolut Banking App crashes and inability to reach support after updates. J_SERVICE_01 has 1 pre-validation, 0 low-risk signals.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -4833,15 +5252,12 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-086",
-      "generated_at": "2026-04-05T06:28:14.782921+00:00",
+      "finding_id": "MIL-F-20260410-093",
+      "generated_at": "2026-04-10T22:41:23.851715+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.2101,
-      "blind_spots": [
-        "log_file_directory",
-        "previous_data"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "update",
@@ -4852,7 +5268,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unconfirmed signal about a banking app revolut not updating an account from public data alone",
+      "finding_summary": "Reddit reported that Revolut had an app update and login issue recently.",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
@@ -4888,15 +5304,12 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-087",
-      "generated_at": "2026-04-05T06:28:15.531334+00:00",
+      "finding_id": "MIL-F-20260410-094",
+      "generated_at": "2026-04-10T22:41:24.670589+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.1851,
-      "blind_spots": [
-        "blockchain",
-        "cryptocurrency"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "reports",
         "account",
@@ -4907,7 +5320,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit's service block reports indicate a shift in competition, general awareness about Revolut blocking transfers.",
+      "finding_summary": "Detecting suspicious banking app signal activity from reddit_Revolut with 'regulatory use systemic' and reference to journey 'J_SERVICE_01'.",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
@@ -4941,14 +5354,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-088",
-      "generated_at": "2026-04-05T06:28:16.392410+00:00",
+      "finding_id": "MIL-F-20260410-095",
+      "generated_at": "2026-04-10T22:41:25.407178+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.2026,
       "blind_spots": [
-        "reddit_Revolut",
-        "J_SERVICE_01"
+        "System performance",
+        "Service availability"
       ],
       "top_3_keywords": [
         "support",
@@ -4960,7 +5373,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Competitor Reddit Revolut having blind spot(s) in top keyword 'business' without support, adequate or stuck.",
+      "finding_summary": "Reddit's Revolut app may encounter problems when creating accounts",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -4994,14 +5407,12 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-089",
-      "generated_at": "2026-04-05T06:28:17.041687+00:00",
+      "finding_id": "MIL-F-20260410-096",
+      "generated_at": "2026-04-10T22:41:26.224542+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.2101,
-      "blind_spots": [
-        "P0/1"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "reports",
@@ -5012,7 +5423,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit Revolut app reports on mainland functionality reports currency issue",
+      "finding_summary": "Reddit Revolut has 2 mentions of incorrect and confusing information about pricing and functionality in its banking app journey",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5046,15 +5457,12 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-090",
-      "generated_at": "2026-04-05T06:28:18.005650+00:00",
+      "finding_id": "MIL-F-20260410-097",
+      "generated_at": "2026-04-10T22:41:26.868090+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.1776,
-      "blind_spots": [
-        "bank_transaction_frequency",
-        "iban_conversion_speed"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "salary",
@@ -5065,7 +5473,7 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Reddit claims Revolut users cannot get their money back once it goes into processing payment, but there is low data coverage for this claim at high risk stage P1.",
+      "finding_summary": "Reddit users express concerns about Revolut receiving their money without confirmation",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5099,14 +5507,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-091",
-      "generated_at": "2026-04-05T06:28:19.062241+00:00",
+      "finding_id": "MIL-F-20260410-098",
+      "generated_at": "2026-04-10T22:41:27.600970+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.0903,
       "blind_spots": [
-        "bank_name",
-        "account_type"
+        "CHR-001"
       ],
       "top_3_keywords": [
         "describes",
@@ -5118,8 +5525,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Competitor Youtube Barclay's App Use and Blockage App J_LOGIN_01 Pre-Validated High-Risk Journey P0:AppP1:BlockageP2:GeneralCHR-001",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "The JLogin01 cluster may experience an unconfirmed blockage or access issue",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 1,
@@ -5154,15 +5561,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-092",
-      "generated_at": "2026-04-05T06:28:19.837909+00:00",
+      "finding_id": "MIL-F-20260410-099",
+      "generated_at": "2026-04-10T22:41:28.271271+00:00",
       "competitor": "barclays",
       "source": "youtube",
-      "confidence_score": 0.1223,
+      "confidence_score": 0.2029,
       "blind_spots": [
-        "channel",
-        "app",
-        "switches"
+        "competitor",
+        "journey"
       ],
       "top_3_keywords": [
         "working",
@@ -5174,7 +5580,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Frustration with bank app may indicate need for rebranding or switch to competitors.",
+      "finding_summary": "Blind spot competitor and journey",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5186,14 +5592,14 @@
       },
       "cac_components": {
         "vol_sig": 0.11834319526627218,
-        "sim_hist": 0.1875,
+        "sim_hist": 0.3888888888888889,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-003",
         "signal_ids": [
           "barclays_0",
           "barclays_1"
@@ -5203,21 +5609,23 @@
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.1875,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.3888888888888889,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-093",
-      "generated_at": "2026-04-05T06:28:20.499833+00:00",
+      "finding_id": "MIL-F-20260410-100",
+      "generated_at": "2026-04-10T22:41:29.264506+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.1473,
       "blind_spots": [
-        "CHR-002"
+        "CHR-002",
+        "no_CHRONICLE_MATCH",
+        "P0/P1"
       ],
       "top_3_keywords": [
         "support",
@@ -5229,7 +5637,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Customer feedback indicates a need to improve banking app channel support and reports",
+      "finding_summary": "There is no specific chronicle match found for J_ SERVICE_01 in a banking app signal cluster.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5263,8 +5671,8 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-094",
-      "generated_at": "2026-04-05T06:28:21.473773+00:00",
+      "finding_id": "MIL-F-20260410-101",
+      "generated_at": "2026-04-10T22:41:29.873442+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.4473,
@@ -5279,7 +5687,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "Cluster detected for Youtube Barclays and J_SERVICE_01: top keywords indicate error updating, reports without explanation; P2: unconfirmed 4 times in CHRONICLE; failure mode NO_CHRONICLE_MATCH",
+      "finding_summary": "Cluster contains unconfirmed data on a youtube Barclays finance-related cluster.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5313,14 +5721,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-095",
-      "generated_at": "2026-04-05T06:28:22.562178+00:00",
+      "finding_id": "MIL-F-20260410-102",
+      "generated_at": "2026-04-10T22:41:30.599737+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.1348,
       "blind_spots": [
-        "Competitor: youtube_barclays",
-        "Journey: J_LOGIC_01"
+        "competing application",
+        "specific user behavior"
       ],
       "top_3_keywords": [
         "inability",
@@ -5332,8 +5740,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "\u2018Essential bills' payment was confirmed, but 'Account login' was not, which may or might indicate an underlying account problem.\u2019",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "A banking app is competing with Barclays for the YouTube channel popularity.",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 1,
@@ -5368,15 +5776,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-096",
-      "generated_at": "2026-04-05T06:28:23.406138+00:00",
+      "finding_id": "MIL-F-20260410-103",
+      "generated_at": "2026-04-10T22:41:31.358746+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.6426,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "youtube",
-        "barclays"
+        "CHR-001 chronicle match",
+        "chronic overstatement"
       ],
       "top_3_keywords": [
         "failure",
@@ -5388,8 +5796,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P1",
       "designed_ceiling_reached": true,
-      "finding_summary": "Some customers experienced payment processing concerns related to Barclays after a still-ongoing journey+product combination (J_PAY_01) was validated.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "YouTube Barclays warns of inability to access, overdraft; causes financial strain",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 11,
@@ -5434,14 +5842,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-097",
-      "generated_at": "2026-04-05T06:28:24.157068+00:00",
+      "finding_id": "MIL-F-20260410-104",
+      "generated_at": "2026-04-10T22:41:32.140771+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.1762,
       "blind_spots": [
-        "Journey name",
-        "Competitor"
+        "banking_app_user_accounts"
       ],
       "top_3_keywords": [
         "transfer",
@@ -5453,8 +5860,8 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "YouTube Barclays users encountered difficulty transferring funds from their accounts on January 15, 2023.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "Competitor youtube_barclays has top keywords related to a failed action with access",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -5491,14 +5898,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-098",
-      "generated_at": "2026-04-05T06:28:24.934570+00:00",
+      "finding_id": "MIL-F-20260410-105",
+      "generated_at": "2026-04-10T22:41:33.082294+00:00",
       "competitor": "hsbc",
       "source": "youtube",
       "confidence_score": 0.1896,
       "blind_spots": [
-        "invalid_premiums_amount",
-        "invalid_renewal_date"
+        "COMPETITOR_NAME"
       ],
       "top_3_keywords": [
         "about",
@@ -5510,8 +5916,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "YouTube HSBC has received a general complaint about strong, strongly supportive experience.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "In a banking app signal with 3 P2 signals, the competition is HSBC and overall trust in the system is shown to be negatively affected",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -5544,12 +5950,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-099",
-      "generated_at": "2026-04-05T06:28:25.562240+00:00",
+      "finding_id": "MIL-F-20260410-106",
+      "generated_at": "2026-04-10T22:41:33.934137+00:00",
       "competitor": "lloyds",
       "source": "youtube",
-      "confidence_score": 0.2349,
-      "blind_spots": [],
+      "confidence_score": 0.2571,
+      "blind_spots": [
+        "Journey",
+        "Competitor"
+      ],
       "top_3_keywords": [
         "comment",
         "explicitly",
@@ -5560,7 +5969,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "youtube_loyds is not explicitly complete for the J_SERVICE_01",
+      "finding_summary": "Cluster detected for YouTube Lloyds on low-prevalence, likely-to-be-bypassed journeys.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5572,14 +5981,14 @@
       },
       "cac_components": {
         "vol_sig": 0.47619047619047616,
-        "sim_hist": 0.1111111111111111,
+        "sim_hist": 0.16666666666666666,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-001",
+        "chronicle_id": "CHR-003",
         "signal_ids": [
           "lloyds_0"
         ],
@@ -5588,22 +5997,21 @@
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "sim_hist_score": 0.1111111111111111,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.16666666666666666,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-100",
-      "generated_at": "2026-04-05T06:28:26.166125+00:00",
+      "finding_id": "MIL-F-20260410-107",
+      "generated_at": "2026-04-10T22:41:34.674204+00:00",
       "competitor": "lloyds",
       "source": "youtube",
       "confidence_score": 0.3405,
       "blind_spots": [
-        "journey",
-        "CHR-002"
+        "journey_1_product_2_1"
       ],
       "top_3_keywords": [
         "comment",
@@ -5615,7 +6023,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "No evidence for blind spots detected",
+      "finding_summary": "High risk products and services being used in bank journeys",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5649,12 +6057,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-101",
-      "generated_at": "2026-04-05T06:28:26.821243+00:00",
+      "finding_id": "MIL-F-20260410-108",
+      "generated_at": "2026-04-10T22:41:35.610018+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.1246,
       "blind_spots": [
+        "youtube_revolut",
         "J_LOGIN_01"
       ],
       "top_3_keywords": [
@@ -5667,7 +6076,7 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Youtube Revolut app has high-risk journeys and access issues",
+      "finding_summary": "YouTube competitor Revolut receives low signal counts related to trust and validation on journeys with potential high risk combinations",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -5703,15 +6112,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-102",
-      "generated_at": "2026-04-05T06:28:27.654384+00:00",
+      "finding_id": "MIL-F-20260410-109",
+      "generated_at": "2026-04-10T22:41:36.284840+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.4507,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "CHR-001",
-        "J_SERVICE_01"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "crashing",
@@ -5723,8 +6130,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Revolut YouTube videos have blind spots in terms of product usage and usability with general reports focusing on process instead.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "YouTube Revolut banking app experiencing issues with launch and trust following service outages.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -5762,14 +6169,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-103",
-      "generated_at": "2026-04-05T06:28:28.532280+00:00",
+      "finding_id": "MIL-F-20260410-110",
+      "generated_at": "2026-04-10T22:41:37.290035+00:00",
       "competitor": "revolut",
       "source": "youtube",
-      "confidence_score": 0.2655,
+      "confidence_score": 0.3072,
       "blind_spots": [
-        "validity",
-        "strength of competitors"
+        "competitor",
+        "journey service 01",
+        "chrome source"
       ],
       "top_3_keywords": [
         "functioning",
@@ -5781,8 +6189,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "This bank signal has an low-risk but potentially unconfirmed competitor with a strong presence on YouTube and limited coverage as general screen functions",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "A competitor, youtube_revolut, might have the journey J_ SERVICE _01 blind spot regarding Chrome",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -5793,14 +6201,14 @@
       },
       "cac_components": {
         "vol_sig": 0.10135135135135136,
-        "sim_hist": 0.5625,
+        "sim_hist": 0.6666666666666666,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-003",
         "signal_ids": [
           "revolut_0",
           "revolut_1",
@@ -5811,22 +6219,22 @@
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.5625,
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
+        "sim_hist_score": 0.6666666666666666,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-104",
-      "generated_at": "2026-04-05T06:28:29.255916+00:00",
+      "finding_id": "MIL-F-20260410-111",
+      "generated_at": "2026-04-10T22:41:38.164200+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.1024,
       "blind_spots": [
-        "youtube_Revolut J_login_01",
-        "id face vulnerability system collection"
+        "app_signal_00",
+        "app_signal_09"
       ],
       "top_3_keywords": [
         "comment",
@@ -5838,8 +6246,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Unconfirmed competitor presence detected in banking app signal cluster.",
-      "failure_mode": "NONE",
+      "finding_summary": "YouTube Revolut app signals possible app access to face recognition on media coverage and regulatory issues.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -5872,15 +6280,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-105",
-      "generated_at": "2026-04-05T06:28:30.122535+00:00",
+      "finding_id": "MIL-F-20260410-112",
+      "generated_at": "2026-04-10T22:41:38.826505+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.5216,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "J_ SERVICE_01",
-        "Youtube_Revolut"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "support",
@@ -5892,8 +6298,8 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "0 validated high-risk journeys despite top keywords indicating frustration and nonexistent experience related to the app's reports",
-      "failure_mode": "NO_ CHRONICLE_ MATCH",
+      "finding_summary": "A bank app with a YouTube competitor and missing user feedback has low signal strength.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 18,
@@ -5926,15 +6332,13 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-106",
-      "generated_at": "2026-04-05T06:28:30.847631+00:00",
+      "finding_id": "MIL-F-20260410-113",
+      "generated_at": "2026-04-10T22:41:39.540167+00:00",
       "competitor": "revolut",
       "source": "youtube",
-      "confidence_score": 0.5,
+      "confidence_score": 0.55,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Competitor",
-        "Journey"
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
       ],
       "top_3_keywords": [
         "feature",
@@ -5946,7 +6350,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "Frustration reports from revolut YouTube users regarding system failures in the app's system.",
+      "finding_summary": "Revolut has no P0/P1 journey and product combinations that draw interest as well as withdrawals from Youtube",
       "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
@@ -5965,29 +6369,31 @@
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-004",
+        "chronicle_id": "CHR-003",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-004",
-        "bank": "Barclays",
-        "incident_type": "app_friction_pattern_analysis",
+        "chronicle_id": "CHR-003",
+        "bank": "HSBC UK",
+        "incident_type": "app_platform_refresh_outage",
         "sim_hist_score": 1.0,
         "inference_approved": true
       }
     },
     {
-      "finding_id": "MIL-F-20260405-107",
-      "generated_at": "2026-04-05T06:28:31.742742+00:00",
+      "finding_id": "MIL-F-20260410-114",
+      "generated_at": "2026-04-10T22:41:40.480005+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.2135,
       "blind_spots": [
         "Competitor",
-        "journey"
+        "Unexpected",
+        "Incorrect",
+        "Amount"
       ],
       "top_3_keywords": [
         "reports",
@@ -5999,7 +6405,7 @@
       "journey_id": "J_SERVICE_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "Actual Reports (YouTube Revolut) contain top keywords: reports, amount, interest and error. P2 signal is related to high-risk journey",
+      "finding_summary": "Banking app signal cluster from competitor youtube_Revolut contains invalid user experience keywords \"unexpected\", \"incorrect\", and \"amount\".",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -6033,14 +6439,12 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-108",
-      "generated_at": "2026-04-05T06:28:32.423867+00:00",
+      "finding_id": "MIL-F-20260410-115",
+      "generated_at": "2026-04-10T22:41:41.311842+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.4405,
-      "blind_spots": [
-        "J_LOGIN_01"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "repeatedly",
         "logged",
@@ -6051,8 +6455,8 @@
       "journey_id": "J_LOGIN_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
-      "finding_summary": "The banking app may fail to validate a user's information for login.",
-      "failure_mode": "SILENCE",
+      "finding_summary": "YouTube is competing against Revolut for login issues, with failed logins and troubleshooting information detected.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -6089,15 +6493,14 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-109",
-      "generated_at": "2026-04-05T06:28:33.566497+00:00",
+      "finding_id": "MIL-F-20260410-116",
+      "generated_at": "2026-04-10T22:41:42.002601+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.4777,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Competitor",
-        "Journey"
+        "journey details"
       ],
       "top_3_keywords": [
         "issue",
@@ -6109,7 +6512,7 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
-      "finding_summary": "A possible blind spot: Compete of YouTube revolut, Journey PAY_01 has a few payment-related terms with days as an indicator; otherwise, there's no contradiction or silence but rather no chronicle match with CHR-001.",
+      "finding_summary": "The system is potentially experiencing difficulties in completing a transaction process.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -6151,15 +6554,15 @@
       }
     },
     {
-      "finding_id": "MIL-F-20260405-110",
-      "generated_at": "2026-04-05T06:28:34.486099+00:00",
+      "finding_id": "MIL-F-20260410-117",
+      "generated_at": "2026-04-10T22:41:42.949881+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.155,
       "blind_spots": [
-        "Competitor name",
-        "Specific feature-related signals",
-        "Signal source"
+        "Competitor action",
+        "Journey status",
+        "YouTube user intent"
       ],
       "top_3_keywords": [
         "transfer",
@@ -6171,7 +6574,7 @@
       "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "The cluster appears to be related to customer complaints regarding the Revolut bank app on Youtube, indicating a negative experience with the transfer feature.",
+      "finding_summary": "High-risk queries related to withdrawal and security in the Revolut banking app on YouTube",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {

@@ -4,3 +4,16 @@
 {"run": 4, "date": "2026-04-04", "timestamp": "2026-04-04T10:53:28.717521+00:00", "status": "CLEAN", "new_records": 3, "findings": 94, "m1_streak": 4, "m1_target": 5, "m1_done": false}
 {"run": 5, "date": "2026-04-05", "timestamp": "2026-04-05T06:26:33.183648+00:00", "status": "CLEAN", "new_records": 161, "findings": 94, "m1_streak": 5, "m1_target": 5, "m1_done": true}
 {"run": 6, "date": "2026-04-05", "timestamp": "2026-04-05T06:28:43.240964+00:00", "status": "CLEAN", "new_records": 0, "findings": 110, "m1_streak": 5, "m1_target": 5, "m1_done": true}
+{"run": 7, "date": "2026-04-05", "timestamp": "2026-04-05T06:43:19.080383+00:00", "status": "CLEAN", "new_records": 0, "findings": 110, "m1_streak": 5, "m1_target": 5, "m1_done": true}
+{"run": 8, "date": "2026-04-05", "timestamp": "2026-04-05T11:53:13.559016+00:00", "status": "CLEAN", "new_records": 0, "findings": 110, "m1_streak": 5, "m1_target": 5, "m1_done": true}
+{"run": 9, "date": "2026-04-06", "timestamp": "2026-04-06T09:11:21.878923+00:00", "status": "CLEAN", "new_records": 218, "findings": 111, "m1_streak": 6, "m1_target": 5, "m1_done": true}
+{"run": 10, "date": "2026-04-06", "timestamp": "2026-04-06T23:10:10.635476+00:00", "status": "CLEAN", "new_records": 152, "findings": 111, "m1_streak": 6, "m1_target": 5, "m1_done": true}
+{"run": 11, "date": "2026-04-07", "timestamp": "2026-04-07T23:37:28.312416+00:00", "status": "CLEAN", "new_records": 201, "findings": 112, "m1_streak": 7, "m1_target": 5, "m1_done": true}
+{"run": 12, "date": "2026-04-09", "timestamp": "2026-04-09T22:26:10.122164+00:00", "status": "CLEAN", "new_records": 309, "findings": 115, "m1_streak": 9, "m1_target": 5, "m1_done": true}
+{"run": 13, "date": "2026-04-09", "timestamp": "2026-04-09T22:44:42.641120+00:00", "status": "CLEAN", "new_records": 0, "findings": 115, "m1_streak": 9, "m1_target": 5, "m1_done": true}
+{"run": 14, "date": "2026-04-10", "timestamp": "2026-04-10T22:11:53.666328+00:00", "status": "CLEAN", "new_records": 218, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
+{"run": 15, "date": "2026-04-10", "timestamp": "2026-04-10T22:21:12.265668+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
+{"run": 16, "date": "2026-04-10", "timestamp": "2026-04-10T22:26:22.231527+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
+{"run": 17, "date": "2026-04-10", "timestamp": "2026-04-10T22:30:17.797392+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
+{"run": 18, "date": "2026-04-10", "timestamp": "2026-04-10T22:36:50.687147+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
+{"run": 19, "date": "2026-04-10", "timestamp": "2026-04-10T22:41:53.061908+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}

@@ -59,12 +59,12 @@ routes:
 
   # ── Narrative / YAML Generation ───────────────────────────────
   narrative:
-    model: "qwen2.5-coder:14b"
+    model: "qwen3:14b"
     provider: ollama
     max_tokens: 4096
     note: >
       YAML edits, Markdown generation, non-inference scripting.
-      Default local model for well-defined tasks.
+      Default local model for well-defined tasks. Switched from qwen2.5-coder 2026-04-05.
 
   # ── Teacher Autopsies ─────────────────────────────────────────
   teacher:

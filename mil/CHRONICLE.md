@@ -228,9 +228,10 @@ twitter_archive:
 chronicle_id: CHR-003
 date: "2025-08-27"
 bank: "HSBC UK (and First Direct)"
-incident_type: "app_online_banking_outage"
-inference_approved: false
-confidence_score: 0.40
+incident_type: "app_platform_refresh_outage"
+inference_approved: true
+confidence_score: 0.55
+confidence_score_note: "Capped at 0.55 — root cause inferred from pattern evidence, not officially disclosed by HSBC. Hussain approved 2026-04-09."
 affected_count: UNCONFIRMED
 journey_tags:
   - J_LOGIN_01     # customers unable to access accounts
@@ -239,67 +240,80 @@ journey_tags:
 verified_facts:
   - "Date: 27 August 2025. Outage began approximately 11:00 BST."
   - "HSBC UK customers unable to access accounts via mobile app and online banking."
-  - "First Direct (HSBC-owned) also affected."
+  - "First Direct (HSBC-owned) also affected — shared infrastructure confirmed."
   - "Error code ERR03 displayed to customers, or 'information unavailable' messages."
   - "HSBC posted first public acknowledgement at approximately 11:45 BST."
-  - "Services restored the same afternoon. Duration approximately 5 hours."
-  - "Over 4,000 complaints logged on DownDetector within the first hour."
+  - "Services restored the same afternoon. Duration approximately 5 hours (resolved ~15:15 BST)."
+  - "DownDetector peak: 4,765 reports at 11:45 BST. Over 4,000 within first hour."
   - "HSBC issued an apology and confirmed services restored."
   - "No customer financial losses reported."
   - "No specific FCA or PRA enforcement action publicly documented for this incident."
+  - "HSBC underwent an 18-month mobile app redesign — described as biggest overhaul since app launch in 2012. Rolled out to all 7M registered UK mobile banking customers by end of May 2025."
+  - "Post-redesign app updates continued through June 2025 (v3.57.0, v3.58.4, v3.59.0)."
+  - "GlobalData analysis linked outage to 'legacy infrastructure fragility in digital banking' exposed by digital transformation activity."
+  - "HKMA ruled out cyberattack — confirmed internal system problem."
+  - "HSBC had 32 IT incidents totalling 176 hours of downtime between Jan 2023 and Feb 2025 (FCA data)."
   - "HSBC submitted correspondence to Treasury Committee dated 30 April 2025 regarding IT failures — content not public."
 
 blind_spots:
   - "Actual affected customer count not publicly disclosed by HSBC"
-  - "Root cause not publicly disclosed by HSBC — ERR03 error code unexplained"
+  - "Specific app version or backend deployment that triggered ERR03 not confirmed"
+  - "HSBC did not issue a post-incident technical report"
 
 unverified_fields:
   customer_count:
     status: "REMOVED — figure previously cited (14.5M) was HSBC's total customer base, not a confirmed affected count. Field set to UNCONFIRMED per Hussain review 2026-03-28."
   root_cause:
-    claim: "Authentication or access control failure; possible system upgrade"
-    source: "Analyst speculation in secondary sources"
-    status: "[REVIEW REQUIRED] — HSBC did not publicly disclose root cause. ERR03 error code not officially explained. Causal mechanism is UNCONFIRMED in public record."
+    claim: "Legacy authentication/access control infrastructure stressed by post-redesign deployment activity"
+    source: "Inferred from: GlobalData analysis + 18-month app redesign timeline + ERR03 auth failure pattern + First Direct shared infrastructure failure"
+    status: "INFERRED — not officially disclosed. Confidence capped at 0.55. Approved by Hussain 2026-04-09."
 
 causal_chain:
-  - "~11:00 BST 27 August 2025: HSBC app and online banking becomes inaccessible"
-  - "ERR03 errors displayed to customers attempting to log in"
-  - "First Direct (HSBC subsidiary) also affected — suggests shared infrastructure component"
-  - "4,000+ DownDetector reports within first hour"
-  - "HSBC acknowledges publicly at 11:45 BST"
-  - "Services restored same afternoon — approximately 5 hours total"
-  - "HSBC issues public apology"
-  - "Root cause: NOT DISCLOSED PUBLICLY"
-  - "[REVIEW REQUIRED] Causal chain below the acknowledgement step is inferred not confirmed"
+  - "2023–2025: HSBC undertakes 18-month mobile app redesign — biggest overhaul since 2012"
+  - "End of May 2025: redesigned app fully rolled out to 7M registered UK mobile customers"
+  - "June 2025: continued post-launch updates (v3.57, v3.58, v3.59)"
+  - "27 August 2025 ~11:00 BST: app and online banking becomes inaccessible — ERR03 errors"
+  - "First Direct (HSBC subsidiary on shared infrastructure) also fails simultaneously"
+  - "ERR03 pattern consistent with authentication or access control layer failure"
+  - "GlobalData: failure exposes 'legacy infrastructure fragility' under digital transformation pressure"
+  - "4,765 DownDetector peak at 11:45 BST — DownDetector as first public signal"
+  - "HSBC acknowledges publicly 11:45 BST"
+  - "Services restored ~15:15 BST — approximately 5 hours total"
+  - "HSBC apology issued. Root cause not disclosed publicly."
+  - "[INFERRED] New app layer on legacy auth infrastructure — same failure class as CHR-001 (TSB), different scale"
 
 outcome:
-  regulatory: "No specific FCA/PRA action publicly documented. General FCA scrutiny of bank IT resilience ongoing."
-  reputational: "Negative press. DownDetector spike. No long-term reputational assessment available."
+  regulatory: "No specific FCA/PRA action publicly documented for this incident. FCA general scrutiny of bank IT resilience ongoing. HSBC accumulated 176 hours downtime 2023–2025."
+  reputational: "Negative press. Parliamentary scrutiny of banking IT resilience. DownDetector spike."
   financial: "No compensation figures published."
-  customer: "Impact scale UNCONFIRMED — see unverified_fields.customer_count above."
+  customer: "Impact scale UNCONFIRMED — DownDetector peak 4,765 reports. Actual count not disclosed."
 
 pattern_signals:
-  - "ERR03 error pattern — authentication/access failure class"
-  - "Simultaneous app + online banking failure suggests shared auth or API gateway component"
-  - "DownDetector as earliest signal source — confirmed first mover role"
-  - "~5 hour duration — shorter than TSB/Lloyds incidents but same access denial pattern"
+  - "App platform refresh as failure trigger — same class as TSB migration (CHR-001), smaller scale"
+  - "ERR03 error = authentication/access control failure class"
+  - "Simultaneous app + online banking + First Direct failure = shared backend infrastructure"
+  - "DownDetector as earliest signal source — confirms trust_weight: 0.95 assignment"
+  - "Legacy infrastructure stressed by new platform rollout — Vane pattern: internal metrics stable, customers locked out"
+  - "5-hour duration — contained but significant"
 
 mil_relevance:
-  - "CHR-003 anchors J_LOGIN_01 patterns for HSBC-competitor signal matching."
-  - "ERR03 type errors (access denied, information unavailable) should cross-reference CHR-003."
-  - "DownDetector as first mover confirmed — validates trust_weight: 0.95 assignment."
-  - "NOTE: Root cause is unconfirmed. CAC similarity matching against CHR-003 should apply a confidence penalty until root cause is established. Flag in inference output."
+  - "CHR-003 now anchors J_LOGIN_01 and J_SERVICE_01 patterns for all competitors."
+  - "ERR03-class errors (access denied, information unavailable, authentication failure) should cross-reference CHR-003."
+  - "Platform refresh as outage trigger — any competitor running major app updates warrants CHR-003 similarity check."
+  - "DownDetector first mover role confirmed — validates trust_weight: 0.95."
+  - "Confidence capped at 0.55 — inference weight should reflect inferred (not confirmed) root cause."
 
 confidence:
   dates: HIGH          # 27 August 2025 confirmed across multiple sources
-  impact_figures: LOW  # 14.5M is total customer base, not affected count
-  root_cause: LOW      # HSBC did not disclose — UNCONFIRMED
+  impact_figures: LOW  # DownDetector peak confirmed; customer count unconfirmed
+  root_cause: MEDIUM   # Inferred from redesign timeline + GlobalData analysis — not officially disclosed
   regulatory_outcome: LOW  # No enforcement action documented
 
 review_flags:
-  - "CRITICAL: Customer impact count is unconfirmed. Do not use 14.5M figure in any MIL inference or output."
-  - "Root cause is not established in public record. CHR-003 similarity matching carries MEDIUM confidence penalty until root cause is known."
-  - "Hussain: is any non-public or industry source available to establish root cause?"
+  - "APPROVED — Hussain Ahmed 2026-04-09. inference_approved set to true. confidence_score capped at 0.55."
+  - "Root cause is inferred not confirmed. Do not present as established fact in briefing output."
+  - "Customer impact count remains UNCONFIRMED. Do not use 14.5M in any MIL inference or output."
+  - "incident_type updated from app_online_banking_outage to app_platform_refresh_outage — reflects redesign context."
 
 public_sources:
   - source: "ITV News — HSBC resolves online banking and app outage"
@@ -312,8 +326,14 @@ public_sources:
     date: "2025"
   - source: "PYMNTS.com — HSBC Customers Frustrated Following Website and App Outage"
     date: "2025"
+  - source: "GlobalData — HSBC service outage highlights legacy infrastructure fragility in digital banking"
+    date: "2025-08"
+  - source: "Fintech Futures — Inside HSBC's major 18-month mobile banking app redesign"
+    date: "2025"
   - source: "Karmactive.com — NOTE: secondary source; 14.5M figure is total customer base not confirmed affected count"
     date: "2025-08"
+  - source: "FStech — Top UK banks accumulate 33 days of IT disruption in 2 years (FCA data: HSBC 32 incidents, 176 hours)"
+    date: "2025"
 
 twitter_archive:
   status: "PENDING_HUSSAIN"
@@ -408,7 +428,7 @@ Before any MIL inference traces to these entries, Hussain must confirm:
 | CHR-002 root cause — any additional source available? | Lloyds 2025 | [ ] Open |
 | CHR-002 Twitter archive populated | Lloyds 2025 | [ ] PENDING_HUSSAIN |
 | CHR-003 customer impact count confirmed | HSBC 2025 | [x] REMOVED — set to UNCONFIRMED — 2026-03-28 Hussain |
-| CHR-003 root cause confirmed | HSBC 2025 | [ ] UNCONFIRMED — inference_approved: false |
+| CHR-003 root cause confirmed | HSBC 2025 | [x] INFERRED — app platform refresh outage. APPROVED — Hussain Ahmed 2026-04-09. confidence_score=0.55 |
 | CHR-003 Twitter archive populated | HSBC 2025 | [ ] PENDING_HUSSAIN |
 | **M2 countersign** | NatWest MIL-F-20260402-047 | [x] COUNTERSIGNED — Hussain Ahmed 2026-04-02 |
 | CHR-004 enrichment review | Barclays 2026 | [x] APPROVED — Hussain Ahmed 2026-04-02 |

@@ -104,9 +104,13 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - V2 extends V1 with: Vane Trajectory Chart (MIL-12), Inference Cards (MIL-13), Clark Protocol (MIL-14), Phase 2 Demand (MIL-15)
 - All V2 sections use `.topbar-box` chrome — same width/padding as Box 1/2/3, mobile-optimised
 
-**Next ticket: MIL-25 (undefined — Day 30 sprint complete)**
+**Next ticket: MIL-27 (undefined)**
 
-## MIL Pipeline State — 2026-04-05 (updated)
+**Phase 2 — IN PROGRESS (2026-04-09)**
+- MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 pending ~2026-04-14)
+- MIL-26: Research Agent — mil/researcher/research_agent.py, clusters research queue, drafts CHR proposals (BUILT 2026-04-09)
+
+## MIL Pipeline State — 2026-04-09 (updated)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -157,14 +161,14 @@ File: `mil/inference/mil_agent.py`
 - CAC formula: C_mil = (alpha*Vol_sig + beta*Sim_hist) / (delta*Delta_tel + 1)
   - alpha=0.40, beta=0.40, delta=0.20 (not tuned before Day 30)
 - RAG: keyword overlap against CHRONICLE entries (CHR-001/002 inference_approved only)
-  - CHR-003: inference_approved=false (root cause unconfirmed)
-  - CHR-004: inference_approved=false (Barclays enrichment awaiting Hussain review)
+  - CHR-003: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-09, confidence_score=0.55, root cause inferred: app platform refresh outage)
+  - CHR-004: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-02)
 - Designed Ceiling: triggers when CAC > 0.45 AND delta_tel=0.0
   - Output: "To confirm this I require internal HDFS telemetry data. Request Phase 2."
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- Current findings: **110 total** | 110 anchored | 0 unanchored | 36 Designed Ceiling
+- Current findings: **115 total** | 115 anchored | 0 unanchored | 34 Designed Ceiling
 - **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
 
 ### Briefing Data Layer (briefing_data.py)
@@ -180,12 +184,14 @@ File: `mil/briefing_data.py`
   - Current: score=89, baseline=90, delta=-1, trend=STABLE
 - Executive alert: self-intelligence framing ("YOUR APP"), **qwen3:14b** synthesis of P0 reviews (ARCH-002 implemented),
   conditional Chronicle match (keyword overlap >= 2), signal strength STRONG/MODERATE/EARLY SIGNAL
+- **exec_alert import fix (2026-04-06)**: `_exec_alert_description()` uses try/except import fallback — `from mil.config.get_model import get_model` → `from config.get_model import get_model` when called via subprocess (publish.py sets mil/ on sys.path, not repo root)
 - **clark_tier** added to executive_alert dict — sourced from clark_protocol.get_clark_tier_for_finding()
-- Chronicle matching: CHR-001 (TSB 2018) and CHR-002 (Lloyds 2025) on issue_type overlap
+- **Chronicle matching (2026-04-10)**: `_chronicle_match_from_findings(anchored)` — driven by top Barclays finding's actual CHR anchor from mil_findings.json. CHR-004 preferred for Barclays (their own sustained friction pattern); falls back to highest-CAC match only if CHR-004 has no representation.
+- **Counter import fix (2026-04-10)**: `Counter` was missing from `collections` import — caused `NameError: _Counter` which silently emptied Box 1 quotes. Fixed: `from collections import Counter, defaultdict`.
 - Top quote selection: P0 first, P1 fallback, 40+ chars, prefer 60-200 chars
-- Current output (2026-04-01):
-  - Barclays sentiment: 88.8/100, baseline 90, -1.2 vs baseline, STABLE
-  - Competitor ticker: NatWest worst (64), Barclays 88.8
+- Current output (2026-04-10):
+  - Barclays sentiment: P0=8, P1=3, chronicle_id=CHR-004, both Box 1 quotes populated
+  - Competitor ticker: NatWest worst, Barclays stable
 
 ### Sonar Briefing — publish.py (V1, FROZEN)
 File: `mil/publish/publish.py`
@@ -201,12 +207,13 @@ File: `mil/publish/publish_v2.py`
 - **V2 LIVE** at cjipro.com/briefing-v2 (2026-04-05)
 - Loads V1 HTML from mil/publish/output/index.html, injects V2 sections before `</body>`
 - V2 sections (all use `.topbar-box` chrome — same width/mobile behaviour as Box 1/2/3):
-  - **Vane Trajectory** — 14-day Plotly chart, App Store + Google Play, all competitors
-  - **Intelligence Findings** — top 10 by CAC, with tier/severity/chronicle/ceiling badges
-  - **Clark Protocol** — live escalation status, tier strip + active finding rows
+  - **Vane Trajectory** — 14-day Plotly chart, App Store + Google Play, all competitors. Plotly CDN injected into V2 HTML (not in V1).
+  - **Intelligence Findings** — top 10 Barclays findings by CAC, with tier/severity/chronicle/ceiling badges. Barclays-scoped only.
+  - **Clark Protocol** — Barclays-only escalation status, tier strip + active finding rows. Barclays-scoped only.
   - **Phase 2 Demand** — ceiling finding list, request counter, by-competitor pills
 - Local copy: mil/publish/output/index_v2.html
 - Run: `py mil/publish/publish_v2.py`
+- **publish_v2.py wired into run_daily.py as Step 5b** (after V1 publish, before log run)
 
 ### Daily Pipeline — ONE COMMAND (fully agentic)
 ```
@@ -219,6 +226,7 @@ Steps (zero human intervention required):
   4a. Research Trigger — flags P0/P1 weak-anchor findings → mil/data/research_queue.jsonl
   4b. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
+  5b. Publish V2 — publish_v2.py, injects V2 sections, GitHub Pages push -> cjipro.com/briefing-v2
   6. Log Run — appends to mil/data/daily_run_log.jsonl, reports M1 streak
 
 Flags:
@@ -260,14 +268,25 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-26 (undefined)**
+**Next ticket: MIL-27 (undefined)**
+
+### MIL-26 — Research Agent (BUILT 2026-04-09)
+File: `mil/researcher/research_agent.py`
+- Reads `mil/data/research_queue.jsonl` (78 PENDING items across 10 clusters)
+- Clusters by competitor + journey_id
+- Calls Haiku to draft proposed CHRONICLE entries per cluster
+- Skips clusters already covered by existing CHR entries (e.g. Barclays covered by CHR-004)
+- Writes proposals to `mil/data/chr_proposals/<competitor>_<journey>_<timestamp>.md`
+- Writes summary to `mil/data/chr_proposals/summary_<timestamp>.md`
+- Run: `py mil/researcher/research_agent.py`
+- Flags: `--dry-run` (cluster report only), `--competitor <name>` (filter)
 
 ### MIL-25 — QLoRA Gate Clearance (BUILT 2026-04-05)
 Specialist stack: `mil/specialist/`
 
 | Gate | Condition | Status |
 |------|-----------|--------|
-| 1 | 14+ days real signal data | PENDING — clears ~2026-04-19 with daily runs |
+| 1 | 14+ days real signal data | PENDING — 9/14 days, clears ~2026-04-14 |
 | 2 | Synthetic pairs validated (human) | PASS — countersigned by Hussain 2026-04-05 |
 | 3 | CAC weights approved on real corpus | PASS — retained, approved by Hussain 2026-04-05 |
 | 4 | Adversarial Attacker passes evaluation | PASS — 80% survival rate on high-CAC findings |
@@ -283,9 +302,9 @@ Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — 5/5 streak closed 2026-04-05. Streak origin: 2026-04-01. Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak now 9/5 as of 2026-04-09. Run #12 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
-- **M3**: DONE — 36 ceiling triggers (threshold was 22)
+- **M3**: DONE — 34 ceiling triggers (threshold was 22)
 
 ### Clark Protocol — First Scan (2026-04-05)
 - 2x CLARK-3 (NatWest — ACT NOW)
@@ -294,9 +313,10 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 - Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
-- Close MIL-11 through MIL-25 in Jira UI
-- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19
+- Close MIL-11 through MIL-26 in Jira UI
+- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-14
 - Post Gate 1: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
+- Run research agent: `py mil/researcher/research_agent.py` — review proposals in mil/data/chr_proposals/
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
@@ -342,7 +362,7 @@ Config: `mil/config/model_routing.yaml` + `mil/config/get_model.py` (MIL-11)
 Use `get_model(task)` everywhere — never hardcode model names.
 
 - **Refuel-8B (local):** Signal classification, journey attribution, MIL inference (CAC + RAG), Adversarial Attacker — `michaelborck/refuled:latest` at `http://127.0.0.1:11434/v1`
-- **Qwen 2.5-Coder (local):** YAML/Markdown generation, narrative generation, non-inference scripting — `qwen2.5-coder:14b` at `http://127.0.0.1:11434`
+- **Qwen3 (local, default):** YAML/Markdown generation, narrative generation, non-inference scripting — `qwen3:14b` at `http://127.0.0.1:11434`
 - **Qwen3 (local):** Executive alert synthesis (Box 3) — `qwen3:14b` at `http://127.0.0.1:11434`. ARCH-002 approved. **LIVE** in briefing_data.py `_exec_alert_description()`.
 - **Haiku (Claude API):** Enrichment ONLY — `claude-haiku-4-5-20251001`. Retained per ARCH-002. P0 severity accuracy critical.
 - **Sonnet (Claude API):** Teacher autopsies only — deep causal analysis + synthetic pair generation
@@ -403,7 +423,7 @@ Session 5 Part 2 (2026-03-12):
 
 **MIL inference routes to Refuel-8B. Enrichment on Haiku (ARCH-002). Exec alert (Box 3) on qwen3:14b — LIVE (MIL-11). Routing config in mil/config/model_routing.yaml. Always use get_model(task). Conserve Sonnet tokens.**
 
-**DEFAULT: Qwen** (qwen2.5-coder:14b at http://127.0.0.1:11434)
+**DEFAULT: Qwen3** (qwen3:14b at http://127.0.0.1:11434)
 
 Use Qwen for:
 - YAML edits and field population

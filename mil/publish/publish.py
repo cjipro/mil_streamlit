@@ -159,14 +159,18 @@ def _bd_to_journey_analysis(journey_performance: list) -> list:
 
 
 def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
-    """Build Executive Alert panel HTML from briefing_data executive_alert dict."""
+    """Build Barclays Alert panel HTML from briefing_data executive_alert dict.
+
+    Structure: THE SITUATION / THE LESSON (teacher bank) / SEVERITY / NEXT STEPS.
+    Other banks are the teachers. Barclays is the student.
+    """
     if not ea or not ea.get("finding_id"):
         return (
-            '  <!-- Right: Executive Alert panel -->\n'
+            '  <!-- Right: Barclays Alert panel -->\n'
             '  <div class="topbar-box exec-alert-panel exec-alert-nominal">\n'
             '    <div class="exec-alert-header exec-alert-header-nominal">\n'
             '      <span class="exec-alert-pulse exec-alert-pulse-green"></span>\n'
-            '      <span class="exec-alert-title exec-alert-title-nominal">Executive Alert</span>\n'
+            '      <span class="exec-alert-title exec-alert-title-nominal">Barclays Alert</span>\n'
             f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
             '    </div>\n'
             '    <div class="exec-alert-body">\n'
@@ -178,52 +182,83 @@ def build_bd_exec_alert_html(ea: dict, last_run_str: str) -> str:
 
     p0              = ea.get("p0", 0)
     p1              = ea.get("p1", 0)
+    cac             = ea.get("cac", 0.0)
+    clark_tier      = ea.get("clark_tier", "CLARK-0")
     signal_strength = ea.get("signal_strength", "EARLY SIGNAL")
     description     = ea.get("description", "")
-    chronicle_id    = ea.get("chronicle_id", "")
-    chronicle_sent  = ea.get("chronicle_sentence", "")
-    intel_gap       = ea.get("intelligence_gap", "")
-    your_call       = ea.get("your_call", "")
+    teacher_bank    = ea.get("teacher_bank", "")
+    teacher_year    = ea.get("teacher_year", "")
+    teacher_lesson  = ea.get("teacher_lesson", "")
+    next_steps      = ea.get("next_steps", "")
+
+    # Clark tier pill + button colour
+    _clark_colours = {
+        "CLARK-3": ("rgba(204,0,0,0.18)",    "#FF4444", "rgba(204,0,0,0.4)"),
+        "CLARK-2": ("rgba(245,100,0,0.15)",   "#F56400", "rgba(245,100,0,0.4)"),
+        "CLARK-1": ("rgba(245,166,35,0.12)",  "#F5A623", "rgba(245,166,35,0.3)"),
+        "CLARK-0": ("rgba(120,120,120,0.10)", "#888",    "rgba(120,120,120,0.3)"),
+    }
+    _clark_labels = {
+        "CLARK-3": "ACT NOW", "CLARK-2": "ESCALATE",
+        "CLARK-1": "WATCH",   "CLARK-0": "NOMINAL",
+    }
+    _cbg, _cfg, _cbr = _clark_colours.get(clark_tier, _clark_colours["CLARK-0"])
+    clark_style  = f"background:{_cbg};color:{_cfg};border:1px solid {_cbr};font-weight:700;"
+    btn_style    = (
+        f"background:{_cbg};color:{_cfg};border:1px solid {_cbr};"
+        "border-radius:6px;font-size:13px;font-weight:700;letter-spacing:0.08em;"
+        "padding:6px 14px;cursor:pointer;width:100%;font-family:var(--sans);"
+        "text-transform:uppercase;margin-top:10px;"
+    )
+    btn_label    = _clark_labels.get(clark_tier, "ESCALATE")
 
     p0_style  = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
     p1_style  = "background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);"
-    sig_style = "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);"
+    cac_style = "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);"
 
-    # Chronicle block — only rendered when there is a match
-    chronicle_html = (
-        f'      <div class="exec-alert-section-label">HISTORICAL CONTEXT</div>\n'
-        f'      <div class="exec-alert-section-text">{e(chronicle_sent)}</div>\n'
-    ) if chronicle_id and chronicle_sent else ""
-
-    intel_html = (
-        f'      <div class="exec-alert-section-label">INTELLIGENCE GAP</div>\n'
-        f'      <div class="exec-alert-section-text">{e(intel_gap)}</div>\n'
-    ) if intel_gap else ""
+    # Teacher lesson block — only when a teacher match exists
+    teacher_html = ""
+    if teacher_bank and teacher_lesson:
+        label = f"THE LESSON — {e(teacher_bank)}, {e(teacher_year)}"
+        teacher_html = (
+            f'      <div class="exec-alert-section-label">{label}</div>\n'
+            f'      <div class="exec-alert-section-text">{e(teacher_lesson)}</div>\n'
+        )
 
     return (
-        '  <!-- Right: Executive Alert panel (bd-wired) -->\n'
+        '  <!-- Right: Barclays Alert panel (bd-wired) -->\n'
         '  <div class="topbar-box exec-alert-panel">\n'
         '    <div class="exec-alert-header">\n'
         '      <span class="exec-alert-pulse"></span>\n'
-        '      <span class="exec-alert-title">Executive Alert</span>\n'
+        '      <span class="exec-alert-title">Barclays Alert</span>\n'
         f'      <span class="exec-alert-ts">{e(last_run_str)}</span>\n'
         '    </div>\n'
         '    <div class="exec-alert-body">\n'
-        f'      <div class="exec-alert-finding">YOUR APP — {e(signal_strength)}</div>\n'
+        '      <div class="exec-alert-pills" style="margin-bottom:10px;">\n'
+        f'        <span class="exec-pill" style="{clark_style}">{e(clark_tier)}</span>\n'
+        f'        <span class="exec-pill" style="{cac_style}">{e(signal_strength)}</span>\n'
+        '      </div>\n'
+        '      <div class="exec-alert-section-label">THE SITUATION</div>\n'
+        f'      <div class="exec-alert-section-text">{e(description)}</div>\n'
+        f'{teacher_html}'
+        '      <div class="exec-alert-section-label">SEVERITY</div>\n'
         '      <div class="exec-alert-pills">\n'
         f'        <span class="exec-pill" style="{p0_style}">P0 &nbsp;{p0}</span>\n'
         f'        <span class="exec-pill" style="{p1_style}">P1 &nbsp;{p1}</span>\n'
-        f'        <span class="exec-pill" style="{sig_style}">{e(signal_strength)}</span>\n'
+        f'        <span class="exec-pill" style="{cac_style}">CAC &nbsp;{cac:.2f}</span>\n'
         '      </div>\n'
-        '      <div class="exec-alert-section-label">WHAT YOUR CUSTOMERS ARE SAYING</div>\n'
-        f'      <div class="exec-alert-section-text">{e(description)}</div>\n'
-        f'{chronicle_html}'
-        f'{intel_html}'
-        '      <div class="exec-alert-section-label">YOUR CALL</div>\n'
-        f'      <div class="exec-alert-section-text">{e(your_call)}</div>\n'
+        '      <div class="exec-alert-section-label">NEXT STEPS</div>\n'
+        f'      <div class="exec-alert-section-text">{e(next_steps)}</div>\n'
+        f'      <button class="exec-escalate-btn" style="{btn_style}">{btn_label}</button>\n'
         '    </div>\n'
-        '    <div class="exec-alert-footer">\n'
-        '      <button class="exec-escalate-btn">Escalate</button>\n'
+        '    <div class="exec-alert-footnote">\n'
+        '      <span>P0 — customer blocked</span>'
+        '      <span class="exec-fn-sep">·</span>'
+        '      <span>P1 — significant friction</span>'
+        '      <span class="exec-fn-sep">·</span>'
+        '      <span>CAC — signal confidence (0–1)</span>'
+        '      <span class="exec-fn-sep">·</span>'
+        f'      <span>CLARK-3 — act now &nbsp;CLARK-2 — escalate &nbsp;CLARK-1 — watch</span>\n'
         '    </div>\n'
         '  </div>'
     )
@@ -600,13 +635,16 @@ def build_ticker_html(competitor_sentiment: dict) -> str:
         d = competitor_sentiment.get(comp, {})
         score = d.get("score")
         is_barclays = comp == "Barclays"
+        no_data = score is None
         color = "#e8a030" if is_barclays else score_color(score)
-        score_str = f"{score:.1f}" if score is not None else "—"
+        score_str = f"{score:.1f}" if not no_data else "no store data"
+        score_color_str = color if not no_data else "#555566"
         bar = score_bar_html(score, width=40)
+        title_attr = ' title="No App Store or Google Play data available for this competitor"' if no_data else ""
         items.append(
-            f'<span class="ticker-item{" ticker-barclays" if is_barclays else ""}">'
+            f'<span class="ticker-item{" ticker-barclays" if is_barclays else ""}{" ticker-nodata" if no_data else ""}"{title_attr}>'
             f'<span class="ticker-name" style="color:{color};">{e(comp)}</span>'
-            f'<span class="ticker-score" style="color:{color};">{score_str}</span>'
+            f'<span class="ticker-score" style="color:{score_color_str};{"font-style:italic;font-size:10px;" if no_data else ""}">{score_str}</span>'
             f'{bar}'
             f'<span class="ticker-delta">{delta_html(None)}</span>'
             f'</span>'
@@ -1099,21 +1137,22 @@ def generate_html(
             _status_phrase = "elevated risk signals" if barcl_p1 > 0 else "WATCH — declining sentiment"
             _finding_title = f"Barclays {_worst_j_name} journey \u2014 {_status_phrase}"
             _risk_text = (
-                f"Barclays-specific signals confirm active risk window on the {_worst_j_name} journey. "
-                f"P1 signal count: {barcl_p1}. CHRONICLE similarity check recommended."
+                f"Customers are reporting problems on the {_worst_j_name} journey — "
+                f"{barcl_p1} serious complaint{'s' if barcl_p1 != 1 else ''} flagged in the last 24 hours. "
+                f"This matches a pattern seen in previous banking failures."
             )
         else:
             _finding_title = (
-                f"Market signals elevated — {total_p1} P1 signals across monitored competitors. "
-                f"No Barclays-specific finding confirmed yet."
+                f"Competitor warning — {total_p1} serious issues logged across monitored banks. "
+                f"No Barclays-specific problem confirmed yet."
             )
             _risk_text = (
-                f"Market pattern suggests similar risk window for Barclays {_worst_j_name} journey — "
-                f"monitor closely. Barclays-specific confirmation pending."
+                f"Other banks are seeing problems on their {_worst_j_name} journey. "
+                f"Worth checking whether Barclays is exposed to the same risk."
             )
         _action_text = (
-            f"Review Barclays {_worst_j_name} journey signal feed. "
-            "Initiate CHRONICLE similarity check if pattern persists beyond next harvest cycle."
+            f"Check whether the {_worst_j_name} journey is working as expected. "
+            "If customer complaints are rising, escalate to the product team now — don't wait for the next review."
         )
         _p0_pill_style = "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);"
         exec_alert_panel_html = (
@@ -1131,9 +1170,9 @@ def generate_html(
             f'        <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;{e(alert_p1_count)}</span>\n'
             f'        <span class="exec-pill" style="background:rgba(245,166,35,0.08);color:#c0922a;border:1px solid rgba(245,166,35,0.2);">Watch &nbsp;{watch_count_tb}</span>\n'
             '      </div>\n'
-            '      <div class="exec-alert-section-label">RISK INTERPRETATION</div>\n'
+            '      <div class="exec-alert-section-label">WHAT THIS MEANS</div>\n'
             f'      <div class="exec-alert-section-text">{e(_risk_text)}</div>\n'
-            '      <div class="exec-alert-section-label">RECOMMENDED ACTION</div>\n'
+            '      <div class="exec-alert-section-label">WHAT TO DO</div>\n'
             f'      <div class="exec-alert-section-text">{e(_action_text)}</div>\n'
             '    </div>\n'
             '    <div class="exec-alert-footer">\n'
@@ -1368,7 +1407,10 @@ a {{ color: var(--blue); text-decoration: none; }}
 .exec-alert-section-text {{ font-size: 13px; color: var(--text-2); line-height: 1.5; padding-bottom: 4px; }}
 .exec-alert-footer {{ padding: 8px 14px; border-top: 1px solid #2A1010; }}
 .exec-escalate-btn {{ background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.4); border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 14px; cursor: pointer; width: 100%; font-family: var(--sans); text-transform: uppercase; }}
-.exec-escalate-btn:hover {{ background: rgba(204,0,0,0.25); }}
+.exec-escalate-btn:hover {{ opacity: 0.8; }}
+.exec-alert-footnote {{ padding: 8px 14px 10px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }}
+.exec-alert-footnote span {{ font-size: 10px; color: var(--text-3); font-family: var(--mono); line-height: 1.4; }}
+.exec-fn-sep {{ color: var(--text-3); opacity: 0.4; padding: 0 2px; }}
 /* Nominal body text */
 .exec-nominal-badge {{ font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: #00AFA0; margin-bottom: 8px; }}
 .exec-nominal-text {{ font-size: 11px; color: var(--text-2); line-height: 1.5; }}

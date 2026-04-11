@@ -25,7 +25,7 @@ Article Zero: express ignorance before unverified certainty.
 """
 import json
 import logging
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -245,31 +245,107 @@ def _build_journey_chronicle_map(findings: list[dict]) -> dict[str, set]:
 # EXECUTIVE ALERT HELPERS
 # ============================================================
 
-# Chronicle issue-type signatures — inference_approved only (CHR-001, CHR-002)
-_CHRONICLE_ISSUE_SIGS = {
+# Chronicle sentences — all inference_approved entries
+_CHRONICLE_SENTENCES = {
+    "CHR-001": "TSB saw this same sequence in 2018 — 1.9 million customers locked out, services unavailable for weeks.",
+    "CHR-002": "Lloyds hit this same pattern in 2025 — a software update exposed 447,000 customers' transaction data before engineering caught it.",
+    "CHR-003": "HSBC triggered this same failure class in August 2025 — an 18-month app refresh stressed legacy authentication infrastructure, locking customers out for 5 hours.",
+    "CHR-004": "This matches Barclays' own sustained friction pattern — Feature Broken and Payment Failed signals have been running at low-level for months.",
+}
+
+# Teacher lessons — competitor banks that already went through this (CHR-001/002/003 only).
+# CHR-004 is Barclays' own baseline — not a teacher, not included here.
+_CHRONICLE_TEACHERS = {
     "CHR-001": {
-        "label":       "TSB 2018",
-        "issue_types": {"App Not Opening", "Login Failed", "Account Locked", "App Crashing", "Transfer Failed"},
-        "min_overlap": 2,
-        "sentence":    "TSB saw this same sequence in 2018 — 1.9 million customers locked out, services unavailable for weeks.",
+        "bank": "TSB",
+        "year": "2018",
+        "lesson": (
+            "TSB went live with 4,424 open defects. Within days, 1.9 million customers "
+            "were locked out. 33,000 complaints arrived in a single week — ten times normal "
+            "volume. The fine was £48.65 million. The CEO resigned. They had the same signals "
+            "Barclays is showing now and did not escalate in time."
+        ),
     },
     "CHR-002": {
-        "label":       "Lloyds 2025",
-        "issue_types": {"App Crashing", "Login Failed", "Feature Broken", "Missing Transaction"},
-        "min_overlap": 2,
-        "sentence":    "Lloyds hit this same pattern in 2025 — a software update triggered customer-visible harm before engineering caught it.",
+        "bank": "Lloyds",
+        "year": "2025",
+        "lesson": (
+            "An overnight software update exposed 447,000 Lloyds customers' transaction data. "
+            "Lloyds fixed the defect the same day — but FCA, ICO, and Parliament were still "
+            "asking questions months later. Resolving the issue quickly did not close the risk."
+        ),
+    },
+    "CHR-003": {
+        "bank": "HSBC",
+        "year": "2025",
+        "lesson": (
+            "After an 18-month app redesign, HSBC took 4,765 DownDetector complaints in the "
+            "first hour of their outage. The build-up looked exactly like this — rising app "
+            "instability complaints with no single catastrophic trigger. Until there was one."
+        ),
     },
 }
 
 
-def _chronicle_match(issue_types: set) -> tuple:
-    """Returns (chronicle_id, sentence) or ('', '') — best match by overlap count."""
-    best_id, best_sentence, best_overlap = "", "", 0
-    for cid, sig in _CHRONICLE_ISSUE_SIGS.items():
-        overlap = len(issue_types & sig["issue_types"])
-        if overlap >= sig["min_overlap"] and overlap > best_overlap:
-            best_id, best_sentence, best_overlap = cid, sig["sentence"], overlap
-    return best_id, best_sentence
+def _chronicle_match_from_findings(findings: list) -> tuple:
+    """
+    Returns (chronicle_id, sentence) driven by the top Barclays finding's
+    actual chronicle_match from mil_findings.json — not a static keyword overlap.
+
+    Priority for Barclays: CHR-004 (their own friction pattern) is preferred
+    over higher-CAC matches to other banks' incidents. Only falls back to the
+    highest-CAC match if CHR-004 has no representation in the findings.
+    """
+    barclays = [
+        f for f in findings
+        if f.get("competitor", "").lower() == "barclays"
+        and f.get("chronicle_match", {}).get("chronicle_id")
+    ]
+    if not barclays:
+        return "", ""
+
+    # Prefer CHR-004 for Barclays — it is their own sustained friction pattern
+    chr4 = [f for f in barclays if f["chronicle_match"]["chronicle_id"] == "CHR-004"]
+    if chr4:
+        cid = "CHR-004"
+    else:
+        top = max(barclays, key=lambda f: f.get("confidence_score", 0))
+        cid = top["chronicle_match"]["chronicle_id"]
+
+    sentence = _CHRONICLE_SENTENCES.get(cid, "")
+    return cid, sentence
+
+
+def _teacher_from_findings(findings: list) -> tuple:
+    """
+    Returns (chr_id, bank, year, lesson) for the highest-CAC teacher entry
+    among Barclays findings. Teachers are CHR-001/002/003 only — CHR-004 is
+    Barclays' own friction baseline, not a teacher.
+    """
+    _TEACHER_IDS = {"CHR-001", "CHR-002", "CHR-003"}
+    barclays = [
+        f for f in findings
+        if f.get("competitor", "").lower() == "barclays"
+        and f.get("chronicle_match", {}).get("chronicle_id") in _TEACHER_IDS
+    ]
+    if not barclays:
+        return "", "", "", ""
+    top = max(barclays, key=lambda f: f.get("confidence_score", 0))
+    cid = top["chronicle_match"]["chronicle_id"]
+    t = _CHRONICLE_TEACHERS.get(cid, {})
+    return cid, t.get("bank", ""), t.get("year", ""), t.get("lesson", "")
+
+
+def _next_steps(p0: int, trend: str, clark_tier: str) -> str:
+    if clark_tier == "CLARK-3" or p0 >= 4:
+        return "This belongs on the incident board today. If it is not already there, that is the first failure. Escalate now."
+    elif clark_tier == "CLARK-2" or (p0 >= 2 and trend == "WORSENING"):
+        return "Escalate to product and engineering leadership. Request a status update by end of day."
+    elif p0 >= 2 or trend == "WORSENING":
+        return "Flag to the product team. Confirm someone owns this and get an update within 48 hours."
+    elif p0 >= 1:
+        return "Watch this. If volume increases or the trend turns, escalate immediately."
+    return "Signal within normal range. No action required."
 
 
 def _signal_strength(p0: int, cac: float) -> str:
@@ -298,7 +374,10 @@ def _exec_alert_description(reviews: list, chronicle_sentence: str) -> str:
     """
     try:
         from openai import OpenAI
-        from mil.config.get_model import get_model
+        try:
+            from mil.config.get_model import get_model
+        except ModuleNotFoundError:
+            from config.get_model import get_model
         cfg = get_model("exec_alert")
 
         lines = []
@@ -655,12 +734,8 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         )
         barclays_trend = _b_ticker.get("trend", "STABLE")
 
-        # Chronicle matching — issue_types from Barclays P0/P1 records only
-        from collections import Counter as _Counter
-        barclays_issue_types = {
-            r.get("issue_type", "") for r in barclays_p01 if r.get("issue_type")
-        }
-        chronicle_id, chronicle_sentence = _chronicle_match(barclays_issue_types)
+        # Chronicle matching — driven by top Barclays finding's actual CHR anchor
+        chronicle_id, chronicle_sentence = _chronicle_match_from_findings(anchored)
 
         # Top quote: most specific P0 review — prefer 60-150 chars, else shortest over 40
         top_quote = ""
@@ -720,7 +795,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         description = _exec_alert_description(barclays_p01, chronicle_sentence)
         if not description:
             top_issues = [
-                i.lower() for i, _ in _Counter(
+                i.lower() for i, _ in Counter(
                     r.get("issue_type", "app issues") for r in barclays_p01
                 ).most_common(2)
                 if i and i != "Positive Feedback"
@@ -728,19 +803,30 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             issue_label = " and ".join(top_issues) if top_issues else "app issues"
             description = f"Customers reporting {issue_label}"
 
-        # Clark tier for top finding
+        # Clark tier for top finding — dual import path (mil/ on sys.path or repo root)
         try:
             from mil.command.components.clark_protocol import get_clark_tier_for_finding
+        except ImportError:
+            from command.components.clark_protocol import get_clark_tier_for_finding
+        try:
             clark_tier = get_clark_tier_for_finding(top["finding_id"])
         except Exception:
             clark_tier = "CLARK-0"
+
+        # Teacher lesson — which competitor bank already walked this path
+        teacher_chr, teacher_bank, teacher_year, teacher_lesson = _teacher_from_findings(anchored)
+
+        # Top journey from the highest-ranked finding
+        top_journey = top.get("journey_id", "")
 
         executive_alert = {
             "finding_id":         top["finding_id"],
             "competitor":         top["competitor"],
             "p0":                 p0,
             "p1":                 p1,
+            "cac":                round(cac, 2),
             "signal_strength":    _signal_strength(p0, cac),
+            "top_journey":        top_journey,
             "description":        description,
             "top_quote":          top_quote,
             "top_quote_rating":   int(top_quote_rating),
@@ -753,11 +839,11 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "gp_quote_date":      gp_quote_date,
             "chronicle_id":       chronicle_id,
             "chronicle_sentence": chronicle_sentence,
-            "intelligence_gap":   (
-                "Public signal only. Internal journey data would confirm "
-                "whether this is isolated or systemic."
-            ),
-            "your_call":          _your_call(p0, barclays_trend),
+            "teacher_chr":        teacher_chr,
+            "teacher_bank":       teacher_bank,
+            "teacher_year":       teacher_year,
+            "teacher_lesson":     teacher_lesson,
+            "next_steps":         _next_steps(p0, barclays_trend, clark_tier),
             "clark_tier":         clark_tier,
         }
     else:
@@ -766,12 +852,18 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "finding_id":         None,
             "p0":                 0,
             "p1":                 0,
+            "cac":                0.0,
             "signal_strength":    "CLEAR",
+            "top_journey":        "",
             "description":        "No P0/P1 signals detected in current window.",
             "chronicle_id":       "",
             "chronicle_sentence": "",
-            "intelligence_gap":   "",
-            "your_call":          "No action required.",
+            "teacher_chr":        "",
+            "teacher_bank":       "",
+            "teacher_year":       "",
+            "teacher_lesson":     "",
+            "next_steps":         "No action required.",
+            "clark_tier":         "CLARK-0",
         }
 
     # Box 2 quote: worst P0/P1 from the top-ranked issue_type, de-duped vs Box 1 quotes

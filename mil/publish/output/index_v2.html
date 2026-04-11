@@ -154,7 +154,10 @@ a { color: var(--blue); text-decoration: none; }
 .exec-alert-section-text { font-size: 13px; color: var(--text-2); line-height: 1.5; padding-bottom: 4px; }
 .exec-alert-footer { padding: 8px 14px; border-top: 1px solid #2A1010; }
 .exec-escalate-btn { background: rgba(204,0,0,0.15); color: #FF4444; border: 1px solid rgba(204,0,0,0.4); border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 14px; cursor: pointer; width: 100%; font-family: var(--sans); text-transform: uppercase; }
-.exec-escalate-btn:hover { background: rgba(204,0,0,0.25); }
+.exec-escalate-btn:hover { opacity: 0.8; }
+.exec-alert-footnote { padding: 8px 14px 10px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.exec-alert-footnote span { font-size: 10px; color: var(--text-3); font-family: var(--mono); line-height: 1.4; }
+.exec-fn-sep { color: var(--text-3); opacity: 0.4; padding: 0 2px; }
 /* Nominal body text */
 .exec-nominal-badge { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: #00AFA0; margin-bottom: 8px; }
 .exec-nominal-text { font-size: 11px; color: var(--text-2); line-height: 1.5; }
@@ -339,19 +342,19 @@ a { color: var(--blue); text-decoration: none; }
           <div class="sent-row-1">
             <span class="sent-card-label">BARCLAYS SENTIMENT</span>
             <span class="sent-card-score" style="margin-left:auto;">89</span>
-            <span class="sent-card-delta" style="color:#2a9a5a;">+0 vs baseline</span>
-            <span class="sent-card-traj" style="color:#2a9a5a;">&#8599; STABLE</span>
+            <span class="sent-card-delta" style="color:#ff4444;">+0 vs baseline</span>
+            <span class="sent-card-traj" style="color:#ff4444;">&#8600; WORSENING</span>
           </div>
           <div class="sent-row-2">
             <span class="sent-card-baseline">Baseline: 89</span>
-            <span class="sent-card-ts">2026-04-05 11:53 UTC</span>
+            <span class="sent-card-ts">2026-04-10 22:41 UTC</span>
           </div>
           <div class="sent-card-progress">
             <div class="sent-progress-fill" style="width:89%;"></div>
           </div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;"><div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;text-align:left;background:#001E2E;overflow:hidden;"><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;The app doesn’t even be working and when it’s down, it’s so hard to find support or find a way around it. No one is able to assist you and if you feel like that.&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★★★☆☆ &middot; App Store &middot; 29 Mar</div></div><div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#001E2E;overflow:hidden;"><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;doesnt remember cards anymore. Page refreshes when trying to authenticate so can never pay it off&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★☆☆☆☆ &middot; Google Play &middot; 30 Mar</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;"><div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;text-align:left;background:#001E2E;overflow:hidden;"><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;Constantly getting logged out and having to reregister using ID on my devices. I will be closing my accounts as soon as I am able to as it is too much hassle compared with other banking apps like NatWest.&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★☆☆☆☆ &middot; App Store &middot; 7 Apr</div></div><div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#001E2E;overflow:hidden;"><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;Since doing an update it won&#x27;t open, I&#x27;ve deleted and re installed numerous times. Rubbish&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★☆☆☆☆ &middot; Google Play &middot; 4 Apr</div></div></div>
       <div class="brand-line">
         <span class="brand-dot brand-dot-blue"></span>
         <span>Live signals from App Store, Google Play, news and social &mdash; updated daily</span>
@@ -362,7 +365,7 @@ a { color: var(--blue); text-decoration: none; }
       </div>
       <div class="topbar-pills" style="margin-top:auto;">
         <span class="version-pill">v8.20.1</span>
-        <span class="version-pill">2026-04-05 11:53 UTC</span>
+        <span class="version-pill">2026-04-10 22:41 UTC</span>
         
         <div class="live-dot">LIVE</div>
       </div>
@@ -393,67 +396,70 @@ a { color: var(--blue); text-decoration: none; }
       </div>
       <div class="issues-divider"></div>
         <div class="journey-list-item">
-          <span class="journey-list-name">App Crashing</span>
-          <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#CC0000;">42</span>
-            <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
-          </span>
-        </div>
-        <div class="journey-list-item">
           <span class="journey-list-name">App Not Opening</span>
           <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#CC0000;">20</span>
+            <span class="journey-list-score" style="color:#CC0000;">40</span>
             <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
         <div class="journey-list-item">
           <span class="journey-list-name">Feature Broken</span>
           <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#00AFA0;">59</span>
+            <span class="journey-list-score" style="color:#00AFA0;">58</span>
             <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">App Crashing</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#CC0000;">40</span>
+            <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
         <div class="journey-list-item">
           <span class="journey-list-name">Payment Failed</span>
           <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#CC0000;">47</span>
+            <span class="journey-list-score" style="color:#CC0000;">33</span>
             <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
         <div class="journey-list-item">
-          <span class="journey-list-name">Account Locked</span>
+          <span class="journey-list-name">Login Failed</span>
           <span class="journey-list-right">
             <span class="journey-list-score" style="color:#CC0000;">20</span>
             <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
-<div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;text-align:left;background:#001E2E;overflow:hidden;"><div style="font-size:10px;color:#3A6A7F;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">App Crashing</div><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;load of rubbish, it just closes itself down on me every time I try to open it. I have banked with Barclays for over 38 years and this experience is awful.&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★★☆☆☆ &middot; Google Play &middot; 31 Mar</div></div>    </div>
+<div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#001E2E;overflow:hidden;"><div style="font-size:10px;color:#3A6A7F;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">App Not Opening</div><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;The app reset it self so now have to log back in. update doesn&#x27;t work with GrapheneOS&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★☆☆☆☆ &middot; Google Play &middot; 7 Apr</div></div>    </div>
   </div>
-  <!-- Right: Executive Alert panel (bd-wired) -->
+  <!-- Right: Barclays Alert panel (bd-wired) -->
   <div class="topbar-box exec-alert-panel">
     <div class="exec-alert-header">
       <span class="exec-alert-pulse"></span>
-      <span class="exec-alert-title">Executive Alert</span>
-      <span class="exec-alert-ts">2026-04-05 11:53 UTC</span>
+      <span class="exec-alert-title">Barclays Alert</span>
+      <span class="exec-alert-ts">2026-04-10 22:41 UTC</span>
     </div>
     <div class="exec-alert-body">
-      <div class="exec-alert-finding">YOUR APP — STRONG SIGNAL</div>
+      <div class="exec-alert-pills" style="margin-bottom:10px;">
+        <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);font-weight:700;">CLARK-3</span>
+        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">STRONG SIGNAL</span>
+      </div>
+      <div class="exec-alert-section-label">THE SITUATION</div>
+      <div class="exec-alert-section-text">Customers reporting app not opening and app crashing</div>
+      <div class="exec-alert-section-label">THE LESSON — TSB, 2018</div>
+      <div class="exec-alert-section-text">TSB went live with 4,424 open defects. Within days, 1.9 million customers were locked out. 33,000 complaints arrived in a single week — ten times normal volume. The fine was £48.65 million. The CEO resigned. They had the same signals Barclays is showing now and did not escalate in time.</div>
+      <div class="exec-alert-section-label">SEVERITY</div>
       <div class="exec-alert-pills">
         <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);">P0 &nbsp;8</span>
         <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;3</span>
-        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">STRONG SIGNAL</span>
+        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">CAC &nbsp;0.64</span>
       </div>
-      <div class="exec-alert-section-label">WHAT YOUR CUSTOMERS ARE SAYING</div>
-      <div class="exec-alert-section-text">Customers reporting app crashing and app not opening</div>
-      <div class="exec-alert-section-label">HISTORICAL CONTEXT</div>
-      <div class="exec-alert-section-text">TSB saw this same sequence in 2018 — 1.9 million customers locked out, services unavailable for weeks.</div>
-      <div class="exec-alert-section-label">INTELLIGENCE GAP</div>
-      <div class="exec-alert-section-text">Public signal only. Internal journey data would confirm whether this is isolated or systemic.</div>
-      <div class="exec-alert-section-label">YOUR CALL</div>
-      <div class="exec-alert-section-text">Escalate now. If this isn&#x27;t already on the incident board, it should be.</div>
+      <div class="exec-alert-section-label">NEXT STEPS</div>
+      <div class="exec-alert-section-text">This belongs on the incident board today. If it is not already there, that is the first failure. Escalate now.</div>
+      <button class="exec-escalate-btn" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);border-radius:6px;font-size:13px;font-weight:700;letter-spacing:0.08em;padding:6px 14px;cursor:pointer;width:100%;font-family:var(--sans);text-transform:uppercase;margin-top:10px;">ACT NOW</button>
     </div>
-    <div class="exec-alert-footer">
-      <button class="exec-escalate-btn">Escalate</button>
+    <div class="exec-alert-footnote">
+      <span>P0 — customer blocked</span>      <span class="exec-fn-sep">·</span>      <span>P1 — significant friction</span>      <span class="exec-fn-sep">·</span>      <span>CAC — signal confidence (0–1)</span>      <span class="exec-fn-sep">·</span>      <span>CLARK-3 — act now &nbsp;CLARK-2 — escalate &nbsp;CLARK-1 — watch</span>
     </div>
   </div>
 </div>
@@ -464,7 +470,7 @@ a { color: var(--blue); text-decoration: none; }
 </div>
 
 <!-- -- Journey Sentiment Row ----------------------------------------------- -->
-<div class="journey-row"><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">General App Use</div><div class="journey-cell-score" style="color:var(--red);">92</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Make a Payment</div><div class="journey-cell-score" style="color:var(--red);">66</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Check Balance or Statement</div><div class="journey-cell-score" style="color:var(--red);">69</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Get Support</div><div class="journey-cell-score" style="color:var(--red);">80</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Open or Register Account</div><div class="journey-cell-score" style="color:var(--red);">60</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div></div>
+<div class="journey-row"><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">General App Use</div><div class="journey-cell-score" style="color:var(--red);">94</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Make a Payment</div><div class="journey-cell-score" style="color:var(--red);">76</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Log In to Account</div><div class="journey-cell-score" style="color:var(--red);">50</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--red);">↘</span><span class="journey-status-label" style="color:var(--red);">REGRESSION</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Get Support</div><div class="journey-cell-score" style="color:var(--green);">73</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--green);">↗</span><span class="journey-status-label" style="color:var(--green);">PERFORMING WELL</span></div></div><div class="journey-cell" style="border-top:3px solid var(--amber);"><div class="journey-cell-name">Transfer Money</div><div class="journey-cell-score" style="color:var(--amber);">80</div><div class="journey-cell-meta"><span class="traj-icon" style="color:var(--amber);">→</span><span class="journey-status-label" style="color:var(--amber);">WATCH</span></div></div></div>
 
 <!-- -- Body: Left + Right Columns ------------------------------------------ -->
 <div class="body-wrapper">
@@ -474,64 +480,64 @@ a { color: var(--blue); text-decoration: none; }
 <div class="journey-card" style="border-left:3px solid var(--red);">
   <div class="card-header">
     <span class="rank-num">#1</span>
-    <span class="journey-name">App Crashing</span>
-    <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
-  </div>
-  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
-  <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text">App Crashing -- 5 complete-block signals, trend worsening.</div>
-  <div class="version-delta-row">
-    <span class="version-label">v—</span>
-    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
-  </div>
-  <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 9</span>
-    <span class="sig-count sig-p2">P2: 1</span>
-  </div>
-  
-  <div class="market-note">Market signal analysis — public app store data - 2.10 avg rating</div>
-</div>
-
-<div class="journey-card" style="border-left:3px solid var(--red);">
-  <div class="card-header">
-    <span class="rank-num">#2</span>
     <span class="journey-name">App Not Opening</span>
     <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text">App Not Opening -- 4 complete-block signals, volume stable.</div>
+  <div class="verdict-text">App Not Opening -- 3 complete-block signals, volume stable.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 5</span>
+    <span class="sig-count sig-p1">P1: 4</span>
     <span class="sig-count sig-p2">P2: 0</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 1.00 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 2.00 avg rating</div>
 </div>
 
 <div class="journey-card" style="border-left:3px solid var(--green);">
   <div class="card-header">
-    <span class="rank-num">#3</span>
+    <span class="rank-num">#2</span>
     <span class="journey-name">Feature Broken</span>
     <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text">Feature Broken -- 23 signals, minor issues only.</div>
+  <div class="verdict-text">Feature Broken -- 18 signals, minor issues only.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
     <span class="sig-count sig-p1">P1: 0</span>
-    <span class="sig-count sig-p2">P2: 23</span>
+    <span class="sig-count sig-p2">P2: 18</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 2.95 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 2.90 avg rating</div>
+</div>
+
+<div class="journey-card" style="border-left:3px solid var(--red);">
+  <div class="card-header">
+    <span class="rank-num">#3</span>
+    <span class="journey-name">App Crashing</span>
+    <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
+  </div>
+  <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
+  <div class="verdict-label">VERDICT</div>
+  <div class="verdict-text">App Crashing -- 1 complete-block signals, volume stable.</div>
+  <div class="version-delta-row">
+    <span class="version-label">v—</span>
+    <code class="version-delta" style="color:#6b7088;">— no baseline</code>
+  </div>
+  <div class="signal-counts">
+    <span class="sig-count sig-p1">P1: 4</span>
+    <span class="sig-count sig-p2">P2: 0</span>
+  </div>
+  
+  <div class="market-note">Market signal analysis — public app store data - 2.00 avg rating</div>
 </div>
 
 <div class="journey-card" style="border-left:3px solid var(--red);">
@@ -548,28 +554,28 @@ a { color: var(--blue); text-decoration: none; }
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 4</span>
+    <span class="sig-count sig-p1">P1: 3</span>
     <span class="sig-count sig-p2">P2: 0</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 2.35 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 1.65 avg rating</div>
 </div>
 
 <div class="journey-card" style="border-left:3px solid var(--red);">
   <div class="card-header">
     <span class="rank-num">#5</span>
-    <span class="journey-name">Account Locked</span>
+    <span class="journey-name">Login Failed</span>
     <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text">Account Locked -- 2 complete-block signals, volume stable.</div>
+  <div class="verdict-text">Login Failed -- 1 complete-block signals, volume stable.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 2</span>
+    <span class="sig-count sig-p1">P1: 1</span>
     <span class="sig-count sig-p2">P2: 0</span>
   </div>
   
@@ -672,7 +678,7 @@ a { color: var(--blue); text-decoration: none; }
   <span class="footer-sep">-</span>
   <span class="footer-item">Article Zero</span>
   <span class="footer-sep">-</span>
-  <span class="footer-item">Published 2026-04-05 11:53 UTC</span>
+  <span class="footer-item">Published 2026-04-11 11:17 UTC</span>
 </div>
 
 <!-- -- Ask Sonar Button ----------------------------------------------------- -->
@@ -765,6 +771,7 @@ document.addEventListener('click', function(e) {
 </script>
 
 
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 
 <style>
 /* ── V2 additions — matches topbar layout pattern ── */
@@ -855,7 +862,7 @@ document.addEventListener('click', function(e) {
   <div class="v2-label">
     Sonar Intelligence Layer &nbsp;&middot;&nbsp;
     <span>Phase 1</span> &nbsp;&middot;&nbsp;
-    2026-04-05 12:23 UTC
+    2026-04-11 11:17 UTC
   </div>
   
 <div class="topbar-box">
@@ -864,7 +871,7 @@ document.addEventListener('click', function(e) {
     <span style="font-size:10px;color:#3A6A7F;">14-day daily sentiment &middot; App Store + Google Play</span>
   </div>
   <div class="topbar-box-body">
-    <div>                            <div id="d4f51d0f-b4c5-44c2-bb54-e9d4295116ae" class="plotly-graph-div" style="height:280px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("d4f51d0f-b4c5-44c2-bb54-e9d4295116ae")) {                    Plotly.newPlot(                        "d4f51d0f-b4c5-44c2-bb54-e9d4295116ae",                        [{"connectgaps":false,"line":{"color":"#F5A623","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"NatWest","opacity":0.75,"x":["Mar 23","Mar 24","Mar 25","Mar 26","Mar 27","Mar 28","Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05"],"y":[57.1,63.6,69.5,77.6,86.7,90.5,87.6,77.5,62.5,84.2,74.3,75.8,null,null],"type":"scatter"},{"connectgaps":false,"line":{"color":"#00AFA0","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"Lloyds","opacity":0.75,"x":["Mar 23","Mar 24","Mar 25","Mar 26","Mar 27","Mar 28","Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05"],"y":[63.3,88.6,75.0,66.0,80.0,45.0,80.0,84.0,90.0,60.0,82.2,80.0,null,null],"type":"scatter"},{"connectgaps":false,"line":{"color":"#7B5EA7","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"Monzo","opacity":0.75,"x":["Mar 23","Mar 24","Mar 25","Mar 26","Mar 27","Mar 28","Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05"],"y":[90.0,88.6,100.0,100.0,91.4,null,null,100.0,null,60.0,null,null,null,null],"type":"scatter"},{"connectgaps":false,"line":{"color":"#4A9BD4","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"Revolut","opacity":0.75,"x":["Mar 23","Mar 24","Mar 25","Mar 26","Mar 27","Mar 28","Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05"],"y":[91.1,80.4,90.3,90.0,82.1,null,88.0,86.4,84.4,90.3,90.3,88.0,80.0,null],"type":"scatter"},{"connectgaps":false,"fill":"tozeroy","fillcolor":"rgba(0,174,239,0.05)","line":{"color":"#00AEEF","width":3},"marker":{"color":"#00AEEF","size":6},"mode":"lines+markers","name":"Barclays","x":["Mar 23","Mar 24","Mar 25","Mar 26","Mar 27","Mar 28","Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05"],"y":[90.0,92.9,88.9,92.3,75.0,80.0,88.6,91.0,81.9,91.5,89.4,83.0,null,null],"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"#003A5C","dash":"dash","width":1},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":75,"y1":75,"yref":"y"}],"annotations":[{"font":{"color":"#4A7A8F","size":10},"showarrow":false,"text":"75 floor","x":1,"xanchor":"left","xref":"x domain","y":75,"yanchor":"middle","yref":"y"}],"font":{"family":"DM Mono, monospace","color":"#7AACBF","size":11},"margin":{"l":40,"r":20,"t":10,"b":60},"xaxis":{"tickfont":{"size":10},"showgrid":false,"zeroline":false,"nticks":7},"yaxis":{"tickfont":{"size":10},"range":[0,105],"showgrid":true,"gridcolor":"#003A5C","gridwidth":0.5,"zeroline":false,"dtick":25},"legend":{"font":{"size":10},"orientation":"h","y":-0.22,"x":0,"bgcolor":"rgba(0,0,0,0)","borderwidth":0},"paper_bgcolor":"#001828","plot_bgcolor":"#00273D","height":280,"hovermode":"x unified"},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div>
+    <div>                            <div id="a305bd02-a51d-480b-828a-9f447032c29d" class="plotly-graph-div" style="height:280px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("a305bd02-a51d-480b-828a-9f447032c29d")) {                    Plotly.newPlot(                        "a305bd02-a51d-480b-828a-9f447032c29d",                        [{"connectgaps":false,"line":{"color":"#F5A623","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"NatWest","opacity":0.75,"x":["Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05","Apr 06","Apr 07","Apr 08","Apr 09","Apr 10","Apr 11"],"y":[87.6,77.5,62.5,84.2,74.3,72.0,73.6,60.0,52.5,62.7,77.0,57.5,null,null],"type":"scatter"},{"connectgaps":false,"line":{"color":"#00AFA0","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"Lloyds","opacity":0.75,"x":["Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05","Apr 06","Apr 07","Apr 08","Apr 09","Apr 10","Apr 11"],"y":[80.0,84.0,90.0,60.0,82.2,80.0,84.0,70.0,80.0,86.7,86.7,93.3,null,null],"type":"scatter"},{"connectgaps":false,"line":{"color":"#7B5EA7","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"Monzo","opacity":0.75,"x":["Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05","Apr 06","Apr 07","Apr 08","Apr 09","Apr 10","Apr 11"],"y":[null,100.0,null,60.0,null,null,null,null,null,86.7,null,84.0,null,null],"type":"scatter"},{"connectgaps":false,"line":{"color":"#4A9BD4","dash":"dot","width":1.5},"marker":{"size":4},"mode":"lines+markers","name":"Revolut","opacity":0.75,"x":["Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05","Apr 06","Apr 07","Apr 08","Apr 09","Apr 10","Apr 11"],"y":[88.0,86.4,84.4,90.3,90.3,88.0,91.7,87.2,88.7,86.4,91.7,87.6,null,null],"type":"scatter"},{"connectgaps":false,"fill":"tozeroy","fillcolor":"rgba(0,174,239,0.05)","line":{"color":"#00AEEF","width":3},"marker":{"color":"#00AEEF","size":6},"mode":"lines+markers","name":"Barclays","x":["Mar 29","Mar 30","Mar 31","Apr 01","Apr 02","Apr 03","Apr 04","Apr 05","Apr 06","Apr 07","Apr 08","Apr 09","Apr 10","Apr 11"],"y":[88.6,91.0,81.9,91.5,89.4,84.5,91.2,92.5,89.6,79.3,89.0,89.7,null,null],"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"#003A5C","dash":"dash","width":1},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":75,"y1":75,"yref":"y"}],"annotations":[{"font":{"color":"#4A7A8F","size":10},"showarrow":false,"text":"75 floor","x":1,"xanchor":"left","xref":"x domain","y":75,"yanchor":"middle","yref":"y"}],"font":{"family":"DM Mono, monospace","color":"#7AACBF","size":11},"margin":{"l":40,"r":20,"t":10,"b":60},"xaxis":{"tickfont":{"size":10},"showgrid":false,"zeroline":false,"nticks":7},"yaxis":{"tickfont":{"size":10},"range":[0,105],"showgrid":true,"gridcolor":"#003A5C","gridwidth":0.5,"zeroline":false,"dtick":25},"legend":{"font":{"size":10},"orientation":"h","y":-0.22,"x":0,"bgcolor":"rgba(0,0,0,0)","borderwidth":0},"paper_bgcolor":"#001828","plot_bgcolor":"#00273D","height":280,"hovermode":"x unified"},                        {"displayModeBar": false, "responsive": true}                    )                };            </script>        </div>
   </div>
 </div>
   
@@ -872,71 +879,22 @@ document.addEventListener('click', function(e) {
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
     <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE FINDINGS</span>
     <span style="font-size:10px;color:#3A6A7F;">
-      110 total &nbsp;&middot;&nbsp;
-      <span style="color:#CC0000;">36 ceiling</span> &nbsp;&middot;&nbsp;
-      3 P1 &nbsp;&middot;&nbsp;
-      0 countersigned
+      Barclays &nbsp;&middot;&nbsp;
+      10 findings &nbsp;&middot;&nbsp;
+      <span style="color:#CC0000;">5 ceiling</span>
     </span>
   </div>
   <div class="topbar-box-body">
     
 <div class="inf-card" style="border-left-color:#CC0000;">
   <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-057</span>
-    <span class="inf-comp" style="color:#F5A623;">NatWest</span>
-    <span class="inf-tier" style="color:#CC0000;">P1</span>
-    <span class="inf-sev">SIG P2</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
-  </div>
-  <div class="inf-summary">The Natwest banking app on the Google Play store is experiencing increased usage of its workarounds for a competitor's s</div>
-  <div class="cac-label">CAC CONFIDENCE</div>
-  <div class="cac-track">
-    <div class="cac-fill" style="width:71%;background:#CC0000;"></div>
-    <span class="cac-val" style="color:#CC0000;">0.720</span>
-  </div>
-  <div class="inf-meta">
-    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
-    <span class="inf-meta-item"><span class="meta-label">Signals</span>
-      <span style="color:#CC0000;">P0:0</span>
-      <span style="color:#F5A623;margin-left:4px;">P1:0</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:106</span>
-    </span>
-    <span class="inf-kw"><span class="kw-pill">feature</span><span class="kw-pill">customer</span><span class="kw-pill">after</span></span>
-  </div>
-</div>
-<div class="inf-card" style="border-left-color:#CC0000;">
-  <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-032</span>
-    <span class="inf-comp" style="color:#F5A623;">NatWest</span>
-    <span class="inf-tier" style="color:#CC0000;">P1</span>
-    <span class="inf-sev">SIG P2</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
-  </div>
-  <div class="inf-summary">J_SERVICE_01 has a high-risk combination of non-transiting and non-functional components, possibly related to advertised</div>
-  <div class="cac-label">CAC CONFIDENCE</div>
-  <div class="cac-track">
-    <div class="cac-fill" style="width:68%;background:#CC0000;"></div>
-    <span class="cac-val" style="color:#CC0000;">0.686</span>
-  </div>
-  <div class="inf-meta">
-    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
-    <span class="inf-meta-item"><span class="meta-label">Signals</span>
-      <span style="color:#CC0000;">P0:0</span>
-      <span style="color:#F5A623;margin-left:4px;">P1:0</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:9</span>
-    </span>
-    <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">feature</span><span class="kw-pill">friction</span></span>
-  </div>
-</div>
-<div class="inf-card" style="border-left-color:#CC0000;">
-  <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-096</span>
+    <span class="inf-id">MIL-F-20260410-103</span>
     <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
     <span class="inf-tier" style="color:#CC0000;">P1</span>
     <span class="inf-sev">SIG P0</span>
     <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
   </div>
-  <div class="inf-summary">Invalid payment detection through social media channels (YouTube) of Barclays.</div>
+  <div class="inf-summary">YouTube Barclays warns of inability to access, overdraft; causes financial strain</div>
   <div class="cac-label">CAC CONFIDENCE</div>
   <div class="cac-track">
     <div class="cac-fill" style="width:64%;background:#F5A623;"></div>
@@ -954,170 +912,218 @@ document.addEventListener('click', function(e) {
 </div>
 <div class="inf-card" style="border-left-color:#F5A623;">
   <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-012</span>
-    <span class="inf-comp" style="color:#00AFA0;">Lloyds</span>
+    <span class="inf-id">MIL-F-20260410-003</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
     <span class="inf-tier" style="color:#F5A623;">P2</span>
     <span class="inf-sev">SIG P2</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
+    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-002</span>
   </div>
-  <div class="inf-summary">Lloyds app store had a 55 signal (J_01) with top keywords 'transfers', 'android', 'exist', 'international' and 'difficul</div>
+  <div class="inf-summary">No significant finding related to app store Barclays</div>
   <div class="cac-label">CAC CONFIDENCE</div>
   <div class="cac-track">
-    <div class="cac-fill" style="width:59%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.598</span>
+    <div class="cac-fill" style="width:58%;background:#F5A623;"></div>
+    <span class="cac-val" style="color:#F5A623;">0.585</span>
   </div>
   <div class="inf-meta">
     <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
     <span class="inf-meta-item"><span class="meta-label">Signals</span>
       <span style="color:#CC0000;">P0:0</span>
       <span style="color:#F5A623;margin-left:4px;">P1:0</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:55</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:11</span>
     </span>
-    <span class="inf-kw"><span class="kw-pill">feature</span><span class="kw-pill">customer</span><span class="kw-pill">payment</span></span>
+    <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">significant</span><span class="kw-pill">friction</span></span>
   </div>
 </div>
 <div class="inf-card" style="border-left-color:#F5A623;">
   <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-019</span>
-    <span class="inf-comp" style="color:#7B5EA7;">Monzo</span>
+    <span class="inf-id">MIL-F-20260410-048</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
     <span class="inf-tier" style="color:#F5A623;">P2</span>
-    <span class="inf-sev">SIG P0</span>
+    <span class="inf-sev">SIG P2</span>
     <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
   </div>
-  <div class="inf-summary">Competitor app has higher login rejection rates.</div>
+  <div class="inf-summary">The Barclays app appears to be less secure compared with competitors</div>
   <div class="cac-label">CAC CONFIDENCE</div>
   <div class="cac-track">
-    <div class="cac-fill" style="width:57%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.578</span>
+    <div class="cac-fill" style="width:50%;background:#F5A623;"></div>
+    <span class="cac-val" style="color:#F5A623;">0.505</span>
   </div>
   <div class="inf-meta">
-    <span class="inf-meta-item"><span class="meta-label">Journey</span>J_LOGIN_01</span>
+    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
     <span class="inf-meta-item"><span class="meta-label">Signals</span>
-      <span style="color:#CC0000;">P0:20</span>
-      <span style="color:#F5A623;margin-left:4px;">P1:5</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+      <span style="color:#CC0000;">P0:0</span>
+      <span style="color:#F5A623;margin-left:4px;">P1:0</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:56</span>
     </span>
-    <span class="inf-kw"><span class="kw-pill">account</span><span class="kw-pill">access</span><span class="kw-pill">complete</span></span>
+    <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">feature</span><span class="kw-pill">minor</span></span>
   </div>
 </div>
 <div class="inf-card" style="border-left-color:#F5A623;">
   <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-033</span>
-    <span class="inf-comp" style="color:#F5A623;">NatWest</span>
+    <span class="inf-id">MIL-F-20260410-006</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
+    <span class="inf-tier" style="color:#F5A623;">P2</span>
+    <span class="inf-sev">SIG P1</span>
+    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
+  </div>
+  <div class="inf-summary">User reported invalid credentials and the app automatically corrected it.</div>
+  <div class="cac-label">CAC CONFIDENCE</div>
+  <div class="cac-track">
+    <div class="cac-fill" style="width:50%;background:#F5A623;"></div>
+    <span class="cac-val" style="color:#F5A623;">0.501</span>
+  </div>
+  <div class="inf-meta">
+    <span class="inf-meta-item"><span class="meta-label">Journey</span>Make a Payment</span>
+    <span class="inf-meta-item"><span class="meta-label">Signals</span>
+      <span style="color:#CC0000;">P0:0</span>
+      <span style="color:#F5A623;margin-left:4px;">P1:4</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+    </span>
+    <span class="inf-kw"><span class="kw-pill">payment</span><span class="kw-pill">significant</span><span class="kw-pill">friction</span></span>
+  </div>
+</div>
+<div class="inf-card" style="border-left-color:#F5A623;">
+  <div class="inf-header">
+    <span class="inf-id">MIL-F-20260410-043</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
     <span class="inf-tier" style="color:#F5A623;">P2</span>
     <span class="inf-sev">SIG P0</span>
     <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
   </div>
-  <div class="inf-summary">The top keywords, such as 'works' and 'in', suggest that the Natwest app is facing issues with device compatibility, whi</div>
+  <div class="inf-summary">Google Play Barclays has multitasking, negative, sometimes and completing top keywords. Failure mode for this system is </div>
   <div class="cac-label">CAC CONFIDENCE</div>
   <div class="cac-track">
-    <div class="cac-fill" style="width:55%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.559</span>
+    <div class="cac-fill" style="width:46%;background:#F5A623;"></div>
+    <span class="cac-val" style="color:#F5A623;">0.468</span>
+  </div>
+  <div class="inf-meta">
+    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+    <span class="inf-meta-item"><span class="meta-label">Signals</span>
+      <span style="color:#CC0000;">P0:8</span>
+      <span style="color:#F5A623;margin-left:4px;">P1:13</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:1</span>
+    </span>
+    <span class="inf-kw"><span class="kw-pill">crashes</span><span class="kw-pill">customer</span><span class="kw-pill">friction</span></span>
+  </div>
+</div>
+<div class="inf-card" style="border-left-color:#F5A623;">
+  <div class="inf-header">
+    <span class="inf-id">MIL-F-20260410-101</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
+    <span class="inf-tier" style="color:#F5A623;">P2</span>
+    <span class="inf-sev">SIG P2</span>
+    <span class="badge-chr">CHR-002</span>
+  </div>
+  <div class="inf-summary">Cluster contains unconfirmed data on a youtube Barclays finance-related cluster.</div>
+  <div class="cac-label">CAC CONFIDENCE</div>
+  <div class="cac-track">
+    <div class="cac-fill" style="width:44%;background:#4A9BD4;"></div>
+    <span class="cac-val" style="color:#4A9BD4;">0.447</span>
+  </div>
+  <div class="inf-meta">
+    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+    <span class="inf-meta-item"><span class="meta-label">Signals</span>
+      <span style="color:#CC0000;">P0:0</span>
+      <span style="color:#F5A623;margin-left:4px;">P1:0</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:4</span>
+    </span>
+    <span class="inf-kw"><span class="kw-pill">balance</span><span class="kw-pill">causing</span><span class="kw-pill">incorrect</span></span>
+  </div>
+</div>
+<div class="inf-card" style="border-left-color:#F5A623;">
+  <div class="inf-header">
+    <span class="inf-id">MIL-F-20260410-044</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
+    <span class="inf-tier" style="color:#F5A623;">P2</span>
+    <span class="inf-sev">SIG P0</span>
+    <span class="badge-chr">CHR-001</span>
+  </div>
+  <div class="inf-summary">There is limited data for 'google play barclays', a high-risk journey-product combination.</div>
+  <div class="cac-label">CAC CONFIDENCE</div>
+  <div class="cac-track">
+    <div class="cac-fill" style="width:44%;background:#4A9BD4;"></div>
+    <span class="cac-val" style="color:#4A9BD4;">0.442</span>
+  </div>
+  <div class="inf-meta">
+    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+    <span class="inf-meta-item"><span class="meta-label">Signals</span>
+      <span style="color:#CC0000;">P0:9</span>
+      <span style="color:#F5A623;margin-left:4px;">P1:3</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+    </span>
+    <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">access</span><span class="kw-pill">complete</span></span>
+  </div>
+</div>
+<div class="inf-card" style="border-left-color:#F5A623;">
+  <div class="inf-header">
+    <span class="inf-id">MIL-F-20260410-005</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
+    <span class="inf-tier" style="color:#F5A623;">P2</span>
+    <span class="inf-sev">SIG P0</span>
+    <span class="badge-chr">CHR-001</span>
+  </div>
+  <div class="inf-summary">App Store users may experience access issues with Barclays account logins after a significant login attempt.</div>
+  <div class="cac-label">CAC CONFIDENCE</div>
+  <div class="cac-track">
+    <div class="cac-fill" style="width:43%;background:#4A9BD4;"></div>
+    <span class="cac-val" style="color:#4A9BD4;">0.437</span>
   </div>
   <div class="inf-meta">
     <span class="inf-meta-item"><span class="meta-label">Journey</span>J_LOGIN_01</span>
     <span class="inf-meta-item"><span class="meta-label">Signals</span>
       <span style="color:#CC0000;">P0:1</span>
-      <span style="color:#F5A623;margin-left:4px;">P1:2</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
-    </span>
-    <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">access</span><span class="kw-pill">login</span></span>
-  </div>
-</div>
-<div class="inf-card" style="border-left-color:#F5A623;">
-  <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-017</span>
-    <span class="inf-comp" style="color:#00AFA0;">Lloyds</span>
-    <span class="inf-tier" style="color:#F5A623;">P2</span>
-    <span class="inf-sev">SIG P2</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
-  </div>
-  <div class="inf-summary">The app store for Lloyds reports an issue with transfers and open accounts, leading to users needing workarounds.</div>
-  <div class="cac-label">CAC CONFIDENCE</div>
-  <div class="cac-track">
-    <div class="cac-fill" style="width:54%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.544</span>
-  </div>
-  <div class="inf-meta">
-    <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
-    <span class="inf-meta-item"><span class="meta-label">Signals</span>
-      <span style="color:#CC0000;">P0:0</span>
-      <span style="color:#F5A623;margin-left:4px;">P1:0</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:40</span>
-    </span>
-    <span class="inf-kw"><span class="kw-pill">friction</span><span class="kw-pill">performance</span><span class="kw-pill">significant</span></span>
-  </div>
-</div>
-<div class="inf-card" style="border-left-color:#F5A623;">
-  <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-084</span>
-    <span class="inf-comp" style="color:#4A9BD4;">Revolut</span>
-    <span class="inf-tier" style="color:#F5A623;">P2</span>
-    <span class="inf-sev">SIG P0</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
-  </div>
-  <div class="inf-summary">Identifying user frustration after months of bank account identity opened</div>
-  <div class="cac-label">CAC CONFIDENCE</div>
-  <div class="cac-track">
-    <div class="cac-fill" style="width:53%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.532</span>
-  </div>
-  <div class="inf-meta">
-    <span class="inf-meta-item"><span class="meta-label">Journey</span>J_LOGIN_01</span>
-    <span class="inf-meta-item"><span class="meta-label">Signals</span>
-      <span style="color:#CC0000;">P0:3</span>
       <span style="color:#F5A623;margin-left:4px;">P1:1</span>
       <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
     </span>
-    <span class="inf-kw"><span class="kw-pill">account</span><span class="kw-pill">access</span><span class="kw-pill">after</span></span>
+    <span class="inf-kw"><span class="kw-pill">login</span><span class="kw-pill">access</span><span class="kw-pill">account</span></span>
   </div>
 </div>
 <div class="inf-card" style="border-left-color:#F5A623;">
   <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-058</span>
-    <span class="inf-comp" style="color:#F5A623;">NatWest</span>
-    <span class="inf-tier" style="color:#F5A623;">P2</span>
-    <span class="inf-sev">SIG P0</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-001</span>
-  </div>
-  <div class="inf-summary">The signal cluster has high-traffic and top keywords indicating a user problem related to reinstalling or opening applic</div>
-  <div class="cac-label">CAC CONFIDENCE</div>
-  <div class="cac-track">
-    <div class="cac-fill" style="width:52%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.524</span>
-  </div>
-  <div class="inf-meta">
-    <span class="inf-meta-item"><span class="meta-label">Journey</span>J_LOGIN_01</span>
-    <span class="inf-meta-item"><span class="meta-label">Signals</span>
-      <span style="color:#CC0000;">P0:10</span>
-      <span style="color:#F5A623;margin-left:4px;">P1:14</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
-    </span>
-    <span class="inf-kw"><span class="kw-pill">login</span><span class="kw-pill">access</span><span class="kw-pill">customer</span></span>
-  </div>
-</div>
-<div class="inf-card" style="border-left-color:#F5A623;">
-  <div class="inf-header">
-    <span class="inf-id">MIL-F-20260405-105</span>
-    <span class="inf-comp" style="color:#4A9BD4;">Revolut</span>
+    <span class="inf-id">MIL-F-20260410-047</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
     <span class="inf-tier" style="color:#F5A623;">P2</span>
     <span class="inf-sev">SIG P2</span>
-    <span class="badge-ceiling">⚑ CEILING</span><span class="badge-chr">CHR-002</span>
+    <span class="badge-chr">CHR-002</span>
   </div>
-  <div class="inf-summary">The Youtube_Revolut signals suggests a potential blind spot involving transactions</div>
+  <div class="inf-summary">Cluster with low signal counts and top keywords may indicate the need to verify user behavior in relation to Barclays ap</div>
   <div class="cac-label">CAC CONFIDENCE</div>
   <div class="cac-track">
-    <div class="cac-fill" style="width:52%;background:#F5A623;"></div>
-    <span class="cac-val" style="color:#F5A623;">0.522</span>
+    <div class="cac-fill" style="width:42%;background:#4A9BD4;"></div>
+    <span class="cac-val" style="color:#4A9BD4;">0.424</span>
   </div>
   <div class="inf-meta">
     <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
     <span class="inf-meta-item"><span class="meta-label">Signals</span>
       <span style="color:#CC0000;">P0:0</span>
       <span style="color:#F5A623;margin-left:4px;">P1:0</span>
-      <span style="color:#4A9BD4;margin-left:4px;">P2:18</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:13</span>
     </span>
-    <span class="inf-kw"><span class="kw-pill">support</span><span class="kw-pill">comment</span><span class="kw-pill">indicating</span></span>
+    <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">support</span><span class="kw-pill">significant</span></span>
+  </div>
+</div>
+<div class="inf-card" style="border-left-color:#F5A623;">
+  <div class="inf-header">
+    <span class="inf-id">MIL-F-20260410-053</span>
+    <span class="inf-comp" style="color:#00AEEF;">Barclays</span>
+    <span class="inf-tier" style="color:#F5A623;">P2</span>
+    <span class="inf-sev">SIG P0</span>
+    <span class="badge-chr">CHR-001</span>
+  </div>
+  <div class="inf-summary">Google Play Barclays app users reported temporary disappearances of the creating and completing functionality.</div>
+  <div class="cac-label">CAC CONFIDENCE</div>
+  <div class="cac-track">
+    <div class="cac-fill" style="width:42%;background:#4A9BD4;"></div>
+    <span class="cac-val" style="color:#4A9BD4;">0.422</span>
+  </div>
+  <div class="inf-meta">
+    <span class="inf-meta-item"><span class="meta-label">Journey</span>Make a Payment</span>
+    <span class="inf-meta-item"><span class="meta-label">Signals</span>
+      <span style="color:#CC0000;">P0:3</span>
+      <span style="color:#F5A623;margin-left:4px;">P1:4</span>
+      <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+    </span>
+    <span class="inf-kw"><span class="kw-pill">payment</span><span class="kw-pill">friction</span><span class="kw-pill">customer</span></span>
   </div>
 </div>
   </div>
@@ -1126,6 +1132,7 @@ document.addEventListener('click', function(e) {
 <div class="topbar-box">
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
     <span class="topbar-box-title" style="color:#7AACBF;">CLARK PROTOCOL</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays &nbsp;&middot;&nbsp;</span>
     <span style="font-size:10px;color:#CC0000;font-weight:700;">CLARK-3 &mdash; ACT NOW</span>
   </div>
   <div class="topbar-box-body">
@@ -1141,7 +1148,7 @@ document.addEventListener('click', function(e) {
   <div class="clark-label">ESCALATE</div>
 </div>
 <div class="clark-tile" style="border-top-color:#00AFA0;">
-  <div class="clark-count" style="color:#00AFA0;">3</div>
+  <div class="clark-count" style="color:#00AFA0;">2</div>
   <div class="clark-tier">CLARK-1</div>
   <div class="clark-label">WATCH</div>
 </div>
@@ -1153,51 +1160,43 @@ document.addEventListener('click', function(e) {
     <div class="clark-rows">
 <div class="clark-row" style="border-left-color:#CC0000;">
   <span class="clark-badge" style="background:rgba(0,0,0,0.3);color:#CC0000;">CLARK-3 ACT NOW</span>
-  <span class="clark-fid">MIL-F-20260405-032</span>
-  <span class="clark-comp" style="color:#F5A623;">NatWest</span>
-  <span class="clark-cac">CAC 0.686</span>
-  <span class="clark-reason">P1 tier + CAC 0.686 >= 0.65 + CHR-001 + ceiling</span>
-  <span class="clark-ts">2026-04-05 11:16</span>
+  <span class="clark-fid">MIL-F-20260410-103</span>
+  <span class="clark-comp" style="color:#00AEEF;">Barclays</span>
+  <span class="clark-cac">CAC 0.643</span>
+  <span class="clark-reason">P0 override: 8 blocking signals >= 5 + ceiling + CHR-001</span>
+  <span class="clark-ts">2026-04-11 07:01</span>
 </div>
 <div class="clark-row" style="border-left-color:#CC0000;">
   <span class="clark-badge" style="background:rgba(0,0,0,0.3);color:#CC0000;">CLARK-3 ACT NOW</span>
-  <span class="clark-fid">MIL-F-20260405-057</span>
-  <span class="clark-comp" style="color:#F5A623;">NatWest</span>
-  <span class="clark-cac">CAC 0.720</span>
-  <span class="clark-reason">P1 tier + CAC 0.720 >= 0.65 + CHR-001 + ceiling</span>
-  <span class="clark-ts">2026-04-05 11:16</span>
+  <span class="clark-fid">MIL-F-20260410-043</span>
+  <span class="clark-comp" style="color:#00AEEF;">Barclays</span>
+  <span class="clark-cac">CAC 0.468</span>
+  <span class="clark-reason">P0 override: 8 blocking signals >= 5 + ceiling + CHR-001</span>
+  <span class="clark-ts">2026-04-11 07:01</span>
 </div>
 <div class="clark-row" style="border-left-color:#F5A623;">
   <span class="clark-badge" style="background:rgba(0,0,0,0.3);color:#F5A623;">CLARK-2 ESCALATE</span>
-  <span class="clark-fid">MIL-F-20260405-096</span>
+  <span class="clark-fid">MIL-F-20260409-101</span>
   <span class="clark-comp" style="color:#00AEEF;">Barclays</span>
   <span class="clark-cac">CAC 0.643</span>
   <span class="clark-reason">P1 tier + CAC 0.643 >= 0.45</span>
-  <span class="clark-ts">2026-04-05 11:16</span>
+  <span class="clark-ts">2026-04-09 22:26</span>
 </div>
 <div class="clark-row" style="border-left-color:#00AFA0;">
   <span class="clark-badge" style="background:rgba(0,0,0,0.3);color:#00AFA0;">CLARK-1 WATCH</span>
-  <span class="clark-fid">MIL-F-20260405-012</span>
-  <span class="clark-comp" style="color:#00AFA0;">Lloyds</span>
-  <span class="clark-cac">CAC 0.598</span>
-  <span class="clark-reason">P2 tier + CAC 0.598 >= 0.55 + CHR-001</span>
-  <span class="clark-ts">2026-04-05 11:16</span>
+  <span class="clark-fid">MIL-F-20260409-003</span>
+  <span class="clark-comp" style="color:#00AEEF;">Barclays</span>
+  <span class="clark-cac">CAC 0.572</span>
+  <span class="clark-reason">P2 tier + CAC 0.572 >= 0.55 + CHR-002</span>
+  <span class="clark-ts">2026-04-09 22:26</span>
 </div>
 <div class="clark-row" style="border-left-color:#00AFA0;">
   <span class="clark-badge" style="background:rgba(0,0,0,0.3);color:#00AFA0;">CLARK-1 WATCH</span>
-  <span class="clark-fid">MIL-F-20260405-019</span>
-  <span class="clark-comp" style="color:#7B5EA7;">Monzo</span>
-  <span class="clark-cac">CAC 0.578</span>
-  <span class="clark-reason">P2 tier + CAC 0.578 >= 0.55 + CHR-001</span>
-  <span class="clark-ts">2026-04-05 11:16</span>
-</div>
-<div class="clark-row" style="border-left-color:#00AFA0;">
-  <span class="clark-badge" style="background:rgba(0,0,0,0.3);color:#00AFA0;">CLARK-1 WATCH</span>
-  <span class="clark-fid">MIL-F-20260405-033</span>
-  <span class="clark-comp" style="color:#F5A623;">NatWest</span>
-  <span class="clark-cac">CAC 0.559</span>
-  <span class="clark-reason">P2 tier + CAC 0.559 >= 0.55 + CHR-001</span>
-  <span class="clark-ts">2026-04-05 11:16</span>
+  <span class="clark-fid">MIL-F-20260410-003</span>
+  <span class="clark-comp" style="color:#00AEEF;">Barclays</span>
+  <span class="clark-cac">CAC 0.585</span>
+  <span class="clark-reason">P2 tier + CAC 0.585 >= 0.55 + CHR-002</span>
+  <span class="clark-ts">2026-04-10 22:11</span>
 </div></div>
   </div>
 </div>
@@ -1227,66 +1226,66 @@ document.addEventListener('click', function(e) {
 <div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #CC0000;
             border-radius:5px;padding:8px 12px;margin-bottom:6px;
             display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-057</span>
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-062</span>
   <span style="color:#F5A623;font-size:10px;font-weight:600;">NatWest</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.720</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">The Natwest banking app on the Google Play store is experiencing increased usage</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.726</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">NatWest online account credentials could be guessed using password cracking tech</span>
 </div>
 <div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #CC0000;
             border-radius:5px;padding:8px 12px;margin-bottom:6px;
             display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-032</span>
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-034</span>
   <span style="color:#F5A623;font-size:10px;font-weight:600;">NatWest</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.686</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">J_SERVICE_01 has a high-risk combination of non-transiting and non-functional co</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.712</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">App_Store_Natwest shows an activity around J_SERVICE_01 journey and online relat</span>
 </div>
 <div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #CC0000;
             border-radius:5px;padding:8px 12px;margin-bottom:6px;
             display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-096</span>
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-103</span>
   <span style="color:#00AEEF;font-size:10px;font-weight:600;">Barclays</span>
   <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.643</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">Invalid payment detection through social media channels (YouTube) of Barclays.</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">YouTube Barclays warns of inability to access, overdraft; causes financial strai</span>
 </div>
 <div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
             border-radius:5px;padding:8px 12px;margin-bottom:6px;
             display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-012</span>
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-014</span>
   <span style="color:#00AFA0;font-size:10px;font-weight:600;">Lloyds</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.598</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">Lloyds app store had a 55 signal (J_01) with top keywords 'transfers', 'android'</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.600</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">Potential security breach reported for Lloyds banking app.</span>
 </div>
 <div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
             border-radius:5px;padding:8px 12px;margin-bottom:6px;
             display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-019</span>
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-003</span>
+  <span style="color:#00AEEF;font-size:10px;font-weight:600;">Barclays</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.585</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">No significant finding related to app store Barclays</span>
+</div>
+<div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
+            border-radius:5px;padding:8px 12px;margin-bottom:6px;
+            display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-021</span>
   <span style="color:#7B5EA7;font-size:10px;font-weight:600;">Monzo</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.578</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">Competitor app has higher login rejection rates.</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.581</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">Unusual volume of high-risk activity on a financial app landing page.</span>
 </div>
 <div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
             border-radius:5px;padding:8px 12px;margin-bottom:6px;
             display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-033</span>
-  <span style="color:#F5A623;font-size:10px;font-weight:600;">NatWest</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.559</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">The top keywords, such as 'works' and 'in', suggest that the Natwest app is faci</span>
-</div>
-<div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
-            border-radius:5px;padding:8px 12px;margin-bottom:6px;
-            display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-017</span>
-  <span style="color:#00AFA0;font-size:10px;font-weight:600;">Lloyds</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.544</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">The app store for Lloyds reports an issue with transfers and open accounts, lead</span>
-</div>
-<div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
-            border-radius:5px;padding:8px 12px;margin-bottom:6px;
-            display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260405-084</span>
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-113</span>
   <span style="color:#4A9BD4;font-size:10px;font-weight:600;">Revolut</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.532</span>
-  <span style="font-size:10px;color:#7AACBF;flex:1;">Identifying user frustration after months of bank account identity opened</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.550</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">Revolut has no P0/P1 journey and product combinations that draw interest as well</span>
+</div>
+<div style="background:#001828;border:1px solid #003A5C;border-left:3px solid #F5A623;
+            border-radius:5px;padding:8px 12px;margin-bottom:6px;
+            display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <span style="font-family:'DM Mono',monospace;font-size:9px;color:#3A6A7F;min-width:155px;">MIL-F-20260410-019</span>
+  <span style="color:#00AFA0;font-size:10px;font-weight:600;">Lloyds</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#F5A623;">CAC 0.545</span>
+  <span style="font-size:10px;color:#7AACBF;flex:1;">App store lloyd's app encountered issues with launching and timing; this may sug</span>
 </div>
   </div>
 </div>

@@ -135,9 +135,9 @@ def _build_vane_section() -> str:
 
 
 def _build_inference_section() -> str:
-    """Top 10 inference cards by CAC score."""
+    """Top 10 Barclays inference cards by CAC score."""
     summary = findings_summary()
-    findings = load_findings(limit=10)
+    findings = load_findings(competitor="barclays", limit=10)
     if not findings:
         return ""
 
@@ -198,10 +198,9 @@ def _build_inference_section() -> str:
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
     <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE FINDINGS</span>
     <span style="font-size:10px;color:#3A6A7F;">
-      {summary.get('total', 0)} total &nbsp;&middot;&nbsp;
-      <span style="color:#CC0000;">{summary.get('ceiling', 0)} ceiling</span> &nbsp;&middot;&nbsp;
-      {summary.get('p1_tier', 0)} P1 &nbsp;&middot;&nbsp;
-      {summary.get('countersigned', 0)} countersigned
+      Barclays &nbsp;&middot;&nbsp;
+      {len(findings)} findings &nbsp;&middot;&nbsp;
+      <span style="color:#CC0000;">{sum(1 for f in findings if f.get('designed_ceiling_reached'))} ceiling</span>
     </span>
   </div>
   <div class="topbar-box-body">
@@ -217,9 +216,16 @@ def _build_clark_section() -> str:
     scan_and_downgrade()
 
     summary = active_clark_summary()
-    top     = summary.get("top_tier", "CLARK-0")
-    by_tier = summary.get("by_tier", {})
-    active  = summary.get("active", [])
+    active  = [e for e in summary.get("active", []) if e.get("competitor") == "barclays"]
+    by_tier = {}
+    for e in active:
+        t = e.get("clark_tier", "CLARK-0")
+        by_tier[t] = by_tier.get(t, 0) + 1
+    top = "CLARK-0"
+    for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
+        if by_tier.get(t, 0) > 0:
+            top = t
+            break
 
     tier_strip = ""
     for tier in ["CLARK-3", "CLARK-2", "CLARK-1", "CLARK-0"]:
@@ -262,6 +268,7 @@ def _build_clark_section() -> str:
 <div class="topbar-box">
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
     <span class="topbar-box-title" style="color:#7AACBF;">CLARK PROTOCOL</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays &nbsp;&middot;&nbsp;</span>
     <span style="font-size:10px;color:{top_colour};font-weight:700;">{top} &mdash; {top_label}</span>
   </div>
   <div class="topbar-box-body">
@@ -436,6 +443,7 @@ def generate_v2_html(v1_html: str) -> str:
 </style>"""
 
     v2_block = f"""
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 {v2_styles}
 <hr class="v2-divider">
 <div class="v2-outer">

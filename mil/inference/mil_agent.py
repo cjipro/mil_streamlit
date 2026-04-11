@@ -162,18 +162,20 @@ CHRONICLE_ENTRIES = [
     {
         "chronicle_id": "CHR-003",
         "bank": "HSBC UK",
-        "incident_type": "app_online_banking_outage",
-        "inference_approved": False,    # INFERENCE HOLD
-        "confidence_cap": 0.40,
+        "incident_type": "app_platform_refresh_outage",
+        "inference_approved": True,     # APPROVED — Hussain Ahmed 2026-04-09
+        "confidence_cap": 0.55,
         "journey_tags": ["J_LOGIN_01", "J_SERVICE_01"],
         "pattern_keywords": [
             "error", "cannot access", "app down", "not working", "unavailable",
             "login", "err03", "information unavailable", "outage", "authentication",
-            "cannot log in", "access failed",
+            "cannot log in", "access failed", "update", "refresh", "new app",
+            "since update", "after update", "redesign",
         ],
         "pattern_description": (
-            "INFERENCE HOLD -- root cause unconfirmed. App and online banking outage. "
-            "ERR03 error pattern. DownDetector as first mover. ~5 hour duration."
+            "App platform refresh outage — HSBC 18-month redesign rolled out May 2025, "
+            "ERR03 auth failure August 2025. Legacy infrastructure stressed by new platform. "
+            "Same failure class as CHR-001. Confidence capped at 0.55 — root cause inferred not confirmed."
         ),
     },
     {

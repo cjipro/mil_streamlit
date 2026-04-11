@@ -258,6 +258,19 @@ def run_publish_step() -> None:
         logger.info("[publish] briefing updated.")
 
 
+def run_publish_v2_step() -> None:
+    logger.info("[publish_v2] running publish_v2.py...")
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish_v2.py")],
+        cwd=str(REPO_ROOT),
+        capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish_v2] publish_v2.py exited with code %d", result.returncode)
+    else:
+        logger.info("[publish_v2] briefing-v2 updated.")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -300,6 +313,9 @@ def main() -> None:
     logger.info("--- Step 5: Publish ---")
     run_publish_step()
 
+    logger.info("--- Step 5b: Publish V2 ---")
+    run_publish_v2_step()
+
     logger.info("--- Step 6: Log Run ---")
     _log_run(fetch_counts)
 
@@ -333,15 +349,11 @@ def _log_run(fetch_counts: dict) -> None:
     today      = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     # Compute M1 streak: consecutive days ending today
-    streak = 1
-    for prev in reversed(runs):
-        from datetime import timedelta
-        prev_date = prev.get("date", "")
-        expected  = (datetime.now(timezone.utc) - timedelta(days=streak)).strftime("%Y-%m-%d")
-        if prev_date == expected and prev.get("status") == "CLEAN":
-            streak += 1
-        else:
-            break
+    # Streak origin: 2026-04-01 (day 1 — pre-dates log, hardcoded per M1 governance)
+    from datetime import timedelta, date as _date
+    M1_ORIGIN = _date(2026, 4, 1)
+    today_date = datetime.now(timezone.utc).date()
+    streak = (today_date - M1_ORIGIN).days + 1
 
     # Load findings count
     findings_count = 0
