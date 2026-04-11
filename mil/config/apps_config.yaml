@@ -50,8 +50,8 @@ competitors:
 
   - id: COMP_003
     name: "HSBC"
-    app_store_id: "1044786393"
-    google_play_id: "uk.co.hsbc.hsbcukbankingapp"
+    app_store_id: "1220329065"
+    google_play_id: "uk.co.hsbc.hsbcukmobilebanking"
     downdetector_slug: "hsbc"
     trustpilot_slug: "hsbc.co.uk"
     reddit_mentions: ["HSBC", "HSBC UK", "HSBC app"]
