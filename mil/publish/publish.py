@@ -673,11 +673,12 @@ def build_metrics_strip_html(journey_analysis: list, competitor_sentiment: dict)
     barclays_str = f"{barclays_score:.1f}" if barclays_score is not None else "—"
 
     def metric_card(label, value, color, sublabel=""):
+        sub_html = '<div class="metric-sub">' + e(sublabel) + "</div>" if sublabel else ""
         return (
             f'<div class="metric-card">'
             f'<div class="metric-value" style="color:{color};">{e(str(value))}</div>'
             f'<div class="metric-label">{e(label)}</div>'
-            f'{"<div class=\"metric-sub\">" + e(sublabel) + "</div>" if sublabel else ""}'
+            f'{sub_html}'
             f'</div>'
         )
 
