@@ -573,7 +573,7 @@ def e(s):
 
 
 def score_color(score):
-    """Return CSS color for a 0–100 score."""
+    """Return RAG CSS color for a 0–100 score. Used for arrows and status text."""
     if score is None:
         return "#6b7088"
     if score < 45:
@@ -581,6 +581,13 @@ def score_color(score):
     if score < 65:
         return "#e8a030"
     return "#2a9a5a"
+
+
+def score_num_color(score):
+    """Two-color rule for score numbers: red below 50, white above."""
+    if score is not None and score < 50:
+        return "#cc3333"
+    return "#E8F4FA"
 
 
 def score_bar_html(score, width=60):
@@ -638,13 +645,13 @@ def build_ticker_html(competitor_sentiment: dict) -> str:
         no_data = score is None
         color = "#e8a030" if is_barclays else score_color(score)
         score_str = f"{score:.1f}" if not no_data else "no store data"
-        score_color_str = color if not no_data else "#555566"
+        num_color = score_num_color(score) if not no_data else "#555566"
         bar = score_bar_html(score, width=40)
         title_attr = ' title="No App Store or Google Play data available for this competitor"' if no_data else ""
         items.append(
             f'<span class="ticker-item{" ticker-barclays" if is_barclays else ""}{" ticker-nodata" if no_data else ""}"{title_attr}>'
             f'<span class="ticker-name" style="color:{color};">{e(comp)}</span>'
-            f'<span class="ticker-score" style="color:{score_color_str};{"font-style:italic;font-size:10px;" if no_data else ""}">{score_str}</span>'
+            f'<span class="ticker-score" style="color:{num_color};{"font-style:italic;font-size:10px;" if no_data else ""}">{score_str}</span>'
             f'{bar}'
             f'<span class="ticker-delta">{delta_html(None)}</span>'
             f'</span>'
@@ -679,10 +686,11 @@ def build_journey_row_html(journey_analysis: list, competitor_sentiment: dict) -
         border_color = colors.get(status, "var(--amber)")
         score_str    = f"{score:.0f}" if score is not None else "—"
         traj         = trajectory_icons.get(status, "→")
+        num_color    = score_num_color(score)
         cells.append(
             f'<div class="journey-cell" style="border-top:3px solid {border_color};">'
             f'<div class="journey-cell-name">{e(name)}</div>'
-            f'<div class="journey-cell-score" style="color:{border_color};">{score_str}</div>'
+            f'<div class="journey-cell-score" style="color:{num_color};">{score_str}</div>'
             f'<div class="journey-cell-meta">'
             f'<span class="traj-icon" style="color:{border_color};">{traj}</span>'
             f'<span class="journey-status-label" style="color:{border_color};">{e(status)}</span>'
@@ -1214,11 +1222,12 @@ def generate_html(
         _jstatus = _j.get("status", "WATCH")
         _jcolor = _status_colors.get(_jstatus, "#F5A623")
         _jarrow = _status_arrows.get(_jstatus, "&#8594;")
+        _jscore_num_color = score_num_color(_j.get("score"))
         _journey_rows += (
             f'        <div class="journey-list-item">\n'
             f'          <span class="journey-list-name">{e(_jname)}</span>\n'
             f'          <span class="journey-list-right">\n'
-            f'            <span class="journey-list-score" style="color:{_jcolor};">{_jscore}</span>\n'
+            f'            <span class="journey-list-score" style="color:{_jscore_num_color};">{_jscore}</span>\n'
             f'            <span class="journey-list-status" style="color:{_jcolor};">{_jarrow} {e(_jstatus)}</span>\n'
             f'          </span>\n'
             f'        </div>\n'
@@ -1594,7 +1603,7 @@ a {{ color: var(--blue); text-decoration: none; }}
         <div class="sent-card-inner">
           <div class="sent-row-1">
             <span class="sent-card-label">BARCLAYS SENTIMENT</span>
-            <span class="sent-card-score" style="margin-left:auto;color:{"#cc3333" if barcl_score is not None and barcl_score < 50 else "#E8F4FA"};">{barcl_score_str}</span>
+            <span class="sent-card-score" style="margin-left:auto;color:{score_num_color(barcl_score)};">{barcl_score_str}</span>
             <span class="sent-card-delta" style="color:{barcl_traj_color};">{barcl_delta_str}</span>
             <span class="sent-card-traj" style="color:{barcl_traj_color};">{barcl_traj_arrow} {barcl_trajectory}</span>
           </div>
