@@ -1594,7 +1594,7 @@ a {{ color: var(--blue); text-decoration: none; }}
         <div class="sent-card-inner">
           <div class="sent-row-1">
             <span class="sent-card-label">BARCLAYS SENTIMENT</span>
-            <span class="sent-card-score" style="margin-left:auto;color:{score_color(barcl_score)};">{barcl_score_str}</span>
+            <span class="sent-card-score" style="margin-left:auto;color:{"#cc3333" if barcl_score is not None and barcl_score < 50 else "#E8F4FA"};">{barcl_score_str}</span>
             <span class="sent-card-delta" style="color:{barcl_traj_color};">{barcl_delta_str}</span>
             <span class="sent-card-traj" style="color:{barcl_traj_color};">{barcl_traj_arrow} {barcl_trajectory}</span>
           </div>
