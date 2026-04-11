@@ -17,3 +17,5 @@
 {"run": 17, "date": "2026-04-10", "timestamp": "2026-04-10T22:30:17.797392+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
 {"run": 18, "date": "2026-04-10", "timestamp": "2026-04-10T22:36:50.687147+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
 {"run": 19, "date": "2026-04-10", "timestamp": "2026-04-10T22:41:53.061908+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
+{"run": 20, "date": "2026-04-11", "timestamp": "2026-04-11T11:43:46.092268+00:00", "status": "CLEAN", "new_records": 143, "findings": 117, "m1_streak": 11, "m1_target": 5, "m1_done": true}
+{"run": 21, "date": "2026-04-11", "timestamp": "2026-04-11T23:40:59.707988+00:00", "status": "CLEAN", "new_records": 292, "findings": 135, "m1_streak": 11, "m1_target": 5, "m1_done": true}
