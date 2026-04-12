@@ -319,6 +319,19 @@ def main() -> None:
     except Exception as exc:
         logger.warning("[clark] escalation failed: %s", exc)
 
+    logger.info("--- Step 4d: Benchmark + Persistence ---")
+    _benchmark_result: dict = {}
+    try:
+        sys.path.insert(0, str(MIL_ROOT / "data"))
+        from benchmark_engine import run as benchmark_run
+        _benchmark_result = benchmark_run(mode="daily")
+        logger.info("[benchmark] churn_risk_score=%.2f trend=%s over_indexed=%d",
+                    _benchmark_result.get("churn_risk_score", 0),
+                    _benchmark_result.get("churn_risk_trend", "?"),
+                    len(_benchmark_result.get("over_indexed", [])))
+    except Exception as exc:
+        logger.warning("[benchmark] failed (non-fatal): %s", exc)
+
     logger.info("--- Step 5: Publish ---")
     run_publish_step()
 
@@ -326,7 +339,7 @@ def main() -> None:
     run_publish_v2_step()
 
     logger.info("--- Step 6: Log Run ---")
-    _log_run(fetch_counts)
+    _log_run(fetch_counts, _benchmark_result)
 
     logger.info("=== Done ===")
 
@@ -337,7 +350,7 @@ def main() -> None:
 
 RUN_LOG = REPO_ROOT / "mil" / "data" / "daily_run_log.jsonl"
 
-def _log_run(fetch_counts: dict) -> None:
+def _log_run(fetch_counts: dict, benchmark_result: dict | None = None) -> None:
     """Append a run record to daily_run_log.jsonl and report M1 streak."""
     import json as _json
 
@@ -374,23 +387,27 @@ def _log_run(fetch_counts: dict) -> None:
         except Exception:
             pass
 
+    bm = benchmark_result or {}
     entry = {
-        "run":          run_number,
-        "date":         today,
-        "timestamp":    datetime.now(timezone.utc).isoformat(),
-        "status":       "CLEAN",
-        "new_records":  sum(fetch_counts.values()),
-        "findings":     findings_count,
-        "m1_streak":    streak,
-        "m1_target":    5,
-        "m1_done":      streak >= 5,
+        "run":                run_number,
+        "date":               today,
+        "timestamp":          datetime.now(timezone.utc).isoformat(),
+        "status":             "CLEAN",
+        "new_records":        sum(fetch_counts.values()),
+        "findings":           findings_count,
+        "m1_streak":          streak,
+        "m1_target":          5,
+        "m1_done":            streak >= 5,
+        "churn_risk_score":   bm.get("churn_risk_score"),
+        "churn_risk_trend":   bm.get("churn_risk_trend"),
     }
 
     with RUN_LOG.open("a", encoding="utf-8") as f:
         f.write(_json.dumps(entry) + "\n")
 
-    logger.info("Run #%d logged — date=%s streak=%d/5 new_records=%d findings=%d",
-                run_number, today, streak, entry["new_records"], findings_count)
+    logger.info("Run #%d logged — date=%s streak=%d/5 new_records=%d findings=%d churn=%.1f(%s)",
+                run_number, today, streak, entry["new_records"], findings_count,
+                entry["churn_risk_score"] or 0, entry["churn_risk_trend"] or "?")
     if entry["m1_done"]:
         logger.info("*** M1 ACHIEVED — 5 consecutive clean runs complete ***")
     else:
