@@ -1,14 +1,20 @@
-schema_version: "1.0"
+schema_version: "1.1"
 spec_id: "MIL-MODEL-001"
 name: "MIL Model Routing — Canonical Task-to-Model Map"
 owner: "Hussain Ahmed"
 created: "2026-04-05"
-last_updated: "2026-04-05"
+last_updated: "2026-04-12"
 
-# Decisions:
+# Architecture Decisions:
 #   ARCH-001: Qwen-14B decommissioned from enrichment. Haiku is primary enrichment model.
 #   ARCH-002: qwen3:14b disqualified for enrichment (downgraded P0 to P2 in blind test).
 #             Haiku retained for enrichment. qwen3 approved for exec_alert synthesis only.
+#   ARCH-003: Four-tier model routing. Model tier = decision stakes, not cost minimisation.
+#             Tier 1 (Opus):    governs the system — CHR proposals, autopsies, CLARK-3 synthesis
+#             Tier 2 (Sonnet):  drives daily decisions — commentary, exec alert, churn narrative
+#             Tier 3 (Haiku/Refuel-8B): classifies at scale — enrichment, CAC+RAG
+#             Tier 4 (Qwen3):   generates and transforms — YAML, scripts, labour
+#             qwen3 exec_alert superseded by Sonnet (exec_alert_v3). MIL-26 2026-04-12.
 
 providers:
   anthropic:
@@ -21,6 +27,91 @@ providers:
     auth: null              # no auth required
 
 routes:
+
+  # ════════════════════════════════════════════════════════════════
+  # TIER 1 — OPUS — Governs the system
+  # Runs rarely. Quality non-negotiable. Output is permanent or
+  # triggers governance/escalation actions.
+  # ════════════════════════════════════════════════════════════════
+
+  # ── CHR Governance Proposals ──────────────────────────────────
+  chr_proposal:
+    model: "claude-opus-4-6"
+    provider: anthropic
+    max_tokens: 4096
+    note: >
+      ARCH-003. CHR entries anchor the CAC formula permanently — weak proposals
+      silently degrade every finding they anchor. Opus only. MIL-26 2026-04-12.
+
+  # ── Teacher Autopsies ─────────────────────────────────────────
+  teacher_autopsy:
+    model: "claude-opus-4-6"
+    provider: anthropic
+    max_tokens: 8192
+    note: >
+      ARCH-003. Deep causal analysis of banking failures + synthetic instruction
+      pair generation. Foundation of QLoRA training dataset. Upgraded from
+      Sonnet (ARCH-003). MIL-26 2026-04-12.
+
+  # ── CLARK-3 Escalation Synthesis ──────────────────────────────
+  clark_escalation_synthesis:
+    model: "claude-opus-4-6"
+    provider: anthropic
+    max_tokens: 1024
+    note: >
+      ARCH-003. When Clark tier hits CLARK-3, Opus generates structured
+      escalation note: what, why, evidence, recommended action. Highest-stakes
+      output in MIL — board-level action signal. MIL-26 2026-04-12.
+
+  # ════════════════════════════════════════════════════════════════
+  # TIER 2 — SONNET — Drives daily decisions
+  # Runs every 24h. Output lands in front of product/risk teams.
+  # Quality determines whether MIL is trusted or ignored.
+  # ════════════════════════════════════════════════════════════════
+
+  # ── Executive Alert Synthesis V3 (Box 3) ──────────────────────
+  exec_alert_v3:
+    model: "claude-sonnet-4-6"
+    provider: anthropic
+    max_tokens: 256
+    note: >
+      ARCH-003. Replaces qwen3 exec_alert for V3 briefing. Sonnet reasoning
+      required — synthesis must rule out alternatives, give a verdict, not
+      just summarise. MIL-26 2026-04-12.
+
+  # ── Commentary Boxes (per issue type) ─────────────────────────
+  commentary:
+    model: "claude-sonnet-4-6"
+    provider: anthropic
+    max_tokens: 300
+    note: >
+      ARCH-003. Analyst prose per significant Barclays issue type. Input:
+      issue_type, rate, peer_avg, pp_gap, days_active, severity, top quotes.
+      Output: 150-word analyst paragraph. Max 4 calls per daily run. MIL-26 2026-04-12.
+
+  # ── Churn Risk Narrative ───────────────────────────────────────
+  churn_narrative:
+    model: "claude-sonnet-4-6"
+    provider: anthropic
+    max_tokens: 200
+    note: >
+      ARCH-003. Synthesises churn risk score + trend into executive sentence.
+      Input: score, trend, top over-indexed issue, days active. MIL-26 2026-04-12.
+
+  # ── Teacher Autopsies (legacy route — superseded) ─────────────
+  teacher:
+    model: "claude-opus-4-6"
+    provider: anthropic
+    max_tokens: 8192
+    note: >
+      Legacy route — now points to Opus (ARCH-003). Supersedes Sonnet routing
+      from ARCH-002. Use teacher_autopsy for new code. MIL-26 2026-04-12.
+
+  # ════════════════════════════════════════════════════════════════
+  # TIER 3 — HAIKU + REFUEL-8B — Classifies at scale
+  # Deterministic or threshold-based. Accuracy defined. Scale matters.
+  # ════════════════════════════════════════════════════════════════
+
   # ── Enrichment ────────────────────────────────────────────────
   enrichment:
     model: "claude-haiku-4-5-20251001"
@@ -29,6 +120,7 @@ routes:
     note: >
       Schema v3 enrichment. P0 severity accuracy critical (ARCH-002).
       Blind test: 100% schema compliance, 95% severity agreement, P0 intact.
+      Unchanged ARCH-003.
 
   # ── MIL Inference (CAC + RAG) ─────────────────────────────────
   inference:
@@ -38,15 +130,21 @@ routes:
     note: >
       CAC formula, RAG against CHRONICLE, signal classification.
       Deterministic fallback if Refuel unavailable (Article Zero).
+      Unchanged ARCH-003.
 
-  # ── Executive Alert Synthesis (Box 3) ─────────────────────────
+  # ════════════════════════════════════════════════════════════════
+  # TIER 4 — QWEN3 (LOCAL) — Generates and transforms
+  # Well-defined outputs. No reasoning required. Zero API cost.
+  # ════════════════════════════════════════════════════════════════
+
+  # ── Executive Alert Synthesis (V1/V2 legacy) ──────────────────
   exec_alert:
     model: "qwen3:14b"
     provider: ollama
     max_tokens: 80
     note: >
-      Box 3 executive alert synthesis only. Approved ARCH-002.
-      Not approved for enrichment — P0 accuracy risk.
+      V1/V2 legacy route. Retained so V1 and V2 publish unchanged.
+      New V3 work uses exec_alert_v3 (Sonnet). ARCH-003.
 
   # ── YouTube Enrichment ────────────────────────────────────────
   youtube_enrichment:
@@ -55,22 +153,14 @@ routes:
     max_tokens: 2048
     note: >
       YouTube comment enrichment. Zero API cost.
-      qwen3 acceptable here — YouTube signals are lower trust weight (0.75).
+      qwen3 acceptable — YouTube signals are lower trust weight (0.75).
+      Unchanged ARCH-003.
 
-  # ── Narrative / YAML Generation ───────────────────────────────
+  # ── Narrative / YAML / Labour ─────────────────────────────────
   narrative:
     model: "qwen3:14b"
     provider: ollama
     max_tokens: 4096
     note: >
-      YAML edits, Markdown generation, non-inference scripting.
-      Default local model for well-defined tasks. Switched from qwen2.5-coder 2026-04-05.
-
-  # ── Teacher Autopsies ─────────────────────────────────────────
-  teacher:
-    model: "claude-sonnet-4-6"
-    provider: anthropic
-    max_tokens: 8192
-    note: >
-      TSB/Lloyds/HSBC deep causal analysis, synthetic instruction pair generation.
-      Conserve tokens — only for teacher autopsy sessions.
+      YAML edits, Markdown generation, scripts, pipeline helpers.
+      Default local model for well-defined tasks. Unchanged ARCH-003.
