@@ -571,6 +571,53 @@ def _build_clark_section() -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Box 3 stripper — removes Barclays Alert panel from V1 HTML
+# V3 replaces it with intelligence sections; Box 1 + Box 2 are kept as context.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _strip_box3(html: str) -> str:
+    """
+    Remove the exec-alert-panel (Box 3 — Barclays Alert) from V1 HTML.
+    Uses a div-depth counter to find the matching closing tag reliably.
+    Falls back silently if the marker isn't found.
+    """
+    # Locate the HTML comment that marks the start of Box 3
+    marker = '<!-- Right: Barclays Alert panel'
+    start_comment = html.find(marker)
+    if start_comment == -1:
+        # Try class-based fallback
+        cls_marker = 'class="topbar-box exec-alert-panel"'
+        cls_idx = html.find(cls_marker)
+        if cls_idx == -1:
+            return html
+        start_comment = html.rfind('<div', 0, cls_idx)
+
+    # Walk forward from the first <div after the comment
+    first_div = html.find('<div', start_comment)
+    if first_div == -1:
+        return html
+
+    depth = 0
+    i = first_div
+    end_idx = first_div
+    while i < len(html):
+        if html[i:i+4] == '<div':
+            depth += 1
+            i += 4
+        elif html[i:i+6] == '</div>':
+            depth -= 1
+            if depth == 0:
+                end_idx = i + 6  # include the closing </div>
+                break
+            i += 6
+        else:
+            i += 1
+
+    # Strip from the comment start through the closing </div>
+    return html[:start_comment] + html[end_idx:]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Assemble V3 HTML
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -613,6 +660,9 @@ def generate_v3_html(v1_html: str) -> str:
         boxes = []
 
     benchmark = benchmark_result.get("benchmark", {})
+
+    # Strip Box 3 from V1 — V3 replaces it with intelligence sections
+    v1_html = _strip_box3(v1_html)
 
     # Build sections
     churn_html   = _build_churn_risk_section(benchmark_result)

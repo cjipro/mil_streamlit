@@ -432,36 +432,7 @@ a { color: var(--blue); text-decoration: none; }
         </div>
     </div>
   </div>
-  <!-- Right: Barclays Alert panel (bd-wired) -->
-  <div class="topbar-box exec-alert-panel">
-    <div class="exec-alert-header">
-      <span class="exec-alert-pulse"></span>
-      <span class="exec-alert-title">Barclays Alert</span>
-      <span class="exec-alert-ts">2026-04-12 16:23 UTC</span>
-    </div>
-    <div class="exec-alert-body">
-      <div class="exec-alert-pills" style="margin-bottom:10px;">
-        <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);font-weight:700;">CLARK-3</span>
-        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">STRONG SIGNAL</span>
-      </div>
-      <div class="exec-alert-section-label">THE SITUATION</div>
-      <div class="exec-alert-section-text">Customers reporting app not opening and payment failed</div>
-      <div class="exec-alert-section-label">THE LESSON — HSBC, 2025</div>
-      <div class="exec-alert-section-text">After an 18-month app redesign, HSBC took 4,765 DownDetector complaints in the first hour of their outage. The build-up looked exactly like this — rising app instability complaints with no single catastrophic trigger. Until there was one.</div>
-      <div class="exec-alert-section-label">SEVERITY</div>
-      <div class="exec-alert-pills">
-        <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);">P0 &nbsp;8</span>
-        <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;13</span>
-        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">CAC &nbsp;0.41</span>
-      </div>
-      <div class="exec-alert-section-label">NEXT STEPS</div>
-      <div class="exec-alert-section-text">This belongs on the incident board today. If it is not already there, that is the first failure. Escalate now.</div>
-      <button class="exec-escalate-btn" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);border-radius:6px;font-size:13px;font-weight:700;letter-spacing:0.08em;padding:6px 14px;cursor:pointer;width:100%;font-family:var(--sans);text-transform:uppercase;margin-top:10px;">ACT NOW</button>
-    </div>
-    <div class="exec-alert-footnote">
-      <span>P0 — customer blocked</span>      <span class="exec-fn-sep">·</span>      <span>P1 — significant friction</span>      <span class="exec-fn-sep">·</span>      <span>CAC — signal confidence (0–1)</span>      <span class="exec-fn-sep">·</span>      <span>CLARK-3 — act now &nbsp;CLARK-2 — escalate &nbsp;CLARK-1 — watch</span>
-    </div>
-  </div>
+  
 </div>
 
 <!-- -- Sentiment Ticker ---------------------------------------------------- -->
@@ -888,7 +859,7 @@ document.addEventListener('click', function(e) {
 <hr class="v3-divider">
 <div class="v3-outer">
   <div class="v3-label">
-    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-12 21:29 UTC
+    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-12 21:35 UTC
   </div>
   
 <div class="topbar-box">
@@ -954,7 +925,7 @@ document.addEventListener('click', function(e) {
   <div class="commentary-stat">Active <span>9 days</span></div>
   <div class="commentary-stat">Since <span>2026-04-03</span></div>
 </div>
-  <div class="commentary-prose">A crash rate more than double the peer average, sustained across nine consecutive days, points strongly to a specific unresolved code-level defect — likely introduced in a recent release — rather than transient infrastructure load, since peers on comparable infrastructure are not exhibiting the same pattern. The card functionality theme in customer reports narrows the failure surface and suggests the crash is triggered by a specific feature pathway, which should accelerate diagnosis but also means the defect is actively blocking customers from core financial controls like PIN access. The business risk is compounding: as the HSBC 2025 precedent demonstrates, allowing app instability to persist post-release erodes trust faster than the outage itself, and every additional day without resolution converts frustrated users into churned ones.</div>
+  <div class="commentary-prose">A crash rate more than double the peer average, sustained across nine consecutive days without resolution, points strongly to a systemic release-level defect rather than isolated device or OS fragmentation — likely a regression introduced in a recent deployment that has not been rolled back or patched. The customer evidence of cache clearing having no effect and card functionality being inaccessible suggests the failure sits deep in a core authentication or session management layer, not surface UI. The business risk is acute: HSBC's 2025 platform refresh incident demonstrates how unresolved app instability compounds rapidly into branch and contact centre overflow, regulatory scrutiny around access to banking services, and lasting damage to digital NPS that takes quarters to recover.</div>
   <div class="commentary-quote">&ldquo;The app doesn’t even be working and when it’s down, it’s so hard to find support or find a way around it. No one is able to assist you and if you feel like that.&rdquo;</div>
   <div class="commentary-chr">Chronicle context: CHR-003 (HSBC 2025): app instability post-platform refresh — crashes and ERR03 errors persisted for weeks....</div>
 </div>
@@ -973,7 +944,7 @@ document.addEventListener('click', function(e) {
   <div class="commentary-stat">Active <span>9 days</span></div>
   <div class="commentary-stat">Since <span>2026-04-03</span></div>
 </div>
-  <div class="commentary-prose">The concentration of complaints around direct debit management and profile update failures points to a systemic issue with write-operations in the app — read functionality appears intact, but any action requiring a state change is either blocked or unreliable, suggesting a backend API or permissions layer regression likely introduced around April 3rd. Nine consecutive days without resolution indicates this hasn't been caught by internal QA thresholds or has been deprioritised, which is itself a process risk. At 8.5 points above peers on broken features, this is actively differentiating Barclays negatively in app store perception during a period when digital self-service is a primary retention lever — particularly damaging given mortgage customers represent high-value, long-tenure relationships.</div>
+  <div class="commentary-prose">The consistent pattern of transactional features — direct debit management, notifications, personal and business detail updates — failing silently or requiring repeated attempts points to a systemic reliability issue in write-path operations rather than isolated bugs, suggesting a deeper problem with backend mutation APIs or state synchronisation. Nine consecutive days without resolution indicates this is not being treated with the urgency the customer impact warrants, and the mortgage direct debit gap specifically elevates the regulatory exposure given FCA expectations around consumer control over payment mandates. At 8.5 points above peers, this is no longer a product quality issue — it's a competitive differentiator working in reverse, actively eroding trust among mortgage and business customers who are disproportionately high-value.</div>
   <div class="commentary-quote">&ldquo;You cant change your mortgage direct debits in any way on here - useless!&rdquo;</div>
   
 </div>
@@ -992,7 +963,7 @@ document.addEventListener('click', function(e) {
   <div class="commentary-stat">Active <span>9 days</span></div>
   <div class="commentary-stat">Since <span>2026-04-03</span></div>
 </div>
-  <div class="commentary-prose">The authentication handoff between the app and payment authorisation flow is broken — the app is closing or refreshing mid-journey, which means customers are being dropped at the precise moment of conversion, not encountering a passive inconvenience. Nine consecutive days without resolution suggests this is a persistent infrastructure or session-management defect rather than a transient spike, and the fact it's affecting card storage as well points to a broader state-persistence failure across the payment stack. At a complaint rate 40% above peers on a P0 severity, every day this remains live is eroding trust in the core utility of the app and creating material risk of payment abandonment, churn, and regulatory scrutiny around service reliability obligations.</div>
+  <div class="commentary-prose">The authentication handoff is broken — the app is initiating payment flows but failing to complete the round-trip after authorisation, pointing to a session management or deep-link return defect introduced or exposed in the last nine days rather than a broad infrastructure failure. The customer evidence is consistent: the app loses state at the precise moment it should be capturing confirmation, which means payments appear to fail even when funds may have moved, creating both reconciliation risk and customer trust erosion. At nearly 41% above peer rate on a P0 that is now into its second week, this is no longer an emerging signal — it is active reputational damage with material exposure to complaints liability and potential regulatory scrutiny around payment execution obligations.</div>
   <div class="commentary-quote">&ldquo;Terrible app sends me to authorise payments to my bank then app closes and doesn't take payment.&rdquo;</div>
   
 </div>
@@ -1011,7 +982,7 @@ document.addEventListener('click', function(e) {
   
   
 </div>
-  <div class="commentary-prose">Barclays' technical account lockout complaint rate of 2.1% is 4.9 percentage points below the peer average of 7.0%, indicating that its authentication and account recovery systems are resolving lockout incidents with significantly less customer friction than competitors. For customers who frequently hit access barriers — typically digitally active, high-engagement users — this reliability reduces the risk of abandonment at the moment of highest frustration, directly protecting relationship depth with the segment most likely to consolidate primary banking with Barclays.</div>
+  <div class="commentary-prose">Barclays' technical account lockout complaint rate of 2.1% sits 4.9 percentage points below the peer average of 7.0%, indicating materially superior authentication infrastructure and self-serve recovery flows that prevent customers from hitting dead ends. For a friction point this acute — where locked customers cannot access their money — resolving it at scale translates directly into reduced abandonment risk and protects the high-value digital-primary segment most likely to defect to challengers like Monzo or Starling at the first sign of access failure.</div>
   
   
 </div>
