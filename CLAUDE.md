@@ -106,11 +106,11 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 
 **Next ticket: MIL-27 (undefined)**
 
-**Phase 2 — IN PROGRESS (2026-04-09)**
-- MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 pending ~2026-04-14)
+**Phase 2 — IN PROGRESS (2026-04-12)**
+- MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 pending ~2026-04-19)
 - MIL-26: Research Agent — mil/researcher/research_agent.py, clusters research queue, drafts CHR proposals (BUILT 2026-04-09)
 
-## MIL Pipeline State — 2026-04-09 (updated)
+## MIL Pipeline State — 2026-04-12 (updated)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -146,15 +146,17 @@ File: `mil/vault/vault_sync.py`
 - SKIPPED_WRONG_MODEL guard: blocks any file enriched with qwen model
 - **_needs_vault()**: re-vaults when record count OR model changes (not just by filename)
 - **Vault step wired into run_daily.py as Step 4b** (after inference, before publish)
-- Current state: **8/8 VAULTED** at 20260403_170009 — all claude-haiku-4-5-20251001
+- Current state: **10/10 VAULTED** — all claude-haiku-4-5-20251001
   - app_store_barclays_enriched.json: VAULTED
   - app_store_lloyds_enriched.json: VAULTED
   - app_store_monzo_enriched.json: VAULTED
   - app_store_natwest_enriched.json: VAULTED (new — 2026-04-03)
   - app_store_revolut_enriched.json: VAULTED (new — 2026-04-03)
+  - app_store_hsbc_enriched.json: VAULTED (new — 2026-04-12)
   - google_play_barclays_enriched.json: VAULTED
   - google_play_natwest_enriched.json: VAULTED
   - google_play_revolut_enriched.json: VAULTED
+  - google_play_hsbc_enriched.json: VAULTED (new — 2026-04-12)
 
 ### Inference Engine (mil_agent.py — MIL-8)
 File: `mil/inference/mil_agent.py`
@@ -168,7 +170,7 @@ File: `mil/inference/mil_agent.py`
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- Current findings: **115 total** | 115 anchored | 0 unanchored | 34 Designed Ceiling
+- Current findings: **135 total** | 135 anchored | 0 unanchored | 34+ Designed Ceiling (HSBC contributing ~20 new findings from 2026-04-12 run)
 - **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
 
 ### Briefing Data Layer (briefing_data.py)
@@ -188,18 +190,22 @@ File: `mil/briefing_data.py`
 - **clark_tier** added to executive_alert dict — sourced from clark_protocol.get_clark_tier_for_finding()
 - **Chronicle matching (2026-04-10)**: `_chronicle_match_from_findings(anchored)` — driven by top Barclays finding's actual CHR anchor from mil_findings.json. CHR-004 preferred for Barclays (their own sustained friction pattern); falls back to highest-CAC match only if CHR-004 has no representation.
 - **Counter import fix (2026-04-10)**: `Counter` was missing from `collections` import — caused `NameError: _Counter` which silently emptied Box 1 quotes. Fixed: `from collections import Counter, defaultdict`.
+- **Teacher selection (2026-04-12)**: `_teacher_from_findings()` now selects by `chronicle_match.sim_hist_score` (keyword overlap between signal keywords and CHR `pattern_keywords`) — NOT by confidence/CAC. TSB (CHR-001) wins at sim=1.00 because Barclays' Feature Broken keywords most closely match CHR-001 pattern keywords. Other CHR entries win when their keywords match the active signal better.
+- **Box 3 redesign (2026-04-12)**: "Barclays Alert" layout — 4 sections: THE SITUATION (qwen3 signal synthesis) / THE LESSON (teacher CHR entry: bank name + year) / SEVERITY (Clark tier) / NEXT STEPS (YOUR CALL framing). Teacher-student framing: competitor banks teach Barclays, not compare them.
 - Top quote selection: P0 first, P1 fallback, 40+ chars, prefer 60-200 chars
-- Current output (2026-04-10):
-  - Barclays sentiment: P0=8, P1=3, chronicle_id=CHR-004, both Box 1 quotes populated
-  - Competitor ticker: NatWest worst, Barclays stable
+- Current output (2026-04-12):
+  - Barclays sentiment: P0=8+, P1=3+, chronicle_id=CHR-004, both Box 1 quotes populated
+  - Competitor ticker: NatWest worst, Barclays stable, HSBC now tracked
 
-### Sonar Briefing — publish.py (V1, FROZEN)
+### Sonar Briefing — publish.py (V1, ACTIVELY MAINTAINED)
 File: `mil/publish/publish.py`
-- **V1 is FROZEN** — live at cjipro.com/briefing. Do not modify.
+- **V1 is live at cjipro.com/briefing** — actively maintained (not frozen)
 - Box 1: Barclays sentiment + dual quote boxes (App Store/Google Play) + brand lines + version pills
 - Box 2: Issues Status — Barclays issue_type counts, trend, P0/P1, direct quote
-- Box 3: Executive Alert — "YOUR APP" framing, qwen3:14b synthesis, Chronicle match, YOUR CALL
+- Box 3: **Barclays Alert** — 4-section layout: THE SITUATION / THE LESSON / SEVERITY / NEXT STEPS. Teacher-student framing. Dynamic teacher from sim_hist_score.
 - All three boxes Barclays-scoped
+- **Two-color score rule (2026-04-12)**: `score_num_color()` — red (#cc3333) below 50, white (#E8F4FA) ≥50. Applied to ALL sentiment score numbers (Box 1, ticker, journey rows, Box 2 list). RAG system (`score_color()`) still used for arrows and status text labels.
+- **HSBC app IDs fixed (2026-04-12)**: App Store ID corrected to `1220329065`, Google Play package corrected to `uk.co.hsbc.hsbcukmobilebanking`. Both returning records from 2026-04-12 run.
 - Note: cjipro.com behind Cloudflare — cache purge needed after deploy if changes not visible
 
 ### Sonar Briefing V2 — publish_v2.py (LIVE)
@@ -214,6 +220,7 @@ File: `mil/publish/publish_v2.py`
 - Local copy: mil/publish/output/index_v2.html
 - Run: `py mil/publish/publish_v2.py`
 - **publish_v2.py wired into run_daily.py as Step 5b** (after V1 publish, before log run)
+- **Clark race condition fix (2026-04-12)**: `scan_and_escalate()` / `scan_and_downgrade()` REMOVED from publish_v2.py. V2 reads pre-escalated clark_log only. Escalation now runs as dedicated Step 4c in run_daily.py (before both publish steps). Eliminates CLARK-0 appearing in HTML because escalation happened after V1 publish.
 
 ### Daily Pipeline — ONE COMMAND (fully agentic)
 ```
@@ -225,6 +232,7 @@ Steps (zero human intervention required):
   3. Inference — mil_agent.py CAC + RAG, Chronicle matching, Designed Ceiling
   4a. Research Trigger — flags P0/P1 weak-anchor findings → mil/data/research_queue.jsonl
   4b. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
+  4c. Clark Escalation — scan_and_escalate() + scan_and_downgrade(), runs BEFORE both publish steps
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
   5b. Publish V2 — publish_v2.py, injects V2 sections, GitHub Pages push -> cjipro.com/briefing-v2
   6. Log Run — appends to mil/data/daily_run_log.jsonl, reports M1 streak
@@ -286,7 +294,7 @@ Specialist stack: `mil/specialist/`
 
 | Gate | Condition | Status |
 |------|-----------|--------|
-| 1 | 14+ days real signal data | PENDING — 9/14 days, clears ~2026-04-14 |
+| 1 | 14+ days real signal data | PENDING — 12/14 days, clears ~2026-04-19 |
 | 2 | Synthetic pairs validated (human) | PASS — countersigned by Hussain 2026-04-05 |
 | 3 | CAC weights approved on real corpus | PASS — retained, approved by Hussain 2026-04-05 |
 | 4 | Adversarial Attacker passes evaluation | PASS — 80% survival rate on high-CAC findings |
@@ -302,7 +310,7 @@ Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — streak now 9/5 as of 2026-04-09. Run #12 logged. Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak now 11/5 as of 2026-04-12. Run #21 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
 - **M3**: DONE — 34 ceiling triggers (threshold was 22)
 
@@ -314,7 +322,7 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Pending Human Actions (Hussain)
 - Close MIL-11 through MIL-26 in Jira UI
-- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-14
+- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19
 - Post Gate 1: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
 - Run research agent: `py mil/researcher/research_agent.py` — review proposals in mil/data/chr_proposals/
 - CHR-003: confirm HSBC root cause if source becomes available
@@ -325,7 +333,7 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 3,700+ enriched records across 8 files (schema v3, claude-haiku-4-5-20251001). 110 findings | 36 Designed Ceiling. All Day 30 metrics achieved 2026-04-05.**
+**Current corpus: 4,000+ enriched records across 10 files (schema v3, claude-haiku-4-5-20251001). 135 findings | 34+ Designed Ceiling. All Day 30 metrics achieved 2026-04-05. HSBC now live (2026-04-12).**
 
 ### MIL Zero Entanglement — HARD RULE
 
