@@ -25,7 +25,8 @@ clark_log.jsonl schema:
         "clark_tier":  "CLARK-3",
         "cac_score":   0.720,
         "finding_tier":"P1",
-        "reason":      "P1 tier + CAC 0.720 + CHR-001 + ceiling"
+        "reason":      "P1 tier + CAC 0.720 + CHR-001 + ceiling",
+        "synthesis":   "(CLARK-3 only) Opus-generated escalation note: what/why/evidence/action"
     }
 
 MIL Import Rule: no imports from pulse/, poc/, app/, dags/
@@ -34,6 +35,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -158,7 +161,77 @@ def _already_logged(finding_id: str, tier: str) -> bool:
     )
 
 
+def _opus_synthesis(finding: dict, reason: str) -> str:
+    """
+    Call Opus to generate a structured CLARK-3 escalation note.
+    Returns prose string (empty on failure). ARCH-003 Tier 1.
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        import anthropic
+
+        # get_model via relative import path (works when called from MIL context)
+        try:
+            sys.path.insert(0, str(MIL_ROOT))
+            from config.get_model import get_model
+        except ImportError:
+            from mil.config.get_model import get_model
+
+        cfg    = get_model("clark_escalation_synthesis")
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            return ""
+
+        client = anthropic.Anthropic(api_key=api_key)
+        fid       = finding.get("finding_id", "?")
+        comp      = COMP_LABELS.get(finding.get("competitor", ""), finding.get("competitor", "?"))
+        cac       = finding.get("confidence_score", 0.0)
+        summary   = (finding.get("finding_summary") or "")[:300]
+        keywords  = finding.get("top_3_keywords", [])
+        chr_id    = (finding.get("chronicle_match") or {}).get("chronicle_id", "none")
+        journey   = finding.get("journey_id", "?")
+        counts    = finding.get("signal_counts", {})
+        ceil_flag = finding.get("designed_ceiling_reached", False)
+
+        prompt = f"""You are MIL's escalation intelligence system. A CLARK-3 (ACT NOW) finding has triggered.
+
+Write a structured escalation note — exactly 4 short sentences covering:
+1. WHAT: the specific customer-facing failure and which competitor
+2. WHY NOW: what crossed the CLARK-3 threshold (Chronicle anchor, ceiling, CAC score)
+3. EVIDENCE: the volume and severity of signals observed
+4. RECOMMENDED ACTION: one specific action for the product director to take in the next 24h
+
+CLARK-3 FINDING:
+- ID: {fid}
+- Competitor: {comp}
+- CAC score: {cac:.3f}
+- Reason: {reason}
+- Chronicle anchor: {chr_id}
+- Designed ceiling reached: {ceil_flag}
+- Signal counts: P0={counts.get('P0',0)}, P1={counts.get('P1',0)}, P2={counts.get('P2',0)}
+- Top keywords: {', '.join(keywords)}
+- Journey: {journey}
+- Summary: {summary}
+
+4 sentences only. Start with the competitor name."""
+
+        msg = client.messages.create(
+            model=cfg["model"],
+            max_tokens=cfg.get("max_tokens", 1024),
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return msg.content[0].text.strip()
+    except Exception as exc:
+        logger.warning("[clark] Opus synthesis failed (non-fatal): %s", exc)
+        return ""
+
+
 def log_escalation(finding: dict, tier: str, reason: str) -> None:
+    synthesis_note = ""
+    if tier == "CLARK-3":
+        synthesis_note = _opus_synthesis(finding, reason)
+
     entry = {
         "ts":           datetime.now(timezone.utc).isoformat(),
         "event":        "CLARK_ESCALATION",
@@ -169,8 +242,13 @@ def log_escalation(finding: dict, tier: str, reason: str) -> None:
         "finding_tier": finding.get("finding_tier", "?"),
         "reason":       reason,
     }
+    if synthesis_note:
+        entry["synthesis"] = synthesis_note
+
     _append_log(entry)
     logger.info("[clark] ESCALATION %s -> %s (%s)", entry["finding_id"], tier, reason)
+    if synthesis_note:
+        logger.info("[clark] CLARK-3 Opus synthesis generated for %s", entry["finding_id"])
 
 
 def log_downgrade(finding_id: str, from_tier: str, to_tier: str, reason: str) -> None:
