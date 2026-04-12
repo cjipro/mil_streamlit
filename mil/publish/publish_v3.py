@@ -661,9 +661,6 @@ def generate_v3_html(v1_html: str) -> str:
 
     benchmark = benchmark_result.get("benchmark", {})
 
-    # Strip Box 3 from V1 — V3 replaces it with intelligence sections
-    v1_html = _strip_box3(v1_html)
-
     # Build sections
     churn_html   = _build_churn_risk_section(benchmark_result)
     comment_html = _build_commentary_section(boxes)
