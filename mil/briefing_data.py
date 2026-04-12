@@ -318,32 +318,82 @@ def _chronicle_match_from_findings(findings: list) -> tuple:
 
 def _teacher_from_findings(findings: list) -> tuple:
     """
-    Returns (chr_id, bank, year, lesson) for the most relevant teacher
-    among Barclays findings. Teachers are CHR-001/002/003 only — CHR-004 is
-    Barclays' own friction baseline, not a teacher.
+    Returns (chr_id, bank, year, lesson) for the most relevant teacher CHR.
 
-    Selection: most frequent CHR anchor across Barclays findings (excluding
-    CHR-004). Frequency reflects which historical incident pattern the current
-    signal most resembles — more robust than sim_hist_score which is gamed by
-    common substring words. Tie-break: highest CAC finding.
+    Selection: driven by the top over-indexed Barclays issue type from the
+    persistence log. Issue type → CHR mapping is explicit — avoids keyword
+    substring gaming that caused CHR-001 (TSB migration) to win for generic
+    app crash/feature signals.
+
+    Issue-to-CHR map:
+      App Crashing, App Not Opening, Feature Broken → CHR-003 (HSBC 2025: app instability)
+      Login Failed, Account Locked               → CHR-001 (TSB 2018: auth/lockout)
+      Incorrect Balance, Missing Transaction, Payment Failed → CHR-002 (Lloyds 2025: data defect)
+
+    Fallback: CHR frequency across Barclays findings (excluding CHR-004).
     """
+    _ISSUE_CHR_MAP = {
+        "App Crashing":         "CHR-003",
+        "App Not Opening":      "CHR-003",
+        "Feature Broken":       "CHR-003",
+        "Biometric / Face ID Issue": "CHR-003",
+        "Login Failed":         "CHR-001",
+        "Account Locked":       "CHR-001",
+        "Incorrect Balance":    "CHR-002",
+        "Missing Transaction":  "CHR-002",
+        "Payment Failed":       "CHR-002",
+        "Transfer Failed":      "CHR-002",
+    }
+
+    # Step 1: get top over-indexed issue from persistence log
+    persistence_log = Path(__file__).parent / "data" / "issue_persistence_log.jsonl"
+    preferred_cid = None
+    if persistence_log.exists():
+        try:
+            all_entries = []
+            for line in persistence_log.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line:
+                    try:
+                        all_entries.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        pass
+            if all_entries:
+                latest_date = max(e["date"] for e in all_entries)
+                today_entries = [e for e in all_entries if e["date"] == latest_date]
+                # Top over-indexed issue sorted by churn contribution (gap × severity × persistence)
+                sev_w = {"P0": 3.0, "P1": 2.0, "P2": 1.0}
+                risk = [e for e in today_entries if e.get("over_indexed")]
+                if risk:
+                    risk.sort(
+                        key=lambda e: e["gap_pp"] * sev_w.get(e.get("dominant_severity","P2"), 1.0)
+                                      * min(1.0 + 0.2 * e.get("days_active", 1), 3.0),
+                        reverse=True,
+                    )
+                    top_issue = risk[0]["issue_type"]
+                    preferred_cid = _ISSUE_CHR_MAP.get(top_issue)
+        except Exception:
+            pass
+
+    # Step 2: if we have a preferred CHR, verify at least one Barclays finding anchors to it
     _TEACHER_IDS = {"CHR-001", "CHR-002", "CHR-003"}
     barclays = [
         f for f in findings
         if f.get("competitor", "").lower() == "barclays"
         and f.get("chronicle_match", {}).get("chronicle_id") in _TEACHER_IDS
     ]
-    if not barclays:
-        return "", "", "", ""
 
-    # Count how many findings anchor to each teacher CHR
-    chr_counts = Counter(f["chronicle_match"]["chronicle_id"] for f in barclays)
-    dominant_cid = chr_counts.most_common(1)[0][0]
+    cid = None
+    if preferred_cid and barclays:
+        cid = preferred_cid  # use issue-map CHR even if 0 findings anchor to it — map is authoritative
 
-    # Among findings for the dominant CHR, pick the highest-CAC one
-    candidates = [f for f in barclays if f["chronicle_match"]["chronicle_id"] == dominant_cid]
-    top = max(candidates, key=lambda f: f.get("confidence_score", 0))
-    cid = top["chronicle_match"]["chronicle_id"]
+    # Step 3: fallback — frequency count across anchored findings
+    if not cid:
+        if not barclays:
+            return "", "", "", ""
+        chr_counts = Counter(f["chronicle_match"]["chronicle_id"] for f in barclays)
+        cid = chr_counts.most_common(1)[0][0]
+
     t = _CHRONICLE_TEACHERS.get(cid, {})
     return cid, t.get("bank", ""), t.get("year", ""), t.get("lesson", "")
 
