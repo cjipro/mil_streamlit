@@ -271,6 +271,19 @@ def run_publish_v2_step() -> None:
         logger.info("[publish_v2] briefing-v2 updated.")
 
 
+def run_publish_v3_step() -> None:
+    logger.info("[publish_v3] running publish_v3.py...")
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish_v3.py")],
+        cwd=str(REPO_ROOT),
+        capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish_v3] publish_v3.py exited with code %d", result.returncode)
+    else:
+        logger.info("[publish_v3] briefing-v3 updated.")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -337,6 +350,9 @@ def main() -> None:
 
     logger.info("--- Step 5b: Publish V2 ---")
     run_publish_v2_step()
+
+    logger.info("--- Step 5c: Publish V3 ---")
+    run_publish_v3_step()
 
     logger.info("--- Step 6: Log Run ---")
     _log_run(fetch_counts, _benchmark_result)
