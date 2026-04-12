@@ -100,17 +100,30 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 **Sonar V2 — LIVE (2026-04-05)**
 - File: `mil/publish/publish_v2.py`
 - URL: https://cjipro.com/briefing-v2
-- V1 at cjipro.com/briefing FROZEN — never touch
+- V1 at cjipro.com/briefing — actively maintained (not frozen)
 - V2 extends V1 with: Vane Trajectory Chart (MIL-12), Inference Cards (MIL-13), Clark Protocol (MIL-14), Phase 2 Demand (MIL-15)
 - All V2 sections use `.topbar-box` chrome — same width/padding as Box 1/2/3, mobile-optimised
 
-**Next ticket: MIL-27 (undefined)**
+**Sonar V3 — LIVE (2026-04-12)**
+- File: `mil/publish/publish_v3.py`
+- URL: https://cjipro.com/briefing-v3
+- Loads V1 HTML, injects V3 intelligence sections before `</body>`. V1 and V2 untouched.
+- V3 sections: Churn Risk Score / Analyst Commentary (Sonnet) / Technical Benchmark / Service Benchmark / Intelligence Findings / Clark Protocol
+- Local copy: mil/publish/output/index_v3.html
+- Run: `py mil/publish/publish_v3.py`
+- **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
+
+**Next ticket: MIL-31 (undefined)**
 
 **Phase 2 — IN PROGRESS (2026-04-12)**
 - MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 pending ~2026-04-19)
-- MIL-26: Research Agent — mil/researcher/research_agent.py, clusters research queue, drafts CHR proposals (BUILT 2026-04-09)
+- MIL-26: ARCH-003 model routing — model_routing.yaml schema v1.1, four-tier Opus/Sonnet/Haiku/Qwen3 (BUILT 2026-04-12)
+- MIL-27: Benchmark Engine + Persistence Log — mil/data/benchmark_engine.py, issue_persistence_log.jsonl (BUILT 2026-04-12)
+- MIL-28: Commentary Engine — mil/publish/commentary_engine.py, Sonnet analyst prose per issue type (BUILT 2026-04-12)
+- MIL-29: Briefing V3 — mil/publish/publish_v3.py, live at cjipro.com/briefing-v3 (BUILT 2026-04-12)
+- MIL-30: Opus Governance Tier — CLARK-3 synthesis + CHR proposals upgraded to Opus (BUILT 2026-04-12)
 
-## MIL Pipeline State — 2026-04-12 (updated)
+## MIL Pipeline State — 2026-04-12 (Phase 2 complete)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -119,6 +132,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
   - HDFS volumes: C:/Users/hussa/hdfs-volumes/mil-namenode + mil-datanode
 - **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Claude Haiku is now primary enrichment model.
 - **ARCH-002**: qwen3:14b evaluated for enrichment (2026-04-03). 20-record blind test vs Haiku baseline: schema compliance 100%, issue_type agreement 90%, severity agreement 95%. DISQUALIFIED for enrichment — downgraded a P0 blocking issue to P2. P0 accuracy is non-negotiable for MIL. Haiku retained for enrichment. qwen3 approved for exec alert synthesis (Box 3) — **IMPLEMENTED 2026-04-05** in briefing_data.py via `_exec_alert_description()` using OpenAI-compat Ollama call + `get_model("exec_alert")`.
+- **ARCH-003**: Four-tier model routing formalised (MIL-26, 2026-04-12). Tier 1 Opus: governs — CHR proposals, teacher autopsies, CLARK-3 synthesis. Tier 2 Sonnet: drives daily intelligence — commentary, exec alert V3, churn narrative. Tier 3 Haiku/Refuel-8B: classifies at scale. Tier 4 Qwen3: labour — YAML, Markdown, scripts. model_routing.yaml schema v1.1.
 
 ### Enrichment Pipeline (enrich_sonnet.py — schema v3) ← ACTIVE
 File: `mil/harvester/enrich_sonnet.py`
@@ -190,7 +204,7 @@ File: `mil/briefing_data.py`
 - **clark_tier** added to executive_alert dict — sourced from clark_protocol.get_clark_tier_for_finding()
 - **Chronicle matching (2026-04-10)**: `_chronicle_match_from_findings(anchored)` — driven by top Barclays finding's actual CHR anchor from mil_findings.json. CHR-004 preferred for Barclays (their own sustained friction pattern); falls back to highest-CAC match only if CHR-004 has no representation.
 - **Counter import fix (2026-04-10)**: `Counter` was missing from `collections` import — caused `NameError: _Counter` which silently emptied Box 1 quotes. Fixed: `from collections import Counter, defaultdict`.
-- **Teacher selection (2026-04-12)**: `_teacher_from_findings()` now selects by `chronicle_match.sim_hist_score` (keyword overlap between signal keywords and CHR `pattern_keywords`) — NOT by confidence/CAC. TSB (CHR-001) wins at sim=1.00 because Barclays' Feature Broken keywords most closely match CHR-001 pattern keywords. Other CHR entries win when their keywords match the active signal better.
+- **Teacher selection (2026-04-12)**: `_teacher_from_findings()` selects by frequency — the CHR ID that appears most often across all Barclays findings. Within that CHR, the highest-CAC finding provides the teacher context. Prevents substring-frequency gaming that caused TSB to always win when CHR-001 keywords were too generic.
 - **Box 3 redesign (2026-04-12)**: "Barclays Alert" layout — 4 sections: THE SITUATION (qwen3 signal synthesis) / THE LESSON (teacher CHR entry: bank name + year) / SEVERITY (Clark tier) / NEXT STEPS (YOUR CALL framing). Teacher-student framing: competitor banks teach Barclays, not compare them.
 - Top quote selection: P0 first, P1 fallback, 40+ chars, prefer 60-200 chars
 - Current output (2026-04-12):
@@ -222,6 +236,21 @@ File: `mil/publish/publish_v2.py`
 - **publish_v2.py wired into run_daily.py as Step 5b** (after V1 publish, before log run)
 - **Clark race condition fix (2026-04-12)**: `scan_and_escalate()` / `scan_and_downgrade()` REMOVED from publish_v2.py. V2 reads pre-escalated clark_log only. Escalation now runs as dedicated Step 4c in run_daily.py (before both publish steps). Eliminates CLARK-0 appearing in HTML because escalation happened after V1 publish.
 
+### Sonar Briefing V3 — publish_v3.py (LIVE 2026-04-12)
+File: `mil/publish/publish_v3.py`
+- **V3 LIVE** at cjipro.com/briefing-v3
+- Loads V1 HTML from mil/publish/output/index.html, injects V3 sections. V1 + V2 untouched.
+- V3 sections:
+  - **Churn Risk Score** — composite score (sum of gap_pp × severity_weight × persistence_multiplier), trend badge, over/under-indexed pills
+  - **Analyst Commentary** — Sonnet (commentary route) analyst prose per significant Barclays issue type. 3 risk + 1 strength max. CHR resonance conditional.
+  - **Technical Benchmark** — 6 issue types: Barclays vs 5-bank peer average, bars + gap indicator + days active
+  - **Service Benchmark** — 10 issue types: same format
+  - **Intelligence Findings** — top 8 Barclays by CAC, tier/severity/chronicle/ceiling badges
+  - **Clark Protocol** — Barclays escalation status
+- Local copy: mil/publish/output/index_v3.html
+- Run: `py mil/publish/publish_v3.py`
+- **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
+
 ### Daily Pipeline — ONE COMMAND (fully agentic)
 ```
 py run_daily.py
@@ -233,9 +262,11 @@ Steps (zero human intervention required):
   4a. Research Trigger — flags P0/P1 weak-anchor findings → mil/data/research_queue.jsonl
   4b. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
   4c. Clark Escalation — scan_and_escalate() + scan_and_downgrade(), runs BEFORE both publish steps
+  4d. Benchmark + Persistence — benchmark_engine.py, churn_risk_score + issue_persistence_log.jsonl
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
   5b. Publish V2 — publish_v2.py, injects V2 sections, GitHub Pages push -> cjipro.com/briefing-v2
-  6. Log Run — appends to mil/data/daily_run_log.jsonl, reports M1 streak
+  5c. Publish V3 — publish_v3.py, commentary_engine.py (Sonnet), benchmark sections, cjipro.com/briefing-v3
+  6. Log Run — appends to mil/data/daily_run_log.jsonl, reports M1 streak (includes churn_risk_score + trend)
 
 Flags:
   `--dry-run`    fetch + enrich only, skip inference + publish
@@ -265,6 +296,11 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | MIL-22 | collect_youtube.py (0.75 trust) | BUILT 2026-04-03 |
 | MIL-23 | Twitter/X | EXCLUDED — cost prohibitive |
 | MIL-24 | Glassdoor | EXCLUDED — out of MIL scope |
+| MIL-26 | ARCH-003 model routing (schema v1.1) | BUILT 2026-04-12 |
+| MIL-27 | benchmark_engine.py + issue_persistence_log.jsonl | BUILT 2026-04-12 |
+| MIL-28 | commentary_engine.py (Sonnet prose) | BUILT 2026-04-12 |
+| MIL-29 | publish_v3.py — cjipro.com/briefing-v3 | BUILT 2026-04-12 |
+| MIL-30 | Opus governance — CLARK-3 synthesis + CHR proposals | BUILT 2026-04-12 |
 
 **Source Stack (6 active):**
 | Source | Trust Weight | Status |
@@ -276,13 +312,64 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-27 (undefined)**
+**Next ticket: MIL-31 (undefined)**
 
-### MIL-26 — Research Agent (BUILT 2026-04-09)
+### MIL-26 — ARCH-003 Model Routing (BUILT 2026-04-12)
+File: `mil/config/model_routing.yaml` (schema v1.1)
+- Four-tier routing: Opus (governance), Sonnet (daily intelligence), Haiku/Refuel-8B (classification), Qwen3 (labour)
+- New routes: chr_proposal (Opus), teacher_autopsy (Opus), clark_escalation_synthesis (Opus), exec_alert_v3 (Sonnet), commentary (Sonnet), churn_narrative (Sonnet)
+- Always use `get_model(task)` — never hardcode model names
+
+### MIL-27 — Benchmark Engine + Persistence Log (BUILT 2026-04-12)
+File: `mil/data/benchmark_engine.py`
+- Full competitive benchmarking: 6 competitors, 6 technical + 10 service issue types
+- Complaint-normalised rates: denominator = total records − Positive Feedback − Other
+- `run(mode="daily")` returns: churn_risk_score, churn_risk_trend, over_indexed list, under_indexed list, benchmark dict
+- Churn risk score: sum(gap_pp × severity_weight × persistence_multiplier) across over-indexed issues
+- Persistence multiplier: min(1.0 + 0.2 × days_active, 3.0)
+- Trend: 3d vs prior 4d split (same logic as sentiment trend) → WORSENING/STABLE/IMPROVING
+- `run(mode="backfill")` — processes all dates from daily_run_log.jsonl, builds full history
+- Writes: mil/data/benchmark_cache.json (fresh each run) + mil/data/issue_persistence_log.jsonl (appends)
+- Current: churn_risk_score=101.95, trend=WORSENING, 5 over-indexed, 9 under-indexed (2026-04-12)
+- Backfill complete: 144 entries across 9 dates (2026-04-03 to 2026-04-12)
+- **Step 4d** in run_daily.py (after Clark, before Publish)
+
+### MIL-28 — Commentary Engine (BUILT 2026-04-12)
+File: `mil/publish/commentary_engine.py`
+- Reads issue_persistence_log.jsonl, selects significant Barclays issues
+- Risk selection: gap>5pp OR (days>3 AND gap>0) OR P0/P1. Strength: gap<-3pp
+- Calls Sonnet (commentary route, 300 tokens) per issue — analyst prose, not metric tiles
+- CHR resonance: conditional Chronicle context for 6 issue types (App Not Opening, Login Failed, Account Locked, App Crashing, Incorrect Balance, Missing Transaction)
+- Top quotes: P0/P1 priority, 40-200 chars from enriched records
+- Max output: 3 risk boxes + 1 strength box = 4 total
+- Fallback prose if Sonnet unavailable
+- Called by publish_v3.py on each daily run
+
+### MIL-29 — Briefing V3 (BUILT 2026-04-12)
+File: `mil/publish/publish_v3.py`
+- **LIVE at cjipro.com/briefing-v3**
+- Loads V1 HTML (index.html), injects V3 sections before `</body>`. V1 and V2 untouched.
+- Section 1: Churn Risk Score — big number, trend badge, over/under-indexed pills
+- Section 2: Analyst Commentary — Sonnet prose per issue type, 3 risk + 1 strength
+- Section 3: Technical Benchmark — 6 issue types, bar chart, gap, days active
+- Section 4: Service Benchmark — 10 issue types, same format
+- Section 5: Intelligence Findings — top 8 Barclays by CAC, badges
+- Section 6: Clark Protocol — Barclays escalation status
+- Local copy: mil/publish/output/index_v3.html
+- **Step 5c** in run_daily.py
+
+### MIL-30 — Opus Governance Tier (BUILT 2026-04-12)
+- **clark_protocol.py**: `_opus_synthesis()` called on every new CLARK-3 escalation
+  - Calls Opus (clark_escalation_synthesis route) — 4-sentence structured note: what/why now/evidence/recommended action
+  - `synthesis` field added to clark_log.jsonl entry. Non-fatal if Opus fails.
+- **research_agent.py**: CHR proposal drafting upgraded Haiku → Opus (chr_proposal route)
+  - CHR entries anchor CAC formula permanently — Opus quality non-negotiable
+
+### MIL Research Agent — (MIL-26 component, BUILT 2026-04-09, upgraded MIL-30)
 File: `mil/researcher/research_agent.py`
 - Reads `mil/data/research_queue.jsonl` (78 PENDING items across 10 clusters)
 - Clusters by competitor + journey_id
-- Calls Haiku to draft proposed CHRONICLE entries per cluster
+- Calls **Opus** to draft proposed CHRONICLE entries per cluster (upgraded from Haiku — MIL-30)
 - Skips clusters already covered by existing CHR entries (e.g. Barclays covered by CHR-004)
 - Writes proposals to `mil/data/chr_proposals/<competitor>_<journey>_<timestamp>.md`
 - Writes summary to `mil/data/chr_proposals/summary_<timestamp>.md`
@@ -310,7 +397,7 @@ Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — streak now 11/5 as of 2026-04-12. Run #21 logged. Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak 11/5 as of 2026-04-12. Run #26 logged (multiple validation runs during session). Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
 - **M3**: DONE — 34 ceiling triggers (threshold was 22)
 
@@ -321,10 +408,10 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 - Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
-- Close MIL-11 through MIL-26 in Jira UI
+- Close MIL-11 through MIL-30 in Jira UI
 - Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19
 - Post Gate 1: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
-- Run research agent: `py mil/researcher/research_agent.py` — review proposals in mil/data/chr_proposals/
+- Run research agent: `py mil/researcher/research_agent.py` — review proposals in mil/data/chr_proposals/ (now uses Opus)
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 
