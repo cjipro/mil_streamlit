@@ -310,6 +310,15 @@ def main() -> None:
     logger.info("--- Step 4b: Vault ---")
     run_vault_step()
 
+    logger.info("--- Step 4c: Clark Escalation ---")
+    try:
+        from mil.command.components.clark_protocol import scan_and_escalate, scan_and_downgrade
+        new_esc = scan_and_escalate()
+        new_dg  = scan_and_downgrade()
+        logger.info("[clark] %d new escalations | %d downgraded", len(new_esc), new_dg)
+    except Exception as exc:
+        logger.warning("[clark] escalation failed: %s", exc)
+
     logger.info("--- Step 5: Publish ---")
     run_publish_step()
 

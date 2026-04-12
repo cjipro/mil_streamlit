@@ -36,7 +36,7 @@ from briefing_data import get_briefing_data
 from mil.command.components.vane_chart import build_vane_data
 from mil.command.components.inference_cards import load_findings, findings_summary
 from mil.command.components.clark_protocol import (
-    active_clark_summary, scan_and_escalate, scan_and_downgrade
+    active_clark_summary,
 )
 from mil.command.components.exit_strategy import click_log_summary, load_ceiling_findings
 
@@ -211,10 +211,6 @@ def _build_inference_section() -> str:
 
 def _build_clark_section() -> str:
     """Clark Protocol escalation status."""
-    # Run scan to ensure log is current
-    scan_and_escalate()
-    scan_and_downgrade()
-
     summary = active_clark_summary()
     active  = [e for e in summary.get("active", []) if e.get("competitor") == "barclays"]
     by_tier = {}
