@@ -318,9 +318,12 @@ def _chronicle_match_from_findings(findings: list) -> tuple:
 
 def _teacher_from_findings(findings: list) -> tuple:
     """
-    Returns (chr_id, bank, year, lesson) for the highest-CAC teacher entry
+    Returns (chr_id, bank, year, lesson) for the most keyword-relevant teacher
     among Barclays findings. Teachers are CHR-001/002/003 only — CHR-004 is
     Barclays' own friction baseline, not a teacher.
+
+    Selection: highest chronicle similarity score — the teacher whose failure
+    pattern most closely matches what Barclays is experiencing right now.
     """
     _TEACHER_IDS = {"CHR-001", "CHR-002", "CHR-003"}
     barclays = [
@@ -330,7 +333,7 @@ def _teacher_from_findings(findings: list) -> tuple:
     ]
     if not barclays:
         return "", "", "", ""
-    top = max(barclays, key=lambda f: f.get("confidence_score", 0))
+    top = max(barclays, key=lambda f: f.get("chronicle_match", {}).get("sim_hist_score", 0))
     cid = top["chronicle_match"]["chronicle_id"]
     t = _CHRONICLE_TEACHERS.get(cid, {})
     return cid, t.get("bank", ""), t.get("year", ""), t.get("lesson", "")
