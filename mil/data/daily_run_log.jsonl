@@ -19,3 +19,8 @@
 {"run": 19, "date": "2026-04-10", "timestamp": "2026-04-10T22:41:53.061908+00:00", "status": "CLEAN", "new_records": 0, "findings": 117, "m1_streak": 10, "m1_target": 5, "m1_done": true}
 {"run": 20, "date": "2026-04-11", "timestamp": "2026-04-11T11:43:46.092268+00:00", "status": "CLEAN", "new_records": 143, "findings": 117, "m1_streak": 11, "m1_target": 5, "m1_done": true}
 {"run": 21, "date": "2026-04-11", "timestamp": "2026-04-11T23:40:59.707988+00:00", "status": "CLEAN", "new_records": 292, "findings": 135, "m1_streak": 11, "m1_target": 5, "m1_done": true}
+{"run": 22, "date": "2026-04-12", "timestamp": "2026-04-12T07:50:04.773132+00:00", "status": "CLEAN", "new_records": 19, "findings": 135, "m1_streak": 12, "m1_target": 5, "m1_done": true}
+{"run": 23, "date": "2026-04-12", "timestamp": "2026-04-12T07:59:40.583224+00:00", "status": "CLEAN", "new_records": 0, "findings": 135, "m1_streak": 12, "m1_target": 5, "m1_done": true}
+{"run": 24, "date": "2026-04-12", "timestamp": "2026-04-12T08:04:54.557849+00:00", "status": "CLEAN", "new_records": 0, "findings": 135, "m1_streak": 12, "m1_target": 5, "m1_done": true}
+{"run": 25, "date": "2026-04-12", "timestamp": "2026-04-12T08:09:50.202516+00:00", "status": "CLEAN", "new_records": 0, "findings": 135, "m1_streak": 12, "m1_target": 5, "m1_done": true}
+{"run": 26, "date": "2026-04-12", "timestamp": "2026-04-12T16:23:28.445096+00:00", "status": "CLEAN", "new_records": 0, "findings": 135, "m1_streak": 12, "m1_target": 5, "m1_done": true, "churn_risk_score": 101.95, "churn_risk_trend": "WORSENING"}

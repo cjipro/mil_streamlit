@@ -129,10 +129,9 @@ CHRONICLE_ENTRIES = [
         "confidence_cap": 1.0,
         "journey_tags": ["J_LOGIN_01", "J_PAY_01", "J_SERVICE_01"],
         "pattern_keywords": [
-            "locked out", "cannot access", "account access", "authentication",
-            "login", "payments", "blocked", "error", "failed", "down",
-            "unavailable", "outage", "crash", "cannot log in", "cannot sign in",
-            "not working", "access denied", "migration",
+            "migration", "locked out", "cannot sign in", "access denied",
+            "mass lockout", "all customers", "widespread", "system migration",
+            "banking migration", "platform migration", "cutover", "new system",
         ],
         "pattern_description": (
             "Core banking migration failure. 1.9M customers locked out. "
@@ -167,10 +166,9 @@ CHRONICLE_ENTRIES = [
         "confidence_cap": 0.55,
         "journey_tags": ["J_LOGIN_01", "J_SERVICE_01"],
         "pattern_keywords": [
-            "error", "cannot access", "app down", "not working", "unavailable",
-            "login", "err03", "information unavailable", "outage", "authentication",
-            "cannot log in", "access failed", "update", "refresh", "new app",
-            "since update", "after update", "redesign",
+            "err03", "since update", "after update", "redesign", "new app",
+            "refresh", "app update", "app redesign", "information unavailable",
+            "app down", "since redesign", "new version", "latest update",
         ],
         "pattern_description": (
             "App platform refresh outage — HSBC 18-month redesign rolled out May 2025, "
@@ -259,7 +257,7 @@ def _keyword_overlap(signal_keywords: list[str], chronicle_keywords: list[str]) 
     if not signal_keywords or not chronicle_keywords:
         return 0.0
 
-    sig_lower   = [k.lower() for k in signal_keywords]
+    sig_lower   = list(dict.fromkeys(k.lower() for k in signal_keywords))  # dedup, preserve order
     chron_lower = [k.lower() for k in chronicle_keywords]
 
     hits = 0
