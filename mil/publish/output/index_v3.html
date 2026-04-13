@@ -432,36 +432,69 @@ a { color: var(--blue); text-decoration: none; }
         </div>
     </div>
   </div>
-  <!-- Right: Barclays Alert panel (bd-wired) -->
-  <div class="topbar-box exec-alert-panel">
-    <div class="exec-alert-header">
-      <span class="exec-alert-pulse"></span>
-      <span class="exec-alert-title">Barclays Alert</span>
-      <span class="exec-alert-ts">2026-04-12 16:23 UTC</span>
-    </div>
-    <div class="exec-alert-body">
-      <div class="exec-alert-pills" style="margin-bottom:10px;">
-        <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);font-weight:700;">CLARK-3</span>
-        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">STRONG SIGNAL</span>
-      </div>
-      <div class="exec-alert-section-label">THE SITUATION</div>
-      <div class="exec-alert-section-text">Customers reporting app not opening and payment failed</div>
-      <div class="exec-alert-section-label">THE LESSON — HSBC, 2025</div>
-      <div class="exec-alert-section-text">After an 18-month app redesign, HSBC took 4,765 DownDetector complaints in the first hour of their outage. The build-up looked exactly like this — rising app instability complaints with no single catastrophic trigger. Until there was one.</div>
-      <div class="exec-alert-section-label">SEVERITY</div>
-      <div class="exec-alert-pills">
-        <span class="exec-pill" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);">P0 &nbsp;8</span>
-        <span class="exec-pill" style="background:rgba(245,166,35,0.12);color:#F5A623;border:1px solid rgba(245,166,35,0.3);">P1 &nbsp;13</span>
-        <span class="exec-pill" style="background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);">CAC &nbsp;0.41</span>
-      </div>
-      <div class="exec-alert-section-label">NEXT STEPS</div>
-      <div class="exec-alert-section-text">This belongs on the incident board today. If it is not already there, that is the first failure. Escalate now.</div>
-      <button class="exec-escalate-btn" style="background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);border-radius:6px;font-size:13px;font-weight:700;letter-spacing:0.08em;padding:6px 14px;cursor:pointer;width:100%;font-family:var(--sans);text-transform:uppercase;margin-top:10px;">ACT NOW</button>
-    </div>
-    <div class="exec-alert-footnote">
-      <span>P0 — customer blocked</span>      <span class="exec-fn-sep">·</span>      <span>P1 — significant friction</span>      <span class="exec-fn-sep">·</span>      <span>CAC — signal confidence (0–1)</span>      <span class="exec-fn-sep">·</span>      <span>CLARK-3 — act now &nbsp;CLARK-2 — escalate &nbsp;CLARK-1 — watch</span>
-    </div>
+  
+<div class="topbar-box exec-alert-panel">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE SUMMARY</span>
+    <span style="font-size:10px;color:#3A6A7F;">executive view &middot; detail below</span>
   </div>
+  <div class="topbar-box-body" style="gap:6px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:4px;">
+      <div style="text-align:center;min-width:68px;">
+        <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:800;
+                    line-height:1;color:#CC0000;">109</div>
+        <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Churn Risk</div>
+      </div>
+      <div>
+        <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;
+                     letter-spacing:0.5px;background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);">WORSENING</span>
+        <div style="font-size:10px;color:#4A7A8F;margin-top:5px;">
+          5 issues over-indexed &middot; 9 strengths
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Top Risks</div>
+      
+<div style="display:flex;align-items:center;justify-content:space-between;
+            padding:5px 8px;background:#001020;border-radius:4px;margin-bottom:3px;">
+  <span style="font-size:11px;color:#C5DDE8;">App Crashing</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#CC3333;font-weight:700;">+6.2pp</span>
+  <span style="font-size:9px;color:#CC0000;">P0 &middot; 10d</span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;
+            padding:5px 8px;background:#001020;border-radius:4px;margin-bottom:3px;">
+  <span style="font-size:11px;color:#C5DDE8;">Feature Broken</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#CC3333;font-weight:700;">+8.5pp</span>
+  <span style="font-size:9px;color:#4A9BD4;">P2 &middot; 10d</span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;
+            padding:5px 8px;background:#001020;border-radius:4px;margin-bottom:3px;">
+  <span style="font-size:11px;color:#C5DDE8;">Payment Failed</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#CC3333;font-weight:700;">+1.8pp</span>
+  <span style="font-size:9px;color:#CC0000;">P0 &middot; 10d</span>
+</div>
+    </div>
+    
+<div style="margin-top:6px;">
+  <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Strength</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding:5px 8px;background:#001020;border-radius:4px;">
+    <span style="font-size:11px;color:#C5DDE8;">Account Locked</span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:#00AFA0;font-weight:700;">-4.9pp</span>
+  </div>
+</div>
+    
+<div style="margin-top:8px;font-size:11px;color:#7AACBF;line-height:1.55;
+            border-left:2px solid #003A5C;padding-left:8px;">A crash rate more than double the peer benchmark, persisting for ten consecutive days without resolution, points strongly to a systemic regression — likely tied to a specific release or platform update — rather than isolated device or OS fragmentation issues.</div>
+    
+<div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+  <span style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;">Clark</span>
+  <span style="padding:2px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.5px;
+               background:#CC000022;color:#CC0000;border:1px solid #CC0000;">CLARK-3 — ACT NOW</span>
+</div>
+  </div>
+</div>
 </div>
 
 <!-- -- Sentiment Ticker ---------------------------------------------------- -->
@@ -888,7 +921,7 @@ document.addEventListener('click', function(e) {
 <hr class="v3-divider">
 <div class="v3-outer">
   <div class="v3-label">
-    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-12 21:43 UTC
+    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-13 06:35 UTC
   </div>
   
 <div class="topbar-box">
@@ -899,7 +932,7 @@ document.addEventListener('click', function(e) {
   <div class="topbar-box-body">
     <div class="churn-header">
       <div class="churn-score-block">
-        <div class="churn-score-num" style="color:#CC0000;">102.0</div>
+        <div class="churn-score-num" style="color:#CC0000;">109.2</div>
         <div class="churn-score-lbl">Churn Risk Score</div>
       </div>
       <div class="churn-trend-block">
@@ -951,10 +984,10 @@ document.addEventListener('click', function(e) {
   <div class="commentary-stat">Barclays rate <span>11.9%</span></div>
   <div class="commentary-stat">Peer avg <span>5.7%</span></div>
   <div class="commentary-stat">Gap <span style="color:#CC3333;">+6.2pp</span></div>
-  <div class="commentary-stat">Active <span>9 days</span></div>
+  <div class="commentary-stat">Active <span>10 days</span></div>
   <div class="commentary-stat">Since <span>2026-04-03</span></div>
 </div>
-  <div class="commentary-prose">The scale of over-indexing against peers — more than double the sector rate and sustained across nine consecutive days — points strongly to a platform-level defect rather than isolated device or OS compatibility issues, likely introduced or aggravated by a recent release or infrastructure change. The customer evidence reinforces this: cache-clearing and self-service workarounds are failing, which means the fault is server-side or in core app logic, not user-end, and support channels are visibly overwhelmed or unprepared to compensate. The HSBC precedent is a direct warning — without rapid root cause isolation and a credible customer communication strategy, this trajectory risks compounding reputational damage as negative reviews compound in the store and customers begin migrating payment behaviour to alternative cards.</div>
+  <div class="commentary-prose">A crash rate more than double the peer benchmark, persisting for ten consecutive days without resolution, points strongly to a systemic regression — likely tied to a specific release or platform update — rather than isolated device or OS fragmentation issues. The customer evidence reinforces this: cache-clearing has no effect and core card functionality is breaking, suggesting the fault sits deep in the app's session management or card services integration layer, not at the surface. The business risk is acute — this mirrors the HSBC post-platform refresh incident where prolonged instability compounded reputational damage, and continued inaction risks accelerating app abandonment among digitally-dependent customers who have no viable fallback when support channels also fail them.</div>
   <div class="commentary-quote">&ldquo;The app doesn’t even be working and when it’s down, it’s so hard to find support or find a way around it. No one is able to assist you and if you feel like that.&rdquo;</div>
   <div class="commentary-chr">Chronicle context: CHR-003 (HSBC 2025): app instability post-platform refresh — crashes and ERR03 errors persisted for weeks....</div>
 </div>
@@ -970,10 +1003,10 @@ document.addEventListener('click', function(e) {
   <div class="commentary-stat">Barclays rate <span>39.2%</span></div>
   <div class="commentary-stat">Peer avg <span>30.7%</span></div>
   <div class="commentary-stat">Gap <span style="color:#CC3333;">+8.5pp</span></div>
-  <div class="commentary-stat">Active <span>9 days</span></div>
+  <div class="commentary-stat">Active <span>10 days</span></div>
   <div class="commentary-stat">Since <span>2026-04-03</span></div>
 </div>
-  <div class="commentary-prose">The concentration of complaints around direct debit management and settings persistence points to a regression in core account servicing functionality — likely introduced in a recent release — rather than isolated edge cases. At nine consecutive days without resolution, this has moved from a deployment incident into an operational failure, signalling either insufficient monitoring coverage or a release pipeline that lacks adequate rollback controls. The business risk is material: customers unable to manage payment mandates or personal details through self-service will either flood contact centres or, more critically, lose confidence in the app as a reliable financial management tool — accelerating churn to challengers where such features are table-stakes.</div>
+  <div class="commentary-prose">The breadth of broken interactions — mortgage direct debits, notifications, personal and business detail updates — points to a systemic failure in write-operations across the app rather than an isolated feature bug, suggesting a degraded or misconfigured backend API layer affecting multiple services simultaneously. Ten consecutive days without resolution indicates this has not been treated with appropriate urgency internally, and the 8.5-point over-index against peers suggests competitors have either solved comparable issues or never shipped features in this broken state. The business risk is significant: customers hitting dead ends on financial-control tasks like direct debit management are not just frustrated — they are forming a durable perception that the app cannot be trusted for anything beyond basic viewing.</div>
   <div class="commentary-quote">&ldquo;You cant change your mortgage direct debits in any way on here - useless!&rdquo;</div>
   
 </div>
@@ -989,10 +1022,10 @@ document.addEventListener('click', function(e) {
   <div class="commentary-stat">Barclays rate <span>6.2%</span></div>
   <div class="commentary-stat">Peer avg <span>4.4%</span></div>
   <div class="commentary-stat">Gap <span style="color:#CC3333;">+1.8pp</span></div>
-  <div class="commentary-stat">Active <span>9 days</span></div>
+  <div class="commentary-stat">Active <span>10 days</span></div>
   <div class="commentary-stat">Since <span>2026-04-03</span></div>
 </div>
-  <div class="commentary-prose">The authentication handoff between the app and payment authorisation flow is broken — the app is closing or refreshing mid-session, preventing payments from completing, which points to a regression in session state management or deep-link handling introduced around 3rd April. At nearly 41% above peer rates and persisting for nine consecutive days without resolution, this is not a transient spike but an unresolved platform defect actively blocking customers from making payments. The business risk is significant: failed payments erode trust faster than almost any other failure type, and sustained inability to transact will accelerate churn to competitors, particularly fintechs where payment reliability is a core differentiator.</div>
+  <div class="commentary-prose">The authentication handoff between the app and payment authorisation flow is systematically broken — the app is closing or refreshing mid-journey, which points to a session management or deep-link handling regression likely introduced in a recent release around 3 April. This isn't isolated friction; it's a complete payment failure loop that leaves customers unable to execute transactions, meaning the bank is actively losing payment volume and eroding trust in a core utility function. At ten consecutive days with no sign of resolution and a complaint rate meaningfully above every peer benchmark, the risk is accelerating churn among high-intent transacting customers — the most commercially valuable cohort.</div>
   <div class="commentary-quote">&ldquo;Terrible app sends me to authorise payments to my bank then app closes and doesn't take payment.&rdquo;</div>
   
 </div>
@@ -1011,7 +1044,7 @@ document.addEventListener('click', function(e) {
   
   
 </div>
-  <div class="commentary-prose">Barclays' technical account lockout complaint rate of 2.1% is 4.9 percentage points below the peer average of 7.0%, indicating that customers are far less likely to face unresolved or poorly handled access failures compared to those banking with competitors. For high-value customers who depend on uninterrupted account access for payroll, bill payments, or business transactions, this operational reliability meaningfully reduces the friction that typically triggers current account switching consideration.</div>
+  <div class="commentary-prose">Barclays' technical account lockout complaint rate of 2.1% sits 4.9 percentage points below the peer average of 7.0%, indicating that Barclays' authentication and account recovery infrastructure is resolving access failures with significantly less customer friction than competitors. Customers who can reliably access their accounts without lockout interruptions are far less likely to experience the trust-breaking moments that typically trigger competitor app trials or primary account switching.</div>
   
   
 </div>
@@ -1087,7 +1120,7 @@ document.addEventListener('click', function(e) {
     </div>
   </td>
   <td class="bench-gap-cell bench-gap-positive">+6.2pp</td>
-  <div class="bench-days-cell">9d active</div>
+  <div class="bench-days-cell">10d active</div>
 </tr>
 <tr class="bench-issue-row">
   <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>App Not Opening</td>
@@ -1287,7 +1320,7 @@ document.addEventListener('click', function(e) {
     </div>
   </td>
   <td class="bench-gap-cell bench-gap-positive">+8.5pp</td>
-  <div class="bench-days-cell">9d active</div>
+  <div class="bench-days-cell">10d active</div>
 </tr>
 <tr class="bench-issue-row">
   <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Feature Not Working</td>
@@ -1337,7 +1370,7 @@ document.addEventListener('click', function(e) {
     </div>
   </td>
   <td class="bench-gap-cell bench-gap-positive">+2.3pp</td>
-  <div class="bench-days-cell">9d active</div>
+  <div class="bench-days-cell">10d active</div>
 </tr>
 <tr class="bench-issue-row">
   <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Missing Transaction</td>
@@ -1362,7 +1395,7 @@ document.addEventListener('click', function(e) {
     </div>
   </td>
   <td class="bench-gap-cell bench-gap-neutral">+1.8pp</td>
-  <div class="bench-days-cell">9d active</div>
+  <div class="bench-days-cell">10d active</div>
 </tr>
 <tr class="bench-issue-row">
   <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>Payment Failed</td>
@@ -1387,7 +1420,7 @@ document.addEventListener('click', function(e) {
     </div>
   </td>
   <td class="bench-gap-cell bench-gap-neutral">+1.8pp</td>
-  <div class="bench-days-cell">9d active</div>
+  <div class="bench-days-cell">10d active</div>
 </tr>
 <tr class="bench-issue-row">
   <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Security Concern</td>

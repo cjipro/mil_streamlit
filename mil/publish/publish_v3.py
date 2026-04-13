@@ -571,28 +571,23 @@ def _build_clark_section() -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Box 3 stripper — removes Barclays Alert panel from V1 HTML
-# V3 replaces it with intelligence sections; Box 1 + Box 2 are kept as context.
+# Box 3 replacement — V3 swaps Barclays Alert with Intelligence Summary
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _strip_box3(html: str) -> str:
+def _replace_box3(html: str) -> str:
     """
-    Remove the exec-alert-panel (Box 3 — Barclays Alert) from V1 HTML.
-    Uses a div-depth counter to find the matching closing tag reliably.
-    Falls back silently if the marker isn't found.
+    Replace V1's exec-alert-panel (Box 3) with a placeholder.
+    The placeholder is later substituted with the V3 exec summary box.
     """
-    # Locate the HTML comment that marks the start of Box 3
     marker = '<!-- Right: Barclays Alert panel'
     start_comment = html.find(marker)
     if start_comment == -1:
-        # Try class-based fallback
         cls_marker = 'class="topbar-box exec-alert-panel"'
         cls_idx = html.find(cls_marker)
         if cls_idx == -1:
             return html
         start_comment = html.rfind('<div', 0, cls_idx)
 
-    # Walk forward from the first <div after the comment
     first_div = html.find('<div', start_comment)
     if first_div == -1:
         return html
@@ -607,14 +602,126 @@ def _strip_box3(html: str) -> str:
         elif html[i:i+6] == '</div>':
             depth -= 1
             if depth == 0:
-                end_idx = i + 6  # include the closing </div>
+                end_idx = i + 6
                 break
             i += 6
         else:
             i += 1
 
-    # Strip from the comment start through the closing </div>
-    return html[:start_comment] + html[end_idx:]
+    return html[:start_comment] + '<!-- V3-BOX3 -->' + html[end_idx:]
+
+
+def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
+    """
+    Executive intelligence summary for V3 Box 3.
+    Churn risk score + trend, top 3 risks, top strength, key insight sentence, Clark tier.
+    """
+    score = benchmark_result.get("churn_risk_score", 0.0)
+    trend = benchmark_result.get("churn_risk_trend", "INSUFFICIENT_DATA")
+    over  = benchmark_result.get("over_indexed", [])
+    under = benchmark_result.get("under_indexed", [])
+
+    score_col = "#CC0000" if score >= 80 else ("#F5A623" if score >= 40 else "#00AFA0")
+
+    trend_styles = {
+        "WORSENING":         "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);",
+        "STABLE":            "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);",
+        "IMPROVING":         "background:rgba(0,175,160,0.15);color:#00AFA0;border:1px solid rgba(0,175,160,0.4);",
+        "INSUFFICIENT_DATA": "background:rgba(58,106,127,0.2);color:#4A7A8F;border:1px solid #003A5C;",
+    }
+    trend_label = {"WORSENING": "WORSENING", "STABLE": "STABLE", "IMPROVING": "IMPROVING"}.get(trend, "INSUFFICIENT DATA")
+    trend_style = trend_styles.get(trend, trend_styles["INSUFFICIENT_DATA"])
+
+    # Top 3 risk rows
+    sev_col_map = {"P0": "#CC0000", "P1": "#F5A623", "P2": "#4A9BD4"}
+    risk_rows = ""
+    for e in over[:3]:
+        sc = sev_col_map.get(e.get("dominant_severity", "P2"), "#4A9BD4")
+        days = e.get("days_active", 0)
+        days_str = f" &middot; {days}d" if days > 0 else ""
+        risk_rows += f"""
+<div style="display:flex;align-items:center;justify-content:space-between;
+            padding:5px 8px;background:#001020;border-radius:4px;margin-bottom:3px;">
+  <span style="font-size:11px;color:#C5DDE8;">{e['issue_type']}</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#CC3333;font-weight:700;">+{e['gap_pp']:.1f}pp</span>
+  <span style="font-size:9px;color:{sc};">{e.get('dominant_severity','P2')}{days_str}</span>
+</div>"""
+
+    # Top strength
+    strength_row = ""
+    if under:
+        e = under[0]
+        strength_row = f"""
+<div style="margin-top:6px;">
+  <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Strength</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding:5px 8px;background:#001020;border-radius:4px;">
+    <span style="font-size:11px;color:#C5DDE8;">{e['issue_type']}</span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:#00AFA0;font-weight:700;">{e['gap_pp']:.1f}pp</span>
+  </div>
+</div>"""
+
+    # Key insight — first sentence from top risk commentary
+    insight_html = ""
+    risk_boxes = [b for b in boxes if b.get("type") == "risk" and b.get("prose")]
+    if risk_boxes:
+        prose = risk_boxes[0]["prose"]
+        first_sentence = prose.split(".")[0].strip() + "."
+        insight_html = f"""
+<div style="margin-top:8px;font-size:11px;color:#7AACBF;line-height:1.55;
+            border-left:2px solid #003A5C;padding-left:8px;">{first_sentence}</div>"""
+
+    # Clark status
+    clark_html = ""
+    try:
+        clark_summary = active_clark_summary()
+        active_clark  = [e for e in clark_summary.get("active", []) if e.get("competitor") == "barclays"]
+        top_tier = "CLARK-0"
+        for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
+            if any(e.get("clark_tier") == t for e in active_clark):
+                top_tier = t
+                break
+        col   = CLARK_COLOURS[top_tier]
+        label = CLARK_LABELS[top_tier]
+        clark_html = f"""
+<div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+  <span style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;">Clark</span>
+  <span style="padding:2px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.5px;
+               background:{col}22;color:{col};border:1px solid {col};">{top_tier} — {label}</span>
+</div>"""
+    except Exception:
+        pass
+
+    return f"""
+<div class="topbar-box exec-alert-panel">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE SUMMARY</span>
+    <span style="font-size:10px;color:#3A6A7F;">executive view &middot; detail below</span>
+  </div>
+  <div class="topbar-box-body" style="gap:6px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:4px;">
+      <div style="text-align:center;min-width:68px;">
+        <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:800;
+                    line-height:1;color:{score_col};">{score:.0f}</div>
+        <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Churn Risk</div>
+      </div>
+      <div>
+        <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;
+                     letter-spacing:0.5px;{trend_style}">{trend_label}</span>
+        <div style="font-size:10px;color:#4A7A8F;margin-top:5px;">
+          {len(over)} issue{'s' if len(over)!=1 else ''} over-indexed &middot; {len(under)} strengths
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Top Risks</div>
+      {risk_rows or '<div style="font-size:10px;color:#3A6A7F;">No significant over-indexed issues.</div>'}
+    </div>
+    {strength_row}
+    {insight_html}
+    {clark_html}
+  </div>
+</div>"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -661,13 +768,18 @@ def generate_v3_html(v1_html: str) -> str:
 
     benchmark = benchmark_result.get("benchmark", {})
 
-    # Build sections
-    churn_html   = _build_churn_risk_section(benchmark_result)
-    comment_html = _build_commentary_section(boxes)
-    tech_html    = _build_benchmark_section("technical", "Technical Issues", benchmark, persistence_map)
-    svc_html     = _build_benchmark_section("service", "Service Issues", benchmark, persistence_map)
+    # Replace V1 Box 3 with V3 exec summary (in-grid, same column slot)
+    exec_summary_html = _build_exec_summary_box(benchmark_result, boxes)
+    v1_html = _replace_box3(v1_html)
+    v1_html = v1_html.replace('<!-- V3-BOX3 -->', exec_summary_html)
+
+    # Build intelligence sections (below the fold)
+    churn_html    = _build_churn_risk_section(benchmark_result)
+    comment_html  = _build_commentary_section(boxes)
+    tech_html     = _build_benchmark_section("technical", "Technical Issues", benchmark, persistence_map)
+    svc_html      = _build_benchmark_section("service", "Service Issues", benchmark, persistence_map)
     findings_html = _build_findings_section()
-    clark_html   = _build_clark_section()
+    clark_html    = _build_clark_section()
 
     v3_block = f"""
 {V3_STYLES}
