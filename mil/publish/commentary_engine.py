@@ -126,7 +126,11 @@ def _prose_risk(entry: dict, quotes: list[str], chr_context: str) -> str:
 
     prompt = f"""You are a senior banking app intelligence analyst writing a briefing for a Barclays product director.
 
-Write exactly 2-3 sentences of sharp analytical commentary about this signal. Be direct. State what the pattern means, what it implies about root cause, and what the business risk is. Do not describe the numbers — interpret them. Do not start with "Barclays".
+Write exactly 3 sentences of analytical commentary about this signal. Follow this structure strictly:
+
+Sentence 1 — INTRODUCE THE ISSUE: State what the issue is, how long it has been active, and its severity class. This is factual orientation — no analysis yet. Use the signal data directly.
+Sentence 2 — ROOT CAUSE INFERENCE: State what the customer evidence implies about root cause. Be specific — what does the pattern rule out, and what does it point to?
+Sentence 3 — BUSINESS RISK: State the business consequence if unresolved. Be direct about churn, regulatory, or reputational exposure.
 
 SIGNAL DATA:
 - Issue type: {entry['issue_type']} ({entry['category']})
@@ -136,7 +140,7 @@ SIGNAL DATA:
 - Severity: {entry['dominant_severity']}
 - Consecutive days active: {entry['days_active']} days (first seen: {entry['first_seen']}){quote_block}{chr_block}
 
-2-3 sentences only. Start with the most important inference."""
+3 sentences only. Do not start with "Barclays". Do not use bullet points."""
 
     return _call_sonnet(prompt)
 
@@ -262,6 +266,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
     # Generate strength commentary
     for entry in strength_entries:
         issue = entry["issue_type"]
+        quotes = get_top_quotes(issue, n=1)
         logger.info("[commentary] generating strength prose for '%s' (gap=%.1fpp)",
                     issue, entry["gap_pp"])
         prose = _prose_strength(entry)
@@ -279,7 +284,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
             "days_active":       entry.get("days_active", 0),
             "first_seen":        entry.get("first_seen", ""),
             "prose":             prose,
-            "top_quotes":        [],
+            "top_quotes":        quotes,
             "chr_resonance":     "",
         })
 

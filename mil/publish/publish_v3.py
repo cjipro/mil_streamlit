@@ -613,113 +613,143 @@ def _replace_box3(html: str) -> str:
 
 def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     """
-    Executive intelligence summary for V3 Box 3.
-    Churn risk score + trend, top 3 risks, top strength, key insight sentence, Clark tier.
+    V3 Box 3 — Executive Intelligence Brief.
+    Three prose paragraphs: The Situation (from latest reviews via Sonnet),
+    The Peer (from benchmark gap data), The Call (from Clark tier).
+    No metric tiles. One real review quote.
     """
-    score = benchmark_result.get("churn_risk_score", 0.0)
-    trend = benchmark_result.get("churn_risk_trend", "INSUFFICIENT_DATA")
     over  = benchmark_result.get("over_indexed", [])
     under = benchmark_result.get("under_indexed", [])
 
-    score_col = "#CC0000" if score >= 80 else ("#F5A623" if score >= 40 else "#00AFA0")
-
-    trend_styles = {
-        "WORSENING":         "background:rgba(204,0,0,0.18);color:#FF4444;border:1px solid rgba(204,0,0,0.4);",
-        "STABLE":            "background:rgba(0,174,239,0.10);color:#00AEEF;border:1px solid rgba(0,174,239,0.3);",
-        "IMPROVING":         "background:rgba(0,175,160,0.15);color:#00AFA0;border:1px solid rgba(0,175,160,0.4);",
-        "INSUFFICIENT_DATA": "background:rgba(58,106,127,0.2);color:#4A7A8F;border:1px solid #003A5C;",
-    }
-    trend_label = {"WORSENING": "WORSENING", "STABLE": "STABLE", "IMPROVING": "IMPROVING"}.get(trend, "INSUFFICIENT DATA")
-    trend_style = trend_styles.get(trend, trend_styles["INSUFFICIENT_DATA"])
-
-    # Top 3 risk rows
-    sev_col_map = {"P0": "#CC0000", "P1": "#F5A623", "P2": "#4A9BD4"}
-    risk_rows = ""
-    for e in over[:3]:
-        sc = sev_col_map.get(e.get("dominant_severity", "P2"), "#4A9BD4")
-        days = e.get("days_active", 0)
-        days_str = f" &middot; {days}d" if days > 0 else ""
-        risk_rows += f"""
-<div style="display:flex;align-items:center;justify-content:space-between;
-            padding:5px 8px;background:#001020;border-radius:4px;margin-bottom:3px;">
-  <span style="font-size:11px;color:#C5DDE8;">{e['issue_type']}</span>
-  <span style="font-family:'DM Mono',monospace;font-size:10px;color:#CC3333;font-weight:700;">+{e['gap_pp']:.1f}pp</span>
-  <span style="font-size:9px;color:{sc};">{e.get('dominant_severity','P2')}{days_str}</span>
-</div>"""
-
-    # Top strength
-    strength_row = ""
-    if under:
-        e = under[0]
-        strength_row = f"""
-<div style="margin-top:6px;">
-  <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Strength</div>
-  <div style="display:flex;align-items:center;justify-content:space-between;
-              padding:5px 8px;background:#001020;border-radius:4px;">
-    <span style="font-size:11px;color:#C5DDE8;">{e['issue_type']}</span>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;color:#00AFA0;font-weight:700;">{e['gap_pp']:.1f}pp</span>
-  </div>
-</div>"""
-
-    # Key insight — first sentence from top risk commentary
-    insight_html = ""
+    # ── Paragraph 1: THE SITUATION ────────────────────────────────────────────
+    # Use full Sonnet prose from top risk commentary box (derived from latest reviews).
+    # Fall back to deterministic prose if commentary unavailable.
     risk_boxes = [b for b in boxes if b.get("type") == "risk" and b.get("prose")]
-    if risk_boxes:
-        prose = risk_boxes[0]["prose"]
-        first_sentence = prose.split(".")[0].strip() + "."
-        insight_html = f"""
-<div style="margin-top:8px;font-size:11px;color:#7AACBF;line-height:1.55;
-            border-left:2px solid #003A5C;padding-left:8px;">{first_sentence}</div>"""
+    top_quote  = ""
 
-    # Clark status
-    clark_html = ""
+    if risk_boxes:
+        top_box   = risk_boxes[0]
+        situation = top_box["prose"]
+        top_quote = (top_box.get("top_quotes") or [""])[0]
+    elif over:
+        top_issue = over[0]
+        issue_name = top_issue["issue_type"]
+        sev        = top_issue.get("dominant_severity", "P1")
+        days       = top_issue.get("days_active", 0)
+        days_str   = f" for {days} consecutive days" if days > 1 else ""
+        situation  = (
+            f"Barclays is showing elevated {issue_name} signals{days_str}. "
+            f"The dominant severity is {sev}. "
+            f"This is the leading complaint category in the current review corpus."
+        )
+    else:
+        situation = "No significant over-indexed signals detected in the current review corpus."
+
+    # ── Paragraph 2: THE PEER ────────────────────────────────────────────────
+    # Deterministic from benchmark gap data — no Chronicle involved.
+    if over:
+        top = over[0]
+        issue_name = top["issue_type"]
+        gap        = top["gap_pp"]
+        b_rate     = top.get("barclays_rate", 0.0)
+        p_rate     = top.get("peer_avg_rate", 0.0)
+        days       = top.get("days_active", 0)
+
+        # Find which peer has the lowest rate on this issue for comparison
+        benchmark_raw = benchmark_result.get("benchmark", {})
+        # Determine category (technical vs service) from over-indexed list
+        cat = top.get("category", "technical")
+        peer_rates = {}
+        for comp in ["natwest", "lloyds", "hsbc", "monzo", "revolut"]:
+            comp_data = benchmark_raw.get("competitors", {}).get(comp, {})
+            rate = comp_data.get(cat, {}).get(issue_name)
+            if rate is not None:
+                peer_rates[COMP_LABELS.get(comp, comp)] = rate
+
+        if peer_rates:
+            best_peer  = min(peer_rates, key=peer_rates.get)
+            best_rate  = peer_rates[best_peer]
+            peer_prose = (
+                f"On {issue_name}, Barclays complaint rate stands at {b_rate:.1f}% against "
+                f"a 5-bank peer average of {p_rate:.1f}% — a gap of {gap:+.1f} percentage points. "
+                f"{best_peer} shows the lowest rate in the cohort at {best_rate:.1f}%."
+            )
+            if days > 3:
+                peer_prose += f" This gap has been sustained for {days} days, indicating a structural pattern rather than a transient spike."
+        else:
+            peer_prose = (
+                f"Barclays {issue_name} complaint rate is {gap:+.1f}pp above the 5-bank peer average "
+                f"({b_rate:.1f}% vs {p_rate:.1f}%)."
+            )
+
+        # Add strength note if available
+        if under:
+            strength = under[0]
+            peer_prose += (
+                f" The one area where Barclays outperforms peers is {strength['issue_type']}, "
+                f"sitting {abs(strength['gap_pp']):.1f}pp below the cohort average."
+            )
+    else:
+        peer_prose = "Barclays complaint rates are broadly in line with the 5-bank peer cohort. No material over-indexed issues detected."
+
+    # ── Paragraph 3: THE CALL ────────────────────────────────────────────────
+    # Clark tier determines urgency.
+    top_tier  = "CLARK-0"
+    clark_col = CLARK_COLOURS["CLARK-0"]
     try:
         clark_summary = active_clark_summary()
         active_clark  = [e for e in clark_summary.get("active", []) if e.get("competitor") == "barclays"]
-        top_tier = "CLARK-0"
         for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
             if any(e.get("clark_tier") == t for e in active_clark):
                 top_tier = t
                 break
-        col   = CLARK_COLOURS[top_tier]
-        label = CLARK_LABELS[top_tier]
-        clark_html = f"""
-<div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-  <span style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;">Clark</span>
-  <span style="padding:2px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.5px;
-               background:{col}22;color:{col};border:1px solid {col};">{top_tier} — {label}</span>
-</div>"""
+        clark_col = CLARK_COLOURS[top_tier]
     except Exception:
         pass
+
+    call_map = {
+        "CLARK-3": "At CLARK-3, this warrants escalation to product engineering today — not a watch brief.",
+        "CLARK-2": "At CLARK-2, a formal escalation brief to the product team is warranted this week.",
+        "CLARK-1": "At CLARK-1, this is on the watch list. Monitor daily. Escalate if P0 count rises.",
+        "CLARK-0": "Signal is at nominal levels. No escalation action required at this time.",
+    }
+    call_prose = call_map[top_tier]
+    clark_label = CLARK_LABELS[top_tier]
+
+    # ── Assemble prose box ────────────────────────────────────────────────────
+    quote_html = ""
+    if top_quote and len(top_quote) > 20:
+        quote_html = f"""
+<div style="font-size:11px;color:#4A7A8F;font-style:italic;
+            border-left:2px solid #003A5C;padding-left:10px;
+            margin:10px 0 14px;">&ldquo;{top_quote[:220]}&rdquo;</div>"""
+
+    def _section(label: str, prose: str, colour: str = "#3A6A7F", first: bool = False) -> str:
+        border = "" if first else "border-top:1px solid #003A5C;padding-top:14px;"
+        return f"""
+<div style="margin-bottom:14px;{border}">
+  <div style="font-size:9px;color:{colour};text-transform:uppercase;
+              letter-spacing:1px;margin-bottom:5px;">{label}</div>
+  <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{prose}</div>
+</div>"""
 
     return f"""
 <div class="topbar-box exec-alert-panel">
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
-    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE SUMMARY</span>
-    <span style="font-size:10px;color:#3A6A7F;">executive view &middot; detail below</span>
+    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE BRIEF</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
   </div>
-  <div class="topbar-box-body" style="gap:6px;">
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:4px;">
-      <div style="text-align:center;min-width:68px;">
-        <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:800;
-                    line-height:1;color:{score_col};">{score:.0f}</div>
-        <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Churn Risk</div>
-      </div>
-      <div>
-        <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;
-                     letter-spacing:0.5px;{trend_style}">{trend_label}</span>
-        <div style="font-size:10px;color:#4A7A8F;margin-top:5px;">
-          {len(over)} issue{'s' if len(over)!=1 else ''} over-indexed &middot; {len(under)} strengths
-        </div>
-      </div>
+  <div class="topbar-box-body">
+    {_section("The Situation", situation, first=True)}
+    {quote_html}
+    {_section("Peer Comparison", peer_prose)}
+    {_section("The Call", call_prose, clark_col)}
+    <div style="margin-top:6px;">
+      <span style="padding:2px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                   background:{clark_col}22;color:{clark_col};border:1px solid {clark_col};">
+        {top_tier} — {clark_label}
+      </span>
     </div>
-    <div>
-      <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Top Risks</div>
-      {risk_rows or '<div style="font-size:10px;color:#3A6A7F;">No significant over-indexed issues.</div>'}
-    </div>
-    {strength_row}
-    {insight_html}
-    {clark_html}
   </div>
 </div>"""
 

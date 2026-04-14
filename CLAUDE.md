@@ -104,11 +104,12 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - V2 extends V1 with: Vane Trajectory Chart (MIL-12), Inference Cards (MIL-13), Clark Protocol (MIL-14), Phase 2 Demand (MIL-15)
 - All V2 sections use `.topbar-box` chrome — same width/padding as Box 1/2/3, mobile-optimised
 
-**Sonar V3 — LIVE (2026-04-12)**
+**Sonar V3 — LIVE (2026-04-12, refined 2026-04-13)**
 - File: `mil/publish/publish_v3.py`
 - URL: https://cjipro.com/briefing-v3
-- Loads V1 HTML, injects V3 intelligence sections before `</body>`. V1 and V2 untouched.
-- V3 sections: Churn Risk Score / Analyst Commentary (Sonnet) / Technical Benchmark / Service Benchmark / Intelligence Findings / Clark Protocol
+- Loads V1 HTML, **replaces Box 3** (exec-alert-panel stripped via `_replace_box3()` div-depth counter), appends V3 intelligence sections before `</body>`. V1 and V2 untouched.
+- **Box 3 = INTELLIGENCE BRIEF**: three prose sections with thin `#003A5C` dividers (Option A). The Situation (full Sonnet prose from top risk commentary box — from latest reviews, not Chronicle), Peer Comparison (deterministic: Barclays rate vs peer avg, best peer named, days, strength note), The Call (one sentence, Clark-tier-driven). One real P0/P1 review quote between Situation and Peer. No metric tiles.
+- V3 intelligence sections below fold: Churn Risk Score / Analyst Commentary / Technical Benchmark / Service Benchmark / Intelligence Findings / Clark Protocol
 - Local copy: mil/publish/output/index_v3.html
 - Run: `py mil/publish/publish_v3.py`
 - **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
@@ -123,7 +124,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-29: Briefing V3 — mil/publish/publish_v3.py, live at cjipro.com/briefing-v3 (BUILT 2026-04-12)
 - MIL-30: Opus Governance Tier — CLARK-3 synthesis + CHR proposals upgraded to Opus (BUILT 2026-04-12)
 
-## MIL Pipeline State — 2026-04-12 (Phase 2 complete)
+## MIL Pipeline State — 2026-04-14 (Phase 2 complete, V3 refined)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -184,7 +185,7 @@ File: `mil/inference/mil_agent.py`
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- Current findings: **135 total** | 135 anchored | 0 unanchored | 34+ Designed Ceiling (HSBC contributing ~20 new findings from 2026-04-12 run)
+- Current findings: **139 total** | anchored | 34+ Designed Ceiling (2026-04-14)
 - **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
 
 ### Briefing Data Layer (briefing_data.py)
@@ -236,16 +237,23 @@ File: `mil/publish/publish_v2.py`
 - **publish_v2.py wired into run_daily.py as Step 5b** (after V1 publish, before log run)
 - **Clark race condition fix (2026-04-12)**: `scan_and_escalate()` / `scan_and_downgrade()` REMOVED from publish_v2.py. V2 reads pre-escalated clark_log only. Escalation now runs as dedicated Step 4c in run_daily.py (before both publish steps). Eliminates CLARK-0 appearing in HTML because escalation happened after V1 publish.
 
-### Sonar Briefing V3 — publish_v3.py (LIVE 2026-04-12)
+### Sonar Briefing V3 — publish_v3.py (LIVE 2026-04-12, refined 2026-04-13)
 File: `mil/publish/publish_v3.py`
 - **V3 LIVE** at cjipro.com/briefing-v3
-- Loads V1 HTML from mil/publish/output/index.html, injects V3 sections. V1 + V2 untouched.
-- V3 sections:
-  - **Churn Risk Score** — composite score (sum of gap_pp × severity_weight × persistence_multiplier), trend badge, over/under-indexed pills
-  - **Analyst Commentary** — Sonnet (commentary route) analyst prose per significant Barclays issue type. 3 risk + 1 strength max. CHR resonance conditional.
-  - **Technical Benchmark** — 6 issue types: Barclays vs 5-bank peer average, bars + gap indicator + days active
-  - **Service Benchmark** — 10 issue types: same format
-  - **Intelligence Findings** — top 8 Barclays by CAC, tier/severity/chronicle/ceiling badges
+- Loads V1 HTML from mil/publish/output/index.html. Strips V1 Box 3 (exec-alert-panel) via `_replace_box3()` (div-depth counter). Injects V3 Intelligence Brief in Box 3 slot. V1 + V2 untouched.
+- **Box 3 — Intelligence Brief** (`_build_exec_summary_box`):
+  - THE SITUATION: full Sonnet prose from top risk commentary box (latest reviews, not Chronicle)
+  - Real P0/P1 review quote (between Situation and Peer)
+  - PEER COMPARISON: deterministic prose — Barclays rate, 5-bank peer avg, gap, best-performing peer named explicitly, days sustained, under-indexed strength note
+  - THE CALL: one sentence from `call_map[clark_tier]` — Clark-3=escalate today, Clark-2=this week, Clark-1=watch, Clark-0=nominal
+  - Thin `#003A5C` divider between each section (Option A — no section numbers)
+  - Clark tier badge at foot
+- V3 intelligence sections (below fold):
+  - **Churn Risk Score** — composite score, trend badge, over/under-indexed pills
+  - **Analyst Commentary** — Sonnet 3-sentence structure per issue (Sentence 1: issue/duration/severity. Sentence 2: root cause inference. Sentence 3: business risk). 3 risk + 1 strength. All 4 cards show a real P0/P1 review quote (strength cards added 2026-04-13).
+  - **Technical Benchmark** — 6 issue types, bar chart, gap, days active
+  - **Service Benchmark** — 10 issue types, same format
+  - **Intelligence Findings** — top 8 Barclays by CAC, badges
   - **Clark Protocol** — Barclays escalation status
 - Local copy: mil/publish/output/index_v3.html
 - Run: `py mil/publish/publish_v3.py`
@@ -330,31 +338,29 @@ File: `mil/data/benchmark_engine.py`
 - Trend: 3d vs prior 4d split (same logic as sentiment trend) → WORSENING/STABLE/IMPROVING
 - `run(mode="backfill")` — processes all dates from daily_run_log.jsonl, builds full history
 - Writes: mil/data/benchmark_cache.json (fresh each run) + mil/data/issue_persistence_log.jsonl (appends)
-- Current: churn_risk_score=101.95, trend=WORSENING, 5 over-indexed, 9 under-indexed (2026-04-12)
+- Current: churn_risk_score=105.1, trend=WORSENING, 5 over-indexed, 9 under-indexed (2026-04-14)
 - Backfill complete: 144 entries across 9 dates (2026-04-03 to 2026-04-12)
 - **Step 4d** in run_daily.py (after Clark, before Publish)
 
-### MIL-28 — Commentary Engine (BUILT 2026-04-12)
+### MIL-28 — Commentary Engine (BUILT 2026-04-12, refined 2026-04-13)
 File: `mil/publish/commentary_engine.py`
 - Reads issue_persistence_log.jsonl, selects significant Barclays issues
 - Risk selection: gap>5pp OR (days>3 AND gap>0) OR P0/P1. Strength: gap<-3pp
-- Calls Sonnet (commentary route, 300 tokens) per issue — analyst prose, not metric tiles
+- Calls Sonnet (commentary route, 300 tokens) per issue — analyst prose, enforced 3-sentence structure:
+  - Sentence 1: introduce issue — what it is, how long active, severity class (factual orientation)
+  - Sentence 2: root cause inference — what customer evidence rules out, what it points to
+  - Sentence 3: business risk — churn, regulatory, or reputational consequence if unresolved
 - CHR resonance: conditional Chronicle context for 6 issue types (App Not Opening, Login Failed, Account Locked, App Crashing, Incorrect Balance, Missing Transaction)
-- Top quotes: P0/P1 priority, 40-200 chars from enriched records
+- Top quotes: P0/P1 priority, 40-200 chars. **Both risk AND strength cards fetch quotes** (strength fix 2026-04-13)
 - Max output: 3 risk boxes + 1 strength box = 4 total
 - Fallback prose if Sonnet unavailable
 - Called by publish_v3.py on each daily run
 
-### MIL-29 — Briefing V3 (BUILT 2026-04-12)
+### MIL-29 — Briefing V3 (BUILT 2026-04-12, refined 2026-04-13)
 File: `mil/publish/publish_v3.py`
 - **LIVE at cjipro.com/briefing-v3**
-- Loads V1 HTML (index.html), injects V3 sections before `</body>`. V1 and V2 untouched.
-- Section 1: Churn Risk Score — big number, trend badge, over/under-indexed pills
-- Section 2: Analyst Commentary — Sonnet prose per issue type, 3 risk + 1 strength
-- Section 3: Technical Benchmark — 6 issue types, bar chart, gap, days active
-- Section 4: Service Benchmark — 10 issue types, same format
-- Section 5: Intelligence Findings — top 8 Barclays by CAC, badges
-- Section 6: Clark Protocol — Barclays escalation status
+- Strips V1 Box 3, injects Intelligence Brief (prose-only, 3 sections + quote + Clark badge)
+- Below fold: Churn Risk Score / Analyst Commentary / Technical Benchmark / Service Benchmark / Intelligence Findings / Clark Protocol
 - Local copy: mil/publish/output/index_v3.html
 - **Step 5c** in run_daily.py
 
@@ -381,7 +387,7 @@ Specialist stack: `mil/specialist/`
 
 | Gate | Condition | Status |
 |------|-----------|--------|
-| 1 | 14+ days real signal data | PENDING — 12/14 days, clears ~2026-04-19 |
+| 1 | 14+ days real signal data | PENDING — 14/14 days as of 2026-04-14, clears ~2026-04-19 |
 | 2 | Synthetic pairs validated (human) | PASS — countersigned by Hussain 2026-04-05 |
 | 3 | CAC weights approved on real corpus | PASS — retained, approved by Hussain 2026-04-05 |
 | 4 | Adversarial Attacker passes evaluation | PASS — 80% survival rate on high-CAC findings |
@@ -397,7 +403,7 @@ Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — streak 11/5 as of 2026-04-12. Run #26 logged (multiple validation runs during session). Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak 14/5 as of 2026-04-14. Run #29 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
 - **M3**: DONE — 34 ceiling triggers (threshold was 22)
 
@@ -409,8 +415,8 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Pending Human Actions (Hussain)
 - Close MIL-11 through MIL-30 in Jira UI
-- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19
-- Post Gate 1: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
+- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19 (14/14 days reached 2026-04-14)
+- **Post Gate 1 (imminent)**: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
 - Run research agent: `py mil/researcher/research_agent.py` — review proposals in mil/data/chr_proposals/ (now uses Opus)
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
