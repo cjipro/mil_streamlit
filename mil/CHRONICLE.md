@@ -416,6 +416,499 @@ public_sources:
 
 ---
 
+---
+
+## CHR-005 — Revolut Login Regression, April 2026
+
+```yaml
+chronicle_id: CHR-005
+date: "2026-04-04"
+bank: "Revolut"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-04 to 2026-04-07"
+
+summary: >
+  A dense cluster of 25 P0 signals concentrated over a 4-day window indicates a significant
+  and sustained pattern of Revolut users being unable to log in to or access their accounts.
+  Top keywords — "account", "access", "repeatedly", "logged", "despite", "complete" — suggest
+  users were locked out or failing authentication loops despite completing expected steps
+  (e.g., biometric or passcode entry). Root cause remains speculative: possible authentication
+  infrastructure regression, forced app-update migration issue, or backend session-management
+  fault. No single verified public outage notice identified at drafting time.
+
+signal_summary:
+  finding_count: 25
+  p0_count: 25
+  p1_count: 0
+  avg_cac: 0.127
+  top_keywords: ['account', 'access', 'repeatedly', 'logged', 'despite', 'complete']
+
+verified_facts:
+  - "Revolut users experienced widespread login/access failures between approximately 2026-04-04 and 2026-04-07, based on internal signal clustering. APPROVED — Hussain Ahmed 2026-04-16."
+  - "Keyword pattern ('repeatedly', 'despite', 'complete') suggests users attempted authentication multiple times without success — silent failure or authentication loop rather than total outage."
+  - "Revolut is regulated as an EMI by the FCA (UK). Login failures affecting account access engage FCA operational resilience expectations under PS21/3."
+
+causal_chain:
+  - "Step 1: Possible backend change or app update deployed around 2026-04-04 affecting authentication or session management (SPECULATIVE)."
+  - "Step 2: Users encounter repeated login failures — authentication steps complete visually but session not established, or accounts flagged/locked unexpectedly."
+  - "Step 3: Affected users report via App Store, Reddit, DownDetector — generating the signal cluster captured by MIL."
+  - "Step 4: Pattern persists across at least 4 days, suggesting rolling deployment issue or ineffective initial fix."
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved on signal strength and P0 density. Root cause speculative — monitor for public confirmation."
+```
+
+---
+
+---
+
+## CHR-006 — Revolut Payment/Transfer Regression, April 2026
+
+```yaml
+chronicle_id: CHR-006
+date: "2026-04-04"
+bank: "Revolut"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-04 to 2026-04-07"
+
+summary: >
+  A dense cluster of 24 P0 signals detected across Revolut's 'Make a Payment / Transfer'
+  journey between 4–7 April 2026. Keywords — "transfer", "issue", "failure", "complete",
+  "payment", "rewards" — suggest degraded payment/transfer completion, with possible secondary
+  impact on rewards/cashback crediting. Likely co-incident with CHR-005 (Revolut login
+  regression, same date window), suggesting a broader infrastructure or deployment event.
+  Root cause remains speculative — no verified public outage notice or press statement
+  identified at time of approval.
+
+signal_summary:
+  finding_count: 24
+  p0_count: 24
+  p1_count: 0
+  avg_cac: 0.138
+  top_keywords: ['transfer', 'issue', 'failure', 'complete', 'customer', 'payment', 'rewards']
+
+verified_facts:
+  - "Revolut users experienced payment/transfer failures between approximately 2026-04-04 and 2026-04-07, based on internal signal clustering. APPROVED — Hussain Ahmed 2026-04-16."
+  - "Keyword co-occurrence of 'rewards' alongside payment-failure terms suggests secondary effect on cashback/rewards crediting for affected transactions."
+  - "Coincidence with CHR-005 (login regression, same window) suggests a single underlying infrastructure or deployment event."
+  - "Revolut holds a UK banking licence (granted July 2024) and is subject to FCA and PRA supervision."
+
+causal_chain:
+  - "Step 1: Possible backend or payment-rail issue degraded Revolut's ability to complete outbound transfers during 2026-04-04 to 2026-04-07 (SPECULATIVE)."
+  - "Step 2: Affected customers encountered transfer failures, incomplete transactions, or significant delays."
+  - "Step 3: Secondary effects impacted rewards/cashback crediting for failed or retried transactions (SPECULATIVE)."
+  - "Step 4: Signals cluster tightly with CHR-005 login failures — likely same root deployment event."
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved on signal strength and P0 density. Date corrected from 2025 to 2026. Co-incident with CHR-005 — monitor for common root cause."
+```
+
+---
+
+---
+
+## CHR-007 — Revolut Service/Account Access Regression, April 2026
+
+```yaml
+chronicle_id: CHR-007
+date: "2026-04-04"
+bank: "Revolut"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-04 to 2026-04-09"
+
+summary: >
+  23 P0 signals across 6 consecutive days pointing to Revolut app crashes and login
+  failures during account/service access. Keywords — "crashing", "login", "access",
+  "security", "after" — suggest auth flow regression following a security-related update.
+  Likely co-incident with CHR-005 and CHR-006 (same Revolut April 2026 event window).
+  Extended 6-day window suggests slow rollback or phased fix.
+
+signal_summary:
+  finding_count: 23
+  p0_count: 23
+  p1_count: 0
+  avg_cac: 0.153
+  top_keywords: ['access', 'complete', 'security', 'after', 'revolut', 'crashing', 'login']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Co-incident with CHR-005/006 — same Revolut April 2026 event, Service Access facet."
+```
+
+---
+
+## CHR-008 — Monzo Payment/Transfer Friction, April 2026
+
+```yaml
+chronicle_id: CHR-008
+date: "2026-04-02"
+bank: "Monzo"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-02 to 2026-04-06"
+
+summary: >
+  20 P0 signals across 5 days indicating Monzo payment/transfer journey disruption.
+  Keywords — "customer", "transfer", "complete", "payment", "reports" — suggest customers
+  unable to complete payments or transfers. Low CAC (0.134) and low CHR similarity (0.289)
+  confirm novel pattern not covered by existing entries.
+
+signal_summary:
+  finding_count: 20
+  p0_count: 20
+  p1_count: 0
+  avg_cac: 0.134
+  top_keywords: ['customer', 'transfer', 'complete', 'payment', 'reports']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved on signal volume and P0 density."
+```
+
+---
+
+## CHR-009 — Lloyds Payment/Transfer Friction, April 2026
+
+```yaml
+chronicle_id: CHR-009
+date: "2026-04-02"
+bank: "Lloyds"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-02 to 2026-04-06"
+
+summary: >
+  15 P1 signals across 5 days indicating Lloyds payment/transfer friction. Keywords —
+  "transfer", "after", "banking" — suggest failures or degraded performance when attempting
+  transfers, possibly following an app update or backend migration. Low CAC (0.082) and
+  low CHR-001 similarity (0.17) confirm novel pattern.
+
+signal_summary:
+  finding_count: 15
+  p0_count: 0
+  p1_count: 15
+  avg_cac: 0.082
+  top_keywords: ['transfer', 'after', 'banking']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. All P1 — lower severity than Revolut/Monzo clusters but persistent over 5 days."
+```
+
+---
+
+## CHR-010 — NatWest Service/Account Access Pattern, April 2026
+
+```yaml
+chronicle_id: CHR-010
+date: "2026-04-02"
+bank: "NatWest"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.15
+date_window: "2026-04-02 to 2026-04-06"
+
+summary: >
+  15 P0 signals indicating NatWest customers unable to access accounts or core services.
+  Keywords — "customer", "reports", "never" — suggest repeated unresolved complaints.
+  Lowest confidence of the batch (0.15) — novel pattern with no strong CHR anchor (sim=0.206).
+  Multi-anchor (CHR-002, CHR-001, CHR-003) at low similarity confirms distinct cluster.
+
+signal_summary:
+  finding_count: 15
+  p0_count: 15
+  p1_count: 0
+  avg_cac: 0.129
+  top_keywords: ['customer', 'reports', 'never']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved at low confidence. Monitor for corroborating public signals."
+```
+
+---
+
+## CHR-011 — Lloyds Service/Account Access Pattern, April 2026
+
+```yaml
+chronicle_id: CHR-011
+date: "2026-04-04"
+bank: "Lloyds"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-04 to 2026-04-07"
+
+summary: >
+  14 P0 signals across 4 days on Lloyds Account/Service Access journey. Keywords —
+  "comment", "explicitly", "states" — suggest user-generated complaints explicitly
+  describing inability to access accounts. Very low CHR similarity (0.119) confirms
+  novel pattern not mapped to prior chronicles.
+
+signal_summary:
+  finding_count: 14
+  p0_count: 14
+  p1_count: 0
+  avg_cac: 0.241
+  top_keywords: ['comment', 'explicitly', 'states']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Date corrected from 2025 to 2026. Novel pattern — watch for repeat."
+```
+
+---
+
+## CHR-012 — HSBC UK Payment/Transfer Friction, April 2026
+
+```yaml
+chronicle_id: CHR-012
+date: "2026-04-11"
+bank: "HSBC UK"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-11 to 2026-04-13"
+
+summary: >
+  13 P0 signals across 3 days on HSBC UK payment/transfer journey. Keywords — "large",
+  "withdrawal", "transaction", "complete", "payments" — suggest difficulty completing
+  large-value transfers or withdrawals. Tight 3-day window and 100% P0 density notable.
+  Low CHR similarity (0.235) confirms novel pattern.
+
+signal_summary:
+  finding_count: 13
+  p0_count: 13
+  p1_count: 0
+  avg_cac: 0.176
+  top_keywords: ['large', 'withdrawal', 'transaction', 'complete', 'payments']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Large-value transaction angle is notable — potential FCA operational resilience relevance."
+```
+
+---
+
+## CHR-013 — NatWest Payment/Transfer Friction, April 2026
+
+```yaml
+chronicle_id: CHR-013
+date: "2026-04-12"
+bank: "NatWest"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-12 to 2026-04-14"
+
+summary: >
+  10 signals (5 P0, 5 P1) across 3 days on NatWest payment/transfer journey. Keywords —
+  "customer", "payment", "significant", "transfer", "complete" — suggest inability to
+  complete payments. Mixed P0/P1 severity indicates graduated impact. Partial CHR-004
+  anchor (0.31) — related but distinct enough to warrant own entry.
+
+signal_summary:
+  finding_count: 10
+  p0_count: 5
+  p1_count: 5
+  avg_cac: 0.35
+  top_keywords: ['customer', 'payment', 'significant', 'transfer', 'complete']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Mixed severity — monitor whether P0 count grows in coming days."
+```
+
+---
+
+## CHR-014 — HSBC UK Service/Account Access — App Crashes, April 2026
+
+```yaml
+chronicle_id: CHR-014
+date: "2026-04-11"
+bank: "HSBC UK"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-11 to 2026-04-15"
+
+summary: >
+  6 P0 signals across 5 days on HSBC UK Account/Service Access journey. Keywords —
+  "repeated", "crashes", "application", "customer", "reports" — suggest recurring app
+  crashes when accessing accounts. Smallest verified cluster but 5-day persistence
+  elevates concern. Co-incident with CHR-012 (HSBC payments, same window).
+
+signal_summary:
+  finding_count: 6
+  p0_count: 6
+  p1_count: 0
+  avg_cac: 0.129
+  top_keywords: ['repeated', 'crashes', 'application', 'customer', 'reports']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Co-incident with CHR-012 — HSBC may have had a broader April event."
+```
+
+---
+
+## CHR-015 — Monzo Service/Account Access — Device Issue, April 2026
+
+```yaml
+chronicle_id: CHR-015
+date: "2026-04-12"
+bank: "Monzo"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-12 to 2026-04-16"
+
+summary: >
+  5 consecutive P0 signals (Apr 12–16) on Monzo Account/Service Access journey. Keywords —
+  "significant", "customer", "device" — suggest device-specific authentication or login
+  issue, potentially tied to app update, device-binding change, or biometric/PIN regression.
+  Still active as of today (Apr 16). Monitor for continuation.
+
+signal_summary:
+  finding_count: 5
+  p0_count: 5
+  p1_count: 0
+  avg_cac: 0.148
+  top_keywords: ['significant', 'customer', 'device']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Active signal — window may extend beyond today. Re-check tomorrow."
+```
+
+---
+
+## CHR-016 — HSBC UK Login Regression, April 2026
+
+```yaml
+chronicle_id: CHR-016
+date: "2026-04-14"
+bank: "HSBC UK"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-14 to 2026-04-16"
+
+summary: >
+  3 consecutive P0 signals (Apr 14–16) on HSBC UK Login journey. Keywords — "complete",
+  "block", "preventing" — suggest login flow cannot be completed, consistent with backend
+  auth outage, client-side blocking defect, or overly aggressive fraud/security rule change.
+  Still active as of today (Apr 16). Co-incident with CHR-012 and CHR-014 — HSBC broader
+  April event picture emerging.
+
+signal_summary:
+  finding_count: 3
+  p0_count: 3
+  p1_count: 0
+  avg_cac: 0.35
+  top_keywords: ['complete', 'block', 'preventing']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Smallest cluster but active today. Part of broader HSBC April pattern (CHR-012, CHR-014, CHR-016)."
+```
+
+---
+
 ## HUSSAIN REVIEW CHECKLIST
 
 Before any MIL inference traces to these entries, Hussain must confirm:
@@ -432,6 +925,18 @@ Before any MIL inference traces to these entries, Hussain must confirm:
 | CHR-003 Twitter archive populated | HSBC 2025 | [ ] PENDING_HUSSAIN |
 | **M2 countersign** | NatWest MIL-F-20260402-047 | [x] COUNTERSIGNED — Hussain Ahmed 2026-04-02 |
 | CHR-004 enrichment review | Barclays 2026 | [x] APPROVED — Hussain Ahmed 2026-04-02 |
+| CHR-005 Revolut Login | Revolut 2026-04-04 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-006 Revolut Payments | Revolut 2026-04-04 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-007 Revolut Service Access | Revolut 2026-04-04 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-008 Monzo Payments | Monzo 2026-04-02 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-009 Lloyds Payments | Lloyds 2026-04-02 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-010 NatWest Service Access | NatWest 2026-04-02 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-011 Lloyds Service Access | Lloyds 2026-04-04 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-012 HSBC Payments | HSBC 2026-04-11 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-013 NatWest Payments | NatWest 2026-04-12 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-014 HSBC Service Access | HSBC 2026-04-11 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-015 Monzo Service Access | Monzo 2026-04-12 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-016 HSBC Login | HSBC 2026-04-14 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
 
 ---
 
