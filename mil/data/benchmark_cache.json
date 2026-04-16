@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-04-13",
+  "computed_at": "2026-04-16",
   "competitors": {
     "barclays": {
       "technical": {},
@@ -28,24 +28,24 @@
   },
   "peer_avg": {
     "technical": {
-      "Account Locked": 0.0,
-      "App Crashing": 0.0,
-      "App Not Opening": 0.0,
       "Biometric / Face ID Issue": 0.0,
+      "App Not Opening": 0.0,
+      "Notification Issue": 0.0,
       "Login Failed": 0.0,
-      "Notification Issue": 0.0
+      "App Crashing": 0.0,
+      "Account Locked": 0.0
     },
     "service": {
-      "Transfer Failed": 0.0,
+      "Customer Support Failure": 0.0,
+      "Security Concern": 0.0,
+      "Slow Performance": 0.0,
+      "Missing Transaction": 0.0,
+      "Incorrect Balance": 0.0,
+      "Feature Broken": 0.0,
+      "Feature Not Working": 0.0,
       "Card Frozen or Blocked": 0.0,
       "Payment Failed": 0.0,
-      "Customer Support Failure": 0.0,
-      "Incorrect Balance": 0.0,
-      "Feature Not Working": 0.0,
-      "Feature Broken": 0.0,
-      "Missing Transaction": 0.0,
-      "Slow Performance": 0.0,
-      "Security Concern": 0.0
+      "Transfer Failed": 0.0
     }
   },
   "record_counts": {
