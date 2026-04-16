@@ -909,6 +909,127 @@ approval:
 
 ---
 
+---
+
+## CHR-017 — Barclays Service/Account Access Friction, April 2026
+
+```yaml
+chronicle_id: CHR-017
+date: "2026-04-02"
+bank: "Barclays"
+incident_type: account_access_friction_pattern
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-02 to 2026-04-04"
+
+summary: >
+  40 P0 signals across Barclays Account/Service Access journey (Apr 2–4 2026). Keywords —
+  "access", "registration", "complete", "working", "customer reports" — suggest customers
+  unable to complete account registration or access existing accounts via mobile app or
+  online banking. Low CHR similarity (0.258) confirms novel pattern not explained by
+  CHR-001/002/003. Root cause speculative: possible authentication regression, degraded
+  registration flow, or app update impacting onboarding.
+
+signal_summary:
+  finding_count: 40
+  p0_count: 40
+  p1_count: 0
+  avg_cac: 0.144
+  top_keywords: ['customer', 'access', 'reports', 'complete', 'registration', 'working']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Primary anchor for J_SERVICE_01 — replaces generic CHR-004 coverage for this journey."
+```
+
+---
+
+## CHR-018 — Barclays Payment/Transfer Friction, April 2026
+
+```yaml
+chronicle_id: CHR-018
+date: "2026-04-02"
+bank: "Barclays"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-02 to 2026-04-04"
+
+summary: >
+  40 signals (35 P0, 5 P1) across Barclays Make a Payment/Transfer journey (Apr 2–4 2026).
+  Keywords — "payment", "transfer", "funds", "failure", "friction" — indicate sustained
+  payment processing degradation or outage. 3-day persistence suggests phased rollout issue
+  or slow rollback. Nearest anchor CHR-001 at 0.39 similarity (just below 0.4 threshold)
+  confirms distinct pattern warranting own entry.
+
+signal_summary:
+  finding_count: 40
+  p0_count: 35
+  p1_count: 5
+  avg_cac: 0.190
+  top_keywords: ['significant', 'friction', 'customer', 'transfer', 'funds', 'money', 'payment', 'failure']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Primary anchor for J_PAY_01 Barclays. 87.5% P0 density — high severity pattern."
+```
+
+---
+
+## CHR-019 — Barclays Login Regression, April 2026
+
+```yaml
+chronicle_id: CHR-019
+date: "2026-04-02"
+bank: "Barclays"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-02 to 2026-04-04"
+
+summary: >
+  36 P0 signals across Barclays Log In/Account Access journey (Apr 2–4 2026). Keywords —
+  "inability", "prevents", "login", "complete", "registration", "accounts" — suggest users
+  locked out of essential banking services, unable to complete login or registration flows.
+  Low CAC (0.126) confirms signals are novel and not explained by CHR-001/002. Root cause
+  speculative: app update authentication regression, backend identity service degradation,
+  or registration flow change blocking returning users.
+
+signal_summary:
+  finding_count: 36
+  p0_count: 36
+  p1_count: 0
+  avg_cac: 0.126
+  top_keywords: ['describes', 'being', 'accounts', 'inability', 'prevents', 'essential', 'complete', 'login']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Primary anchor for J_LOGIN_01 Barclays. All 36 findings P0 — critical inference gap now resolved."
+```
+
+---
+
 ## HUSSAIN REVIEW CHECKLIST
 
 Before any MIL inference traces to these entries, Hussain must confirm:
@@ -937,6 +1058,9 @@ Before any MIL inference traces to these entries, Hussain must confirm:
 | CHR-014 HSBC Service Access | HSBC 2026-04-11 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
 | CHR-015 Monzo Service Access | Monzo 2026-04-12 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
 | CHR-016 HSBC Login | HSBC 2026-04-14 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-017 Barclays Service Access | Barclays 2026-04-02 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-018 Barclays Payments | Barclays 2026-04-02 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
+| CHR-019 Barclays Login | Barclays 2026-04-02 | [x] APPROVED — Hussain Ahmed 2026-04-16 |
 
 ---
 

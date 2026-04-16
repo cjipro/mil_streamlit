@@ -53,7 +53,13 @@ except ImportError:
     pass
 
 # ── Chronicle ID registry (read existing entries to determine next ID) ────────
-KNOWN_CHR_IDS = ["CHR-001", "CHR-002", "CHR-003", "CHR-004"]
+KNOWN_CHR_IDS = [
+    "CHR-001", "CHR-002", "CHR-003", "CHR-004",
+    "CHR-005", "CHR-006", "CHR-007", "CHR-008",
+    "CHR-009", "CHR-010", "CHR-011", "CHR-012",
+    "CHR-013", "CHR-014", "CHR-015", "CHR-016",
+    "CHR-017", "CHR-018", "CHR-019",
+]
 
 JOURNEY_LABELS = {
     "J_LOGIN_01":   "Log In / Account Access",
@@ -77,9 +83,9 @@ COMP_LABELS = {
 # Don't propose a new CHR if the cluster is already well-served
 CHR_COVERAGE = {
     # (competitor, journey_id): existing CHR that covers it
-    ("barclays", "J_SERVICE_01"): "CHR-004",
-    ("barclays", "J_LOGIN_01"):   "CHR-004",
-    ("barclays", "J_PAY_01"):     "CHR-004",
+    ("barclays", "J_SERVICE_01"): "CHR-017",
+    ("barclays", "J_PAY_01"):     "CHR-018",
+    ("barclays", "J_LOGIN_01"):   "CHR-019",
 }
 
 
@@ -348,6 +354,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="MIL Research Agent — draft CHR proposals")
     parser.add_argument("--dry-run",    action="store_true", help="Cluster report only — no LLM calls")
     parser.add_argument("--competitor", type=str, default=None, help="Filter to one competitor")
+    parser.add_argument("--force",      action="store_true", help="Bypass CHR_COVERAGE skip — draft proposals even for covered competitors")
     args = parser.parse_args()
 
     items = load_queue(competitor_filter=args.competitor)
@@ -373,10 +380,12 @@ def main() -> None:
 
     for (comp, journey), group in clusters.items():
         existing = CHR_COVERAGE.get((comp, journey))
-        if existing:
+        if existing and not args.force:
             logger.info("[research_agent] Skipping %s/%s — already covered by %s", comp, journey, existing)
             skipped.append({"comp": comp, "journey": journey, "n": len(group), "reason": existing})
             continue
+        elif existing and args.force:
+            logger.info("[research_agent] --force: overriding coverage skip for %s/%s (was: %s)", comp, journey, existing)
 
         next_chr_id = f"CHR-{next_id_n:03d} (PROPOSED)"
         logger.info(
