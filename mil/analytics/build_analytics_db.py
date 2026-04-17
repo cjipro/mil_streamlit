@@ -1,15 +1,20 @@
 """
-build_analytics_db.py — Populate mil_analytics.db with queryable analytics tables.
+build_analytics_db.py — Build complete mil_analytics.db.
 
 Tables:
-  findings           — all findings from mil_findings.json (one row per finding)
-  benchmark_history  — all entries from issue_persistence_log.jsonl
-  daily_runs         — all entries from daily_run_log.jsonl
+  reviews           — 7,000+ enriched records across all sources / competitors
+  findings          — 144 CAC findings with CHR anchor, clark tier, ceiling flag
+  chronicle         — CHR-001 to CHR-019 reference entries from CHRONICLE.md
+  benchmark_history — issue persistence log (gap_pp, days_active, over_indexed)
+  daily_runs        — pipeline run log (streak, churn, new records)
+  clark_log         — full escalation / downgrade history
+  vault_log         — mirror of mil_vault.db anchor log
 
 Run: py mil/analytics/build_analytics_db.py
 """
 import json
 import logging
+import re
 from pathlib import Path
 
 import duckdb
@@ -20,45 +25,146 @@ log = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH   = REPO_ROOT / "mil_analytics.db"
 
+ENRICHED_DIR     = REPO_ROOT / "mil/data/historical/enriched"
 FINDINGS_FILE    = REPO_ROOT / "mil/outputs/mil_findings.json"
+CHRONICLE_FILE   = REPO_ROOT / "mil/CHRONICLE.md"
 PERSISTENCE_FILE = REPO_ROOT / "mil/data/issue_persistence_log.jsonl"
 RUN_LOG_FILE     = REPO_ROOT / "mil/data/daily_run_log.jsonl"
+CLARK_LOG_FILE   = REPO_ROOT / "mil/data/clark_log.jsonl"
+VAULT_DB_FILE    = REPO_ROOT / "mil/vault/mil_vault.db"
 
 
-def load_findings():
+# ---------------------------------------------------------------------------
+# reviews
+# ---------------------------------------------------------------------------
+
+def _content(r: dict) -> str:
+    return r.get("review") or r.get("content") or r.get("body") or ""
+
+
+def _rating(r: dict):
+    v = r.get("rating") or r.get("score")
+    try:
+        return float(v) if v is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _source_id(r: dict, source: str) -> str | None:
+    if source == "reddit":
+        return r.get("post_id")
+    if source == "youtube":
+        return r.get("comment_id")
+    if source == "downdetector":
+        return r.get("report_id")
+    return None
+
+
+def load_reviews() -> list[dict]:
+    rows = []
+    for fp in sorted(ENRICHED_DIR.glob("*.json")):
+        with open(fp, encoding="utf-8") as f:
+            data = json.load(f)
+        source     = data.get("source", fp.stem.rsplit("_enriched", 1)[0].rsplit("_", 1)[0])
+        competitor = data.get("competitor", fp.stem.rsplit("_enriched", 1)[0].rsplit("_", 1)[-1])
+        model      = data.get("model", "")
+        schema_ver = data.get("schema_version", "")
+
+        for r in data.get("records", []):
+            rows.append({
+                "source":            source,
+                "competitor":        competitor,
+                "date":              r.get("date") or r.get("video_published_at") or None,
+                "content":           _content(r),
+                "rating":            _rating(r),
+                "author":            r.get("author") or r.get("userName") or None,
+                "issue_type":        r.get("issue_type"),
+                "customer_journey":  r.get("customer_journey"),
+                "sentiment_score":   r.get("sentiment_score"),
+                "severity_class":    r.get("severity_class"),
+                "reasoning":         r.get("reasoning"),
+                "source_record_id":  _source_id(r, source),
+                "model":             model,
+                "schema_version":    schema_ver,
+            })
+    return rows
+
+
+# ---------------------------------------------------------------------------
+# findings
+# ---------------------------------------------------------------------------
+
+def load_findings() -> list[dict]:
     with open(FINDINGS_FILE, encoding="utf-8") as f:
         data = json.load(f)
     rows = []
     for f in data.get("findings", []):
         rows.append({
-            "finding_id":              f.get("finding_id"),
-            "generated_at":            f.get("generated_at"),
-            "competitor":              f.get("competitor"),
-            "source":                  f.get("source"),
-            "journey_id":              f.get("journey_id"),
-            "signal_severity":         f.get("signal_severity"),
-            "finding_tier":            f.get("finding_tier"),
-            "confidence_score":        f.get("confidence_score"),
-            "cac_vol_sig":             (f.get("cac_components") or {}).get("vol_sig"),
-            "cac_sim_hist":            (f.get("cac_components") or {}).get("sim_hist"),
-            "cac_delta_tel":           (f.get("cac_components") or {}).get("delta_tel"),
+            "finding_id":               f.get("finding_id"),
+            "generated_at":             f.get("generated_at"),
+            "competitor":               f.get("competitor"),
+            "source":                   f.get("source"),
+            "journey_id":               f.get("journey_id"),
+            "signal_severity":          f.get("signal_severity"),
+            "finding_tier":             f.get("finding_tier"),
+            "confidence_score":         f.get("confidence_score"),
+            "cac_vol_sig":              (f.get("cac_components") or {}).get("vol_sig"),
+            "cac_sim_hist":             (f.get("cac_components") or {}).get("sim_hist"),
+            "cac_delta_tel":            (f.get("cac_components") or {}).get("delta_tel"),
             "designed_ceiling_reached": f.get("designed_ceiling_reached", False),
-            "failure_mode":            f.get("failure_mode"),
-            "chronicle_id":            (f.get("provenance") or {}).get("chronicle_id"),
-            "chronicle_bank":          (f.get("chronicle_match") or {}).get("bank"),
-            "sim_hist_score":          (f.get("chronicle_match") or {}).get("sim_hist_score"),
-            "signal_total":            (f.get("signal_counts") or {}).get("total"),
-            "signal_p0":               (f.get("signal_counts") or {}).get("P0"),
-            "signal_p1":               (f.get("signal_counts") or {}).get("P1"),
-            "signal_p2":               (f.get("signal_counts") or {}).get("P2"),
+            "failure_mode":             f.get("failure_mode"),
+            "chronicle_id":             (f.get("provenance") or {}).get("chronicle_id"),
+            "chronicle_bank":           (f.get("chronicle_match") or {}).get("bank"),
+            "sim_hist_score":           (f.get("chronicle_match") or {}).get("sim_hist_score"),
+            "signal_total":             (f.get("signal_counts") or {}).get("total"),
+            "signal_p0":                (f.get("signal_counts") or {}).get("P0"),
+            "signal_p1":                (f.get("signal_counts") or {}).get("P1"),
+            "signal_p2":                (f.get("signal_counts") or {}).get("P2"),
             "human_countersign_status": f.get("human_countersign_status"),
-            "is_unanchored":           f.get("is_unanchored", False),
-            "finding_summary":         f.get("finding_summary"),
+            "is_unanchored":            f.get("is_unanchored", False),
+            "finding_summary":          f.get("finding_summary"),
         })
     return rows
 
 
-def load_benchmark_history():
+# ---------------------------------------------------------------------------
+# chronicle — parse CHRONICLE.md YAML blocks
+# ---------------------------------------------------------------------------
+
+def load_chronicle() -> list[dict]:
+    with open(CHRONICLE_FILE, encoding="utf-8") as f:
+        content = f.read()
+
+    ids        = re.findall(r'chronicle_id:\s*(CHR-\d+)', content)
+    banks      = re.findall(r'\bbank:\s*"([^"]+)"', content)
+    inc_types  = re.findall(r'incident_type:\s*"([^"]+)"', content)
+    dates      = re.findall(r'^date:\s*"([^"]+)"', content, re.MULTILINE)
+    approved   = re.findall(r'inference_approved:\s*(true|false)', content)
+    scores     = re.findall(r'confidence_score:\s*([\d.]+)', content)
+
+    # incident_type repeats less than ids — pad with None
+    def pad(lst, n):
+        return lst + [None] * (n - len(lst))
+
+    n = len(ids)
+    rows = []
+    for i in range(n):
+        rows.append({
+            "chronicle_id":       ids[i] if i < len(ids) else None,
+            "bank":               banks[i] if i < len(banks) else None,
+            "incident_type":      inc_types[i] if i < len(inc_types) else None,
+            "incident_date":      dates[i] if i < len(dates) else None,
+            "inference_approved": approved[i] == "true" if i < len(approved) else None,
+            "confidence_score":   float(scores[i]) if i < len(scores) else None,
+        })
+    return rows
+
+
+# ---------------------------------------------------------------------------
+# benchmark_history
+# ---------------------------------------------------------------------------
+
+def load_benchmark_history() -> list[dict]:
     rows = []
     with open(PERSISTENCE_FILE, encoding="utf-8") as f:
         for line in f:
@@ -67,21 +173,25 @@ def load_benchmark_history():
                 continue
             r = json.loads(line)
             rows.append({
-                "date":             r.get("date"),
-                "issue_type":       r.get("issue_type"),
-                "category":         r.get("category"),
-                "barclays_rate":    r.get("barclays_rate"),
-                "peer_avg_rate":    r.get("peer_avg_rate"),
-                "gap_pp":           r.get("gap_pp"),
-                "over_indexed":     r.get("over_indexed", False),
+                "date":              r.get("date"),
+                "issue_type":        r.get("issue_type"),
+                "category":          r.get("category"),
+                "barclays_rate":     r.get("barclays_rate"),
+                "peer_avg_rate":     r.get("peer_avg_rate"),
+                "gap_pp":            r.get("gap_pp"),
+                "over_indexed":      r.get("over_indexed", False),
                 "dominant_severity": r.get("dominant_severity"),
-                "days_active":      r.get("days_active"),
-                "first_seen":       r.get("first_seen") or None,
+                "days_active":       r.get("days_active"),
+                "first_seen":        r.get("first_seen") or None,
             })
     return rows
 
 
-def load_daily_runs():
+# ---------------------------------------------------------------------------
+# daily_runs
+# ---------------------------------------------------------------------------
+
+def load_daily_runs() -> list[dict]:
     rows = []
     with open(RUN_LOG_FILE, encoding="utf-8") as f:
         for line in f:
@@ -105,7 +215,69 @@ def load_daily_runs():
     return rows
 
 
+# ---------------------------------------------------------------------------
+# clark_log
+# ---------------------------------------------------------------------------
+
+def load_clark_log() -> list[dict]:
+    rows = []
+    with open(CLARK_LOG_FILE, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            r = json.loads(line)
+            rows.append({
+                "ts":         r.get("ts"),
+                "event":      r.get("event"),
+                "finding_id": r.get("finding_id"),
+                "competitor": r.get("competitor"),
+                "clark_tier": r.get("clark_tier"),
+                "from_tier":  r.get("from_tier"),
+                "cac_score":  r.get("cac_score"),
+                "finding_tier": r.get("finding_tier"),
+                "reason":     r.get("reason"),
+                "synthesis":  r.get("synthesis"),
+            })
+    return rows
+
+
+# ---------------------------------------------------------------------------
+# vault_log — mirror from mil_vault.db
+# ---------------------------------------------------------------------------
+
+def load_vault_log() -> list[dict]:
+    src = duckdb.connect(str(VAULT_DB_FILE), read_only=True)
+    df = src.execute("SELECT * FROM vault_anchor_log").fetchdf()
+    src.close()
+    return df.to_dict(orient="records")
+
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+
 def build(con: duckdb.DuckDBPyConnection):
+
+    con.execute("""
+        CREATE OR REPLACE TABLE reviews (
+            source           VARCHAR,
+            competitor       VARCHAR,
+            date             VARCHAR,
+            content          VARCHAR,
+            rating           DOUBLE,
+            author           VARCHAR,
+            issue_type       VARCHAR,
+            customer_journey VARCHAR,
+            sentiment_score  DOUBLE,
+            severity_class   VARCHAR,
+            reasoning        VARCHAR,
+            source_record_id VARCHAR,
+            model            VARCHAR,
+            schema_version   VARCHAR
+        )
+    """)
+
     con.execute("""
         CREATE OR REPLACE TABLE findings (
             finding_id               VARCHAR PRIMARY KEY,
@@ -135,17 +307,28 @@ def build(con: duckdb.DuckDBPyConnection):
     """)
 
     con.execute("""
+        CREATE OR REPLACE TABLE chr_entries (
+            chronicle_id       VARCHAR PRIMARY KEY,
+            bank               VARCHAR,
+            incident_type      VARCHAR,
+            incident_date      VARCHAR,
+            inference_approved BOOLEAN,
+            confidence_score   DOUBLE
+        )
+    """)
+
+    con.execute("""
         CREATE OR REPLACE TABLE benchmark_history (
-            date             DATE,
-            issue_type       VARCHAR,
-            category         VARCHAR,
-            barclays_rate    DOUBLE,
-            peer_avg_rate    DOUBLE,
-            gap_pp           DOUBLE,
-            over_indexed     BOOLEAN,
+            date              DATE,
+            issue_type        VARCHAR,
+            category          VARCHAR,
+            barclays_rate     DOUBLE,
+            peer_avg_rate     DOUBLE,
+            gap_pp            DOUBLE,
+            over_indexed      BOOLEAN,
             dominant_severity VARCHAR,
-            days_active      INTEGER,
-            first_seen       DATE,
+            days_active       INTEGER,
+            first_seen        DATE,
             PRIMARY KEY (date, issue_type)
         )
     """)
@@ -166,29 +349,82 @@ def build(con: duckdb.DuckDBPyConnection):
         )
     """)
 
-    findings = load_findings()
-    con.executemany("""
-        INSERT OR REPLACE INTO findings VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    con.execute("""
+        CREATE OR REPLACE TABLE clark_log (
+            ts           TIMESTAMPTZ,
+            event        VARCHAR,
+            finding_id   VARCHAR,
+            competitor   VARCHAR,
+            clark_tier   VARCHAR,
+            from_tier    VARCHAR,
+            cac_score    DOUBLE,
+            finding_tier VARCHAR,
+            reason       VARCHAR,
+            synthesis    VARCHAR
         )
-    """, [list(r.values()) for r in findings])
+    """)
+
+    con.execute("""
+        CREATE OR REPLACE TABLE vault_log (
+            file_name    VARCHAR,
+            source       VARCHAR,
+            competitor   VARCHAR,
+            record_count INTEGER,
+            model        VARCHAR,
+            hdfs_path    VARCHAR,
+            anchored_at  TIMESTAMPTZ,
+            status       VARCHAR
+        )
+    """)
+
+    reviews = load_reviews()
+    con.executemany(
+        "INSERT INTO reviews VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [list(r.values()) for r in reviews],
+    )
+    log.info("reviews: %d rows", len(reviews))
+
+    findings = load_findings()
+    con.executemany(
+        "INSERT OR REPLACE INTO findings VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [list(r.values()) for r in findings],
+    )
     log.info("findings: %d rows", len(findings))
 
+    chronicle = load_chronicle()
+    con.executemany(
+        "INSERT OR REPLACE INTO chr_entries VALUES (?,?,?,?,?,?)",
+        [list(r.values()) for r in chronicle],
+    )
+    log.info("chronicle: %d rows", len(chronicle))
+
     benchmark = load_benchmark_history()
-    con.executemany("""
-        INSERT OR REPLACE INTO benchmark_history VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )
-    """, [list(r.values()) for r in benchmark])
+    con.executemany(
+        "INSERT OR REPLACE INTO benchmark_history VALUES (?,?,?,?,?,?,?,?,?,?)",
+        [list(r.values()) for r in benchmark],
+    )
     log.info("benchmark_history: %d rows", len(benchmark))
 
     runs = load_daily_runs()
-    con.executemany("""
-        INSERT OR REPLACE INTO daily_runs VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )
-    """, [list(r.values()) for r in runs])
+    con.executemany(
+        "INSERT OR REPLACE INTO daily_runs VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        [list(r.values()) for r in runs],
+    )
     log.info("daily_runs: %d rows", len(runs))
+
+    clark = load_clark_log()
+    con.executemany(
+        "INSERT INTO clark_log VALUES (?,?,?,?,?,?,?,?,?,?)",
+        [list(r.values()) for r in clark],
+    )
+    log.info("clark_log: %d rows", len(clark))
+
+    vault = load_vault_log()
+    con.executemany(
+        "INSERT INTO vault_log VALUES (?,?,?,?,?,?,?,?)",
+        [list(r.values()) for r in vault],
+    )
+    log.info("vault_log: %d rows", len(vault))
 
 
 def main():
@@ -198,11 +434,10 @@ def main():
     con.close()
     log.info("Done.")
 
-    # Quick verification
     con = duckdb.connect(str(DB_PATH), read_only=True)
-    for table in ["findings", "benchmark_history", "daily_runs"]:
+    for table in ["reviews", "findings", "chr_entries", "benchmark_history", "daily_runs", "clark_log", "vault_log"]:
         count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-        log.info("  %s: %d rows", table, count)
+        log.info("  %-20s %d rows", table, count)
     con.close()
 
 
