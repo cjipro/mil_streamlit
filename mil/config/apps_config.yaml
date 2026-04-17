@@ -39,7 +39,7 @@ competitors:
   - id: COMP_002
     name: "Lloyds"
     app_store_id: "469964520"
-    google_play_id: "com.lloydsbank.mobile"
+    google_play_id: "com.grppl.android.shell.CMBlloydsTSB73"
     downdetector_slug: "lloyds-bank"
     trustpilot_slug: "lloydsbank.com"
     reddit_mentions: ["Lloyds", "Lloyds bank", "Lloyds app", "LBG"]
@@ -63,7 +63,7 @@ competitors:
   - id: COMP_004
     name: "Monzo"
     app_store_id: "1052238659"
-    google_play_id: "co.monzo.uk"
+    google_play_id: "co.uk.getmondo"
     downdetector_slug: "monzo"
     trustpilot_slug: "monzo.com"
     reddit_mentions: ["Monzo", "Monzo bank", "Monzo app"]
