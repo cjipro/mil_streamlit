@@ -16,6 +16,7 @@ Output: writes back to mil/data/historical/enriched/{source}_{competitor}_enrich
 
 MIL Zero Entanglement: no imports from pulse/, poc/, app/, dags/
 """
+import hashlib
 import json
 import logging
 import os
@@ -312,14 +313,15 @@ def run_enrichment() -> dict:
             else:
                 needs_enrichment.append(_to_raw(r))
 
-        # New records from live_ files not already present
-        existing_texts = {
-            (r.get("review") or r.get("content", ""))[:80]
-            for r in all_existing
-        }
+        # New records from live_ files not already present — hash full content for dedup
+        def _content_hash(r: dict) -> str:
+            text = (r.get("review") or r.get("content") or r.get("body") or "").strip()
+            return hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()
+
+        existing_hashes = {_content_hash(r) for r in all_existing}
         new_records = [
             _to_raw(r) for r in live_map.get(key, [])
-            if (r.get("review") or r.get("content", ""))[:80] not in existing_texts
+            if _content_hash(r) not in existing_hashes
         ]
 
         to_enrich = needs_enrichment + new_records

@@ -32,6 +32,8 @@ PERSISTENCE_FILE = REPO_ROOT / "mil/data/issue_persistence_log.jsonl"
 RUN_LOG_FILE     = REPO_ROOT / "mil/data/daily_run_log.jsonl"
 CLARK_LOG_FILE   = REPO_ROOT / "mil/data/clark_log.jsonl"
 VAULT_DB_FILE    = REPO_ROOT / "mil/vault/mil_vault.db"
+COMMENTARY_LOG   = REPO_ROOT / "mil/data/commentary_log.jsonl"
+RESEARCH_QUEUE   = REPO_ROOT / "mil/data/research_queue.jsonl"
 
 
 # ---------------------------------------------------------------------------
@@ -246,6 +248,64 @@ def load_clark_log() -> list[dict]:
 # vault_log — mirror from mil_vault.db
 # ---------------------------------------------------------------------------
 
+def load_commentary() -> list[dict]:
+    if not COMMENTARY_LOG.exists():
+        return []
+    rows = []
+    seen = set()
+    with open(COMMENTARY_LOG, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            r = json.loads(line)
+            key = (r.get("date"), r.get("issue_type"), r.get("type"))
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append({
+                "date":              r.get("date"),
+                "type":              r.get("type"),
+                "issue_type":        r.get("issue_type"),
+                "category":          r.get("category"),
+                "barclays_rate":     r.get("barclays_rate"),
+                "peer_avg_rate":     r.get("peer_avg_rate"),
+                "gap_pp":            r.get("gap_pp"),
+                "dominant_severity": r.get("dominant_severity"),
+                "days_active":       r.get("days_active"),
+                "prose":             r.get("prose"),
+                "chr_resonance":     r.get("chr_resonance") or "",
+            })
+    return rows
+
+
+def load_unanchored_signals() -> list[dict]:
+    if not RESEARCH_QUEUE.exists():
+        return []
+    rows = []
+    with open(RESEARCH_QUEUE, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            r = json.loads(line)
+            rows.append({
+                "finding_id":       r.get("finding_id"),
+                "competitor":       r.get("competitor"),
+                "journey_id":       r.get("journey_id"),
+                "signal_severity":  r.get("signal_severity"),
+                "cac_score":        r.get("cac_score"),
+                "sim_hist_score":   r.get("sim_hist_score"),
+                "chronicle_id":     r.get("chronicle_id"),
+                "is_unanchored":    r.get("is_unanchored", False),
+                "status":           r.get("status"),
+                "triggered_at":     r.get("triggered_at"),
+                "resolved_at":      r.get("resolved_at"),
+                "resolution_note":  r.get("resolution_note"),
+            })
+    return rows
+
+
 def load_vault_log() -> list[dict]:
     src = duckdb.connect(str(VAULT_DB_FILE), read_only=True)
     df = src.execute("SELECT * FROM vault_anchor_log").fetchdf()
@@ -377,6 +437,40 @@ def build(con: duckdb.DuckDBPyConnection):
         )
     """)
 
+    con.execute("""
+        CREATE OR REPLACE TABLE commentary (
+            date              DATE,
+            type              VARCHAR,
+            issue_type        VARCHAR,
+            category          VARCHAR,
+            barclays_rate     DOUBLE,
+            peer_avg_rate     DOUBLE,
+            gap_pp            DOUBLE,
+            dominant_severity VARCHAR,
+            days_active       INTEGER,
+            prose             VARCHAR,
+            chr_resonance     VARCHAR,
+            PRIMARY KEY (date, issue_type, type)
+        )
+    """)
+
+    con.execute("""
+        CREATE OR REPLACE TABLE unanchored_signals (
+            finding_id      VARCHAR PRIMARY KEY,
+            competitor      VARCHAR,
+            journey_id      VARCHAR,
+            signal_severity VARCHAR,
+            cac_score       DOUBLE,
+            sim_hist_score  DOUBLE,
+            chronicle_id    VARCHAR,
+            is_unanchored   BOOLEAN,
+            status          VARCHAR,
+            triggered_at    TIMESTAMPTZ,
+            resolved_at     TIMESTAMPTZ,
+            resolution_note VARCHAR
+        )
+    """)
+
     reviews = load_reviews()
     con.executemany(
         "INSERT INTO reviews VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -426,6 +520,22 @@ def build(con: duckdb.DuckDBPyConnection):
     )
     log.info("vault_log: %d rows", len(vault))
 
+    commentary = load_commentary()
+    if commentary:
+        con.executemany(
+            "INSERT OR REPLACE INTO commentary VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            [list(r.values()) for r in commentary],
+        )
+    log.info("commentary: %d rows", len(commentary))
+
+    unanchored = load_unanchored_signals()
+    if unanchored:
+        con.executemany(
+            "INSERT OR REPLACE INTO unanchored_signals VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            [list(r.values()) for r in unanchored],
+        )
+    log.info("unanchored_signals: %d rows", len(unanchored))
+
 
 def main():
     log.info("Building mil_analytics.db -> %s", DB_PATH)
@@ -435,7 +545,7 @@ def main():
     log.info("Done.")
 
     con = duckdb.connect(str(DB_PATH), read_only=True)
-    for table in ["reviews", "findings", "chr_entries", "benchmark_history", "daily_runs", "clark_log", "vault_log"]:
+    for table in ["reviews", "findings", "chr_entries", "benchmark_history", "daily_runs", "clark_log", "vault_log", "commentary", "unanchored_signals"]:
         count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
         log.info("  %-20s %d rows", table, count)
     con.close()

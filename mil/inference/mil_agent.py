@@ -59,7 +59,7 @@ DESIGNED_CEILING_THRESHOLD = 0.45
 
 # Minimum cluster size to generate a finding (P2 and above require >= 2 signals)
 MIN_CLUSTER_SIZE_P2 = 2
-MIN_CLUSTER_SIZE_P0 = 1  # Single P0 signal is worth flagging
+MIN_CLUSTER_SIZE_P0 = 2  # Require at least 2 P0 signals — guards against single mislabelled record reaching production
 
 # Inference model — routed via mil/config/model_routing.yaml
 _INFERENCE_CFG  = _get_model("inference")

@@ -288,6 +288,17 @@ def run_publish_v3_step() -> None:
 # Main
 # ---------------------------------------------------------------------------
 
+def _hdfs_preflight() -> bool:
+    """Quick TCP check on HDFS NameNode port 9871 before attempting vault."""
+    import socket
+    try:
+        with socket.create_connection(("localhost", 9871), timeout=3):
+            return True
+    except OSError:
+        logger.warning("[vault] HDFS NameNode not reachable on port 9871 — is mil-namenode running?")
+        return False
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="MIL daily refresh pipeline")
     parser.add_argument("--dry-run",    action="store_true", help="Fetch + enrich only; skip inference and publish")
@@ -297,6 +308,7 @@ def main() -> None:
     logger.info("=== MIL Daily Refresh — %s ===", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
     fetch_counts: dict[str, int] = {}
+    failed_steps: list[str] = []
 
     if not args.skip_fetch:
         logger.info("--- Step 1: Fetch ---")
@@ -315,13 +327,41 @@ def main() -> None:
         return
 
     logger.info("--- Step 4: Inference ---")
-    run_inference_step()
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "inference" / "mil_agent.py")],
+        cwd=str(REPO_ROOT), capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[inference] mil_agent exited with code %d", result.returncode)
+        failed_steps.append("inference")
+    else:
+        logger.info("[inference] complete.")
 
     logger.info("--- Step 4a: Research Trigger ---")
-    run_research_trigger_step()
+    try:
+        from harvester.research_trigger import run as trigger_run
+        r = trigger_run()
+        logger.info("[research_trigger] complete — triggered=%d skipped=%d ignored=%d",
+                    r["triggered"], r["skipped"], r["ignored"])
+    except Exception as exc:
+        logger.warning("[research_trigger] failed (non-fatal): %s", exc)
+        failed_steps.append("research_trigger")
 
     logger.info("--- Step 4b: Vault ---")
-    run_vault_step()
+    _hdfs_ok = _hdfs_preflight()
+    if _hdfs_ok:
+        result = subprocess.run(
+            [sys.executable, str(MIL_ROOT / "vault" / "vault_sync.py")],
+            cwd=str(REPO_ROOT), capture_output=False,
+        )
+        if result.returncode != 0:
+            logger.warning("[vault] vault_sync.py exited with code %d", result.returncode)
+            failed_steps.append("vault")
+        else:
+            logger.info("[vault] complete.")
+    else:
+        logger.warning("[vault] skipped — HDFS preflight failed")
+        failed_steps.append("vault")
 
     logger.info("--- Step 4c: Clark Escalation ---")
     try:
@@ -331,6 +371,7 @@ def main() -> None:
         logger.info("[clark] %d new escalations | %d downgraded", len(new_esc), new_dg)
     except Exception as exc:
         logger.warning("[clark] escalation failed: %s", exc)
+        failed_steps.append("clark")
 
     logger.info("--- Step 4d: Benchmark + Persistence ---")
     _benchmark_result: dict = {}
@@ -344,6 +385,7 @@ def main() -> None:
                     len(_benchmark_result.get("over_indexed", [])))
     except Exception as exc:
         logger.warning("[benchmark] failed (non-fatal): %s", exc)
+        failed_steps.append("benchmark")
 
     logger.info("--- Step 4e: Analytics DB ---")
     try:
@@ -358,18 +400,43 @@ def main() -> None:
         logger.info("[analytics] mil_analytics.db rebuilt.")
     except Exception as exc:
         logger.warning("[analytics] failed (non-fatal): %s", exc)
+        failed_steps.append("analytics")
 
     logger.info("--- Step 5: Publish ---")
-    run_publish_step()
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish.py")],
+        cwd=str(REPO_ROOT), capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish] publish.py exited with code %d", result.returncode)
+        failed_steps.append("publish_v1")
+    else:
+        logger.info("[publish] briefing updated.")
 
     logger.info("--- Step 5b: Publish V2 ---")
-    run_publish_v2_step()
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish_v2.py")],
+        cwd=str(REPO_ROOT), capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish_v2] publish_v2.py exited with code %d", result.returncode)
+        failed_steps.append("publish_v2")
+    else:
+        logger.info("[publish_v2] briefing-v2 updated.")
 
     logger.info("--- Step 5c: Publish V3 ---")
-    run_publish_v3_step()
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish_v3.py")],
+        cwd=str(REPO_ROOT), capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish_v3] publish_v3.py exited with code %d", result.returncode)
+        failed_steps.append("publish_v3")
+    else:
+        logger.info("[publish_v3] briefing-v3 updated.")
 
     logger.info("--- Step 6: Log Run ---")
-    _log_run(fetch_counts, _benchmark_result)
+    _log_run(fetch_counts, _benchmark_result, failed_steps)
 
     logger.info("=== Done ===")
 
@@ -380,7 +447,7 @@ def main() -> None:
 
 RUN_LOG = REPO_ROOT / "mil" / "data" / "daily_run_log.jsonl"
 
-def _log_run(fetch_counts: dict, benchmark_result: dict | None = None) -> None:
+def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_steps: list | None = None) -> None:
     """Append a run record to daily_run_log.jsonl and report M1 streak."""
     import json as _json
 
@@ -418,11 +485,21 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None) -> None:
             pass
 
     bm = benchmark_result or {}
+    _failed = failed_steps or []
+    _critical = {"inference", "publish_v1", "publish_v2", "publish_v3"}
+    if _critical & set(_failed):
+        _status = "FAILED"
+    elif _failed:
+        _status = "PARTIAL"
+    else:
+        _status = "CLEAN"
+
     entry = {
         "run":                run_number,
         "date":               today,
         "timestamp":          datetime.now(timezone.utc).isoformat(),
-        "status":             "CLEAN",
+        "status":             _status,
+        "failed_steps":       _failed,
         "new_records":        sum(fetch_counts.values()),
         "findings":           findings_count,
         "m1_streak":          streak,

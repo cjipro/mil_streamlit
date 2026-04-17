@@ -788,13 +788,19 @@ def generate_v3_html(v1_html: str) -> str:
             persistence_map = {e["issue_type"]: e for e in all_entries if e["date"] == latest_date}
 
     # Load commentary
+    boxes = []
     try:
         sys.path.insert(0, str(SCRIPT_DIR))
         from commentary_engine import generate_commentary
         boxes = generate_commentary()
+        # Persist commentary to log for analytics DB
+        _commentary_log = MIL_DIR / "data" / "commentary_log.jsonl"
+        _today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        with open(_commentary_log, "a", encoding="utf-8") as _f:
+            for _box in boxes:
+                _f.write(json.dumps({"date": _today, **_box}) + "\n")
     except Exception as exc:
         print(f"  [WARNING] commentary_engine failed: {exc}")
-        boxes = []
 
     benchmark = benchmark_result.get("benchmark", {})
 
