@@ -329,10 +329,11 @@ def main() -> None:
     logger.info("--- Step 4: Inference ---")
     result = subprocess.run(
         [sys.executable, str(MIL_ROOT / "inference" / "mil_agent.py")],
-        cwd=str(REPO_ROOT), capture_output=False,
+        cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
     )
     if result.returncode != 0:
-        logger.warning("[inference] mil_agent exited with code %d", result.returncode)
+        logger.warning("[inference] mil_agent exited with code %d\n%s",
+                       result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("inference")
     else:
         logger.info("[inference] complete.")
@@ -352,10 +353,11 @@ def main() -> None:
     if _hdfs_ok:
         result = subprocess.run(
             [sys.executable, str(MIL_ROOT / "vault" / "vault_sync.py")],
-            cwd=str(REPO_ROOT), capture_output=False,
+            cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
         )
         if result.returncode != 0:
-            logger.warning("[vault] vault_sync.py exited with code %d", result.returncode)
+            logger.warning("[vault] vault_sync.py exited with code %d\n%s",
+                           result.returncode, result.stderr.decode(errors="replace"))
             failed_steps.append("vault")
         else:
             logger.info("[vault] complete.")
@@ -405,10 +407,11 @@ def main() -> None:
     logger.info("--- Step 5: Publish ---")
     result = subprocess.run(
         [sys.executable, str(MIL_ROOT / "publish" / "publish.py")],
-        cwd=str(REPO_ROOT), capture_output=False,
+        cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
     )
     if result.returncode != 0:
-        logger.warning("[publish] publish.py exited with code %d", result.returncode)
+        logger.warning("[publish] publish.py exited with code %d\n%s",
+                       result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v1")
     else:
         logger.info("[publish] briefing updated.")
@@ -416,10 +419,11 @@ def main() -> None:
     logger.info("--- Step 5b: Publish V2 ---")
     result = subprocess.run(
         [sys.executable, str(MIL_ROOT / "publish" / "publish_v2.py")],
-        cwd=str(REPO_ROOT), capture_output=False,
+        cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
     )
     if result.returncode != 0:
-        logger.warning("[publish_v2] publish_v2.py exited with code %d", result.returncode)
+        logger.warning("[publish_v2] publish_v2.py exited with code %d\n%s",
+                       result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v2")
     else:
         logger.info("[publish_v2] briefing-v2 updated.")
@@ -427,10 +431,11 @@ def main() -> None:
     logger.info("--- Step 5c: Publish V3 ---")
     result = subprocess.run(
         [sys.executable, str(MIL_ROOT / "publish" / "publish_v3.py")],
-        cwd=str(REPO_ROOT), capture_output=False,
+        cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
     )
     if result.returncode != 0:
-        logger.warning("[publish_v3] publish_v3.py exited with code %d", result.returncode)
+        logger.warning("[publish_v3] publish_v3.py exited with code %d\n%s",
+                       result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v3")
     else:
         logger.info("[publish_v3] briefing-v3 updated.")

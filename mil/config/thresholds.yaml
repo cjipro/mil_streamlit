@@ -1,0 +1,26 @@
+# mil/config/thresholds.yaml — single source of truth for all MIL numeric thresholds.
+# Change values here; code reads at startup via thresholds.py (lru_cached).
+# Never hardcode these values in Python files.
+
+clark:
+  clark3_cac:       0.65   # CAC >= this + P1 + CHR + ceiling → CLARK-3
+  clark2_cac:       0.45   # CAC >= this + P1 → CLARK-2
+  clark1_cac:       0.55   # CAC >= this + P2 + CHR → CLARK-1
+  downgrade_hours:  48     # CLARK-2/3 findings older than this get downgraded one tier
+  p0_override_count: 5     # P0 signals >= this + ceiling + CHR → CLARK-3 regardless of CAC
+
+inference:
+  min_cluster_size_p0: 2   # Minimum P0 signals required to generate a finding
+  min_cluster_size_p2: 2   # Minimum signals for P2 findings
+  designed_ceiling:    0.45 # CAC above this + delta_tel=0.0 → Designed Ceiling trigger
+  cac_alpha:           0.40 # Volume signal weight
+  cac_beta:            0.40 # Historical similarity weight
+  cac_delta:           0.20 # Telemetry delta weight
+
+research:
+  sim_threshold: 0.40  # sim_hist_score below this = weak anchor → trigger research queue
+
+api:
+  anthropic_timeout_s: 60   # Timeout for all Anthropic API calls
+  ollama_timeout_s:   120   # Timeout for all Ollama/Refuel calls
+  max_retries:          3   # Max retry attempts on transient API failures

@@ -38,8 +38,16 @@ MIL_ROOT       = Path(__file__).parent.parent
 FINDINGS_FILE  = MIL_ROOT / "outputs" / "mil_findings.json"
 QUEUE_FILE     = MIL_ROOT / "data" / "research_queue.jsonl"
 
+sys.path.insert(0, str(MIL_ROOT))
+sys.path.insert(0, str(MIL_ROOT.parent))
+
+try:
+    from mil.config.thresholds import T as _T
+except ImportError:
+    from config.thresholds import T as _T
+
 # sim_hist_score below this = weak CHRONICLE anchor → trigger
-SIM_THRESHOLD  = 0.40
+SIM_THRESHOLD  = float(_T("research.sim_threshold"))
 
 # Only trigger on P0 and P1
 TRIGGER_SEVERITIES = {"P0", "P1"}

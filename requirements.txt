@@ -1,0 +1,37 @@
+# while-sleeping / MIL + CJI Pulse — Python dependencies
+# Install: pip install -r requirements.txt
+# Python >= 3.11 required (uses list[dict] | None union syntax)
+
+# ── Anthropic API ────────────────────────────────────────────────────────────
+anthropic>=0.40.0
+
+# ── Environment / Config ─────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# ── HTTP / Scraping ───────────────────────────────────────────────────────────
+requests>=2.31.0
+cloudscraper>=1.2.71          # DownDetector collector
+
+# ── App Store / Google Play ───────────────────────────────────────────────────
+google-play-scraper>=1.2.7
+
+# ── Social / News ─────────────────────────────────────────────────────────────
+feedparser>=6.0.11            # RSS (City A.M., FT)
+google-api-python-client>=2.118.0  # YouTube Data API v3
+
+# ── Analytics / Storage ───────────────────────────────────────────────────────
+duckdb>=1.1.0
+
+# ── JSON repair (enrichment batch fallback) ───────────────────────────────────
+json-repair>=0.30.0
+
+# ── Dashboard / Visualisation ─────────────────────────────────────────────────
+streamlit>=1.40.0
+plotly>=5.22.0
+
+# ── Scheduling ────────────────────────────────────────────────────────────────
+apscheduler>=3.10.4
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=8.0.0

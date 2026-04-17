@@ -35,8 +35,13 @@ ENRICHED_DIR  = MIL_ROOT / "data" / "historical" / "enriched"
 HIST_BASE     = MIL_ROOT / "data" / "historical"
 
 MODEL         = _get_model("enrichment")["model"]
-BATCH_SIZE    = 10   # records per API call — Sonnet handles larger batches cleanly
-MAX_RETRIES   = 3
+BATCH_SIZE    = 10
+
+try:
+    from mil.config.thresholds import T as _T
+except ImportError:
+    from config.thresholds import T as _T
+MAX_RETRIES = int(_T("api.max_retries"))
 
 ISSUE_TYPES = [
     "App Not Opening",
@@ -98,8 +103,12 @@ def _get_client():
         load_dotenv()
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY not found in environment")
-        return anthropic.Anthropic(api_key=api_key)
+            raise EnvironmentError("ANTHROPIC_API_KEY not found in environment")
+        try:
+            from mil.config.thresholds import T
+        except ImportError:
+            from config.thresholds import T
+        return anthropic.Anthropic(api_key=api_key, timeout=float(T("api.anthropic_timeout_s")))
     except ImportError:
         raise ImportError("anthropic package not installed. Run: pip install anthropic")
 

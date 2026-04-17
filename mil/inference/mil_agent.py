@@ -49,17 +49,18 @@ MIL_ROOT     = Path(__file__).parent.parent
 ENRICHED_DIR = MIL_ROOT / "data" / "historical" / "enriched"
 FINDINGS_FILE = MIL_ROOT / "outputs" / "mil_findings.json"
 
-# CAC formula weights -- NOT tuned before Day 30 per MIL_SCHEMA.yaml
-ALPHA = 0.40
-BETA  = 0.40
-DELTA = 0.20
+try:
+    from mil.config.thresholds import T as _T
+except ImportError:
+    from config.thresholds import T as _T
 
-# Designed Ceiling: trigger above this CAC when telemetry is absent
-DESIGNED_CEILING_THRESHOLD = 0.45
-
-# Minimum cluster size to generate a finding (P2 and above require >= 2 signals)
-MIN_CLUSTER_SIZE_P2 = 2
-MIN_CLUSTER_SIZE_P0 = 2  # Require at least 2 P0 signals — guards against single mislabelled record reaching production
+ALPHA                      = _T("inference.cac_alpha")
+BETA                       = _T("inference.cac_beta")
+DELTA                      = _T("inference.cac_delta")
+DESIGNED_CEILING_THRESHOLD = _T("inference.designed_ceiling")
+MIN_CLUSTER_SIZE_P2        = int(_T("inference.min_cluster_size_p2"))
+MIN_CLUSTER_SIZE_P0        = int(_T("inference.min_cluster_size_p0"))
+REQUEST_TIMEOUT            = int(_T("api.ollama_timeout_s"))
 
 # Inference model — routed via mil/config/model_routing.yaml
 _INFERENCE_CFG  = _get_model("inference")
@@ -67,8 +68,7 @@ OLLAMA_URL      = f"{_INFERENCE_CFG['api_compat_url']}/chat/completions"
 OLLAMA_MODEL    = _INFERENCE_CFG["model"]
 CLASS_VER       = _INFERENCE_CFG["model"]
 TEACHER_VER     = None      # MIL-7 not yet built -- explicitly None
-REQUEST_TIMEOUT = 120
-MAX_RETRIES     = 2
+MAX_RETRIES     = int(_T("api.max_retries"))
 
 # Severity volume multipliers per MIL_SCHEMA.yaml signal_severity
 SEV_MULTIPLIER = {"P0": 2.0, "P1": 1.5, "P2": 1.0, "ENRICHMENT_FAILED": 0.0}

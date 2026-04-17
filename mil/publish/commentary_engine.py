@@ -49,34 +49,44 @@ CHR_RESONANCE: dict[str, str] = {
 
 # ── Quote extraction ──────────────────────────────────────────────────────────
 
-def get_top_quotes(issue_type: str, n: int = 2) -> list[str]:
-    """
-    Return up to n customer quotes for an issue type from Barclays enriched records.
-    Priority: P0 > P1 > P2. Length: 40–200 chars preferred.
-    """
-    candidates: list[tuple[int, str]] = []  # (priority, text)
-
+def _load_barclays_records() -> list[dict]:
+    """Load all Barclays enriched records from app_store + google_play once."""
+    records: list[dict] = []
     for source in ("app_store", "google_play"):
         f = ENRICHED_DIR / f"{source}_barclays_enriched.json"
         if not f.exists():
             continue
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
-            for r in data.get("records", []):
-                if r.get("issue_type") != issue_type:
-                    continue
-                text = r.get("review") or r.get("content", "")
-                if not text:
-                    continue
-                text = text.strip().replace("\n", " ")
-                if len(text) < 40:
-                    continue
-                text = text[:200]  # cap at 200 chars
-                sev = r.get("severity_class", "P2")
-                priority = {"P0": 0, "P1": 1, "P2": 2}.get(sev, 2)
-                candidates.append((priority, text))
+            records.extend(data.get("records", []))
         except Exception:
             pass
+    return records
+
+
+def get_top_quotes(issue_type: str, n: int = 2, records: list[dict] | None = None) -> list[str]:
+    """
+    Return up to n customer quotes for an issue type from Barclays enriched records.
+    Priority: P0 > P1 > P2. Length: 40-200 chars preferred.
+    Pass pre-loaded records to avoid repeated file reads per call.
+    """
+    if records is None:
+        records = _load_barclays_records()
+
+    candidates: list[tuple[int, str]] = []
+    for r in records:
+        if r.get("issue_type") != issue_type:
+            continue
+        text = r.get("review") or r.get("content", "")
+        if not text:
+            continue
+        text = text.strip().replace("\n", " ")
+        if len(text) < 40:
+            continue
+        text = text[:200]
+        sev = r.get("severity_class", "P2")
+        priority = {"P0": 0, "P1": 1, "P2": 2}.get(sev, 2)
+        candidates.append((priority, text))
 
     candidates.sort(key=lambda x: x[0])
     seen: set[str] = set()
@@ -93,24 +103,16 @@ def get_top_quotes(issue_type: str, n: int = 2) -> list[str]:
 # ── Sonnet synthesis ──────────────────────────────────────────────────────────
 
 def _call_sonnet(prompt: str) -> str:
-    """Call Sonnet via Anthropic SDK. Returns prose string."""
+    """Call Sonnet via model_client unified wrapper. Returns prose string."""
     try:
-        import os
-        import anthropic
-        from dotenv import load_dotenv
-        load_dotenv()
+        from mil.config.model_client import call_anthropic
         from mil.config.get_model import get_model
         cfg = get_model("commentary")
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY not set")
-        client = anthropic.Anthropic(api_key=api_key)
-        msg = client.messages.create(
-            model=cfg["model"],
+        return call_anthropic(
+            task="commentary",
+            user_prompt=prompt,
             max_tokens=cfg.get("max_tokens", 300),
-            messages=[{"role": "user", "content": prompt}],
         )
-        return msg.content[0].text.strip()
     except Exception as exc:
         logger.warning("[commentary] Sonnet call failed: %s", exc)
         return ""
@@ -237,10 +239,13 @@ def generate_commentary(today: str | None = None) -> list[dict]:
 
     results: list[dict] = []
 
+    # Load Barclays records once — reused across all get_top_quotes calls
+    _barclays_records = _load_barclays_records()
+
     # Generate risk commentaries
     for entry in risk_entries:
         issue = entry["issue_type"]
-        quotes = get_top_quotes(issue, n=2)
+        quotes = get_top_quotes(issue, n=2, records=_barclays_records)
         chr_context = CHR_RESONANCE.get(issue, "")
         logger.info("[commentary] generating risk prose for '%s' (gap=+%.1fpp, %dd, %s)",
                     issue, entry["gap_pp"], entry["days_active"], entry["dominant_severity"])
@@ -266,7 +271,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
     # Generate strength commentary
     for entry in strength_entries:
         issue = entry["issue_type"]
-        quotes = get_top_quotes(issue, n=1)
+        quotes = get_top_quotes(issue, n=1, records=_barclays_records)
         logger.info("[commentary] generating strength prose for '%s' (gap=%.1fpp)",
                     issue, entry["gap_pp"])
         prose = _prose_strength(entry)
