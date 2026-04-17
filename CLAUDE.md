@@ -32,8 +32,8 @@ Key: MIL
 Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
-Tickets: MIL-1 through MIL-6 (BUILT)
-Next ticket: MIL-7
+Tickets: MIL-1 through MIL-31 (BUILT)
+Next ticket: MIL-32
 Scope: Public market intelligence only. No PII. Open governance.
 
 ### Hard Rule
@@ -114,17 +114,18 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - Run: `py mil/publish/publish_v3.py`
 - **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
 
-**Next ticket: MIL-31 (undefined)**
+**Next ticket: MIL-32 (undefined)**
 
-**Phase 2 — IN PROGRESS (2026-04-12)**
-- MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 pending ~2026-04-19)
+**Phase 2 — COMPLETE (2026-04-16)**
+- MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 clears 2026-04-19)
 - MIL-26: ARCH-003 model routing — model_routing.yaml schema v1.1, four-tier Opus/Sonnet/Haiku/Qwen3 (BUILT 2026-04-12)
 - MIL-27: Benchmark Engine + Persistence Log — mil/data/benchmark_engine.py, issue_persistence_log.jsonl (BUILT 2026-04-12)
 - MIL-28: Commentary Engine — mil/publish/commentary_engine.py, Sonnet analyst prose per issue type (BUILT 2026-04-12)
 - MIL-29: Briefing V3 — mil/publish/publish_v3.py, live at cjipro.com/briefing-v3 (BUILT 2026-04-12)
 - MIL-30: Opus Governance Tier — CLARK-3 synthesis + CHR proposals upgraded to Opus (BUILT 2026-04-12)
+- MIL-31: Barclays CHRONICLE Depth — CHR-017/018/019 approved, research agent --force flag, CHR_COVERAGE bypass for Barclays J_SERVICE_01 (BUILT 2026-04-16)
 
-## MIL Pipeline State — 2026-04-14 (Phase 2 complete, V3 refined)
+## MIL Pipeline State — 2026-04-17 (Phase 2 complete, MIL autonomous from 2026-04-20)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -150,6 +151,7 @@ File: `mil/harvester/enrich_sonnet.py`
 - v3 skip logic: `_is_v3(r)` check — already-enriched records skipped, daily run < 1 second
 - JSON repair pipeline: trim → json.loads → json_repair fallback → ENRICHMENT_FAILED
 - **rsplit fix**: new source+competitor keys split on last `_` so `app_store_barclays` → source=`app_store`, competitor=`barclays`
+- **Dedup fix (2026-04-17)**: dedup upgraded from 80-char text prefix to SHA-256 hash of full content — prevents duplicate records if pipeline reruns same day
 - Old pipeline (qwen_enrichment.py schema v2) — superseded, do not use for new enrichment
 
 ### Vault (vault_sync.py)
@@ -161,25 +163,31 @@ File: `mil/vault/vault_sync.py`
 - SKIPPED_WRONG_MODEL guard: blocks any file enriched with qwen model
 - **_needs_vault()**: re-vaults when record count OR model changes (not just by filename)
 - **Vault step wired into run_daily.py as Step 4b** (after inference, before publish)
-- Current state: **10/10 VAULTED** — all claude-haiku-4-5-20251001
+- **HDFS preflight (2026-04-17)**: run_daily.py Step 4b TCP-checks port 9871 before vault — skips and logs warning if NameNode unreachable (no silent failure)
+- Current state: **12/12 VAULTED** — all claude-haiku-4-5-20251001 (2026-04-17)
   - app_store_barclays_enriched.json: VAULTED
   - app_store_lloyds_enriched.json: VAULTED
   - app_store_monzo_enriched.json: VAULTED
-  - app_store_natwest_enriched.json: VAULTED (new — 2026-04-03)
-  - app_store_revolut_enriched.json: VAULTED (new — 2026-04-03)
-  - app_store_hsbc_enriched.json: VAULTED (new — 2026-04-12)
+  - app_store_natwest_enriched.json: VAULTED
+  - app_store_revolut_enriched.json: VAULTED
+  - app_store_hsbc_enriched.json: VAULTED
   - google_play_barclays_enriched.json: VAULTED
   - google_play_natwest_enriched.json: VAULTED
   - google_play_revolut_enriched.json: VAULTED
-  - google_play_hsbc_enriched.json: VAULTED (new — 2026-04-12)
+  - google_play_hsbc_enriched.json: VAULTED
+  - google_play_lloyds_enriched.json: VAULTED (new — 2026-04-17, package ID fixed)
+  - google_play_monzo_enriched.json: VAULTED (new — 2026-04-17, package ID fixed)
 
 ### Inference Engine (mil_agent.py — MIL-8)
 File: `mil/inference/mil_agent.py`
 - CAC formula: C_mil = (alpha*Vol_sig + beta*Sim_hist) / (delta*Delta_tel + 1)
-  - alpha=0.40, beta=0.40, delta=0.20 (not tuned before Day 30)
-- RAG: keyword overlap against CHRONICLE entries (CHR-001/002 inference_approved only)
+  - alpha=0.40, beta=0.40, delta=0.20 — sensitivity analysis run 2026-04-17 (MODERATE sensitivity, ±3 CLARK-3 swing across weight grid). Re-run at Day 60.
+- **P0 gate (2026-04-17)**: MIN_CLUSTER_SIZE_P0 raised 1→2 — requires at least 2 P0 signals before a finding reaches production
+- RAG: keyword overlap against CHRONICLE entries (CHR-001 through CHR-019 inference_approved)
   - CHR-003: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-09, confidence_score=0.55, root cause inferred: app platform refresh outage)
   - CHR-004: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-02)
+  - CHR-005 to CHR-016: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-16, competitor incidents: Revolut, Monzo, Lloyds, NatWest, HSBC)
+  - CHR-017 to CHR-019: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-16, Barclays-specific patterns: J_SERVICE_01 anchoring)
 - Designed Ceiling: triggers when CAC > 0.45 AND delta_tel=0.0
   - Output: "To confirm this I require internal HDFS telemetry data. Request Phase 2."
 - Refuel-8B called per finding for blind_spots + narrative + failure_mode
@@ -187,6 +195,23 @@ File: `mil/inference/mil_agent.py`
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
 - Current findings: **139 total** | anchored | 34+ Designed Ceiling (2026-04-14)
 - **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
+
+### Analytics Database — mil_analytics.db (BUILT 2026-04-17)
+File: `mil/analytics/build_analytics_db.py`
+- Complete queryable analytics layer — 9 tables, rebuilt every run as Step 4e
+- **Tables:**
+  - `reviews` — 7,355 enriched records across all 6 sources / 6 competitors (rating, content, issue_type, severity_class, sentiment_score, customer_journey, model)
+  - `findings` — 144 CAC findings (confidence_score, cac_components, chronicle_id, clark tier, ceiling flag)
+  - `chr_entries` — CHR-001 to CHR-019 reference (bank, incident_type, date, inference_approved, confidence_score)
+  - `benchmark_history` — 224 rows, daily gap_pp / days_active / over_indexed per issue type
+  - `daily_runs` — 32 rows, pipeline run log with churn score, streak, status, failed_steps
+  - `clark_log` — 229 rows, full escalation / downgrade history with Opus synthesis
+  - `vault_log` — mirror of mil_vault.db anchor log
+  - `commentary` — Sonnet analyst prose per issue per day (populated from commentary_log.jsonl after first V3 publish)
+  - `unanchored_signals` — 322 rows from research_queue.jsonl (P0/P1 findings pending CHR governance)
+- **Sensitivity analysis**: `mil/analytics/cac_sensitivity.py` — weight grid across 6 variants. MODERATE sensitivity (±3 CLARK-3 swing). Re-run at Day 60.
+- **Google Play package IDs fixed (2026-04-17)**: Lloyds `com.grppl.android.shell.CMBlloydsTSB73`, Monzo `co.uk.getmondo` (old IDs returned 404)
+- Query: `duckdb mil_analytics.db` from repo root
 
 ### Briefing Data Layer (briefing_data.py)
 File: `mil/briefing_data.py`
@@ -203,7 +228,7 @@ File: `mil/briefing_data.py`
   conditional Chronicle match (keyword overlap >= 2), signal strength STRONG/MODERATE/EARLY SIGNAL
 - **exec_alert import fix (2026-04-06)**: `_exec_alert_description()` uses try/except import fallback — `from mil.config.get_model import get_model` → `from config.get_model import get_model` when called via subprocess (publish.py sets mil/ on sys.path, not repo root)
 - **clark_tier** added to executive_alert dict — sourced from clark_protocol.get_clark_tier_for_finding()
-- **Chronicle matching (2026-04-10)**: `_chronicle_match_from_findings(anchored)` — driven by top Barclays finding's actual CHR anchor from mil_findings.json. CHR-004 preferred for Barclays (their own sustained friction pattern); falls back to highest-CAC match only if CHR-004 has no representation.
+- **Chronicle matching (2026-04-10)**: `_chronicle_match_from_findings(anchored)` — driven by top Barclays finding's actual CHR anchor from mil_findings.json. CHR-004/017/018/019 preferred for Barclays (their own sustained friction patterns); falls back to highest-CAC match only if no Barclays CHR has representation.
 - **Counter import fix (2026-04-10)**: `Counter` was missing from `collections` import — caused `NameError: _Counter` which silently emptied Box 1 quotes. Fixed: `from collections import Counter, defaultdict`.
 - **Teacher selection (2026-04-12)**: `_teacher_from_findings()` selects by frequency — the CHR ID that appears most often across all Barclays findings. Within that CHR, the highest-CAC finding provides the teacher context. Prevents substring-frequency gaming that caused TSB to always win when CHR-001 keywords were too generic.
 - **Box 3 redesign (2026-04-12)**: "Barclays Alert" layout — 4 sections: THE SITUATION (qwen3 signal synthesis) / THE LESSON (teacher CHR entry: bank name + year) / SEVERITY (Clark tier) / NEXT STEPS (YOUR CALL framing). Teacher-student framing: competitor banks teach Barclays, not compare them.
@@ -268,13 +293,14 @@ Steps (zero human intervention required):
   2. Enrich — Claude Haiku schema v3, skip already-enriched v3 records (< 1 second if nothing new)
   3. Inference — mil_agent.py CAC + RAG, Chronicle matching, Designed Ceiling
   4a. Research Trigger — flags P0/P1 weak-anchor findings → mil/data/research_queue.jsonl
-  4b. Vault — vault_sync.py, re-vaults on record count or model change, HDFS 9871
+  4b. Vault — TCP preflight on port 9871, then vault_sync.py (skipped + warned if NameNode down)
   4c. Clark Escalation — scan_and_escalate() + scan_and_downgrade(), runs BEFORE both publish steps
   4d. Benchmark + Persistence — benchmark_engine.py, churn_risk_score + issue_persistence_log.jsonl
+  4e. Analytics DB — build_analytics_db.py, full rebuild of mil_analytics.db (9 tables)
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
   5b. Publish V2 — publish_v2.py, injects V2 sections, GitHub Pages push -> cjipro.com/briefing-v2
-  5c. Publish V3 — publish_v3.py, commentary_engine.py (Sonnet), benchmark sections, cjipro.com/briefing-v3
-  6. Log Run — appends to mil/data/daily_run_log.jsonl, reports M1 streak (includes churn_risk_score + trend)
+  5c. Publish V3 — publish_v3.py, commentary_engine.py (Sonnet), saves commentary_log.jsonl, cjipro.com/briefing-v3
+  6. Log Run — appends to mil/data/daily_run_log.jsonl, status=CLEAN/PARTIAL/FAILED + failed_steps[]
 
 Flags:
   `--dry-run`    fetch + enrich only, skip inference + publish
@@ -286,6 +312,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 
 **Phase 0 — ALL BUILT + CLOSED**
 **Phase 1 — ALL BUILT (2026-04-05, pending Hussain Jira closure)**
+**Phase 2 — ALL BUILT (2026-04-16, pending Hussain Jira closure)**
 
 | Ticket | Component | Status |
 |--------|-----------|--------|
@@ -309,6 +336,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | MIL-28 | commentary_engine.py (Sonnet prose) | BUILT 2026-04-12 |
 | MIL-29 | publish_v3.py — cjipro.com/briefing-v3 | BUILT 2026-04-12 |
 | MIL-30 | Opus governance — CLARK-3 synthesis + CHR proposals | BUILT 2026-04-12 |
+| MIL-31 | Barclays CHRONICLE depth — CHR-017/018/019, --force flag | BUILT 2026-04-16 |
 
 **Source Stack (6 active):**
 | Source | Trust Weight | Status |
@@ -320,7 +348,14 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-31 (undefined)**
+**Next ticket: MIL-32 (undefined — focus shifting to CJI Pulse from 2026-04-20)**
+
+### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
+- CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
+- research_agent.py `--force` flag added — bypasses CHR_COVERAGE skip for manual override
+- CHR_COVERAGE registry expanded: CHR-001 through CHR-019 reserved
+- 116 Barclays findings previously unanchored — now anchored to CHR-017/018/019
+- Commit: `feat(MIL-31): Barclays CHRONICLE depth — CHR-017/018/019 approved`
 
 ### MIL-26 — ARCH-003 Model Routing (BUILT 2026-04-12)
 File: `mil/config/model_routing.yaml` (schema v1.1)
@@ -373,21 +408,22 @@ File: `mil/publish/publish_v3.py`
 
 ### MIL Research Agent — (MIL-26 component, BUILT 2026-04-09, upgraded MIL-30)
 File: `mil/researcher/research_agent.py`
-- Reads `mil/data/research_queue.jsonl` (78 PENDING items across 10 clusters)
+- Reads `mil/data/research_queue.jsonl` (116 Barclays findings now anchored — 2026-04-16)
 - Clusters by competitor + journey_id
 - Calls **Opus** to draft proposed CHRONICLE entries per cluster (upgraded from Haiku — MIL-30)
-- Skips clusters already covered by existing CHR entries (e.g. Barclays covered by CHR-004)
+- `CHR_COVERAGE` registry: CHR-001 through CHR-019 reserved. Skips covered clusters by default.
+- `--force` flag: bypasses CHR_COVERAGE skip — use when existing CHR entries don't cover a competitor's journey (e.g. Barclays J_SERVICE_01 had no anchor before CHR-017/018/019)
 - Writes proposals to `mil/data/chr_proposals/<competitor>_<journey>_<timestamp>.md`
 - Writes summary to `mil/data/chr_proposals/summary_<timestamp>.md`
 - Run: `py mil/researcher/research_agent.py`
-- Flags: `--dry-run` (cluster report only), `--competitor <name>` (filter)
+- Flags: `--dry-run` (cluster report only), `--competitor <name>` (filter), `--force` (bypass coverage skip)
 
 ### MIL-25 — QLoRA Gate Clearance (BUILT 2026-04-05)
 Specialist stack: `mil/specialist/`
 
 | Gate | Condition | Status |
 |------|-----------|--------|
-| 1 | 14+ days real signal data | PENDING — 14/14 days as of 2026-04-14, clears ~2026-04-19 |
+| 1 | 14+ days real signal data | PENDING — 16/14 days as of 2026-04-16, clears 2026-04-19 |
 | 2 | Synthetic pairs validated (human) | PASS — countersigned by Hussain 2026-04-05 |
 | 3 | CAC weights approved on real corpus | PASS — retained, approved by Hussain 2026-04-05 |
 | 4 | Adversarial Attacker passes evaluation | PASS — 80% survival rate on high-CAC findings |
@@ -403,7 +439,7 @@ Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — streak 14/5 as of 2026-04-14. Run #29 logged. Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak 16/5 as of 2026-04-16. Run #31 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
 - **M3**: DONE — 34 ceiling triggers (threshold was 22)
 
@@ -414,19 +450,19 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 - Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
-- Close MIL-11 through MIL-30 in Jira UI
-- Keep running `py run_daily.py` daily — Gate 1 clears ~2026-04-19 (14/14 days reached 2026-04-14)
-- **Post Gate 1 (imminent)**: `py mil/specialist/collision_lock.py` then `py mil/specialist/train_qwen.py`
-- Run research agent: `py mil/researcher/research_agent.py` — review proposals in mil/data/chr_proposals/ (now uses Opus)
+- Close MIL-11 through MIL-31 in Jira UI
+- **Apr 19 (Gate 1 clears)**: `py mil/specialist/collision_lock.py` (pre-training baseline) then `py mil/specialist/train_qwen.py` (fine-tune on RTX 5070 Ti)
+- **Apr 20 (MIL autonomous)**: Swap fine-tuned model into enrichment route in model_routing.yaml. Schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
+- **CJI Pulse PULSE-11 unblock**: populate 6 pending tables in data_dictionary_master.yaml — critical path to Day 90 vision
 
 ## MIL — Market Intelligence Layer
 
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 4,000+ enriched records across 10 files (schema v3, claude-haiku-4-5-20251001). 135 findings | 34+ Designed Ceiling. All Day 30 metrics achieved 2026-04-05. HSBC now live (2026-04-12).**
+**Current corpus: 7,355 enriched records across 31 files (schema v3, claude-haiku-4-5-20251001). 144 findings | 34+ Designed Ceiling. All Day 30 metrics achieved 2026-04-05. HSBC live (2026-04-12). CHRONICLE now CHR-001 to CHR-019 (2026-04-16). Google Play Lloyds + Monzo live (2026-04-17, package IDs corrected). MIL goes autonomous 2026-04-20. Analytics DB (mil_analytics.db) live — 9 tables, 7,355 reviews queryable.**
 
 ### MIL Zero Entanglement — HARD RULE
 
@@ -518,7 +554,7 @@ Session 5 Part 2 (2026-03-12):
 | `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 |
 | `manifests/data_dictionary_master.yaml` | PULSE-11 — master source, never read directly |
 | `CHRONICLE.md` | **Operational Lessons Learned** — port conflicts, HDFS lessons, Airflow 3.x rules |
-| `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, ARCH-001, ARCH-002 |
+| `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, CHR-005 to CHR-016 competitor incidents (2026-04-16), CHR-017/018/019 Barclays J_SERVICE_01 depth (2026-04-16), ARCH-001, ARCH-002 |
 
 ## Model Routing — Updated 2026-04-05
 
