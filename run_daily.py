@@ -345,6 +345,20 @@ def main() -> None:
     except Exception as exc:
         logger.warning("[benchmark] failed (non-fatal): %s", exc)
 
+    logger.info("--- Step 4e: Analytics DB ---")
+    try:
+        import importlib.util, pathlib
+        _spec = importlib.util.spec_from_file_location(
+            "build_analytics_db",
+            pathlib.Path(__file__).parent / "mil" / "analytics" / "build_analytics_db.py",
+        )
+        _mod = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        _mod.main()
+        logger.info("[analytics] mil_analytics.db rebuilt.")
+    except Exception as exc:
+        logger.warning("[analytics] failed (non-fatal): %s", exc)
+
     logger.info("--- Step 5: Publish ---")
     run_publish_step()
 
