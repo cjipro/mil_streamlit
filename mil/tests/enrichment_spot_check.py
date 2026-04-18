@@ -46,11 +46,45 @@ ISSUE_TYPES = [
 SEVERITY_CLASSES = ["P0", "P1", "P2"]
 
 
+# ── Stratified sampler ────────────────────────────────────────────────────────
+
+def _stratified_sample(records: list[dict], n: int, rng: random.Random) -> list[dict]:
+    """
+    Stratify by issue_type: min 2 per type present in corpus, remainder filled randomly.
+    Prevents a random draw from reporting 90% accuracy on 3 dominant categories while
+    silently missing the other 13.
+    """
+    by_type: dict[str, list[dict]] = defaultdict(list)
+    for r in records:
+        by_type[r["issue_type_model"]].append(r)
+
+    selected: list[dict] = []
+    MIN_PER_TYPE = 2
+
+    # Floor: pick min 2 from each type (shuffle so we don't always take the first)
+    for bucket in by_type.values():
+        rng.shuffle(bucket)
+        selected.extend(bucket[:MIN_PER_TYPE])
+
+    # Cap at n
+    if len(selected) >= n:
+        rng.shuffle(selected)
+        return selected[:n]
+
+    # Fill remainder randomly from unselected records
+    selected_ids = {id(r) for r in selected}
+    remaining = [r for r in records if id(r) not in selected_ids]
+    rng.shuffle(remaining)
+    selected.extend(remaining[: n - len(selected)])
+    rng.shuffle(selected)
+    return selected
+
+
 # ── Sample ────────────────────────────────────────────────────────────────────
 
 def cmd_sample(n: int = 50, seed: int | None = None) -> Path:
     """
-    Sample n records from all enriched files (stratified by competitor).
+    Sample n records from all enriched files, stratified by issue_type (min 2 per type).
     Write spot_check_YYYY-MM-DD.json for manual labelling.
     """
     all_records: list[dict] = []
@@ -86,7 +120,7 @@ def cmd_sample(n: int = 50, seed: int | None = None) -> Path:
         sys.exit(1)
 
     rng = random.Random(seed)
-    sample = rng.sample(all_records, min(n, len(all_records)))
+    sample = _stratified_sample(all_records, n, rng)
 
     out_file = TESTS_DIR / f"spot_check_{date.today().isoformat()}.json"
     out_file.write_text(

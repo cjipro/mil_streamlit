@@ -68,17 +68,16 @@ CLARK_LABELS = {
     "CLARK-0": "NOMINAL",
 }
 
-# Thresholds — not tuned before Day 30
-CLARK3_CAC_THRESHOLD  = 0.65
-CLARK2_CAC_THRESHOLD  = 0.45
-CLARK1_CAC_THRESHOLD  = 0.55
-DOWNGRADE_HOURS       = 48
+try:
+    from mil.config.thresholds import T as _T
+except ImportError:
+    from config.thresholds import T as _T
 
-# P0 override: bypass CAC threshold when raw signal severity is extreme.
-# P0 ≥ this count + Designed Ceiling + Chronicle anchor → CLARK-3 regardless of CAC.
-# Rationale: Vol_sig dilution against large source pools can suppress CAC below CLARK-3
-# even when the cluster is entirely blocking-severity (P0) signals.
-CLARK3_P0_OVERRIDE    = 5
+CLARK3_CAC_THRESHOLD  = _T("clark.clark3_cac")
+CLARK2_CAC_THRESHOLD  = _T("clark.clark2_cac")
+CLARK1_CAC_THRESHOLD  = _T("clark.clark1_cac")
+DOWNGRADE_HOURS       = int(_T("clark.downgrade_hours"))
+CLARK3_P0_OVERRIDE    = int(_T("clark.p0_override_count"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -152,13 +151,22 @@ def load_clark_log() -> list[dict]:
     return entries
 
 
-def _already_logged(finding_id: str, tier: str) -> bool:
-    """True if this finding+tier combo is already in the log."""
-    return any(
-        e["finding_id"] == finding_id and e["clark_tier"] == tier
-        for e in load_clark_log()
+def _build_escalation_index(entries: list[dict]) -> set[tuple[str, str]]:
+    """Return set of (finding_id, clark_tier) for all logged escalations. O(n) build, O(1) lookup."""
+    return {
+        (e["finding_id"], e["clark_tier"])
+        for e in entries
         if e.get("event") == "CLARK_ESCALATION"
-    )
+    }
+
+
+def _build_downgrade_index(entries: list[dict]) -> set[tuple[str, str]]:
+    """Return set of (finding_id, from_tier) for all logged downgrades. O(n) build, O(1) lookup."""
+    return {
+        (e["finding_id"], e.get("from_tier", ""))
+        for e in entries
+        if e.get("event") == "CLARK_DOWNGRADE"
+    }
 
 
 def _opus_synthesis(finding: dict, reason: str) -> str:
@@ -183,7 +191,11 @@ def _opus_synthesis(finding: dict, reason: str) -> str:
         if not api_key:
             return ""
 
-        client = anthropic.Anthropic(api_key=api_key)
+        try:
+            from mil.config.thresholds import T
+        except ImportError:
+            from config.thresholds import T
+        client = anthropic.Anthropic(api_key=api_key, timeout=float(T("api.anthropic_timeout_s")))
         fid       = finding.get("finding_id", "?")
         comp      = COMP_LABELS.get(finding.get("competitor", ""), finding.get("competitor", "?"))
         cac       = finding.get("confidence_score", 0.0)
@@ -284,15 +296,17 @@ def scan_and_escalate() -> dict:
         logger.error("[clark] failed to read findings: %s", exc)
         return {}
 
+    logged_index = _build_escalation_index(load_clark_log())
     new_counts: dict[str, int] = {}
     for finding in findings:
         tier, reason = evaluate_clark_tier(finding)
         if tier == "CLARK-0":
             continue
         fid = finding.get("finding_id", "?")
-        if _already_logged(fid, tier):
+        if (fid, tier) in logged_index:
             continue
         log_escalation(finding, tier, reason)
+        logged_index.add((fid, tier))
         new_counts[tier] = new_counts.get(tier, 0) + 1
 
     total_new = sum(new_counts.values())
@@ -315,6 +329,9 @@ def scan_and_downgrade() -> int:
     threshold = now - timedelta(hours=DOWNGRADE_HOURS)
     downgraded = 0
 
+    # Build O(1) downgrade index upfront — eliminates O(n²) inner scan
+    downgrade_index = _build_downgrade_index(entries)
+
     escalations = [
         e for e in entries
         if e.get("event") == "CLARK_ESCALATION"
@@ -330,22 +347,17 @@ def scan_and_downgrade() -> int:
             continue
 
         if ts >= threshold:
-            continue  # still fresh
+            continue
 
         fid       = e["finding_id"]
         from_tier = e["clark_tier"]
         to_tier   = "CLARK-2" if from_tier == "CLARK-3" else "CLARK-1"
 
-        # Only downgrade once per finding per cycle
-        already_downgraded = any(
-            d["finding_id"] == fid and d.get("event") == "CLARK_DOWNGRADE"
-            and d.get("from_tier") == from_tier
-            for d in entries
-        )
-        if already_downgraded:
+        if (fid, from_tier) in downgrade_index:
             continue
 
         log_downgrade(fid, from_tier, to_tier, f"{DOWNGRADE_HOURS}h elapsed — no new signals")
+        downgrade_index.add((fid, from_tier))
         downgraded += 1
 
     return downgraded

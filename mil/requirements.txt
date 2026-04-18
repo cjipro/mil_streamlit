@@ -26,3 +26,6 @@ apscheduler>=3.10.4
 # Testing (no live calls — all mocked)
 # unittest is stdlib — no extra dep needed
 sentence-transformers>=2.7
+
+# QLoRA fine-tuning (MIL-25, RTX 5070 Ti)
+unsloth
