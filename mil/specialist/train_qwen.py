@@ -22,11 +22,17 @@ MIL Zero Entanglement: no imports from pulse/, poc/, app/, dags/
 """
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+# Disable xformers/triton — no C compiler on Windows. Use PyTorch native SDPA instead.
+os.environ["XFORMERS_DISABLED"] = "1"
+os.environ["XFORMERS_MORE_DETAILS"] = "0"
+
 
 MIL_DIR       = Path(__file__).resolve().parent.parent
 REPO_ROOT     = MIL_DIR.parent
@@ -220,23 +226,24 @@ def run_training() -> None:
     """
     n_pairs = _count_approved_pairs()
     print(f"\n[train_qwen] Starting QLoRA fine-tuning")
-    print(f"  Base model:    qwen3:14b")
+    print(f"  Base model:    qwen3:8b")
     print(f"  Pairs:         {n_pairs} approved (CHR-001 x200, CHR-002 x150, CHR-004 x100)")
     print(f"  Hardware:      RTX 5070 Ti")
     print(f"  Output:        mil/specialist/qwen3-mil-v1/")
     print()
 
     try:
-        from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
-        from peft import LoraConfig, get_peft_model
-        from datasets import Dataset
+        from unsloth import FastLanguageModel
+        from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
+        import torch
+        from torch.utils.data import Dataset as TorchDataset
     except ImportError:
         print("ERROR: Training dependencies not installed.")
-        print("  Run: pip install transformers peft bitsandbytes accelerate datasets")
+        print("  Run: pip install unsloth transformers")
         sys.exit(1)
 
-    # Build dataset from synthetic pairs
-    records = []
+    # Build training texts from synthetic pairs
+    texts = []
     for line in PAIRS_FILE.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
@@ -244,34 +251,63 @@ def run_training() -> None:
         try:
             p = json.loads(line)
             if not p.get("quarantine") and p.get("inference_approved", True):
-                records.append({
-                    "instruction": p.get("input", ""),
-                    "response":    p.get("reasoning_chain", "") + "\n\nAction: " + p.get("recommended_action", ""),
-                })
+                instruction = p.get("input", "")
+                response    = p.get("reasoning_chain", "") + "\n\nAction: " + p.get("recommended_action", "")
+                texts.append(f"### Instruction:\n{instruction}\n\n### Response:\n{response}")
         except json.JSONDecodeError:
             pass
 
-    if not records:
+    if not texts:
         print("ERROR: No approved pairs found for training.")
         sys.exit(1)
 
-    dataset = Dataset.from_list(records)
     output_dir = Path(__file__).parent / "qwen3-mil-v1"
 
-    model_id = "Qwen/Qwen2.5-14B-Instruct"  # HuggingFace hub ID for qwen3:14b equivalent
+    model_id = "unsloth/Qwen3-8B-unsloth-bnb-4bit"  # Qwen3-8B, pre-quantised 4-bit — fits 12GB VRAM
     print(f"  Loading model: {model_id}")
 
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model     = AutoModelForCausalLM.from_pretrained(model_id, load_in_4bit=True, device_map="auto")
-
-    lora_config = LoraConfig(
-        r=16, lora_alpha=32,
-        target_modules=["q_proj", "v_proj"],
-        lora_dropout=0.05, bias="none",
-        task_type="CAUSAL_LM",
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=model_id,
+        max_seq_length=1024,
+        load_in_4bit=True,
+        dtype=None,
+        attn_implementation="sdpa",  # native PyTorch SDPA — no triton/xformers needed
     )
-    model = get_peft_model(model, lora_config)
+    model = FastLanguageModel.get_peft_model(
+        model,
+        r=16,
+        lora_alpha=32,
+        target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
+        lora_dropout=0.05,
+        bias="none",
+        use_gradient_checkpointing=True,
+    )
     model.print_trainable_parameters()
+
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    # Plain PyTorch Dataset — bypasses HuggingFace datasets/dill (Python 3.14 compat)
+    class TokenDataset(TorchDataset):
+        def __init__(self, encodings):
+            self.input_ids = encodings["input_ids"]
+            self.attention_mask = encodings["attention_mask"]
+            self.labels = encodings["input_ids"].clone()
+        def __len__(self):
+            return self.input_ids.shape[0]
+        def __getitem__(self, idx):
+            return {
+                "input_ids":      self.input_ids[idx],
+                "attention_mask": self.attention_mask[idx],
+                "labels":         self.labels[idx],
+            }
+
+    print(f"  Tokenizing {len(texts)} training texts...")
+    encodings = tokenizer(
+        texts, truncation=True, max_length=1024,
+        padding="max_length", return_tensors="pt",
+    )
+    train_data = TokenDataset(encodings)
 
     training_args = TrainingArguments(
         output_dir=str(output_dir),
@@ -280,25 +316,19 @@ def run_training() -> None:
         gradient_accumulation_steps=4,
         warmup_steps=50,
         learning_rate=2e-4,
-        fp16=True,
+        fp16=not torch.cuda.is_bf16_supported(),
+        bf16=torch.cuda.is_bf16_supported(),
         logging_steps=10,
         save_strategy="epoch",
         report_to="none",
+        optim="adamw_8bit",
     )
 
-    from transformers import Trainer, DataCollatorForLanguageModeling
-
-    def tokenize(example):
-        text = f"### Instruction:\n{example['instruction']}\n\n### Response:\n{example['response']}"
-        return tokenizer(text, truncation=True, max_length=1024, padding="max_length")
-
-    tokenised = dataset.map(tokenize, batched=False)
-    collator  = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
-
+    collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=tokenised,
+        train_dataset=train_data,
         data_collator=collator,
     )
 

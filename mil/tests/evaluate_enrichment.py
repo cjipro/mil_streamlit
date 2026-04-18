@@ -9,7 +9,10 @@ Usage:
   # Refuel-8B baseline (Ollama):
   py mil/tests/evaluate_enrichment.py --file mil/tests/spot_check_2026-04-18.json --model refuel
 
-  # Fine-tuned model post-training (Ollama):
+  # Fine-tuned model via unsloth (no Ollama / GGUF needed):
+  py mil/tests/evaluate_enrichment.py --file mil/tests/spot_check_2026-04-18.json --model unsloth-local --label fine_tuned_v1
+
+  # Fine-tuned model post-training (Ollama, after GGUF export):
   py mil/tests/evaluate_enrichment.py --file mil/tests/spot_check_2026-04-18.json --model qwen3-mil-ft
 
 Gate: fine-tuned model must beat Haiku P0/P1 agreement rate. If not, do not swap routing.
@@ -136,6 +139,69 @@ def _classify_anthropic(records: list[dict], model_id: str) -> list[dict]:
     return results
 
 
+def _classify_unsloth_local(records: list[dict]) -> list[dict]:
+    """Load qwen3-mil-v1 LoRA adapter directly via unsloth — no Ollama / GGUF needed."""
+    import os, torch
+    os.environ["XFORMERS_DISABLED"] = "1"
+    from unsloth import FastLanguageModel
+
+    adapter_dir = Path(__file__).parent.parent / "specialist" / "qwen3-mil-v1"
+    if not adapter_dir.exists():
+        raise FileNotFoundError(f"Adapter not found: {adapter_dir}")
+
+    logger.info("[unsloth-local] Loading adapter from %s", adapter_dir)
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=str(adapter_dir),
+        max_seq_length=1024,
+        load_in_4bit=True,
+        dtype=None,
+    )
+    FastLanguageModel.for_inference(model)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    results = []
+    batch_size = 3
+    for i in range(0, len(records), batch_size):
+        batch = records[i: i + batch_size]
+        lines = [
+            f"{j+1}. [rating {r.get('rating', '?')}/5] {r['text'][:300]}"
+            for j, r in enumerate(batch)
+        ]
+        prompt = BATCH_PROMPT_TEMPLATE.format(
+            issues=", ".join(ISSUE_TYPES),
+            journeys=", ".join(CUSTOMER_JOURNEYS),
+            reviews="\n".join(lines),
+        )
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": prompt},
+        ]
+        input_ids = tokenizer.apply_chat_template(
+            messages, tokenize=True, add_generation_prompt=True,
+            return_tensors="pt",
+        ).to(model.device)
+
+        with torch.no_grad():
+            output_ids = model.generate(
+                input_ids,
+                max_new_tokens=512,
+                temperature=0.1,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        generated = output_ids[0][input_ids.shape[-1]:]
+        raw = tokenizer.decode(generated, skip_special_tokens=True).strip()
+        parsed = _parse_json_response(raw, len(batch))
+        results.extend(parsed)
+        logger.info("Batch %d/%d classified", i // batch_size + 1,
+                    (len(records) + batch_size - 1) // batch_size)
+
+    del model
+    torch.cuda.empty_cache()
+    return results
+
+
 def _classify_ollama(records: list[dict], model_name: str) -> list[dict]:
     import urllib.request
     OLLAMA_BASE = "http://127.0.0.1:11434/v1"
@@ -223,6 +289,8 @@ OLLAMA_MODELS = {
 
 def _classify(records: list[dict], model_arg: str) -> tuple[list[dict], str]:
     """Returns (predictions, canonical_model_id)."""
+    if model_arg == "unsloth-local":
+        return _classify_unsloth_local(records), "qwen3-mil-v1-local"
     if model_arg in ANTHROPIC_MODELS:
         model_id = ANTHROPIC_MODELS[model_arg]
         return _classify_anthropic(records, model_id), model_id
@@ -326,7 +394,7 @@ def _print_report(metrics: dict, model_id: str, baseline_haiku: dict | None) -> 
     print(f"  P0/P1 agreement:     {p01_str}  ({metrics['p01_total']} P0/P1 records){gate_line}")
 
     print()
-    print("  Severity confusion matrix (actual → predicted):")
+    print("  Severity confusion matrix (actual -> predicted):")
     for actual in SEVERITY_CLASSES:
         row = metrics["severity_confusion"].get(actual, {})
         cells = "  ".join(f"{s}:{row.get(s, 0):3d}" for s in SEVERITY_CLASSES)

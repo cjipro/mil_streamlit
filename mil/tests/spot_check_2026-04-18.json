@@ -12,8 +12,8 @@
       "date": "2026-01-28T11:26:06-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -24,8 +24,8 @@
       "date": "2026-03-25T19:12:10",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -36,8 +36,8 @@
       "date": "2026-02-11T13:10:14-07:00",
       "issue_type_model": "Notification Issue",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -48,20 +48,20 @@
       "date": "2026-04-06T17:53:29",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "youtube",
       "competitor": "revolut",
       "model": "claude-haiku-4-5-20251001",
-      "text": "Soon when money \ud83d\udcb0 is digital they will switch to carbon credits \ud83d\ude05",
+      "text": "Soon when money 💰 is digital they will switch to carbon credits 😅",
       "rating": null,
       "date": "2026-01-25",
       "issue_type_model": "Other",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -72,8 +72,8 @@
       "date": "2026-04-01T10:35:50",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -84,20 +84,20 @@
       "date": "2026-04-17T00:14:41",
       "issue_type_model": "Feature Broken",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "natwest",
       "model": "claude-haiku-4-5-20251001",
-      "text": "I have deleted the NatWest app from my iPad because having used it happily and efficiently for many years it has now started going through \u2018new device\u2019 checks every time I try to log in. I am using the same iPad I have always used. \nJulia",
+      "text": "I have deleted the NatWest app from my iPad because having used it happily and efficiently for many years it has now started going through ‘new device’ checks every time I try to log in. I am using the same iPad I have always used. \nJulia",
       "rating": 1,
       "date": "2026-04-12T03:04:47-07:00",
       "issue_type_model": "Login Failed",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -108,8 +108,8 @@
       "date": "2026-02-19T04:37:25-07:00",
       "issue_type_model": "Biometric / Face ID Issue",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -120,8 +120,8 @@
       "date": "2026-02-23T10:26:25",
       "issue_type_model": "Biometric / Face ID Issue",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -132,8 +132,8 @@
       "date": "2026-04-08T06:56:48-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -144,20 +144,20 @@
       "date": "2026-03-25T11:34:48",
       "issue_type_model": "Payment Failed",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "monzo",
       "model": "claude-haiku-4-5-20251001",
-      "text": "We are a small business and bank with these. They have had our account frozen for an entire week which is impacting on our running of the business. They don\u2019t call when they say they will and the only way to have a conversation, with multiple people, is by chat, not wholeheartedly sure they\u2019re human and not a bot. We have raised a complaint and also gone above to the ombudsmen and STILL no nearer ",
+      "text": "We are a small business and bank with these. They have had our account frozen for an entire week which is impacting on our running of the business. They don’t call when they say they will and the only way to have a conversation, with multiple people, is by chat, not wholeheartedly sure they’re human and not a bot. We have raised a complaint and also gone above to the ombudsmen and STILL no nearer ",
       "rating": 1,
       "date": "2026-01-04T06:02:07-07:00",
       "issue_type_model": "Card Frozen or Blocked",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "Account Locked",
+      "severity_class_human": "P0"
     },
     {
       "source": "youtube",
@@ -168,8 +168,8 @@
       "date": "2025-06-16",
       "issue_type_model": "Other",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -180,8 +180,8 @@
       "date": "2026-03-09T04:39:11-07:00",
       "issue_type_model": "Account Locked",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -192,20 +192,20 @@
       "date": "2026-02-19T16:33:41",
       "issue_type_model": "Login Failed",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "natwest",
       "model": "claude-haiku-4-5-20251001",
-      "text": "This bank is so bad with busses, it charges me \u00a33 wjen the bus is only 50p, fix ypur bank",
+      "text": "This bank is so bad with busses, it charges me £3 wjen the bus is only 50p, fix ypur bank",
       "rating": 1,
       "date": "2026-04-07T07:57:11-07:00",
       "issue_type_model": "Incorrect Balance",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -216,8 +216,8 @@
       "date": "2026-04-11T09:38:10-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -228,8 +228,8 @@
       "date": "2025-11-20T10:03:13-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -240,32 +240,32 @@
       "date": "2026-04-05T01:20:45-07:00",
       "issue_type_model": "Notification Issue",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
       "competitor": "revolut",
       "model": "claude-haiku-4-5-20251001",
-      "text": "h\u00e4rliga m\u00f6jligheter.",
+      "text": "härliga möjligheter.",
       "rating": 5,
       "date": "2026-03-25T19:19:35",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
       "competitor": "revolut",
       "model": "claude-haiku-4-5-20251001",
-      "text": "Excellent \ud83d\udc4c\ud83d\udc4d\ud83d\udc4c\ud83d\udc4d\ud83d\udc4c\ud83d\udc4d",
+      "text": "Excellent 👌👍👌👍👌👍",
       "rating": 5,
       "date": "2026-03-23T09:13:59",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -276,8 +276,8 @@
       "date": "2026-03-08T15:40:05",
       "issue_type_model": "Transfer Failed",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -288,8 +288,8 @@
       "date": "2026-02-12T11:32:23-07:00",
       "issue_type_model": "Account Locked",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -300,8 +300,8 @@
       "date": "2026-03-30T07:31:20-07:00",
       "issue_type_model": "App Not Opening",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -312,20 +312,20 @@
       "date": "2026-03-21T02:23:49-07:00",
       "issue_type_model": "Card Frozen or Blocked",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "Card Frozen or Blocked",
+      "severity_class_human": "P1"
     },
     {
       "source": "app_store",
       "competitor": "lloyds",
       "model": "claude-haiku-4-5-20251001",
-      "text": "You need to update it its the slowest app ever. I\u2019m sat here waiting 10-20 mins at a time EVERY time for it to load up. Not ok",
+      "text": "You need to update it its the slowest app ever. I’m sat here waiting 10-20 mins at a time EVERY time for it to load up. Not ok",
       "rating": 1,
       "date": "2026-04-01T23:39:46-07:00",
       "issue_type_model": "Slow Performance",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -336,8 +336,8 @@
       "date": "2026-01-30T02:29:59-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -348,20 +348,20 @@
       "date": "2026-03-14T05:00:53-07:00",
       "issue_type_model": "Missing Transaction",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "youtube",
       "competitor": "revolut",
       "model": "claude-haiku-4-5-20251001",
-      "text": "T\u00edo Germ\u00e1n eres nuestra esperanza para hacer un buen video sobre esto \ud83d\ude4f\ud83c\udffb\ud83d\ude4f\ud83c\udffb . En una comunidad andaban discutiendo mucho esa comisi\u00f3n de 0.90 y porque en NU no la cobra. Tengo entendido que por ser SOFIPO pero a\u00fan hay dudas... \ud83d\ude4f\ud83c\udffb\ud83d\ude4f\ud83c\udffb",
+      "text": "Tío Germán eres nuestra esperanza para hacer un buen video sobre esto 🙏🏻🙏🏻 . En una comunidad andaban discutiendo mucho esa comisión de 0.90 y porque en NU no la cobra. Tengo entendido que por ser SOFIPO pero aún hay dudas... 🙏🏻🙏🏻",
       "rating": null,
       "date": "2026-02-02",
       "issue_type_model": "Other",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -372,8 +372,8 @@
       "date": "2026-03-29T19:45:47-07:00",
       "issue_type_model": "Missing Transaction",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "Positive Feedback",
+      "severity_class_human": "P2"
     },
     {
       "source": "google_play",
@@ -384,8 +384,8 @@
       "date": "2026-03-25T11:42:25",
       "issue_type_model": "Customer Support Failure",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -396,8 +396,8 @@
       "date": "2026-04-12T17:35:06",
       "issue_type_model": "App Not Opening",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "youtube",
@@ -408,8 +408,8 @@
       "date": "2025-02-02",
       "issue_type_model": "Incorrect Balance",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "Other",
+      "severity_class_human": "P2"
     },
     {
       "source": "google_play",
@@ -420,8 +420,8 @@
       "date": "2026-03-22T06:50:25",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -432,32 +432,32 @@
       "date": "2026-03-28T10:23:37",
       "issue_type_model": "App Crashing",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "monzo",
       "model": "claude-haiku-4-5-20251001",
-      "text": "I was loyal Monzo bank lover from the last 2 and half years the bank service was amazing very satisfied . Stop waiting go ahead towards Monzo bank\u2764\ufe0f\u2764\ufe0f",
+      "text": "I was loyal Monzo bank lover from the last 2 and half years the bank service was amazing very satisfied . Stop waiting go ahead towards Monzo bank❤️❤️",
       "rating": 5,
       "date": "2026-02-19T09:13:43-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "natwest",
       "model": "claude-haiku-4-5-20251001",
-      "text": "Not user friendly like the Nationwide, make a mistake and you\u2019re locked out until the next day , have to type in your email address 4 times if it\u2019s a joint mortgage, it  takes a few days for the overpayment to show up on your account , could be made more simple and streamlined , nearly think they didn\u2019t want you to make an overpayment as it takes so much time , hope it gets better as I have a good",
+      "text": "Not user friendly like the Nationwide, make a mistake and you’re locked out until the next day , have to type in your email address 4 times if it’s a joint mortgage, it  takes a few days for the overpayment to show up on your account , could be made more simple and streamlined , nearly think they didn’t want you to make an overpayment as it takes so much time , hope it gets better as I have a good",
       "rating": 2,
       "date": "2026-04-04T13:28:27-07:00",
       "issue_type_model": "Account Locked",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
@@ -468,8 +468,8 @@
       "date": "2026-04-01T08:30:43-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -480,20 +480,20 @@
       "date": "2026-03-29T19:36:35",
       "issue_type_model": "Feature Broken",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "youtube",
       "competitor": "barclays",
       "model": "claude-haiku-4-5-20251001",
-      "text": "im really sad as my dad is going to take me to york from south london and the train is \u00a395, apparently barclays is just useless and i cant get my pocket money at all :(",
+      "text": "im really sad as my dad is going to take me to york from south london and the train is £95, apparently barclays is just useless and i cant get my pocket money at all :(",
       "rating": null,
       "date": "2025-02-01",
       "issue_type_model": "Transfer Failed",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "Other",
+      "severity_class_human": "P2"
     },
     {
       "source": "google_play",
@@ -504,8 +504,8 @@
       "date": "2026-03-21T06:37:31",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -516,20 +516,20 @@
       "date": "2026-04-02T06:48:36",
       "issue_type_model": "Customer Support Failure",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "monzo",
       "model": "claude-haiku-4-5-20251001",
-      "text": "this bank is amazing - its just at-least you can still let the person go into the app and see how much money and if you buy something to approve it. I cant access my monzo because i don't have the correct iOS but at least let me assess the app\u2026",
+      "text": "this bank is amazing - its just at-least you can still let the person go into the app and see how much money and if you buy something to approve it. I cant access my monzo because i don't have the correct iOS but at least let me assess the app…",
       "rating": 4,
       "date": "2026-02-10T09:31:38-07:00",
       "issue_type_model": "App Not Opening",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -540,32 +540,32 @@
       "date": "2026-03-24T14:48:44",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "lloyds",
       "model": "claude-haiku-4-5-20251001",
-      "text": "Everything seems really slow and clunky with the Lloyds app. Just opening the app takes 10x longer than NatWest\u2019s. Making payments, checking balances, everything is slow",
+      "text": "Everything seems really slow and clunky with the Lloyds app. Just opening the app takes 10x longer than NatWest’s. Making payments, checking balances, everything is slow",
       "rating": 1,
       "date": "2026-03-03T08:34:37-07:00",
       "issue_type_model": "Slow Performance",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
       "competitor": "natwest",
       "model": "claude-haiku-4-5-20251001",
-      "text": "it has just taken \u00a38 out my account and as im trying to get it back they decide not to answer absolutely rubbish do not recommend",
+      "text": "it has just taken £8 out my account and as im trying to get it back they decide not to answer absolutely rubbish do not recommend",
       "rating": 1,
       "date": "2026-02-13T22:49:05",
       "issue_type_model": "Payment Failed",
       "severity_class_model": "P1",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -576,20 +576,20 @@
       "date": "2026-03-20T10:56:23",
       "issue_type_model": "Feature Broken",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "app_store",
       "competitor": "monzo",
       "model": "claude-haiku-4-5-20251001",
-      "text": "It\u2019s as quick as a flash proactive, straightforward even for a dyslexic like me! Monzo and z super secure!",
+      "text": "It’s as quick as a flash proactive, straightforward even for a dyslexic like me! Monzo and z super secure!",
       "rating": 5,
       "date": "2026-03-23T05:01:25-07:00",
       "issue_type_model": "Positive Feedback",
       "severity_class_model": "P2",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     },
     {
       "source": "google_play",
@@ -600,8 +600,8 @@
       "date": "2026-04-02T10:32:56",
       "issue_type_model": "App Crashing",
       "severity_class_model": "P0",
-      "issue_type_human": "",
-      "severity_class_human": ""
+      "issue_type_human": "AGREE",
+      "severity_class_human": "AGREE"
     }
   ]
 }

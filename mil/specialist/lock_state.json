@@ -1,12 +1,12 @@
 {
   "status": "LOCKED",
-  "checked_at": "2026-04-05T22:34:06.825667+00:00",
+  "checked_at": "2026-04-18T21:30:31.880484+00:00",
   "p0_agreement": 1.0,
-  "p1_agreement": 0.455,
+  "p1_agreement": 0.4,
   "overall_agreement": 0.7,
   "sample_size": 20,
-  "p0_sample_n": 9,
-  "p1_sample_n": 11,
+  "p0_sample_n": 10,
+  "p1_sample_n": 10,
   "threshold": 0.9,
-  "reason": "P0 agreement 100.0% or P1 agreement 45.5% below 90% threshold — training blocked."
+  "reason": "P0 agreement 100.0% or P1 agreement 40.0% below 90% threshold — training blocked."
 }
