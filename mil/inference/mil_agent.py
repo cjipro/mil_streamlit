@@ -40,12 +40,11 @@ from typing import Optional
 
 import requests
 
-from mil.inference.chronicle_loader import load_chronicle_entries as _load_chr
-
 logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mil.config.get_model import get_model as _get_model
+from mil.inference.chronicle_loader import load_chronicle_entries as _load_chr
 
 MIL_ROOT     = Path(__file__).parent.parent
 ENRICHED_DIR = MIL_ROOT / "data" / "historical" / "enriched"
