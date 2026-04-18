@@ -18,6 +18,7 @@ Selection rules:
 Chronicle resonance: conditional — only surfaced when the issue type pattern
 genuinely matches a CHR entry (keyword overlap >= 0.4). Not forced.
 """
+import hashlib
 import json
 import logging
 import sys
@@ -118,8 +119,10 @@ def _call_sonnet(prompt: str) -> str:
         return ""
 
 
-def _prose_risk(entry: dict, quotes: list[str], chr_context: str) -> str:
-    """Generate analyst prose for an over-indexed (risk) issue."""
+def _prose_risk(entry: dict, quotes: list[str], chr_context: str) -> tuple[str, str]:
+    """Generate analyst prose for an over-indexed (risk) issue.
+    Returns (prose, prompt_hash_8char).
+    """
     quote_block = ""
     if quotes:
         quote_block = "\nCustomer evidence:\n" + "\n".join(f'  - "{q}"' for q in quotes)
@@ -144,11 +147,14 @@ SIGNAL DATA:
 
 3 sentences only. Do not start with "Barclays". Do not use bullet points."""
 
-    return _call_sonnet(prompt)
+    prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]
+    return _call_sonnet(prompt), prompt_hash
 
 
-def _prose_strength(entry: dict) -> str:
-    """Generate analyst prose for an under-indexed (strength) issue."""
+def _prose_strength(entry: dict) -> tuple[str, str]:
+    """Generate analyst prose for an under-indexed (strength) issue.
+    Returns (prose, prompt_hash_8char).
+    """
     prompt = f"""You are a senior banking app intelligence analyst writing a briefing for a Barclays product director.
 
 Write exactly 2 sentences about this competitive strength. First sentence: what Barclays is doing better than peers and by how much. Second sentence: what this means for customer retention or relationship depth. Be specific, not generic.
@@ -161,7 +167,8 @@ SIGNAL DATA:
 
 2 sentences only."""
 
-    return _call_sonnet(prompt)
+    prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]
+    return _call_sonnet(prompt), prompt_hash
 
 
 # ── Issue selection ───────────────────────────────────────────────────────────
@@ -239,6 +246,13 @@ def generate_commentary(today: str | None = None) -> list[dict]:
 
     results: list[dict] = []
 
+    # Resolve commentary model name once for versioning
+    try:
+        from mil.config.get_model import get_model as _gm
+        _commentary_model = _gm("commentary").get("model", "unknown")
+    except Exception:
+        _commentary_model = "unknown"
+
     # Load Barclays records once — reused across all get_top_quotes calls
     _barclays_records = _load_barclays_records()
 
@@ -249,7 +263,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
         chr_context = CHR_RESONANCE.get(issue, "")
         logger.info("[commentary] generating risk prose for '%s' (gap=+%.1fpp, %dd, %s)",
                     issue, entry["gap_pp"], entry["days_active"], entry["dominant_severity"])
-        prose = _prose_risk(entry, quotes, chr_context)
+        prose, prompt_hash = _prose_risk(entry, quotes, chr_context)
         if not prose:
             prose = f"{issue} is running {entry['gap_pp']:.1f}pp above the peer average and has persisted for {entry['days_active']} consecutive days."
 
@@ -266,6 +280,8 @@ def generate_commentary(today: str | None = None) -> list[dict]:
             "prose":             prose,
             "top_quotes":        quotes,
             "chr_resonance":     chr_context,
+            "prompt_hash":       prompt_hash,
+            "model":             _commentary_model,
         })
 
     # Generate strength commentary
@@ -274,7 +290,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
         quotes = get_top_quotes(issue, n=1, records=_barclays_records)
         logger.info("[commentary] generating strength prose for '%s' (gap=%.1fpp)",
                     issue, entry["gap_pp"])
-        prose = _prose_strength(entry)
+        prose, prompt_hash = _prose_strength(entry)
         if not prose:
             prose = f"Barclays is {abs(entry['gap_pp']):.1f}pp below the peer average on {issue} — a meaningful competitive advantage."
 
@@ -291,6 +307,8 @@ def generate_commentary(today: str | None = None) -> list[dict]:
             "prose":             prose,
             "top_quotes":        quotes,
             "chr_resonance":     "",
+            "prompt_hash":       prompt_hash,
+            "model":             _commentary_model,
         })
 
     logger.info("[commentary] generated %d boxes (%d risk, %d strength)",
