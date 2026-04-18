@@ -40,6 +40,8 @@ from typing import Optional
 
 import requests
 
+from mil.inference.chronicle_loader import load_chronicle_entries as _load_chr
+
 logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -116,85 +118,10 @@ CLARK_TIER = {
     (0.00, 0.40): "P3",
 }
 
-# CHRONICLE entries -- structured for RAG matching
-# Source: mil/CHRONICLE.md (immutable ledger)
-# Only inference_approved=True entries may anchor findings.
-# CHR-002 cap: confidence_score <= 0.60
-CHRONICLE_ENTRIES = [
-    {
-        "chronicle_id": "CHR-001",
-        "bank": "TSB Bank",
-        "incident_type": "core_banking_migration_failure",
-        "inference_approved": True,
-        "confidence_cap": 1.0,
-        "journey_tags": ["J_LOGIN_01", "J_PAY_01", "J_SERVICE_01"],
-        "pattern_keywords": [
-            "migration", "locked out", "cannot sign in", "access denied",
-            "mass lockout", "all customers", "widespread", "system migration",
-            "banking migration", "platform migration", "cutover", "new system",
-        ],
-        "pattern_description": (
-            "Core banking migration failure. 1.9M customers locked out. "
-            "Classic Vane pattern: stable internal metrics, catastrophic customer reality. "
-            "Big bang migration + complaint spike + authentication failures."
-        ),
-    },
-    {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group",
-        "incident_type": "api_defect_data_exposure",
-        "inference_approved": True,
-        "confidence_cap": 0.60,     # APPROVED WITH CAP -- Hussain 2026-03-28
-        "journey_tags": ["J_SERVICE_01", "J_LOGIN_01"],
-        "pattern_keywords": [
-            "wrong account", "wrong transactions", "other customer", "data",
-            "transaction", "update", "software update", "defect", "api",
-            "exposed", "visible", "balance", "account details", "incorrect",
-            "someone else", "another account",
-        ],
-        "pattern_description": (
-            "API defect after overnight software update. Transaction data crossed "
-            "account boundaries. Same-day resolution but exposure already occurred. "
-            "API layer defect pattern -- post-update complaints, data visibility issues."
-        ),
-    },
-    {
-        "chronicle_id": "CHR-003",
-        "bank": "HSBC UK",
-        "incident_type": "app_platform_refresh_outage",
-        "inference_approved": True,     # APPROVED — Hussain Ahmed 2026-04-09
-        "confidence_cap": 0.55,
-        "journey_tags": ["J_LOGIN_01", "J_SERVICE_01"],
-        "pattern_keywords": [
-            "err03", "since update", "after update", "redesign", "new app",
-            "refresh", "app update", "app redesign", "information unavailable",
-            "app down", "since redesign", "new version", "latest update",
-        ],
-        "pattern_description": (
-            "App platform refresh outage — HSBC 18-month redesign rolled out May 2025, "
-            "ERR03 auth failure August 2025. Legacy infrastructure stressed by new platform. "
-            "Same failure class as CHR-001. Confidence capped at 0.55 — root cause inferred not confirmed."
-        ),
-    },
-    {
-        "chronicle_id": "CHR-004",
-        "bank": "Barclays",
-        "incident_type": "app_friction_pattern_analysis",
-        "inference_approved": True,     # APPROVED — Hussain Ahmed 2026-04-02
-        "confidence_cap": 0.50,
-        "journey_tags": ["J_LOGIN_01", "J_SERVICE_01", "J_PAY_01"],
-        "pattern_keywords": [
-            "cards", "crash", "my cards", "pin", "card access", "payment",
-            "authorisation", "otp", "2fa", "cannot access", "crashing",
-            "cards section", "barclays", "feature", "broken", "slow",
-        ],
-        "pattern_description": (
-            "Barclays app friction pattern — Feature Broken (42), App Crashing (16), "
-            "Slow Performance (9). Payment/Transfer journey signals low volume but monitored. "
-            "No TSB-class collapse pattern. Baseline friction, not pre-incident signal."
-        ),
-    },
-]
+# CHRONICLE entries — loaded from mil/CHRONICLE.md at startup via chronicle_loader.
+# All inference_approved=True entries are included automatically.
+# No code change required when Hussain approves a new CHR entry.
+CHRONICLE_ENTRIES = _load_chr()
 
 
 # ============================================================
@@ -403,7 +330,6 @@ REFUEL_FINDING_TEMPLATE = (
     "A banking app signal cluster has been detected. Analyse it and output a JSON object.\n"
     "Required keys:\n"
     "  blind_spots: list of 3 to 5 strings -- things this system CANNOT confirm from public data alone\n"
-    "  finding_summary: one sentence describing the finding (max 30 words)\n"
     "  failure_mode: one of NONE / SILENCE / CONTRADICTION / NO_CHRONICLE_MATCH\n\n"
     "Cluster data:\n{cluster_summary}"
 )
@@ -488,10 +414,9 @@ def call_refuel_for_finding(
     try:
         parsed = _repair_json_object(raw)
         return {
-            "blind_spots":      parsed.get("blind_spots", []),
-            "finding_summary":  parsed.get("finding_summary", ""),
-            "failure_mode":     parsed.get("failure_mode", "NONE"),
-            "refuel_called":    True,
+            "blind_spots":   parsed.get("blind_spots", []),
+            "failure_mode":  parsed.get("failure_mode", "NONE"),
+            "refuel_called": True,
         }
     except ValueError as exc:
         logger.warning("[MILAgent] Refuel JSON repair failed (%s) -- using fallback", exc)
@@ -524,10 +449,9 @@ def _deterministic_fallback(
         f"{p0} P0 and {p1} P1 signals. CHRONICLE anchor: {chronicle_id or 'NONE'}."
     )
     return {
-        "blind_spots":    blind_spots,
-        "finding_summary": summary,
-        "failure_mode":   "NONE" if chronicle_id else "NO_CHRONICLE_MATCH",
-        "refuel_called":  False,
+        "blind_spots":   blind_spots,
+        "failure_mode":  "NONE" if chronicle_id else "NO_CHRONICLE_MATCH",
+        "refuel_called": False,
     }
 
 
@@ -614,8 +538,12 @@ def build_finding(
         "journey_id":             journey_id or "UNMAPPED",
         "finding_tier":           _clark_tier(cac_score),
         "designed_ceiling_reached": designed_ceiling_reached,
-        # Finding content
-        "finding_summary":        refuel_output.get("finding_summary", ""),
+        # Finding content — summary is deterministic; blind_spots from Refuel
+        "finding_summary":        (
+            f"{dominant_sev} signal cluster: {competitor} {journey_id or 'unknown'}, "
+            f"{severity_counts.get('P0', 0)} P0 / {severity_counts.get('P1', 0)} P1 signals, "
+            f"anchor: {chronicle_id or 'UNANCHORED'}."
+        ),
         "failure_mode":           refuel_output.get("failure_mode", "NONE"),
         "is_unanchored":          is_unanchored,
         # Signal counts

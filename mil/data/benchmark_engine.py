@@ -330,16 +330,21 @@ def update_persistence_log(
 
 def compute_trend(run_date: str, current_score: float, log: list[dict]) -> str:
     """
-    3-day vs 4-day churn score trend (same logic as sentiment trend).
+    7-day vs 14-day churn score trend using linear regression slope.
     Returns WORSENING / STABLE / IMPROVING, or INSUFFICIENT_DATA.
-    Requires scores from at least 7 distinct prior dates.
+    Requires at least 14 distinct prior dates.
+
+    Linear slope over the full 21-day window (14 prior + today):
+      positive slope > threshold → WORSENING
+      negative slope < -threshold → IMPROVING
+      otherwise → STABLE
+
+    Falls back to simple mean comparison if scipy unavailable.
     """
-    # Collect churn scores from existing log by date
     scores_by_date: dict[str, float] = {}
     for entry in log:
         d = entry["date"]
         if d < run_date and entry.get("over_indexed"):
-            # Re-derive score from log entries per date — sum of gap*sw*pm
             sw = SEVERITY_WEIGHTS.get(entry.get("dominant_severity", "P2"), 1.0)
             pm = min(1.0 + PERSISTENCE_STEP * entry.get("days_active", 1), PERSISTENCE_CAP)
             scores_by_date[d] = scores_by_date.get(d, 0.0) + (
@@ -347,23 +352,37 @@ def compute_trend(run_date: str, current_score: float, log: list[dict]) -> str:
             )
 
     past_dates = sorted(scores_by_date.keys(), reverse=True)
-    if len(past_dates) < 6:
+    if len(past_dates) < 14:
         return "INSUFFICIENT_DATA"
 
-    recent_3  = [scores_by_date[d] for d in past_dates[:3]]
-    prior_4   = [scores_by_date[d] for d in past_dates[3:7]]
-    avg_3     = sum(recent_3) / len(recent_3)
-    avg_4     = sum(prior_4) / len(prior_4)
+    # 21-day window: 14 prior dates + today
+    window_dates = sorted(past_dates[:14])
+    window_scores = [scores_by_date[d] for d in window_dates]
 
-    if avg_4 == 0:
-        return "INSUFFICIENT_DATA"
-
-    delta_pct = (avg_3 - avg_4) / avg_4 * 100
-    if delta_pct > 10:
-        return "WORSENING"
-    elif delta_pct < -10:
-        return "IMPROVING"
-    return "STABLE"
+    try:
+        from scipy.stats import linregress
+        xs = list(range(len(window_scores)))
+        slope, _, _, _, _ = linregress(xs, window_scores)
+        # Threshold: >1 point/day = meaningful trend
+        if slope > 1.0:
+            return "WORSENING"
+        elif slope < -1.0:
+            return "IMPROVING"
+        return "STABLE"
+    except ImportError:
+        # Fallback: 7d vs 14d mean comparison
+        recent_7 = window_scores[-7:]
+        prior_7  = window_scores[:7]
+        avg_r = sum(recent_7) / len(recent_7)
+        avg_p = sum(prior_7) / len(prior_7)
+        if avg_p == 0:
+            return "INSUFFICIENT_DATA"
+        delta_pct = (avg_r - avg_p) / avg_p * 100
+        if delta_pct > 10:
+            return "WORSENING"
+        elif delta_pct < -10:
+            return "IMPROVING"
+        return "STABLE"
 
 
 # ── Run modes ─────────────────────────────────────────────────────────────────

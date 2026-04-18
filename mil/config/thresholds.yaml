@@ -18,7 +18,10 @@ inference:
   cac_delta:           0.20 # Telemetry delta weight
 
 research:
-  sim_threshold: 0.40  # sim_hist_score below this = weak anchor → trigger research queue
+  # Recalibrated 2026-04-18: keyword overlap 0.40 ≠ cosine similarity 0.40.
+  # Cosine 0.30 ≈ "related domain" — equivalent signal strength to prior keyword threshold.
+  # Re-measure after next daily run and adjust if research queue floods or drains.
+  sim_threshold: 0.30  # sim_hist_score below this = weak anchor → trigger research queue
 
 api:
   anthropic_timeout_s: 60   # Timeout for all Anthropic API calls
