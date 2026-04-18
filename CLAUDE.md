@@ -185,8 +185,10 @@ File: `mil/inference/mil_agent.py`
 - **P0 gate (2026-04-17)**: MIN_CLUSTER_SIZE_P0 raised 1→2 — requires at least 2 P0 signals before a finding reaches production
 - **RAG: embedding cosine similarity (2026-04-18)** — replaced keyword overlap with `all-MiniLM-L6-v2` sentence embeddings. CHR embeddings cached in `_CHR_EMBED_CACHE` at startup; each signal text encoded once, cosine sim computed against all 19 CHR vectors. Keyword overlap retained as fallback only.
   - sim_threshold recalibrated: 0.40 → **0.30** (keyword overlap 0.40 ≠ cosine 0.40; cosine 0.30 ≈ related domain — thresholds.yaml comment documents reasoning)
-- **chronicle_loader.py (2026-04-18)** — `mil/inference/chronicle_loader.py` dynamically loads all `inference_approved=true` entries from `mil/CHRONICLE.md` at startup via YAML block parsing. CHR-001 to CHR-019 now loaded automatically; no hardcoded entries. `@lru_cache(maxsize=1)` — read once per process. Import placed AFTER `sys.path.insert()` to avoid `ModuleNotFoundError` when invoked as subprocess.
-  - CHR-001 through CHR-019 all active. CHR-001 magnet effect broken — findings now distributed across competitor-specific CHR entries.
+- **chronicle_loader.py (2026-04-18, hardened 2026-04-18)** — `mil/inference/chronicle_loader.py` dynamically loads all `inference_approved=true` entries from `mil/CHRONICLE.md`. CRLF-safe regex, malformed entries logged at WARNING (not silently skipped), startup assertion raises RuntimeError if fewer than 15 entries load. `@lru_cache(maxsize=1)` — read once per process.
+  - CHR-001 through CHR-019 all active. CHR-001 magnet effect broken — distribution confirmed: CHR-003 22%, CHR-002 18%, CHR-005 18%, no single entry dominates.
+- **CAC formula extracted (2026-04-18)**: `compute_cac()` + `compute_vol_sig()` → `mil/inference/cac.py`. Independently testable. mil_agent.py imports from cac.py.
+- **RAG layer extracted (2026-04-18)**: `find_best_chronicle_match()` + embedding cache → `mil/inference/rag.py`. Independently testable. Accepts `chronicle_entries` as explicit param (no module-global dependency). mil_agent.py imports from rag.py.
 - **finding_summary deterministic (2026-04-18)**: `f"{dominant_sev} signal cluster: {competitor} {journey_id}, {P0} P0 / {P1} P1 signals, anchor: {chronicle_id}."` — no LLM call for summary generation
 - Refuel-8B called per finding for `blind_spots` + `failure_mode` only (not finding_summary)
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
@@ -202,7 +204,7 @@ File: `mil/analytics/build_analytics_db.py`
   - `findings` — 136 CAC findings (confidence_score, cac_components, chronicle_id, clark tier, ceiling flag)
   - `chr_entries` — 19 rows (CHR-001 to CHR-019)
   - `benchmark_history` — 240 rows, daily gap_pp / days_active / over_indexed per issue type
-  - `daily_runs` — 33 rows, pipeline run log with churn score, streak, status, failed_steps
+  - `daily_runs` — 33 rows, pipeline run log. Fields as of 2026-04-18: run, date, status, failed_steps, new_records, findings, p0_count, p1_count, chr_anchor_top3, clark_tier_max, m1_streak, churn_risk_score, churn_risk_trend
   - `clark_log` — 231 rows, full escalation / downgrade history with Opus synthesis
   - `vault_log` — 31 rows, mirror of mil_vault.db anchor log
   - `commentary` — 4 rows, Sonnet analyst prose per issue per day
@@ -368,7 +370,7 @@ File: `mil/data/benchmark_engine.py`
 - **90-day rolling window (2026-04-18)**: `BENCHMARK_WINDOW_DAYS=90` — replaces all-time corpus. `load_competitor_records()` accepts `min_date` param. Zero-record peers excluded from peer averages.
 - **Incumbent/neobank split (2026-04-18)**: `INCUMBENT_PEERS` = [barclays, natwest, lloyds, hsbc]; `NEOBANK_PEERS` = [monzo, revolut]. Benchmark returns `incumbent_avg` and `neobank_avg` in addition to overall peer avg.
 - **Churn score normalised 0-100 (2026-04-18)**: `CHURN_SCORE_CAP=180`. Raw score divided by cap, capped at 100. Returns `churn_risk_score` (normalised) + `churn_risk_score_raw`.
-- **Streak carry-forward (2026-04-18)**: `STREAK_GAP_TOLERANCE=2` — gap ≤ 2 pipeline days continues streak (handles weekends / skip-fetch days) without resetting persistence multiplier.
+- **Streak carry-forward (2026-04-18, corrected 2026-04-18)**: `STREAK_GAP_TOLERANCE=2` — gap ≤ 2 pipeline days continues streak without resetting. Bug fixed: silent gap days no longer added to `days_active` (was inflating churn score on weekends/skip-fetch days). Streak continues but only active signal days count.
 - **Trend: scipy linregress (2026-04-18)**: 14-point slope over benchmark_history. slope >1.0 = WORSENING, <-1.0 = IMPROVING. Requires 14+ prior dates; falls back to STABLE. Replaces 3d vs 4d mean split.
 - `run(mode="daily")` returns: churn_risk_score, churn_risk_score_raw, churn_risk_trend, over_indexed, under_indexed, benchmark dict
 - `run(mode="backfill")` — processes all dates from daily_run_log.jsonl, builds full history
@@ -420,8 +422,28 @@ File: `mil/tests/enrichment_spot_check.py`
 - Targets: issue_type >85%, severity_class >90%. Exits code 1 if below targets.
 - Run: `py mil/tests/enrichment_spot_check.py --sample 50`
 
+### Pre-Autonomy Hardening — Phase 0+1 (2026-04-18)
+
+New files:
+- `mil/inference/cac.py` — `compute_cac()` + `compute_vol_sig()` extracted from mil_agent.py. Independently testable.
+- `mil/inference/rag.py` — `find_best_chronicle_match()` + embedding cache extracted from mil_agent.py. Takes `chronicle_entries` as explicit param.
+- `mil/tests/test_rag.py` — 12 tests for RAG layer (keyword overlap + find_best_chronicle_match). All passing.
+- `mil/data/calibration_notes.md` — fortnightly retrospective log. First entry 2026-04-18: CHR spread confirmed, churn normalization break documented.
+
+Fixes applied:
+- `benchmark_engine.py`: streak gap bug — silent gap days no longer added to `days_active` (was inflating churn score)
+- `chronicle_loader.py`: CRLF regex fix, WARNING on malformed YAML blocks, RuntimeError if <15 entries load
+- `run_daily.py`: silent `except: pass` in fetch dedup loop now logs context; run log enriched with p0_count, p1_count, chr_anchor_top3, clark_tier_max
+- `test_cac.py`: rewritten to import from cac.py (was testing an inline copy of the formula)
+
+CHR distribution check (Run #34): CHR-003 22%, CHR-002 18%, CHR-005 18% — no magnet. Spread healthy.
+Churn score normalization break: runs 1–32 unnormalized (77–107), run 33+ normalized 0–100. Anomaly threshold not valid until Run #47.
+31 tests passing: `py -m pytest mil/tests/test_cac.py mil/tests/test_rag.py -v`
+
 ### Dependencies (updated 2026-04-18)
 - `sentence-transformers>=2.7` added to requirements.txt + mil/requirements.txt — required for embedding RAG in mil_agent.py
+- `unsloth` added to mil/requirements.txt — QLoRA fine-tuning library (MIL-25). Installed 2026-04-18: unsloth-2026.4.6, torch-2.11.0+cu128, peft-0.19.1, trl-0.24.0, bitsandbytes-0.49.2, xformers-0.0.35
+- **CUDA Toolkit 13.2** installed via winget (Nvidia.CUDA) — required by triton for nvcc. Requires system restart to activate PATH. PyTorch uses bundled CUDA 12.8 runtime; toolkit 13.2 is for triton kernel compilation only.
 
 ### MIL Research Agent — (MIL-26 component, BUILT 2026-04-09, upgraded MIL-30)
 File: `mil/researcher/research_agent.py`
@@ -454,6 +476,7 @@ Specialist stack: `mil/specialist/`
 
 Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
+**Training stack ready (2026-04-18)**: unsloth installed, torch 2.11.0+cu128, RTX 5070 Ti confirmed. Restart machine after CUDA Toolkit 13.2 install before training run.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
 - **M1**: DONE — streak 18/5 as of 2026-04-18. Run #34 logged. Tracker: mil/data/daily_run_log.jsonl
@@ -468,8 +491,13 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Pending Human Actions (Hussain)
 - Close MIL-11 through MIL-31 in Jira UI
-- **Apr 19 (Gate 1 clears)**: `py mil/specialist/collision_lock.py` (pre-training baseline) then `py mil/specialist/train_qwen.py` (fine-tune on RTX 5070 Ti)
+- **Apr 19 (Gate 1 clears)**: Restart machine first (CUDA Toolkit 13.2 PATH). Then:
+  1. `py mil/specialist/collision_lock.py` (pre-training baseline)
+  2. `py mil/tests/enrichment_spot_check.py --sample 50` — generates stratified 50-record held-out eval set
+  3. Label the 50 records (human_issue_type + human_severity_class) — ~1–2 hours
+  4. `py mil/specialist/train_qwen.py` (fine-tune on RTX 5070 Ti via unsloth) — only after labels complete
 - **Apr 20 (MIL autonomous)**: Swap fine-tuned model into enrichment route in model_routing.yaml. Schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
+- **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
@@ -480,7 +508,7 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 7,418 enriched records across 31 files (schema v3, claude-haiku-4-5-20251001). 136 findings | 100% anchored | 7 Designed Ceiling. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). Benchmark on 90-day rolling window. Churn score normalised 0-100 (49.2 WORSENING). Run #34, streak 18/5, 2026-04-18. MIL goes autonomous 2026-04-20.**
+**Current corpus: 7,418 enriched records across 31 files (schema v3, claude-haiku-4-5-20251001). 136 findings | 100% anchored | 7 Designed Ceiling. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score normalised 0-100 (49.2 WORSENING) — normalization introduced Run #33; anomaly threshold valid from Run #47. Run #34, streak 18/5, 2026-04-18. MIL goes autonomous 2026-04-20.**
 
 ### MIL Zero Entanglement — HARD RULE
 
