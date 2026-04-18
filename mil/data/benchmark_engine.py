@@ -71,14 +71,20 @@ SERVICE_ISSUES = {
 ALL_TRACKED_ISSUES = TECHNICAL_ISSUES | SERVICE_ISSUES
 EXCLUDE_FROM_RATES = {"Positive Feedback", "Other", ""}
 
-# Competitor peer group (excludes Barclays)
-PEERS      = ["natwest", "lloyds", "hsbc", "monzo", "revolut"]
-STORE_SOURCES = {"app_store", "google_play"}
+# Competitor peer groups (excludes Barclays)
+PEERS            = ["natwest", "lloyds", "hsbc", "monzo", "revolut"]
+INCUMBENT_PEERS  = ["natwest", "lloyds", "hsbc"]   # Barclays' real competitive set
+NEOBANK_PEERS    = ["monzo", "revolut"]
+STORE_SOURCES    = {"app_store", "google_play"}
 
 # Churn score weights
 SEVERITY_WEIGHTS    = {"P0": 3.0, "P1": 2.0, "P2": 1.0}
 PERSISTENCE_CAP     = 3.0   # max multiplier (reached at 10 days active)
 PERSISTENCE_STEP    = 0.2   # +0.2 per day active
+
+BENCHMARK_WINDOW_DAYS  = 90    # rolling window for daily benchmark rates
+CHURN_SCORE_CAP        = 180.0 # 20pp × P0(3.0) × max_persistence(3.0) — normalises to 0-100
+STREAK_GAP_TOLERANCE   = 2     # carry streak if pipeline gap ≤ this many days
 
 
 # ── Data loading ──────────────────────────────────────────────────────────────
@@ -95,10 +101,14 @@ def _normalise_date(val) -> str:
         return ""
 
 
-def load_competitor_records(competitor: str, max_date: str | None = None) -> list[dict]:
+def load_competitor_records(
+    competitor: str,
+    max_date: str | None = None,
+    min_date: str | None = None,
+) -> list[dict]:
     """
     Load App Store + Google Play enriched records for a competitor.
-    Optionally filter to records with review date <= max_date (YYYY-MM-DD).
+    Optionally filter to records within [min_date, max_date] (YYYY-MM-DD, inclusive).
     """
     records = []
     for source in STORE_SOURCES:
@@ -108,9 +118,11 @@ def load_competitor_records(competitor: str, max_date: str | None = None) -> lis
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
             for r in data.get("records", []):
-                if max_date:
+                if max_date or min_date:
                     rv_date = _normalise_date(r.get("date") or r.get("at", ""))
-                    if rv_date and rv_date > max_date:
+                    if max_date and rv_date and rv_date > max_date:
+                        continue
+                    if min_date and rv_date and rv_date < min_date:
                         continue
                 records.append(r)
         except Exception as exc:
@@ -161,9 +173,17 @@ def get_dominant_severity(records: list[dict], issue_type: str) -> str:
 
 # ── Benchmark computation ─────────────────────────────────────────────────────
 
-def compute_benchmark(max_date: str | None = None) -> dict:
+def compute_benchmark(
+    max_date: str | None = None,
+    min_date: str | None = None,
+) -> dict:
     """
     Compute issue-type rates for all competitors + peer averages.
+
+    peer_avg / incumbent_avg — NatWest, Lloyds, HSBC only (Barclays' real competitive set).
+    Zero-record peers excluded from averages rather than contributing 0.0.
+    neobank_avg — Monzo + Revolut separately.
+
     Returns full benchmark dict, also writes to BENCHMARK_CACHE.
     """
     all_rates: dict[str, dict] = {}
@@ -171,19 +191,27 @@ def compute_benchmark(max_date: str | None = None) -> dict:
 
     competitors = ["barclays"] + PEERS
     for comp in competitors:
-        recs = load_competitor_records(comp, max_date=max_date)
+        recs = load_competitor_records(comp, max_date=max_date, min_date=min_date)
         all_records[comp] = recs
         all_rates[comp] = compute_rates(recs)
-        logger.debug("[benchmark] %s: %d records, %d complaint-normalised rates computed",
+        logger.debug("[benchmark] %s: %d records, %d rates computed",
                      comp, len(recs), len(all_rates[comp]))
 
-    # Peer averages (exclude Barclays)
-    peer_avg: dict[str, float] = {}
-    for issue in ALL_TRACKED_ISSUES:
-        peer_vals = [all_rates[p].get(issue, 0.0) for p in PEERS if p in all_rates]
-        peer_avg[issue] = round(sum(peer_vals) / len(peer_vals), 2) if peer_vals else 0.0
+    def _peer_avg(group: list[str]) -> dict[str, float]:
+        avg: dict[str, float] = {}
+        for issue in ALL_TRACKED_ISSUES:
+            vals = [
+                all_rates[p].get(issue, 0.0)
+                for p in group
+                if p in all_rates and len(all_records[p]) > 0
+            ]
+            avg[issue] = round(sum(vals) / len(vals), 2) if vals else 0.0
+        return avg
 
-    # Category split
+    incumbent_avg = _peer_avg(INCUMBENT_PEERS)
+    neobank_avg   = _peer_avg(NEOBANK_PEERS)
+    peer_avg      = incumbent_avg  # backward-compat alias
+
     def _split(rates: dict) -> dict:
         return {
             "technical": {k: v for k, v in rates.items() if k in TECHNICAL_ISSUES},
@@ -191,10 +219,13 @@ def compute_benchmark(max_date: str | None = None) -> dict:
         }
 
     result = {
-        "computed_at": (max_date or _date.today().isoformat()),
-        "competitors": {c: _split(all_rates[c]) for c in competitors},
-        "peer_avg": _split(peer_avg),
-        "record_counts": {c: len(all_records[c]) for c in competitors},
+        "computed_at":    (max_date or _date.today().isoformat()),
+        "competitors":    {c: _split(all_rates[c]) for c in competitors},
+        "peer_avg":       _split(peer_avg),        # incumbent avg — backward compat
+        "incumbent_avg":  _split(incumbent_avg),
+        "neobank_avg":    _split(neobank_avg),
+        "record_counts":  {c: len(all_records[c]) for c in competitors},
+        "window":         {"min_date": min_date, "max_date": max_date or _date.today().isoformat()},
     }
 
     BENCHMARK_CACHE.write_text(
@@ -259,8 +290,17 @@ def update_persistence_log(
         # Compute days_active from previous entry
         prev = _get_previous_entry(existing_log + new_entries, issue, run_date)
         if prev and prev.get("over_indexed") and over:
-            days_active = prev["days_active"] + 1
-            first_seen  = prev["first_seen"]
+            try:
+                gap_days = (_date.fromisoformat(run_date) - _date.fromisoformat(prev["date"])).days
+            except ValueError:
+                gap_days = 1
+            if gap_days <= STREAK_GAP_TOLERANCE:
+                # Normal daily (gap=1) or one missed run (gap=2) — carry streak
+                days_active = prev["days_active"] + gap_days
+                first_seen  = prev["first_seen"]
+            else:
+                days_active = 1
+                first_seen  = run_date
         else:
             days_active = 1 if over else 0
             first_seen  = run_date if over else ""
@@ -333,12 +373,13 @@ def run_daily() -> dict:
     Daily mode — update persistence log for today.
     Returns {churn_risk_score, churn_risk_trend, over_indexed, under_indexed}.
     """
-    today = _date.today().isoformat()
-    logger.info("[benchmark] daily mode — date=%s", today)
+    today        = _date.today().isoformat()
+    window_start = (_date.today() - timedelta(days=BENCHMARK_WINDOW_DAYS)).isoformat()
+    logger.info("[benchmark] daily mode — date=%s window=%s to %s", today, window_start, today)
 
-    # Compute benchmark (all-time data, no date filter)
-    bm = compute_benchmark()
-    barclays_records = load_competitor_records("barclays")
+    # Compute benchmark over rolling 90-day window
+    bm = compute_benchmark(min_date=window_start)
+    barclays_records = load_competitor_records("barclays", min_date=window_start)
     barclays_rates: dict[str, float] = {}
     for cat in ("technical", "service"):
         barclays_rates.update(bm["competitors"]["barclays"][cat])
@@ -352,11 +393,12 @@ def run_daily() -> dict:
     # Remove any existing entries for today (idempotent re-runs)
     existing_log = [e for e in existing_log if e["date"] != today]
 
-    new_entries, score = update_persistence_log(
+    new_entries, raw_score = update_persistence_log(
         today, barclays_rates, peer_avg, barclays_records, existing_log
     )
+    score = min(round(raw_score / CHURN_SCORE_CAP * 100, 1), 100.0)
 
-    trend = compute_trend(today, score, existing_log)
+    trend = compute_trend(today, raw_score, existing_log)
 
     # Write updated log
     all_entries = existing_log + new_entries
@@ -371,15 +413,18 @@ def run_daily() -> dict:
     over_indexed.sort(key=lambda e: e["gap_pp"] * SEVERITY_WEIGHTS.get(e["dominant_severity"], 1.0), reverse=True)
     under_indexed.sort(key=lambda e: e["gap_pp"])  # most negative gap = biggest strength
 
-    logger.info("[benchmark] churn_risk_score=%.2f trend=%s over_indexed=%d under_indexed=%d",
-                score, trend, len(over_indexed), len(under_indexed))
+    logger.info(
+        "[benchmark] churn_risk_score=%.1f (raw=%.2f) trend=%s over=%d under=%d",
+        score, raw_score, trend, len(over_indexed), len(under_indexed),
+    )
 
     return {
-        "churn_risk_score": score,
-        "churn_risk_trend": trend,
-        "over_indexed":     over_indexed,
-        "under_indexed":    under_indexed,
-        "benchmark":        bm,
+        "churn_risk_score":     score,       # 0-100 normalised
+        "churn_risk_score_raw": raw_score,   # raw sum for internal use
+        "churn_risk_trend":     trend,
+        "over_indexed":         over_indexed,
+        "under_indexed":        under_indexed,
+        "benchmark":            bm,
     }
 
 
