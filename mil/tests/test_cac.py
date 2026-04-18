@@ -1,84 +1,99 @@
 """
-test_cac.py — Unit tests for MIL CAC formula.
-
-Tests the core confidence score calculation (alpha/beta/delta weights)
-and the severity gate logic in _normalise().
+test_cac.py — Unit tests for mil/inference/cac.py and severity gate logic.
 """
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-
-def _cac(vol_sig: float, sim_hist: float, delta_tel: float,
-         alpha: float = 0.40, beta: float = 0.40, delta: float = 0.20) -> float:
-    return (alpha * vol_sig + beta * sim_hist) / (delta * delta_tel + 1)
+from mil.inference.cac import compute_cac, compute_vol_sig
 
 
-class TestCACFormula:
-    def test_zero_inputs_returns_zero(self):
-        assert _cac(0.0, 0.0, 0.0) == 0.0
+class TestComputeCAC:
+    def test_zero_inputs(self):
+        assert compute_cac(0.0, 0.0) == 0.0
 
-    def test_full_signal_no_telemetry(self):
-        result = _cac(1.0, 1.0, 0.0)
-        assert abs(result - 0.80) < 1e-9
+    def test_no_telemetry_denominator_is_one(self):
+        # delta_tel=0 → denominator=1 → CAC = alpha*vol + beta*sim = 0.4+0.4 = 0.8
+        assert compute_cac(1.0, 1.0, delta_tel=0.0) == 0.8
 
-    def test_telemetry_dampens_score(self):
-        without = _cac(1.0, 1.0, 0.0)
-        with_tel = _cac(1.0, 1.0, 1.0)
+    def test_telemetry_lowers_score(self):
+        without = compute_cac(0.8, 0.8, delta_tel=0.0)
+        with_tel = compute_cac(0.8, 0.8, delta_tel=1.0)
         assert with_tel < without
 
-    def test_designed_ceiling_threshold(self):
-        # CAC > 0.45 with delta_tel=0.0 should trigger ceiling
-        result = _cac(0.6, 0.6, 0.0)
-        assert result > 0.45
-
-    def test_below_ceiling_threshold(self):
-        result = _cac(0.2, 0.2, 0.0)
-        assert result <= 0.45
+    def test_clark3_threshold_achievable(self):
+        assert compute_cac(0.9, 0.9) >= 0.65
 
     def test_alpha_beta_symmetry(self):
-        # Swapping vol_sig and sim_hist should give same result when alpha==beta
-        r1 = _cac(0.7, 0.3, 0.5)
-        r2 = _cac(0.3, 0.7, 0.5)
-        assert abs(r1 - r2) < 1e-9
+        # alpha == beta so swapping vol_sig/sim_hist gives same result
+        assert compute_cac(0.7, 0.3) == compute_cac(0.3, 0.7)
 
-    def test_clark3_threshold_achievable(self):
-        # CLARK-3 requires CAC >= 0.65
-        result = _cac(0.9, 0.9, 0.0)
-        assert result >= 0.65
+    def test_result_rounded_to_4dp(self):
+        result = compute_cac(0.333, 0.333)
+        assert result == round(result, 4)
+
+    def test_designed_ceiling_triggerable(self):
+        # CAC > 0.45 with no telemetry — ceiling rule should fire downstream
+        assert compute_cac(0.6, 0.6) > 0.45
+
+    def test_below_ceiling_threshold(self):
+        assert compute_cac(0.2, 0.2) <= 0.45
+
+
+class TestComputeVolSig:
+    def test_zero_total_records(self):
+        assert compute_vol_sig([], 0) == 0.0
+
+    def test_all_p0_cluster(self):
+        cluster = [{"severity_class": "P0"}] * 5
+        result = compute_vol_sig(cluster, 100)
+        assert 0.0 < result <= 1.0
+
+    def test_enrichment_failed_contributes_zero(self):
+        cluster = [{"severity_class": "ENRICHMENT_FAILED"}] * 10
+        assert compute_vol_sig(cluster, 100) == 0.0
+
+    def test_p0_outweighs_p2_same_count(self):
+        cluster_p0 = [{"severity_class": "P0"}] * 3
+        cluster_p2 = [{"severity_class": "P2"}] * 3
+        assert compute_vol_sig(cluster_p0, 50) > compute_vol_sig(cluster_p2, 50)
+
+    def test_capped_at_one(self):
+        cluster = [{"severity_class": "P0"}] * 1000
+        assert compute_vol_sig(cluster, 10) == 1.0
 
 
 class TestSeverityGate:
-    """Test the severity gate logic from enrich_sonnet._normalise()."""
+    """Severity gate logic from enrich_sonnet._normalise()."""
 
-    def _normalise_severity(self, severity: str, issue_type: str) -> str:
-        BLOCKING_ISSUES = {
+    def _gate(self, severity: str, issue_type: str) -> str:
+        BLOCKING = {
             "App Not Opening", "Login Failed", "Payment Failed",
             "Transfer Failed", "Account Locked", "App Crashing",
         }
-        if severity in ("P0", "P1") and issue_type not in BLOCKING_ISSUES:
-            severity = "P2"
+        if severity in ("P0", "P1") and issue_type not in BLOCKING:
+            return "P2"
         if issue_type == "Positive Feedback":
-            severity = "P2"
+            return "P2"
         return severity
 
-    def test_p0_on_blocking_issue_kept(self):
-        assert self._normalise_severity("P0", "Login Failed") == "P0"
+    def test_p0_blocking_kept(self):
+        assert self._gate("P0", "Login Failed") == "P0"
 
-    def test_p0_on_non_blocking_downgraded(self):
-        assert self._normalise_severity("P0", "Slow Performance") == "P2"
+    def test_p0_non_blocking_downgraded(self):
+        assert self._gate("P0", "Slow Performance") == "P2"
 
-    def test_p1_on_blocking_issue_kept(self):
-        assert self._normalise_severity("P1", "Payment Failed") == "P1"
+    def test_p1_blocking_kept(self):
+        assert self._gate("P1", "Payment Failed") == "P1"
 
-    def test_p1_on_non_blocking_downgraded(self):
-        assert self._normalise_severity("P1", "Notification Issue") == "P2"
+    def test_p1_non_blocking_downgraded(self):
+        assert self._gate("P1", "Notification Issue") == "P2"
 
     def test_positive_feedback_always_p2(self):
-        assert self._normalise_severity("P0", "Positive Feedback") == "P2"
-        assert self._normalise_severity("P1", "Positive Feedback") == "P2"
+        assert self._gate("P0", "Positive Feedback") == "P2"
+        assert self._gate("P1", "Positive Feedback") == "P2"
 
     def test_p2_unchanged(self):
-        assert self._normalise_severity("P2", "Login Failed") == "P2"
-        assert self._normalise_severity("P2", "Slow Performance") == "P2"
+        assert self._gate("P2", "Login Failed") == "P2"
+        assert self._gate("P2", "Slow Performance") == "P2"

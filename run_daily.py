@@ -79,8 +79,8 @@ def fetch_new_records() -> dict[str, int]:
                     data = json.loads(existing_file.read_text(encoding="utf-8"))
                     for r in data.get("records", []):
                         existing_keys.add(dedup_fn(r))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("[fetch] could not read existing file for dedup: %s", exc)
 
             logger.info("[fetch] %s / %s — existing keys: %d", source_label, competitor, len(existing_keys))
 
@@ -479,15 +479,28 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_st
     today_date = datetime.now(timezone.utc).date()
     streak = (today_date - M1_ORIGIN).days + 1
 
-    # Load findings count
+    # Load findings + severity breakdown + CHR distribution + max Clark tier
     findings_count = 0
+    p0_count = 0
+    p1_count = 0
+    chr_top3: list[str] = []
+    clark_tier_max = "CLARK-0"
     findings_path  = MIL_ROOT / "outputs" / "mil_findings.json"
     if findings_path.exists():
         try:
+            from collections import Counter as _Counter
             fd = _json.loads(findings_path.read_text(encoding="utf-8"))
-            findings_count = len(fd.get("findings", []))
-        except Exception:
-            pass
+            all_findings = fd.get("findings", [])
+            findings_count = len(all_findings)
+            p0_count = sum(1 for f in all_findings if f.get("dominant_severity") == "P0")
+            p1_count = sum(1 for f in all_findings if f.get("dominant_severity") == "P1")
+            chr_dist = _Counter(f.get("chronicle_id", "UNANCHORED") for f in all_findings)
+            chr_top3 = [cid for cid, _ in chr_dist.most_common(3)]
+            clark_tiers = [f.get("clark_tier", "CLARK-0") for f in all_findings]
+            tier_order = {"CLARK-3": 3, "CLARK-2": 2, "CLARK-1": 1, "CLARK-0": 0}
+            clark_tier_max = max(clark_tiers, key=lambda t: tier_order.get(t, 0), default="CLARK-0")
+        except Exception as exc:
+            logger.warning("[log_run] could not parse findings for health fields: %s", exc)
 
     bm = benchmark_result or {}
     _failed = failed_steps or []
@@ -500,18 +513,22 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_st
         _status = "CLEAN"
 
     entry = {
-        "run":                run_number,
-        "date":               today,
-        "timestamp":          datetime.now(timezone.utc).isoformat(),
-        "status":             _status,
-        "failed_steps":       _failed,
-        "new_records":        sum(fetch_counts.values()),
-        "findings":           findings_count,
-        "m1_streak":          streak,
-        "m1_target":          5,
-        "m1_done":            streak >= 5,
-        "churn_risk_score":   bm.get("churn_risk_score"),
-        "churn_risk_trend":   bm.get("churn_risk_trend"),
+        "run":                  run_number,
+        "date":                 today,
+        "timestamp":            datetime.now(timezone.utc).isoformat(),
+        "status":               _status,
+        "failed_steps":         _failed,
+        "new_records":          sum(fetch_counts.values()),
+        "findings":             findings_count,
+        "p0_count":             p0_count,
+        "p1_count":             p1_count,
+        "chr_anchor_top3":      chr_top3,
+        "clark_tier_max":       clark_tier_max,
+        "m1_streak":            streak,
+        "m1_target":            5,
+        "m1_done":              streak >= 5,
+        "churn_risk_score":     bm.get("churn_risk_score"),
+        "churn_risk_trend":     bm.get("churn_risk_trend"),
     }
 
     with RUN_LOG.open("a", encoding="utf-8") as f:

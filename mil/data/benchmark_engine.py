@@ -295,8 +295,8 @@ def update_persistence_log(
             except ValueError:
                 gap_days = 1
             if gap_days <= STREAK_GAP_TOLERANCE:
-                # Normal daily (gap=1) or one missed run (gap=2) — carry streak
-                days_active = prev["days_active"] + gap_days
+                # Streak continues but silent gap days don't count as active signal days
+                days_active = prev["days_active"]
                 first_seen  = prev["first_seen"]
             else:
                 days_active = 1

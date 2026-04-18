@@ -45,6 +45,8 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mil.config.get_model import get_model as _get_model
 from mil.inference.chronicle_loader import load_chronicle_entries as _load_chr
+from mil.inference.cac import compute_vol_sig, compute_cac, SEV_MULTIPLIER, ALPHA, BETA, DELTA
+from mil.inference.rag import find_best_chronicle_match
 
 MIL_ROOT     = Path(__file__).parent.parent
 ENRICHED_DIR = MIL_ROOT / "data" / "historical" / "enriched"
@@ -55,9 +57,6 @@ try:
 except ImportError:
     from config.thresholds import T as _T
 
-ALPHA                      = _T("inference.cac_alpha")
-BETA                       = _T("inference.cac_beta")
-DELTA                      = _T("inference.cac_delta")
 DESIGNED_CEILING_THRESHOLD = _T("inference.designed_ceiling")
 MIN_CLUSTER_SIZE_P2        = int(_T("inference.min_cluster_size_p2"))
 MIN_CLUSTER_SIZE_P0        = int(_T("inference.min_cluster_size_p0"))
@@ -71,8 +70,7 @@ CLASS_VER       = _INFERENCE_CFG["model"]
 TEACHER_VER     = None      # MIL-7 not yet built -- explicitly None
 MAX_RETRIES     = int(_T("api.max_retries"))
 
-# Severity volume multipliers per MIL_SCHEMA.yaml signal_severity
-SEV_MULTIPLIER = {"P0": 2.0, "P1": 1.5, "P2": 1.0, "ENRICHMENT_FAILED": 0.0}
+# SEV_MULTIPLIER imported from cac.py
 
 # issue_type (v3 schema) -> journey_id taxonomy (MIL_SCHEMA.yaml)
 # Also retains v2 journey_category keys for backwards compatibility
@@ -171,140 +169,9 @@ def load_enriched_records() -> dict[str, list[dict]]:
 
 
 # ============================================================
-# RAG LAYER
+# RAG LAYER + CAC FORMULA — imported from rag.py and cac.py
+# find_best_chronicle_match, compute_vol_sig, compute_cac all live there.
 # ============================================================
-
-# Lazy-init embedding support (sentence-transformers all-MiniLM-L6-v2)
-_EMBED_MODEL = None          # SentenceTransformer instance, or False when unavailable
-_CHR_EMBED_CACHE: dict = {}  # chronicle_id -> L2-normalised embedding vector
-
-
-def _load_embed_model():
-    """Load all-MiniLM-L6-v2 once; return False if sentence-transformers not installed."""
-    global _EMBED_MODEL
-    if _EMBED_MODEL is None:
-        try:
-            from sentence_transformers import SentenceTransformer
-            _EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
-            logger.info("[MILAgent] Loaded sentence-transformer: all-MiniLM-L6-v2")
-        except Exception as exc:
-            logger.warning("[MILAgent] sentence-transformers unavailable (%s) — using keyword overlap", exc)
-            _EMBED_MODEL = False
-    return _EMBED_MODEL
-
-
-def _chr_vec(entry: dict, model):
-    """Return cached L2-normalised embedding for a CHRONICLE entry."""
-    cid = entry["chronicle_id"]
-    if cid not in _CHR_EMBED_CACHE:
-        text = entry["pattern_description"] + " " + " ".join(entry["pattern_keywords"])
-        _CHR_EMBED_CACHE[cid] = model.encode(text, normalize_embeddings=True)
-    return _CHR_EMBED_CACHE[cid]
-
-
-def _keyword_overlap(signal_keywords: list[str], chronicle_keywords: list[str]) -> float:
-    """
-    Fallback similarity: keyword overlap [0.0, 1.0].
-    Used when sentence-transformers is unavailable.
-    """
-    if not signal_keywords or not chronicle_keywords:
-        return 0.0
-    sig_lower   = list(dict.fromkeys(k.lower() for k in signal_keywords))
-    chron_lower = [k.lower() for k in chronicle_keywords]
-    hits = 0
-    for sk in sig_lower:
-        for ck in chron_lower:
-            if sk in ck or ck in sk:
-                hits += 1
-                break
-    return min(hits / len(chronicle_keywords), 1.0)
-
-
-def find_best_chronicle_match(
-    journey_id: Optional[str],
-    signal_keywords: list[str],
-) -> tuple[Optional[dict], float]:
-    """
-    Find the highest-similarity CHRONICLE entry for a given journey_id + keywords.
-    Only considers inference_approved=True entries.
-
-    Uses all-MiniLM-L6-v2 cosine similarity (384-dim, CPU-fast).
-    Falls back to keyword overlap if sentence-transformers is unavailable.
-
-    Returns (best_entry_or_None, sim_hist_score [0.0, 1.0]).
-    Returns (None, 0.0) if no approved match — finding will be UNANCHORED.
-    """
-    model = _load_embed_model()
-
-    # Pre-encode signal text once for this cluster
-    signal_vec = None
-    if model:
-        signal_text = " ".join(dict.fromkeys(k.lower() for k in signal_keywords if k))[:512]
-        try:
-            signal_vec = model.encode(signal_text, normalize_embeddings=True)
-        except Exception as exc:
-            logger.warning("[MILAgent] embed encode failed (%s) — falling back to keyword overlap", exc)
-            signal_vec = None
-
-    best_entry = None
-    best_score = 0.0
-
-    for entry in CHRONICLE_ENTRIES:
-        if not entry["inference_approved"]:
-            continue
-        if journey_id and journey_id not in entry["journey_tags"]:
-            continue
-
-        if signal_vec is not None:
-            try:
-                import numpy as np
-                score = float(np.dot(signal_vec, _chr_vec(entry, model)))
-            except Exception:
-                score = _keyword_overlap(signal_keywords, entry["pattern_keywords"])
-        else:
-            score = _keyword_overlap(signal_keywords, entry["pattern_keywords"])
-
-        if score > best_score:
-            best_score = score
-            best_entry = entry
-
-    return best_entry, round(best_score, 4)
-
-
-# ============================================================
-# CAC FORMULA
-# ============================================================
-
-def compute_vol_sig(cluster: list[dict], total_competitor_records: int) -> float:
-    """
-    Vol_sig = weighted signal volume, normalized to [0.0, 1.0].
-    P0 signals carry 2x weight, P1 1.5x, P2 1.0x (per MIL_SCHEMA.yaml).
-    ENRICHMENT_FAILED records contribute 0 weight.
-    """
-    if total_competitor_records == 0:
-        return 0.0
-
-    weighted = sum(
-        SEV_MULTIPLIER.get(r.get("severity_class", "P2"), 1.0)
-        for r in cluster
-    )
-    # Normalize: max possible weight if all were P0 (2x) over total
-    # Use modest normalization -- cap at 1.0
-    raw = weighted / max(total_competitor_records, 1)
-    return min(raw * 5.0, 1.0)   # x5 amplifier so realistic cluster sizes register
-
-
-def compute_cac(vol_sig: float, sim_hist: float, delta_tel: float = 0.0) -> float:
-    """
-    C_mil = (alpha * Vol_sig + beta * Sim_hist) / (delta * Delta_tel + 1)
-
-    delta_tel = 0.0 means no internal telemetry available.
-    When delta_tel = 0: denominator = 1, so CAC = alpha * Vol_sig + beta * Sim_hist.
-    When delta_tel > 0: higher Vane gap lowers confidence (denominator > 1).
-    """
-    numerator   = (ALPHA * vol_sig) + (BETA * sim_hist)
-    denominator = (DELTA * delta_tel) + 1.0
-    return round(numerator / denominator, 4)
 
 
 def _clark_tier(cac: float) -> str:
@@ -681,7 +548,7 @@ def run_inference(sample_size: Optional[int] = None) -> list[dict]:
                                         for w in reasoning.split() if len(w) > 4)
 
             # RAG: find best approved CHRONICLE match
-            chronicle_entry, sim_hist = find_best_chronicle_match(journey_id, all_keywords)
+            chronicle_entry, sim_hist = find_best_chronicle_match(journey_id, all_keywords, CHRONICLE_ENTRIES)
 
             # CAC calculation
             vol_sig   = compute_vol_sig(cluster, total)

@@ -42,7 +42,8 @@ INCIDENT_JOURNEY_MAP: dict[str, list[str]] = {
 
 def _parse_yaml_blocks(text: str) -> list[dict]:
     """Extract and parse all ```yaml ... ``` blocks from CHRONICLE.md."""
-    blocks = re.findall(r"```yaml\n(.*?)\n```", text, re.DOTALL)
+    # \r?\n handles both Unix and Windows line endings
+    blocks = re.findall(r"```yaml\r?\n(.*?)\r?\n```", text, re.DOTALL)
     parsed = []
     for block in blocks:
         try:
@@ -50,7 +51,7 @@ def _parse_yaml_blocks(text: str) -> list[dict]:
             if isinstance(obj, dict):
                 parsed.append(obj)
         except Exception as exc:
-            logger.debug("[chronicle_loader] YAML parse error (block skipped): %s", exc)
+            logger.warning("[chronicle_loader] YAML parse error (block skipped): %s", exc)
     return parsed
 
 
@@ -166,6 +167,13 @@ def load_chronicle_entries() -> list[dict]:
                     len(skipped), skipped)
     logger.info("[chronicle_loader] Loaded %d inference-approved CHRONICLE entries: %s",
                 len(entries), [e["chronicle_id"] for e in entries])
+
+    MIN_EXPECTED = 15
+    if len(entries) < MIN_EXPECTED:
+        raise RuntimeError(
+            f"[chronicle_loader] Only {len(entries)} CHRONICLE entries loaded — "
+            f"expected at least {MIN_EXPECTED}. Check CHRONICLE.md for malformed YAML blocks."
+        )
     return entries
 
 
