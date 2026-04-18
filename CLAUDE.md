@@ -125,7 +125,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-30: Opus Governance Tier — CLARK-3 synthesis + CHR proposals upgraded to Opus (BUILT 2026-04-12)
 - MIL-31: Barclays CHRONICLE Depth — CHR-017/018/019 approved, research agent --force flag, CHR_COVERAGE bypass for Barclays J_SERVICE_01 (BUILT 2026-04-16)
 
-## MIL Pipeline State — 2026-04-17 (Phase 2 complete, MIL autonomous from 2026-04-20)
+## MIL Pipeline State — 2026-04-18 (Phase 2 complete, MIL autonomous from 2026-04-20)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -183,31 +183,29 @@ File: `mil/inference/mil_agent.py`
 - CAC formula: C_mil = (alpha*Vol_sig + beta*Sim_hist) / (delta*Delta_tel + 1)
   - alpha=0.40, beta=0.40, delta=0.20 — sensitivity analysis run 2026-04-17 (MODERATE sensitivity, ±3 CLARK-3 swing across weight grid). Re-run at Day 60.
 - **P0 gate (2026-04-17)**: MIN_CLUSTER_SIZE_P0 raised 1→2 — requires at least 2 P0 signals before a finding reaches production
-- RAG: keyword overlap against CHRONICLE entries (CHR-001 through CHR-019 inference_approved)
-  - CHR-003: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-09, confidence_score=0.55, root cause inferred: app platform refresh outage)
-  - CHR-004: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-02)
-  - CHR-005 to CHR-016: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-16, competitor incidents: Revolut, Monzo, Lloyds, NatWest, HSBC)
-  - CHR-017 to CHR-019: inference_approved=true (APPROVED — Hussain Ahmed 2026-04-16, Barclays-specific patterns: J_SERVICE_01 anchoring)
-- Designed Ceiling: triggers when CAC > 0.45 AND delta_tel=0.0
-  - Output: "To confirm this I require internal HDFS telemetry data. Request Phase 2."
-- Refuel-8B called per finding for blind_spots + narrative + failure_mode
+- **RAG: embedding cosine similarity (2026-04-18)** — replaced keyword overlap with `all-MiniLM-L6-v2` sentence embeddings. CHR embeddings cached in `_CHR_EMBED_CACHE` at startup; each signal text encoded once, cosine sim computed against all 19 CHR vectors. Keyword overlap retained as fallback only.
+  - sim_threshold recalibrated: 0.40 → **0.30** (keyword overlap 0.40 ≠ cosine 0.40; cosine 0.30 ≈ related domain — thresholds.yaml comment documents reasoning)
+- **chronicle_loader.py (2026-04-18)** — `mil/inference/chronicle_loader.py` dynamically loads all `inference_approved=true` entries from `mil/CHRONICLE.md` at startup via YAML block parsing. CHR-001 to CHR-019 now loaded automatically; no hardcoded entries. `@lru_cache(maxsize=1)` — read once per process. Import placed AFTER `sys.path.insert()` to avoid `ModuleNotFoundError` when invoked as subprocess.
+  - CHR-001 through CHR-019 all active. CHR-001 magnet effect broken — findings now distributed across competitor-specific CHR entries.
+- **finding_summary deterministic (2026-04-18)**: `f"{dominant_sev} signal cluster: {competitor} {journey_id}, {P0} P0 / {P1} P1 signals, anchor: {chronicle_id}."` — no LLM call for summary generation
+- Refuel-8B called per finding for `blind_spots` + `failure_mode` only (not finding_summary)
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- Current findings: **139 total** | anchored | 34+ Designed Ceiling (2026-04-14)
+- **Current findings: 136 total | 100% anchored | 7 Designed Ceiling (2026-04-18, Run #34)**
 - **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
 
-### Analytics Database — mil_analytics.db (BUILT 2026-04-17)
+### Analytics Database — mil_analytics.db (BUILT 2026-04-17, updated 2026-04-18)
 File: `mil/analytics/build_analytics_db.py`
 - Complete queryable analytics layer — 9 tables, rebuilt every run as Step 4e
-- **Tables:**
-  - `reviews` — 7,355 enriched records across all 6 sources / 6 competitors (rating, content, issue_type, severity_class, sentiment_score, customer_journey, model)
-  - `findings` — 144 CAC findings (confidence_score, cac_components, chronicle_id, clark tier, ceiling flag)
-  - `chr_entries` — CHR-001 to CHR-019 reference (bank, incident_type, date, inference_approved, confidence_score)
-  - `benchmark_history` — 224 rows, daily gap_pp / days_active / over_indexed per issue type
-  - `daily_runs` — 32 rows, pipeline run log with churn score, streak, status, failed_steps
-  - `clark_log` — 229 rows, full escalation / downgrade history with Opus synthesis
-  - `vault_log` — mirror of mil_vault.db anchor log
-  - `commentary` — Sonnet analyst prose per issue per day (populated from commentary_log.jsonl after first V3 publish)
+- **Tables (as of Run #34, 2026-04-18):**
+  - `reviews` — 7,418 enriched records across all 6 sources / 6 competitors
+  - `findings` — 136 CAC findings (confidence_score, cac_components, chronicle_id, clark tier, ceiling flag)
+  - `chr_entries` — 19 rows (CHR-001 to CHR-019)
+  - `benchmark_history` — 240 rows, daily gap_pp / days_active / over_indexed per issue type
+  - `daily_runs` — 33 rows, pipeline run log with churn score, streak, status, failed_steps
+  - `clark_log` — 231 rows, full escalation / downgrade history with Opus synthesis
+  - `vault_log` — 31 rows, mirror of mil_vault.db anchor log
+  - `commentary` — 4 rows, Sonnet analyst prose per issue per day
   - `unanchored_signals` — 322 rows from research_queue.jsonl (P0/P1 findings pending CHR governance)
 - **Sensitivity analysis**: `mil/analytics/cac_sensitivity.py` — weight grid across 6 variants. MODERATE sensitivity (±3 CLARK-3 swing). Re-run at Day 60.
 - **Google Play package IDs fixed (2026-04-17)**: Lloyds `com.grppl.android.shell.CMBlloydsTSB73`, Monzo `co.uk.getmondo` (old IDs returned 404)
@@ -363,21 +361,22 @@ File: `mil/config/model_routing.yaml` (schema v1.1)
 - New routes: chr_proposal (Opus), teacher_autopsy (Opus), clark_escalation_synthesis (Opus), exec_alert_v3 (Sonnet), commentary (Sonnet), churn_narrative (Sonnet)
 - Always use `get_model(task)` — never hardcode model names
 
-### MIL-27 — Benchmark Engine + Persistence Log (BUILT 2026-04-12)
+### MIL-27 — Benchmark Engine + Persistence Log (BUILT 2026-04-12, hardened 2026-04-18)
 File: `mil/data/benchmark_engine.py`
 - Full competitive benchmarking: 6 competitors, 6 technical + 10 service issue types
 - Complaint-normalised rates: denominator = total records − Positive Feedback − Other
-- `run(mode="daily")` returns: churn_risk_score, churn_risk_trend, over_indexed list, under_indexed list, benchmark dict
-- Churn risk score: sum(gap_pp × severity_weight × persistence_multiplier) across over-indexed issues
-- Persistence multiplier: min(1.0 + 0.2 × days_active, 3.0)
-- Trend: 3d vs prior 4d split (same logic as sentiment trend) → WORSENING/STABLE/IMPROVING
+- **90-day rolling window (2026-04-18)**: `BENCHMARK_WINDOW_DAYS=90` — replaces all-time corpus. `load_competitor_records()` accepts `min_date` param. Zero-record peers excluded from peer averages.
+- **Incumbent/neobank split (2026-04-18)**: `INCUMBENT_PEERS` = [barclays, natwest, lloyds, hsbc]; `NEOBANK_PEERS` = [monzo, revolut]. Benchmark returns `incumbent_avg` and `neobank_avg` in addition to overall peer avg.
+- **Churn score normalised 0-100 (2026-04-18)**: `CHURN_SCORE_CAP=180`. Raw score divided by cap, capped at 100. Returns `churn_risk_score` (normalised) + `churn_risk_score_raw`.
+- **Streak carry-forward (2026-04-18)**: `STREAK_GAP_TOLERANCE=2` — gap ≤ 2 pipeline days continues streak (handles weekends / skip-fetch days) without resetting persistence multiplier.
+- **Trend: scipy linregress (2026-04-18)**: 14-point slope over benchmark_history. slope >1.0 = WORSENING, <-1.0 = IMPROVING. Requires 14+ prior dates; falls back to STABLE. Replaces 3d vs 4d mean split.
+- `run(mode="daily")` returns: churn_risk_score, churn_risk_score_raw, churn_risk_trend, over_indexed, under_indexed, benchmark dict
 - `run(mode="backfill")` — processes all dates from daily_run_log.jsonl, builds full history
 - Writes: mil/data/benchmark_cache.json (fresh each run) + mil/data/issue_persistence_log.jsonl (appends)
-- Current: churn_risk_score=105.1, trend=WORSENING, 5 over-indexed, 9 under-indexed (2026-04-14)
-- Backfill complete: 144 entries across 9 dates (2026-04-03 to 2026-04-12)
+- **Current: churn_risk_score=49.2 (raw=88.63) trend=WORSENING, 7 over-indexed, 7 under-indexed (2026-04-18)**
 - **Step 4d** in run_daily.py (after Clark, before Publish)
 
-### MIL-28 — Commentary Engine (BUILT 2026-04-12, refined 2026-04-13)
+### MIL-28 — Commentary Engine (BUILT 2026-04-12, refined 2026-04-13/18)
 File: `mil/publish/commentary_engine.py`
 - Reads issue_persistence_log.jsonl, selects significant Barclays issues
 - Risk selection: gap>5pp OR (days>3 AND gap>0) OR P0/P1. Strength: gap<-3pp
@@ -387,6 +386,7 @@ File: `mil/publish/commentary_engine.py`
   - Sentence 3: business risk — churn, regulatory, or reputational consequence if unresolved
 - CHR resonance: conditional Chronicle context for 6 issue types (App Not Opening, Login Failed, Account Locked, App Crashing, Incorrect Balance, Missing Transaction)
 - Top quotes: P0/P1 priority, 40-200 chars. **Both risk AND strength cards fetch quotes** (strength fix 2026-04-13)
+- **Prompt versioning (2026-04-18)**: `prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]` stored in every result dict. `model` also stored. Enables drift detection across daily runs.
 - Max output: 3 risk boxes + 1 strength box = 4 total
 - Fallback prose if Sonnet unavailable
 - Called by publish_v3.py on each daily run
@@ -405,6 +405,23 @@ File: `mil/publish/publish_v3.py`
   - `synthesis` field added to clark_log.jsonl entry. Non-fatal if Opus fails.
 - **research_agent.py**: CHR proposal drafting upgraded Haiku → Opus (chr_proposal route)
   - CHR entries anchor CAC formula permanently — Opus quality non-negotiable
+
+### model_client.py — Unified LLM Wrapper (hardened 2026-04-18)
+File: `mil/config/model_client.py`
+- **Prompt caching (2026-04-18)**: `cache_system: bool = False` param. When enabled and system prompt ≥ 4000 chars (`_CACHE_MIN_CHARS`), wraps as `[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]`. Use for long static system prompts (CHR synthesis, teacher autopsies).
+- **Token usage logging (2026-04-18)**: every call logs `in={X} out={Y} cache_read={Z} cache_create={W}` at INFO level for cost tracking.
+- Exponential backoff: `2 ** attempt` seconds, `max_retries` from thresholds.yaml
+- Trace ID on every call: `uuid.uuid4().hex[:8]` or caller-supplied `trace_id`
+
+### Enrichment Quality Scaffold (2026-04-18)
+File: `mil/tests/enrichment_spot_check.py`
+- Monthly manual accuracy check — samples N records (default 50), writes `spot_check_YYYY-MM-DD.json` with blank human label fields
+- `--sample [N]`: generate sample file. `--score FILE`: compute accuracy from completed file, appends to `mil/data/enrichment_accuracy_log.jsonl`
+- Targets: issue_type >85%, severity_class >90%. Exits code 1 if below targets.
+- Run: `py mil/tests/enrichment_spot_check.py --sample 50`
+
+### Dependencies (updated 2026-04-18)
+- `sentence-transformers>=2.7` added to requirements.txt + mil/requirements.txt — required for embedding RAG in mil_agent.py
 
 ### MIL Research Agent — (MIL-26 component, BUILT 2026-04-09, upgraded MIL-30)
 File: `mil/researcher/research_agent.py`
@@ -439,9 +456,9 @@ Gate check: `py mil/specialist/train_qwen.py --check`
 Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — streak 16/5 as of 2026-04-16. Run #31 logged. Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak 18/5 as of 2026-04-18. Run #34 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
-- **M3**: DONE — 34 ceiling triggers (threshold was 22)
+- **M3**: DONE — 34 ceiling triggers (threshold was 22). Now 7 ceiling with 90-day window (stale all-time volume removed)
 
 ### Clark Protocol — First Scan (2026-04-05)
 - 2x CLARK-3 (NatWest — ACT NOW)
@@ -453,6 +470,7 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 - Close MIL-11 through MIL-31 in Jira UI
 - **Apr 19 (Gate 1 clears)**: `py mil/specialist/collision_lock.py` (pre-training baseline) then `py mil/specialist/train_qwen.py` (fine-tune on RTX 5070 Ti)
 - **Apr 20 (MIL autonomous)**: Swap fine-tuned model into enrichment route in model_routing.yaml. Schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
+- **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
 - **CJI Pulse PULSE-11 unblock**: populate 6 pending tables in data_dictionary_master.yaml — critical path to Day 90 vision
@@ -462,7 +480,7 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 7,355 enriched records across 31 files (schema v3, claude-haiku-4-5-20251001). 144 findings | 34+ Designed Ceiling. All Day 30 metrics achieved 2026-04-05. HSBC live (2026-04-12). CHRONICLE now CHR-001 to CHR-019 (2026-04-16). Google Play Lloyds + Monzo live (2026-04-17, package IDs corrected). MIL goes autonomous 2026-04-20. Analytics DB (mil_analytics.db) live — 9 tables, 7,355 reviews queryable.**
+**Current corpus: 7,418 enriched records across 31 files (schema v3, claude-haiku-4-5-20251001). 136 findings | 100% anchored | 7 Designed Ceiling. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). Benchmark on 90-day rolling window. Churn score normalised 0-100 (49.2 WORSENING). Run #34, streak 18/5, 2026-04-18. MIL goes autonomous 2026-04-20.**
 
 ### MIL Zero Entanglement — HARD RULE
 
