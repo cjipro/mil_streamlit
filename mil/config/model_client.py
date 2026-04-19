@@ -6,6 +6,7 @@ Provides:
   - Exponential backoff retry (max_retries from thresholds.yaml)
   - Trace ID on every call for log correlation
   - Single import point for anthropic client
+  - Data egress log (MIL-37): every external call appended to data_egress_log.jsonl
 
 Usage:
     from mil.config.model_client import call_anthropic
@@ -19,13 +20,69 @@ Usage:
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 import time
 import uuid
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+# ── Data Egress Log (MIL-37) ──────────────────────────────────────────────────
+
+_MIL_ROOT   = Path(__file__).parent.parent
+_EGRESS_LOG = _MIL_ROOT / "data" / "data_egress_log.jsonl"
+
+# Cost per 1M tokens (USD) — (input, output, cache_read, cache_create)
+# cache_create = same as input; cache_read ≈ 10% of input
+_MODEL_COSTS: dict[str, tuple[float, float, float, float]] = {
+    "claude-haiku-4-5-20251001": (0.80,   4.00,  0.08,  0.80),
+    "claude-sonnet-4-6":         (3.00,  15.00,  0.30,  3.00),
+    "claude-opus-4-7":          (15.00,  75.00,  1.50, 15.00),
+}
+
+
+def _write_egress(
+    *,
+    provider: str,
+    task: str,
+    model: str,
+    trace_id: str,
+    input_tokens: int,
+    output_tokens: int,
+    cache_read_tokens: int,
+    cache_create_tokens: int,
+    success: bool,
+) -> None:
+    costs = _MODEL_COSTS.get(model, (3.00, 15.00, 0.30, 3.00))
+    cost_usd = round(
+        (input_tokens        * costs[0]
+         + output_tokens     * costs[1]
+         + cache_read_tokens * costs[2]
+         + cache_create_tokens * costs[3]) / 1_000_000,
+        6,
+    )
+    entry = {
+        "timestamp":           datetime.now(timezone.utc).isoformat(),
+        "provider":            provider,
+        "task":                task,
+        "model":               model,
+        "trace_id":            trace_id,
+        "input_tokens":        input_tokens,
+        "output_tokens":       output_tokens,
+        "cache_read_tokens":   cache_read_tokens,
+        "cache_create_tokens": cache_create_tokens,
+        "cost_usd":            cost_usd,
+        "success":             success,
+    }
+    try:
+        with _EGRESS_LOG.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception as exc:
+        logger.warning("[egress_log] write failed: %s", exc)
 
 
 class CircuitBreakerError(RuntimeError):
@@ -125,6 +182,7 @@ def call_anthropic(
 
             # Token usage — logged at INFO so it's visible in production logs
             usage = getattr(response, "usage", None)
+            in_tok = out_tok = cache_rd = cache_cr = 0
             if usage:
                 in_tok   = getattr(usage, "input_tokens", 0)
                 out_tok  = getattr(usage, "output_tokens", 0)
@@ -134,6 +192,12 @@ def call_anthropic(
                     "[model_client] tid=%s task=%s model=%s in=%d out=%d cache_read=%d cache_create=%d",
                     tid, task, model, in_tok, out_tok, cache_rd, cache_cr,
                 )
+            _write_egress(
+                provider="anthropic", task=task, model=model, trace_id=tid,
+                input_tokens=in_tok, output_tokens=out_tok,
+                cache_read_tokens=cache_rd, cache_create_tokens=cache_cr,
+                success=True,
+            )
             _failure_counts[task] = 0   # reset on success
             return text
         except CircuitBreakerError:
@@ -148,4 +212,10 @@ def call_anthropic(
     _failure_counts[task] = _failure_counts.get(task, 0) + 1
     logger.warning("[model_client] task=%s consecutive_failures=%d threshold=%d",
                    task, _failure_counts[task], CIRCUIT_BREAKER_THRESHOLD)
+    _write_egress(
+        provider="anthropic", task=task, model=model, trace_id=tid,
+        input_tokens=0, output_tokens=0,
+        cache_read_tokens=0, cache_create_tokens=0,
+        success=False,
+    )
     raise RuntimeError(f"[model_client] task={task} tid={tid} exhausted {max_retries} retries: {last_exc}") from last_exc

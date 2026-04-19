@@ -305,6 +305,41 @@ _STEP_FIXES = {
 _CRITICAL_STEPS = {"inference", "publish_v1", "publish_v2", "publish_v3"}
 
 
+def _egress_today_summary() -> dict:
+    """Read data_egress_log.jsonl and return cost/token totals for today's UTC date."""
+    log_path = MIL_ROOT / "data" / "data_egress_log.jsonl"
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    totals: dict = {"calls": 0, "success": 0, "failed": 0,
+                    "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0,
+                    "by_task": {}}
+    if not log_path.exists():
+        return totals
+    for line in log_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            e = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not e.get("timestamp", "").startswith(today):
+            continue
+        totals["calls"] += 1
+        if e.get("success"):
+            totals["success"] += 1
+        else:
+            totals["failed"] += 1
+        totals["input_tokens"]  += e.get("input_tokens", 0)
+        totals["output_tokens"] += e.get("output_tokens", 0)
+        totals["cost_usd"]      += e.get("cost_usd", 0.0)
+        task = e.get("task", "unknown")
+        t = totals["by_task"].setdefault(task, {"calls": 0, "cost_usd": 0.0})
+        t["calls"]    += 1
+        t["cost_usd"] += e.get("cost_usd", 0.0)
+    totals["cost_usd"] = round(totals["cost_usd"], 4)
+    return totals
+
+
 def _count_enrichment_failures() -> tuple[int, int]:
     """Return (total_records, failed_count) across all enriched files."""
     total, failed = 0, 0
@@ -360,6 +395,19 @@ def _print_run_summary(
     lines.append(f"  ENRICHMENT_FAILED: {failed_enriched} ({fail_pct:.1f}%)")
     if fail_pct > 5:
         lines.append(f"  !! Failure rate above 5% — check Ollama / model output format")
+    lines.append("")
+
+    # ── Data Egress (MIL-37) ─────────────────────────────────────────────
+    eg = _egress_today_summary()
+    lines.append("  DATA EGRESS (today)")
+    lines.append("  " + "-" * (W - 2))
+    lines.append(f"  API calls        : {eg['calls']} ({eg['success']} ok, {eg['failed']} failed)")
+    lines.append(f"  Tokens in/out    : {eg['input_tokens']:,} / {eg['output_tokens']:,}")
+    lines.append(f"  Est. cost today  : ${eg['cost_usd']:.4f}")
+    if eg["by_task"]:
+        top = sorted(eg["by_task"].items(), key=lambda x: x[1]["cost_usd"], reverse=True)[:4]
+        for task_name, td in top:
+            lines.append(f"  {task_name:<18}  {td['calls']} calls  ${td['cost_usd']:.4f}")
     lines.append("")
 
     # ── Intelligence ─────────────────────────────────────────────────────
