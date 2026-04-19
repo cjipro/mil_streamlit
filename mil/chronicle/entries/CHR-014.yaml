@@ -1,0 +1,31 @@
+chronicle_id: CHR-014
+date: "2026-04-11"
+bank: "HSBC UK"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-11 to 2026-04-15"
+
+summary: >
+  6 P0 signals across 5 days on HSBC UK Account/Service Access journey. Keywords —
+  "repeated", "crashes", "application", "customer", "reports" — suggest recurring app
+  crashes when accessing accounts. Smallest verified cluster but 5-day persistence
+  elevates concern. Co-incident with CHR-012 (HSBC payments, same window).
+
+signal_summary:
+  finding_count: 6
+  p0_count: 6
+  p1_count: 0
+  avg_cac: 0.129
+  top_keywords: ['repeated', 'crashes', 'application', 'customer', 'reports']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Co-incident with CHR-012 — HSBC may have had a broader April event."

@@ -1,0 +1,31 @@
+chronicle_id: CHR-009
+date: "2026-04-02"
+bank: "Lloyds"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-02 to 2026-04-06"
+
+summary: >
+  15 P1 signals across 5 days indicating Lloyds payment/transfer friction. Keywords —
+  "transfer", "after", "banking" — suggest failures or degraded performance when attempting
+  transfers, possibly following an app update or backend migration. Low CAC (0.082) and
+  low CHR-001 similarity (0.17) confirm novel pattern.
+
+signal_summary:
+  finding_count: 15
+  p0_count: 0
+  p1_count: 15
+  avg_cac: 0.082
+  top_keywords: ['transfer', 'after', 'banking']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. All P1 — lower severity than Revolut/Monzo clusters but persistent over 5 days."

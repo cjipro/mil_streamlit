@@ -1,0 +1,31 @@
+chronicle_id: CHR-012
+date: "2026-04-11"
+bank: "HSBC UK"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-11 to 2026-04-13"
+
+summary: >
+  13 P0 signals across 3 days on HSBC UK payment/transfer journey. Keywords — "large",
+  "withdrawal", "transaction", "complete", "payments" — suggest difficulty completing
+  large-value transfers or withdrawals. Tight 3-day window and 100% P0 density notable.
+  Low CHR similarity (0.235) confirms novel pattern.
+
+signal_summary:
+  finding_count: 13
+  p0_count: 13
+  p1_count: 0
+  avg_cac: 0.176
+  top_keywords: ['large', 'withdrawal', 'transaction', 'complete', 'payments']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Large-value transaction angle is notable — potential FCA operational resilience relevance."

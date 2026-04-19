@@ -1,0 +1,46 @@
+chronicle_id: CHR-006
+date: "2026-04-04"
+bank: "Revolut"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-04 to 2026-04-07"
+
+summary: >
+  A dense cluster of 24 P0 signals detected across Revolut's 'Make a Payment / Transfer'
+  journey between 4–7 April 2026. Keywords — "transfer", "issue", "failure", "complete",
+  "payment", "rewards" — suggest degraded payment/transfer completion, with possible secondary
+  impact on rewards/cashback crediting. Likely co-incident with CHR-005 (Revolut login
+  regression, same date window), suggesting a broader infrastructure or deployment event.
+  Root cause remains speculative — no verified public outage notice or press statement
+  identified at time of approval.
+
+signal_summary:
+  finding_count: 24
+  p0_count: 24
+  p1_count: 0
+  avg_cac: 0.138
+  top_keywords: ['transfer', 'issue', 'failure', 'complete', 'customer', 'payment', 'rewards']
+
+verified_facts:
+  - "Revolut users experienced payment/transfer failures between approximately 2026-04-04 and 2026-04-07, based on internal signal clustering. APPROVED — Hussain Ahmed 2026-04-16."
+  - "Keyword co-occurrence of 'rewards' alongside payment-failure terms suggests secondary effect on cashback/rewards crediting for affected transactions."
+  - "Coincidence with CHR-005 (login regression, same window) suggests a single underlying infrastructure or deployment event."
+  - "Revolut holds a UK banking licence (granted July 2024) and is subject to FCA and PRA supervision."
+
+causal_chain:
+  - "Step 1: Possible backend or payment-rail issue degraded Revolut's ability to complete outbound transfers during 2026-04-04 to 2026-04-07 (SPECULATIVE)."
+  - "Step 2: Affected customers encountered transfer failures, incomplete transactions, or significant delays."
+  - "Step 3: Secondary effects impacted rewards/cashback crediting for failed or retried transactions (SPECULATIVE)."
+  - "Step 4: Signals cluster tightly with CHR-005 login failures — likely same root deployment event."
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved on signal strength and P0 density. Date corrected from 2025 to 2026. Co-incident with CHR-005 — monitor for common root cause."

@@ -1,0 +1,31 @@
+chronicle_id: CHR-010
+date: "2026-04-02"
+bank: "NatWest"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.15
+date_window: "2026-04-02 to 2026-04-06"
+
+summary: >
+  15 P0 signals indicating NatWest customers unable to access accounts or core services.
+  Keywords — "customer", "reports", "never" — suggest repeated unresolved complaints.
+  Lowest confidence of the batch (0.15) — novel pattern with no strong CHR anchor (sim=0.206).
+  Multi-anchor (CHR-002, CHR-001, CHR-003) at low similarity confirms distinct cluster.
+
+signal_summary:
+  finding_count: 15
+  p0_count: 15
+  p1_count: 0
+  avg_cac: 0.129
+  top_keywords: ['customer', 'reports', 'never']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved at low confidence. Monitor for corroborating public signals."

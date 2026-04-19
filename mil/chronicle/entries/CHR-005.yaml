@@ -1,0 +1,45 @@
+chronicle_id: CHR-005
+date: "2026-04-04"
+bank: "Revolut"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-04 to 2026-04-07"
+
+summary: >
+  A dense cluster of 25 P0 signals concentrated over a 4-day window indicates a significant
+  and sustained pattern of Revolut users being unable to log in to or access their accounts.
+  Top keywords — "account", "access", "repeatedly", "logged", "despite", "complete" — suggest
+  users were locked out or failing authentication loops despite completing expected steps
+  (e.g., biometric or passcode entry). Root cause remains speculative: possible authentication
+  infrastructure regression, forced app-update migration issue, or backend session-management
+  fault. No single verified public outage notice identified at drafting time.
+
+signal_summary:
+  finding_count: 25
+  p0_count: 25
+  p1_count: 0
+  avg_cac: 0.127
+  top_keywords: ['account', 'access', 'repeatedly', 'logged', 'despite', 'complete']
+
+verified_facts:
+  - "Revolut users experienced widespread login/access failures between approximately 2026-04-04 and 2026-04-07, based on internal signal clustering. APPROVED — Hussain Ahmed 2026-04-16."
+  - "Keyword pattern ('repeatedly', 'despite', 'complete') suggests users attempted authentication multiple times without success — silent failure or authentication loop rather than total outage."
+  - "Revolut is regulated as an EMI by the FCA (UK). Login failures affecting account access engage FCA operational resilience expectations under PS21/3."
+
+causal_chain:
+  - "Step 1: Possible backend change or app update deployed around 2026-04-04 affecting authentication or session management (SPECULATIVE)."
+  - "Step 2: Users encounter repeated login failures — authentication steps complete visually but session not established, or accounts flagged/locked unexpectedly."
+  - "Step 3: Affected users report via App Store, Reddit, DownDetector — generating the signal cluster captured by MIL."
+  - "Step 4: Pattern persists across at least 4 days, suggesting rolling deployment issue or ineffective initial fix."
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved on signal strength and P0 density. Root cause speculative — monitor for public confirmation."

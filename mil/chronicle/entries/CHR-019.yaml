@@ -1,0 +1,33 @@
+chronicle_id: CHR-019
+date: "2026-04-02"
+bank: "Barclays"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-02 to 2026-04-04"
+
+summary: >
+  36 P0 signals across Barclays Log In/Account Access journey (Apr 2–4 2026). Keywords —
+  "inability", "prevents", "login", "complete", "registration", "accounts" — suggest users
+  locked out of essential banking services, unable to complete login or registration flows.
+  Low CAC (0.126) confirms signals are novel and not explained by CHR-001/002. Root cause
+  speculative: app update authentication regression, backend identity service degradation,
+  or registration flow change blocking returning users.
+
+signal_summary:
+  finding_count: 36
+  p0_count: 36
+  p1_count: 0
+  avg_cac: 0.126
+  top_keywords: ['describes', 'being', 'accounts', 'inability', 'prevents', 'essential', 'complete', 'login']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Primary anchor for J_LOGIN_01 Barclays. All 36 findings P0 — critical inference gap now resolved."

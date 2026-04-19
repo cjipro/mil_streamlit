@@ -1,0 +1,31 @@
+chronicle_id: CHR-008
+date: "2026-04-02"
+bank: "Monzo"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-02 to 2026-04-06"
+
+summary: >
+  20 P0 signals across 5 days indicating Monzo payment/transfer journey disruption.
+  Keywords — "customer", "transfer", "complete", "payment", "reports" — suggest customers
+  unable to complete payments or transfers. Low CAC (0.134) and low CHR similarity (0.289)
+  confirm novel pattern not covered by existing entries.
+
+signal_summary:
+  finding_count: 20
+  p0_count: 20
+  p1_count: 0
+  avg_cac: 0.134
+  top_keywords: ['customer', 'transfer', 'complete', 'payment', 'reports']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved on signal volume and P0 density."

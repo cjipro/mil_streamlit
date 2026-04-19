@@ -1,0 +1,88 @@
+chronicle_id: CHR-001
+date: "2018-04-22"
+inference_approved: true
+confidence_score: 1.0
+date_window: "2018-04-22 to 2018-12-01"
+bank: "TSB Bank"
+incident_type: "core_banking_migration_failure"
+journey_tags:
+  - J_LOGIN_01       # 1.9M customers locked out
+  - J_PAY_01         # payment failures
+  - J_SERVICE_01     # account access failure
+
+verified_facts:
+  - "Migration date: 22 April 2018. Big bang cutover of ~5.2M customers."
+  - "Platform: Proteo4UK, developed by SABIS (subsidiary of Sabadell, TSB's Spanish parent)."
+  - "1.9 million customers locked out of their accounts immediately post-cutover."
+  - "Some customers could view other customers' account details — data confidentiality failure."
+  - "225,492 complaints logged between 22 April 2018 and 7 April 2019."
+  - "33,000+ complaints in the second week — more than 10x normal complaint volume."
+  - "4,424 defects were open at go-live (of 34,671 total logged since October 2017)."
+  - "840 severity 1 or 2 defects remained open on 10 April 2018, 12 days before go-live."
+  - "SABIS relied on 85 sub-suppliers. TSB had not ensured SABIS's supplier management was compliant with Group Outsourcing policy."
+  - "Two data centres built to support Proteo4UK were specified to be identical but were configured inconsistently."
+  - "Full resolution to business-as-usual: December 2018 — approximately 8 months of disruption."
+  - "CEO Paul Pester resigned 4 August 2018."
+  - "Slaughter and May independent review published 19 November 2019."
+  - "FCA fine: £29,750,000. PRA fine: £18,900,000. Combined: £48,650,000. Issued December 2022."
+  - "Former CIO Carlos Abarca fined £81,620 by PRA on 13 April 2023 — PRA's first-ever SMCR conduct enforcement."
+
+causal_chain:
+  - "TSB sold off from Lloyds (2013) → continued paying ~£10M/month in platform licence fees to Lloyds"
+  - "Cost pressure drove accelerated migration timeline"
+  - "Big bang approach chosen — all 5.2M customers moved simultaneously in one weekend"
+  - "Platform built by SABIS (85 sub-suppliers) — outsourcing governance insufficient"
+  - "TSB failed to adequately assess SABIS's capability to manage large-scale UK delivery"
+  - "34,671 defects logged during build; 4,424 still open at go-live"
+  - "Two data centres inconsistently configured despite specification requiring identical setup"
+  - "Platform fails under real customer load — spike in volumes beyond contingency resources"
+  - "1.9M customers locked out; some customers see other customers' account data"
+  - "Complaint volume overwhelms support infrastructure"
+  - "CEO resigns August 2018"
+  - "FCA/PRA joint enforcement: £48.65M fine, December 2022"
+  - "Former CIO individually fined under SMCR, April 2023"
+
+outcome:
+  regulatory: "£48.65M combined FCA/PRA fine. First individual SMCR enforcement action by PRA."
+  reputational: "Sustained brand damage. Parliamentary Treasury Committee hearings. CEO resignation."
+  financial: "TSB provisioned approximately £330M for customer remediation and operational costs."
+  customer: "225,492 complaints. 8 months of degraded service."
+
+pattern_signals:
+  - "Telemetry showed migration completion; customer lockouts were not visible in system metrics"
+  - "Leadership acted on reported uptime while customers were locked out — inference gap confirmed"
+  - "Classic Vane pattern: stable internal metrics, catastrophic customer reality"
+  - "The completion rate obituary arrived 8 months after the sentiment spike"
+
+mil_relevance:
+  - "Primary architectural case study. Defines what MIL is built to prevent."
+  - "CHR-001 is the reference anchor for J_LOGIN_01, J_PAY_01, and J_SERVICE_01 pattern matching."
+  - "Any competitor signal matching big-bang migration + complaint spike + latency anomaly should auto-reference CHR-001."
+
+confidence:
+  dates: HIGH
+  impact_figures: HIGH
+  root_cause: HIGH
+  regulatory_outcome: HIGH
+
+public_sources:
+  - source: "TSB Board — Slaughter and May Independent Review press release"
+    date: "2019-11-19"
+  - source: "Bank of England / PRA Final Notice, TSB Bank plc"
+    date: "2022-12-20"
+  - source: "PRA Enforcement Notice — Carlos Abarca"
+    date: "2023-04-13"
+  - source: "Computer Weekly — multiple articles covering migration and fine"
+    date: "2018–2023"
+  - source: "FCA/PRA joint enforcement statement"
+    date: "2022-12-20"
+  - source: "The Register — Slaughter and May findings"
+    date: "2019-11-19"
+  - source: "IT Pro — CEO resignation coverage"
+    date: "2018-08-04"
+
+twitter_archive:
+  status: "PENDING_HUSSAIN"
+  query_window: "2018-04-22 to 2018-04-30"
+  suggested_keywords: ["TSB", "TSB bank", "TSB down", "TSB locked out", "TSB app"]
+  review_flag: "Hussain to run Premium+ full archive search and supply results"

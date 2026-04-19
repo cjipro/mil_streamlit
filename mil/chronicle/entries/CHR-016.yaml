@@ -1,0 +1,32 @@
+chronicle_id: CHR-016
+date: "2026-04-14"
+bank: "HSBC UK"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-14 to 2026-04-16"
+
+summary: >
+  3 consecutive P0 signals (Apr 14–16) on HSBC UK Login journey. Keywords — "complete",
+  "block", "preventing" — suggest login flow cannot be completed, consistent with backend
+  auth outage, client-side blocking defect, or overly aggressive fraud/security rule change.
+  Still active as of today (Apr 16). Co-incident with CHR-012 and CHR-014 — HSBC broader
+  April event picture emerging.
+
+signal_summary:
+  finding_count: 3
+  p0_count: 3
+  p1_count: 0
+  avg_cac: 0.35
+  top_keywords: ['complete', 'block', 'preventing']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Smallest cluster but active today. Part of broader HSBC April pattern (CHR-012, CHR-014, CHR-016)."

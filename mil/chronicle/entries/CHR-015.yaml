@@ -1,0 +1,31 @@
+chronicle_id: CHR-015
+date: "2026-04-12"
+bank: "Monzo"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-12 to 2026-04-16"
+
+summary: >
+  5 consecutive P0 signals (Apr 12–16) on Monzo Account/Service Access journey. Keywords —
+  "significant", "customer", "device" — suggest device-specific authentication or login
+  issue, potentially tied to app update, device-binding change, or biometric/PIN regression.
+  Still active as of today (Apr 16). Monitor for continuation.
+
+signal_summary:
+  finding_count: 5
+  p0_count: 5
+  p1_count: 0
+  avg_cac: 0.148
+  top_keywords: ['significant', 'customer', 'device']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Active signal — window may extend beyond today. Re-check tomorrow."

@@ -1,0 +1,32 @@
+chronicle_id: CHR-018
+date: "2026-04-02"
+bank: "Barclays"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-02 to 2026-04-04"
+
+summary: >
+  40 signals (35 P0, 5 P1) across Barclays Make a Payment/Transfer journey (Apr 2–4 2026).
+  Keywords — "payment", "transfer", "funds", "failure", "friction" — indicate sustained
+  payment processing degradation or outage. 3-day persistence suggests phased rollout issue
+  or slow rollback. Nearest anchor CHR-001 at 0.39 similarity (just below 0.4 threshold)
+  confirms distinct pattern warranting own entry.
+
+signal_summary:
+  finding_count: 40
+  p0_count: 35
+  p1_count: 5
+  avg_cac: 0.190
+  top_keywords: ['significant', 'friction', 'customer', 'transfer', 'funds', 'money', 'payment', 'failure']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Primary anchor for J_PAY_01 Barclays. 87.5% P0 density — high severity pattern."

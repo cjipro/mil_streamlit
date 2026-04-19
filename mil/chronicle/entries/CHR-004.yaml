@@ -1,0 +1,65 @@
+chronicle_id: CHR-004
+date: "2026-04-02"
+inference_approved: true
+confidence_score: 0.50
+date_window: "2025-01-01 to 2026-04-02"
+bank: "Barclays"
+incident_type: "app_friction_pattern_analysis"
+
+summary: >
+  MIL enrichment of 817 Barclays App Store and Google Play reviews (schema v3,
+  claude-haiku-4-5-20251001) reveals a persistent low-level friction pattern.
+  83.6% of reviews are positive (Positive Feedback), but the remaining 16.4%
+  cluster around Feature Broken (42), App Crashing (16), and Slow Performance (9).
+  Severity distribution: P0=18, P1=20, P2=779. No acute outage signal detected.
+  Pattern is consistent with sustained feature debt rather than a discrete incident.
+
+signal_summary:
+  total_records: 817
+  positive_feedback_pct: 83.6
+  p0_count: 18
+  p1_count: 20
+  p2_count: 779
+  top_issue_types:
+    - "Feature Broken: 42"
+    - "App Crashing: 16"
+    - "Slow Performance: 9"
+    - "App Not Opening: 8"
+    - "Payment Failed: 7"
+    - "Notification Issue: 7"
+    - "Customer Support Failure: 6"
+  top_journeys:
+    - "Make a Payment: 28"
+    - "Transfer Money: 28"
+    - "Check Balance or Statement: 27"
+    - "Manage Card: 17"
+    - "Get Support: 29"
+
+mil_relevance:
+  - "Barclays is the client's primary brand competitor — all signals are self-intelligence."
+  - "No CHR-001/TSB-class collapse pattern detected. This is maintenance-level friction, not pre-incident signal."
+  - "Payment Failed (7) and Transfer Failed (4) warrant monitoring — low volume but high severity journey."
+  - "Feature Broken (42) is the dominant complaint — consistent with incremental release debt."
+  - "CHR-004 provides Barclays-specific baseline for future regression detection."
+
+inference_notes:
+  - "CAC ceiling triggers on Barclays are expected given CHR-001/CHR-002 sim scores."
+  - "Do not conflate Barclays friction with competitor-class risk — this is YOUR APP signal."
+  - "Confidence capped at 0.50 pending Hussain review and approval."
+
+confidence:
+  dates: HIGH
+  impact_figures: HIGH
+  root_cause: MEDIUM
+  regulatory_outcome: N/A
+
+review_flags:
+  - "PENDING HUSSAIN: Review enrichment results and approve inference_approved=true if satisfied."
+  - "Payment + Transfer journey signals are low volume — monitor for trend, not incident."
+  - "Feature Broken cluster may warrant CHR cross-reference after 30 days of trend data."
+
+public_sources:
+  - source: "App Store reviews — app_store_barclays_enriched.json (79 records, claude-haiku-4-5-20251001)"
+    date: "2026-04-02"
+  - source: "Google Play reviews — google_play_barclays_enriched.json (738 records, claude-haiku-4-5-20251001)"
+    date: "2026-04-02"

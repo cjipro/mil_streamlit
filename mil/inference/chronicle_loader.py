@@ -1,12 +1,12 @@
 """
 mil/inference/chronicle_loader.py
 
-Parses mil/CHRONICLE.md at startup and returns inference-ready CHRONICLE_ENTRIES.
+Returns inference-ready CHRONICLE_ENTRIES from mil/chronicle/entries/*.yaml.
 
-Fixes the maintenance trap: approved CHR entries live in CHRONICLE.md (the canonical
-ledger). Previously mil_agent.py had 4 entries hardcoded while CHRONICLE.md had 19
-approved. This loader ensures every inference_approved=true entry is automatically
-available — no code change required when Hussain approves a new CHR entry.
+MIL-34 (2026-04-19): primary source is now individual YAML files under
+mil/chronicle/entries/. CHRONICLE.md remains the human-readable ledger but is
+no longer parsed. If the entries directory is missing or empty, falls back to
+regex-parsing CHRONICLE.md (backwards-compatible transition path).
 
 Field mapping:
   CHR-001/002/003/004 — have pattern_keywords + pattern_description (rich, formal)
@@ -25,7 +25,9 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-CHRONICLE_MD = Path(__file__).parent.parent / "CHRONICLE.md"
+_MIL_ROOT    = Path(__file__).parent.parent
+CHRONICLE_MD = _MIL_ROOT / "CHRONICLE.md"
+ENTRIES_DIR  = _MIL_ROOT / "chronicle" / "entries"
 
 # incident_type → journey tags for entries that don't declare them explicitly
 INCIDENT_JOURNEY_MAP: dict[str, list[str]] = {
@@ -138,18 +140,43 @@ def _build_entry(parsed: dict) -> Optional[dict]:
     }
 
 
-@lru_cache(maxsize=1)
-def load_chronicle_entries() -> list[dict]:
-    """
-    Load all inference_approved=True CHRONICLE entries from mil/CHRONICLE.md.
-    Result is cached — file is read once per process.
-    """
+def _load_from_yaml_dir() -> list[dict]:
+    """Load all CHR-*.yaml files from mil/chronicle/entries/."""
+    blocks: list[dict] = []
+    for path in sorted(ENTRIES_DIR.glob("CHR-*.yaml")):
+        try:
+            obj = yaml.safe_load(path.read_text(encoding="utf-8"))
+            if isinstance(obj, dict):
+                blocks.append(obj)
+            else:
+                logger.warning("[chronicle_loader] %s did not parse to a dict (skipped)", path.name)
+        except Exception as exc:
+            logger.warning("[chronicle_loader] YAML parse error in %s: %s", path.name, exc)
+    return blocks
+
+
+def _load_from_markdown() -> list[dict]:
+    """Fallback: parse CHRONICLE.md yaml code blocks (pre-MIL-34 path)."""
     if not CHRONICLE_MD.exists():
         logger.error("[chronicle_loader] CHRONICLE.md not found at %s", CHRONICLE_MD)
         return []
+    return _parse_yaml_blocks(CHRONICLE_MD.read_text(encoding="utf-8"))
 
-    text = CHRONICLE_MD.read_text(encoding="utf-8")
-    blocks = _parse_yaml_blocks(text)
+
+@lru_cache(maxsize=1)
+def load_chronicle_entries() -> list[dict]:
+    """
+    Load all inference_approved=True CHRONICLE entries.
+    Primary source: mil/chronicle/entries/*.yaml (MIL-34).
+    Fallback: mil/CHRONICLE.md yaml blocks (pre-migration path).
+    Result is cached — files read once per process.
+    """
+    if ENTRIES_DIR.exists() and any(ENTRIES_DIR.glob("CHR-*.yaml")):
+        blocks = _load_from_yaml_dir()
+        source = "entries/"
+    else:
+        blocks = _load_from_markdown()
+        source = "CHRONICLE.md"
 
     entries = []
     skipped = []
@@ -165,14 +192,14 @@ def load_chronicle_entries() -> list[dict]:
     if skipped:
         logger.info("[chronicle_loader] %d CHR entries skipped (inference_approved=false): %s",
                     len(skipped), skipped)
-    logger.info("[chronicle_loader] Loaded %d inference-approved CHRONICLE entries: %s",
-                len(entries), [e["chronicle_id"] for e in entries])
+    logger.info("[chronicle_loader] Loaded %d inference-approved entries from %s: %s",
+                len(entries), source, [e["chronicle_id"] for e in entries])
 
     MIN_EXPECTED = 15
     if len(entries) < MIN_EXPECTED:
         raise RuntimeError(
-            f"[chronicle_loader] Only {len(entries)} CHRONICLE entries loaded — "
-            f"expected at least {MIN_EXPECTED}. Check CHRONICLE.md for malformed YAML blocks."
+            f"[chronicle_loader] Only {len(entries)} CHRONICLE entries loaded from {source} — "
+            f"expected at least {MIN_EXPECTED}. Check YAML files for malformed content."
         )
     return entries
 

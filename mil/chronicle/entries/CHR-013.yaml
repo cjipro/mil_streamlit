@@ -1,0 +1,31 @@
+chronicle_id: CHR-013
+date: "2026-04-12"
+bank: "NatWest"
+incident_type: payment_failure_cluster
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-12 to 2026-04-14"
+
+summary: >
+  10 signals (5 P0, 5 P1) across 3 days on NatWest payment/transfer journey. Keywords —
+  "customer", "payment", "significant", "transfer", "complete" — suggest inability to
+  complete payments. Mixed P0/P1 severity indicates graduated impact. Partial CHR-004
+  anchor (0.31) — related but distinct enough to warrant own entry.
+
+signal_summary:
+  finding_count: 10
+  p0_count: 5
+  p1_count: 5
+  avg_cac: 0.35
+  top_keywords: ['customer', 'payment', 'significant', 'transfer', 'complete']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Mixed severity — monitor whether P0 count grows in coming days."

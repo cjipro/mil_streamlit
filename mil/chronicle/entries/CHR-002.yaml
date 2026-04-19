@@ -1,0 +1,79 @@
+chronicle_id: CHR-002
+date: "2025-03-12"
+bank: "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)"
+incident_type: "api_defect_data_exposure"
+inference_approved: true
+confidence_score: 0.60
+verified_facts_status: PARTIAL
+journey_tags:
+  - J_SERVICE_01     # transaction data visible to wrong customers
+  - J_LOGIN_01       # account access affected
+
+verified_facts:
+  - "Date: 12 March 2025. Defect introduced by overnight IT update pushed 11–12 March 2025."
+  - "A software defect in the API handling transaction data caused customers to see other customers' transactions."
+  - "Up to 447,936 customers across Lloyds, Halifax, and Bank of Scotland were potentially exposed."
+  - "114,182 customers actively clicked on and may have viewed detailed transaction data."
+  - "Exposed data potentially included account details, National Insurance numbers, and payment references."
+  - "Defect identified and resolved within the same day — 12 March 2025."
+  - "No customers identified as suffering financial losses."
+  - "Lloyds paid £139,000 in compensation to 3,625 customers for distress and inconvenience."
+  - "FCA notified within 72 hours. ICO stated it was 'making enquiries'. No final enforcement as of public record."
+  - "Parliamentary Treasury Committee wrote to Lloyds describing incident as 'alarming'."
+  - "Context: UK Treasury Committee data showed 158 IT failures across major UK banks, January 2023–February 2025, totalling 803+ hours of disruption."
+
+causal_chain:
+  - "Overnight IT update deployed 11–12 March 2025"
+  - "Software defect introduced in transaction data API layer"
+  - "API returns wrong customers' transaction data in mobile app sessions"
+  - "447,936 customers potentially exposed; 114,182 actively view affected data"
+  - "Some data includes NI numbers, account details, payment references"
+  - "Lloyds identifies and resolves defect within same day"
+  - "FCA notified within 72 hours; ICO begins enquiries"
+  - "Parliament describes incident as 'alarming'"
+  - "£139,000 compensation paid to 3,625 customers"
+  - "Regulatory investigations open — no final determination as of record date"
+
+outcome:
+  regulatory: "FCA and ICO investigations open. No final enforcement action in public record."
+  reputational: "Parliamentary criticism. 'Alarming' classification from Treasury Committee."
+  financial: "£139,000 compensation to 3,625 customers."
+  customer: "447,936 potentially exposed. 114,182 confirmed clicked on affected data."
+
+pattern_signals:
+  - "Software update as failure trigger — not migration, not external attack"
+  - "API layer as exposure vector — customer data crossed account boundaries"
+  - "Same-day resolution but exposure had already occurred"
+  - "Vane pattern reversed here: failure was acute, not gradual — but regulatory pressure builds slowly"
+
+mil_relevance:
+  - "API-layer defect pattern. Relevant to any competitor signal involving post-update complaints or data visibility issues."
+  - "CHR-002 anchors J_SERVICE_01 signals involving 'saw someone else's account' or 'wrong transactions'."
+  - "Demonstrates that regulated outcome (ICO/FCA) lags customer-visible harm by weeks to months."
+
+confidence:
+  dates: HIGH
+  impact_figures: HIGH       # 447,936 and 114,182 from official sources
+  root_cause: MEDIUM         # 'software defect' confirmed; deeper technical cause not publicly disclosed
+  regulatory_outcome: MEDIUM # Investigations open; no final determination
+
+review_flags:
+  - "Root cause is confirmed as 'software defect in API' but HSBC-level technical detail not available. Flag for Hussain: is additional detail available from internal or industry sources?"
+
+public_sources:
+  - source: "The Register — Lloyds app glitch exposed transactions to almost 500K users"
+    date: "2026-03-27"
+  - source: "Computer Weekly — MPs ask Lloyds Bank for more information about 'alarming' breach"
+    date: "2025"
+  - source: "GB News — Banking app outage update: Lloyds confirms major compensation news"
+    date: "2025"
+  - source: "Computing.co.uk — Lloyds and Halifax resolve banking glitch after hours of disruption"
+    date: "2025-03-12"
+  - source: "Meyka / FStech — March 12 incident coverage"
+    date: "2025-03"
+
+twitter_archive:
+  status: "PENDING_HUSSAIN"
+  query_window: "2025-03-12 to 2025-03-14"
+  suggested_keywords: ["Lloyds app", "Lloyds bank down", "Lloyds wrong account", "Halifax app", "Halifax transactions"]
+  review_flag: "Hussain to run Premium+ full archive search and supply results"

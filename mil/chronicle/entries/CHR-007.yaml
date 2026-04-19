@@ -1,0 +1,32 @@
+chronicle_id: CHR-007
+date: "2026-04-04"
+bank: "Revolut"
+incident_type: login_regression
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-04 to 2026-04-09"
+
+summary: >
+  23 P0 signals across 6 consecutive days pointing to Revolut app crashes and login
+  failures during account/service access. Keywords — "crashing", "login", "access",
+  "security", "after" — suggest auth flow regression following a security-related update.
+  Likely co-incident with CHR-005 and CHR-006 (same Revolut April 2026 event window).
+  Extended 6-day window suggests slow rollback or phased fix.
+
+signal_summary:
+  finding_count: 23
+  p0_count: 23
+  p1_count: 0
+  avg_cac: 0.153
+  top_keywords: ['access', 'complete', 'security', 'after', 'revolut', 'crashing', 'login']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Co-incident with CHR-005/006 — same Revolut April 2026 event, Service Access facet."

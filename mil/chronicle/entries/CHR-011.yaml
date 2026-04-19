@@ -1,0 +1,31 @@
+chronicle_id: CHR-011
+date: "2026-04-04"
+bank: "Lloyds"
+incident_type: app_friction_pattern
+inference_approved: true
+confidence_score: 0.25
+date_window: "2026-04-04 to 2026-04-07"
+
+summary: >
+  14 P0 signals across 4 days on Lloyds Account/Service Access journey. Keywords —
+  "comment", "explicitly", "states" — suggest user-generated complaints explicitly
+  describing inability to access accounts. Very low CHR similarity (0.119) confirms
+  novel pattern not mapped to prior chronicles.
+
+signal_summary:
+  finding_count: 14
+  p0_count: 14
+  p1_count: 0
+  avg_cac: 0.241
+  top_keywords: ['comment', 'explicitly', 'states']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Date corrected from 2025 to 2026. Novel pattern — watch for repeat."

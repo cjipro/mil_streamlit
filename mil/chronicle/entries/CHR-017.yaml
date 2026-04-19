@@ -1,0 +1,33 @@
+chronicle_id: CHR-017
+date: "2026-04-02"
+bank: "Barclays"
+incident_type: account_access_friction_pattern
+inference_approved: true
+confidence_score: 0.35
+date_window: "2026-04-02 to 2026-04-04"
+
+summary: >
+  40 P0 signals across Barclays Account/Service Access journey (Apr 2–4 2026). Keywords —
+  "access", "registration", "complete", "working", "customer reports" — suggest customers
+  unable to complete account registration or access existing accounts via mobile app or
+  online banking. Low CHR similarity (0.258) confirms novel pattern not explained by
+  CHR-001/002/003. Root cause speculative: possible authentication regression, degraded
+  registration flow, or app update impacting onboarding.
+
+signal_summary:
+  finding_count: 40
+  p0_count: 40
+  p1_count: 0
+  avg_cac: 0.144
+  top_keywords: ['customer', 'access', 'reports', 'complete', 'registration', 'working']
+
+confidence:
+  dates: MEDIUM
+  impact_figures: LOW
+  root_cause: LOW
+  regulatory_outcome: N/A
+
+approval:
+  approved_by: "Hussain Ahmed"
+  approved_date: "2026-04-16"
+  notes: "Approved. Primary anchor for J_SERVICE_01 — replaces generic CHR-004 coverage for this journey."
