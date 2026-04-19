@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mil.config.get_model import get_model as _get_model
+from mil.config.taxonomy_loader import journey_map as _journey_map
 from mil.inference.chronicle_loader import load_chronicle_entries as _load_chr
 from mil.inference.cac import compute_vol_sig, compute_cac, SEV_MULTIPLIER, ALPHA, BETA, DELTA
 from mil.inference.rag import find_best_chronicle_match
@@ -72,41 +73,8 @@ MAX_RETRIES     = int(_T("api.max_retries"))
 
 # SEV_MULTIPLIER imported from cac.py
 
-# issue_type (v3 schema) -> journey_id taxonomy (MIL_SCHEMA.yaml)
-# Also retains v2 journey_category keys for backwards compatibility
-JOURNEY_MAP = {
-    # v3 issue_type keys
-    "Login Failed":              "J_LOGIN_01",
-    "Biometric / Face ID Issue": "J_LOGIN_01",
-    "Account Locked":            "J_LOGIN_01",
-    "Payment Failed":            "J_PAY_01",
-    "Transfer Failed":           "J_PAY_01",
-    "Missing Transaction":       "J_PAY_01",
-    "App Not Opening":           "J_SERVICE_01",
-    "App Crashing":              "J_SERVICE_01",
-    "Slow Performance":          "J_SERVICE_01",
-    "Feature Broken":            "J_SERVICE_01",
-    "Notification Issue":        "J_SERVICE_01",
-    "Card Frozen or Blocked":    "J_SERVICE_01",
-    "Incorrect Balance":         "J_SERVICE_01",
-    "Customer Support Failure":  "J_SERVICE_01",
-    "Positive Feedback":         None,
-    "Other":                     None,
-    "ENRICHMENT_FAILED":         None,
-    # v2 journey_category keys (fallback)
-    "Login & Account Access":    "J_LOGIN_01",
-    "Password Issues":           "J_LOGIN_01",
-    "Failed Transaction":        "J_PAY_01",
-    "Transaction Charges":       "J_PAY_01",
-    "Account Registration":      "J_ONBOARD_01",
-    "App Installation Issues":   "J_ONBOARD_01",
-    "App crashes or Slow":       "J_SERVICE_01",
-    "App not Opening":           "J_SERVICE_01",
-    "Network Failure":           "J_SERVICE_01",
-    "Customer Support":          "J_SERVICE_01",
-    "Customer Inquiry":          "J_SERVICE_01",
-    "General Feedback":          None,
-}
+# issue_type → journey_id — loaded from mil/config/domain_taxonomy.yaml (MIL-32)
+JOURNEY_MAP = _journey_map()
 
 # Clark tier mapping on CAC score
 CLARK_TIER = {

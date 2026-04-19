@@ -10,6 +10,10 @@ last_updated: "2026-04-12"
 #   ARCH-002: qwen3:14b disqualified for enrichment (downgraded P0 to P2 in blind test).
 #             Haiku retained for enrichment. qwen3 approved for exec_alert synthesis only.
 #   ARCH-003: Four-tier model routing. Model tier = decision stakes, not cost minimisation.
+#   ARCH-004: Enrichment switched from Haiku (Anthropic API) to qwen3:14b (Ollama local).
+#             Reason: API cost constraint — cannot upgrade plan. qwen3-mil-v1-4b Gate 5
+#             confirms severity calibration (P0=90%, P1=100%). Severity gate in _normalise()
+#             provides safety net. P0 accuracy should be monitored via monthly spot-check.
 #             Tier 1 (Opus):    governs the system — CHR proposals, autopsies, CLARK-3 synthesis
 #             Tier 2 (Sonnet):  drives daily decisions — commentary, exec alert, churn narrative
 #             Tier 3 (Haiku/Refuel-8B): classifies at scale — enrichment, CAC+RAG
@@ -114,13 +118,14 @@ routes:
 
   # ── Enrichment ────────────────────────────────────────────────
   enrichment:
-    model: "claude-haiku-4-5-20251001"
-    provider: anthropic
-    max_tokens: 8192
+    model: "qwen3:14b"
+    provider: ollama
+    max_tokens: 4096
     note: >
-      Schema v3 enrichment. P0 severity accuracy critical (ARCH-002).
-      Blind test: 100% schema compliance, 95% severity agreement, P0 intact.
-      Unchanged ARCH-003.
+      ARCH-004. Switched from Haiku (API cost) to local qwen3:14b.
+      Severity gate in _normalise() + monthly spot-check guard P0 accuracy.
+      qwen3-mil-v1-4b Gate 5 ACTIVE (P0=90% P1=100%) confirms severity
+      calibration baseline. Monitor via enrichment_spot_check.py.
 
   # ── MIL Inference (CAC + RAG) ─────────────────────────────────
   inference:

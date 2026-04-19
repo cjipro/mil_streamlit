@@ -28,6 +28,21 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
+class CircuitBreakerError(RuntimeError):
+    """Raised when a task has hit CIRCUIT_BREAKER_THRESHOLD consecutive failures."""
+    def __init__(self, task: str, failures: int):
+        self.task = task
+        self.failures = failures
+        super().__init__(
+            f"[circuit_breaker] task={task} tripped after {failures} consecutive failures — "
+            f"falling back to cached/degraded output."
+        )
+
+
+CIRCUIT_BREAKER_THRESHOLD = 3
+_failure_counts: dict[str, int] = {}   # consecutive failure count per task, reset on success
+
+
 def _get_client():
     import anthropic
     from dotenv import load_dotenv
@@ -97,6 +112,10 @@ def call_anthropic(
         else:
             kwargs["system"] = system
 
+    # Circuit breaker: refuse to attempt if task already hit threshold this process run
+    if _failure_counts.get(task, 0) >= CIRCUIT_BREAKER_THRESHOLD:
+        raise CircuitBreakerError(task, _failure_counts[task])
+
     last_exc: Exception = RuntimeError("no attempts made")
     for attempt in range(1, max_retries + 1):
         try:
@@ -115,7 +134,10 @@ def call_anthropic(
                     "[model_client] tid=%s task=%s model=%s in=%d out=%d cache_read=%d cache_create=%d",
                     tid, task, model, in_tok, out_tok, cache_rd, cache_cr,
                 )
+            _failure_counts[task] = 0   # reset on success
             return text
+        except CircuitBreakerError:
+            raise
         except Exception as exc:
             last_exc = exc
             logger.warning("[model_client] tid=%s task=%s attempt %d/%d failed: %s",
@@ -123,4 +145,7 @@ def call_anthropic(
             if attempt < max_retries:
                 time.sleep(2 ** attempt)
 
+    _failure_counts[task] = _failure_counts.get(task, 0) + 1
+    logger.warning("[model_client] task=%s consecutive_failures=%d threshold=%d",
+                   task, _failure_counts[task], CIRCUIT_BREAKER_THRESHOLD)
     raise RuntimeError(f"[model_client] task={task} tid={tid} exhausted {max_retries} retries: {last_exc}") from last_exc

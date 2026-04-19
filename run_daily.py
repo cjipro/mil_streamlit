@@ -285,6 +285,145 @@ def run_publish_v3_step() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Run Summary
+# ---------------------------------------------------------------------------
+
+_STEP_FIXES = {
+    "fetch":            "Check internet. App Store / Google Play may be rate-limiting.",
+    "enrichment":       "Is Ollama running? `ollama serve`. Check model pulled: `ollama list`.",
+    "inference":        "Check mil_agent.py logs above. Chronicle loader needs ≥15 entries.",
+    "research_trigger": "Non-fatal. Inspect harvester/research_trigger.py manually.",
+    "vault":            "Start HDFS: `docker-compose up -d`. Check mil-namenode on port 9871.",
+    "clark":            "Non-fatal. Inspect clark_protocol.py. Briefing will still publish.",
+    "benchmark":        "Check benchmark_engine.py. May need `--backfill` if run log is empty.",
+    "analytics":        "Check build_analytics_db.py. DuckDB may have a lock conflict.",
+    "publish_v1":       "Check publish.py. GitHub Pages push may have failed — check git remote.",
+    "publish_v2":       "Requires index.html from V1 publish. Run V1 first, then retry.",
+    "publish_v3":       "Check publish_v3.py + commentary_engine.py (Sonnet API or Ollama down?).",
+}
+
+_CRITICAL_STEPS = {"inference", "publish_v1", "publish_v2", "publish_v3"}
+
+
+def _count_enrichment_failures() -> tuple[int, int]:
+    """Return (total_records, failed_count) across all enriched files."""
+    total, failed = 0, 0
+    for path in ENRICHED_DIR.glob("*_enriched.json"):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            records = data.get("records", [])
+            total  += len(records)
+            failed += sum(1 for r in records if r.get("severity_class") == "ENRICHMENT_FAILED")
+        except Exception:
+            pass
+    return total, failed
+
+
+def _print_run_summary(
+    steps: list[tuple[str, str, str]],   # (step_label, status, metric)
+    fetch_counts: dict,
+    benchmark_result: dict,
+    failed_steps: list[str],
+    enrich_model: str,
+    run_number: int,
+) -> None:
+    """Print a clear end-of-run report to stdout."""
+    W = 70
+    STATUS_ICON = {"DONE": "✓", "SKIP": "-", "FAIL": "✗"}
+    STATUS_PAD  = {"DONE": "", "SKIP": "", "FAIL": ""}
+
+    lines = []
+    lines.append("=" * W)
+    lines.append(f"  MIL DAILY RUN #{run_number} — SUMMARY")
+    lines.append(f"  {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
+    lines.append("=" * W)
+
+    # ── Pipeline steps ──────────────────────────────────────────────────
+    lines.append("")
+    lines.append("  PIPELINE STEPS")
+    lines.append("  " + "-" * (W - 2))
+    for label, status, metric in steps:
+        icon = STATUS_ICON.get(status, "?")
+        lines.append(f"  [{icon}] {label:<28}  {metric}")
+    lines.append("")
+
+    # ── Model performance ────────────────────────────────────────────────
+    total_records, failed_enriched = _count_enrichment_failures()
+    new_records = sum(fetch_counts.values())
+    fail_pct = (failed_enriched / total_records * 100) if total_records else 0
+
+    lines.append("  MODEL PERFORMANCE")
+    lines.append("  " + "-" * (W - 2))
+    lines.append(f"  Enrichment model : {enrich_model}")
+    lines.append(f"  Corpus total     : {total_records:,} records")
+    lines.append(f"  New this run     : {new_records}")
+    lines.append(f"  ENRICHMENT_FAILED: {failed_enriched} ({fail_pct:.1f}%)")
+    if fail_pct > 5:
+        lines.append(f"  !! Failure rate above 5% — check Ollama / model output format")
+    lines.append("")
+
+    # ── Intelligence ─────────────────────────────────────────────────────
+    findings_path = MIL_ROOT / "outputs" / "mil_findings.json"
+    if findings_path.exists():
+        try:
+            fd = json.loads(findings_path.read_text(encoding="utf-8"))
+            all_f = fd.get("findings", [])
+            p0 = sum(1 for f in all_f if f.get("dominant_severity") == "P0")
+            p1 = sum(1 for f in all_f if f.get("dominant_severity") == "P1")
+            anchored = sum(1 for f in all_f if f.get("chronicle_id") and not f.get("chronicle_id", "").startswith("UNK"))
+            ceiling  = sum(1 for f in all_f if f.get("designed_ceiling"))
+            tier_order = {"CLARK-3": 3, "CLARK-2": 2, "CLARK-1": 1, "CLARK-0": 0}
+            clark_max = max((f.get("clark_tier", "CLARK-0") for f in all_f), key=lambda t: tier_order.get(t, 0), default="CLARK-0")
+            lines.append("  INTELLIGENCE")
+            lines.append("  " + "-" * (W - 2))
+            lines.append(f"  Findings         : {len(all_f)} total | {p0} P0 | {p1} P1")
+            lines.append(f"  Anchored         : {anchored}/{len(all_f)} ({anchored/len(all_f)*100:.0f}%)" if all_f else "  Anchored         : 0/0")
+            lines.append(f"  Designed Ceiling : {ceiling}")
+            lines.append(f"  Clark max tier   : {clark_max}")
+        except Exception:
+            lines.append("  INTELLIGENCE      — could not read mil_findings.json")
+        lines.append("")
+
+    bm = benchmark_result or {}
+    if bm:
+        churn = bm.get("churn_risk_score")
+        trend = bm.get("churn_risk_trend", "?")
+        over  = bm.get("over_indexed", [])
+        lines.append("  CHURN SIGNAL")
+        lines.append("  " + "-" * (W - 2))
+        lines.append(f"  Churn risk score : {churn:.1f}/100  trend={trend}" if churn is not None else "  Churn risk score : unavailable")
+        if over:
+            lines.append(f"  Over-indexed     : {', '.join(str(o) for o in over[:4])}")
+        lines.append("")
+
+    # ── Failures + fixes ─────────────────────────────────────────────────
+    if failed_steps:
+        lines.append("  FAILURES")
+        lines.append("  " + "-" * (W - 2))
+        for step in failed_steps:
+            critical = " [CRITICAL]" if step in _CRITICAL_STEPS else " [non-fatal]"
+            lines.append(f"  ✗  {step}{critical}")
+            fix = _STEP_FIXES.get(step)
+            if fix:
+                lines.append(f"     Fix: {fix}")
+        lines.append("")
+
+    # ── Overall status ────────────────────────────────────────────────────
+    if _CRITICAL_STEPS & set(failed_steps):
+        overall = "FAILED  — critical step(s) did not complete"
+    elif failed_steps:
+        overall = "PARTIAL — pipeline ran with non-fatal failures"
+    else:
+        overall = "CLEAN   — all steps completed"
+
+    lines.append("=" * W)
+    lines.append(f"  OVERALL STATUS: {overall}")
+    lines.append("=" * W)
+
+    print("\n" + "\n".join(lines) + "\n", flush=True)
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -309,21 +448,40 @@ def main() -> None:
 
     fetch_counts: dict[str, int] = {}
     failed_steps: list[str] = []
+    _steps: list[tuple[str, str, str]] = []   # (label, status, metric)
+
+    # Resolve enrichment model name for summary display
+    try:
+        from mil.config.get_model import get_model as _gm
+        _enrich_model = _gm("enrichment")["model"]
+    except Exception:
+        _enrich_model = "unknown"
 
     if not args.skip_fetch:
         logger.info("--- Step 1: Fetch ---")
         fetch_counts = fetch_new_records()
         total_new = sum(fetch_counts.values())
         logger.info("Fetch complete. Total new records: %d", total_new)
+        _steps.append(("1  Fetch", "DONE", f"{total_new} new records"))
 
-        logger.info("--- Step 2+3: Enrich (Sonnet) ---")
-        from mil.harvester.enrich_sonnet import run_enrichment as sonnet_enrich
-        sonnet_enrich()
+        logger.info("--- Step 2+3: Enrich ---")
+        try:
+            from mil.harvester.enrich_sonnet import run_enrichment as sonnet_enrich
+            _enrich_summary = sonnet_enrich()
+            _enriched_count = sum(v.get("records_enriched", 0) for v in (_enrich_summary or {}).values())
+            _steps.append(("2  Enrich", "DONE", f"{_enriched_count} records enriched via {_enrich_model}"))
+        except Exception as exc:
+            logger.warning("[enrich] failed: %s", exc)
+            failed_steps.append("enrichment")
+            _steps.append(("2  Enrich", "FAIL", str(exc)[:60]))
     else:
         logger.info("--skip-fetch set: skipping fetch and enrichment.")
+        _steps.append(("1  Fetch",  "SKIP", "--skip-fetch flag"))
+        _steps.append(("2  Enrich", "SKIP", "--skip-fetch flag"))
 
     if args.dry_run:
         logger.info("--dry-run set: stopping before inference and publish.")
+        _steps.append(("3  Inference", "SKIP", "--dry-run flag"))
         return
 
     logger.info("--- Step 4: Inference ---")
@@ -335,8 +493,10 @@ def main() -> None:
         logger.warning("[inference] mil_agent exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("inference")
+        _steps.append(("4  Inference", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[inference] complete.")
+        _steps.append(("4  Inference", "DONE", "mil_findings.json updated"))
 
     logger.info("--- Step 4a: Research Trigger ---")
     try:
@@ -344,9 +504,11 @@ def main() -> None:
         r = trigger_run()
         logger.info("[research_trigger] complete — triggered=%d skipped=%d ignored=%d",
                     r["triggered"], r["skipped"], r["ignored"])
+        _steps.append(("4a Research Trigger", "DONE", f"triggered={r['triggered']} skipped={r['skipped']}"))
     except Exception as exc:
         logger.warning("[research_trigger] failed (non-fatal): %s", exc)
         failed_steps.append("research_trigger")
+        _steps.append(("4a Research Trigger", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4b: Vault ---")
     _hdfs_ok = _hdfs_preflight()
@@ -359,11 +521,14 @@ def main() -> None:
             logger.warning("[vault] vault_sync.py exited with code %d\n%s",
                            result.returncode, result.stderr.decode(errors="replace"))
             failed_steps.append("vault")
+            _steps.append(("4b Vault", "FAIL", f"exit code {result.returncode}"))
         else:
             logger.info("[vault] complete.")
+            _steps.append(("4b Vault", "DONE", "HDFS sync complete"))
     else:
         logger.warning("[vault] skipped — HDFS preflight failed")
         failed_steps.append("vault")
+        _steps.append(("4b Vault", "FAIL", "HDFS NameNode unreachable (port 9871)"))
 
     logger.info("--- Step 4c: Clark Escalation ---")
     try:
@@ -371,9 +536,11 @@ def main() -> None:
         new_esc = scan_and_escalate()
         new_dg  = scan_and_downgrade()
         logger.info("[clark] %d new escalations | %d downgraded", len(new_esc), new_dg)
+        _steps.append(("4c Clark Escalation", "DONE", f"{len(new_esc)} escalated | {new_dg} downgraded"))
     except Exception as exc:
         logger.warning("[clark] escalation failed: %s", exc)
         failed_steps.append("clark")
+        _steps.append(("4c Clark Escalation", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4d: Benchmark + Persistence ---")
     _benchmark_result: dict = {}
@@ -381,13 +548,15 @@ def main() -> None:
         sys.path.insert(0, str(MIL_ROOT / "data"))
         from benchmark_engine import run as benchmark_run
         _benchmark_result = benchmark_run(mode="daily")
+        _churn = _benchmark_result.get("churn_risk_score", 0)
+        _trend = _benchmark_result.get("churn_risk_trend", "?")
         logger.info("[benchmark] churn_risk_score=%.2f trend=%s over_indexed=%d",
-                    _benchmark_result.get("churn_risk_score", 0),
-                    _benchmark_result.get("churn_risk_trend", "?"),
-                    len(_benchmark_result.get("over_indexed", [])))
+                    _churn, _trend, len(_benchmark_result.get("over_indexed", [])))
+        _steps.append(("4d Benchmark", "DONE", f"churn={_churn:.1f} trend={_trend}"))
     except Exception as exc:
         logger.warning("[benchmark] failed (non-fatal): %s", exc)
         failed_steps.append("benchmark")
+        _steps.append(("4d Benchmark", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4e: Analytics DB ---")
     try:
@@ -400,9 +569,11 @@ def main() -> None:
         _spec.loader.exec_module(_mod)
         _mod.main()
         logger.info("[analytics] mil_analytics.db rebuilt.")
+        _steps.append(("4e Analytics DB", "DONE", "mil_analytics.db rebuilt"))
     except Exception as exc:
         logger.warning("[analytics] failed (non-fatal): %s", exc)
         failed_steps.append("analytics")
+        _steps.append(("4e Analytics DB", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 5: Publish ---")
     result = subprocess.run(
@@ -413,8 +584,10 @@ def main() -> None:
         logger.warning("[publish] publish.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v1")
+        _steps.append(("5  Publish V1", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish] briefing updated.")
+        _steps.append(("5  Publish V1", "DONE", "cjipro.com/briefing updated"))
 
     logger.info("--- Step 5b: Publish V2 ---")
     result = subprocess.run(
@@ -425,8 +598,10 @@ def main() -> None:
         logger.warning("[publish_v2] publish_v2.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v2")
+        _steps.append(("5b Publish V2", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish_v2] briefing-v2 updated.")
+        _steps.append(("5b Publish V2", "DONE", "cjipro.com/briefing-v2 updated"))
 
     logger.info("--- Step 5c: Publish V3 ---")
     result = subprocess.run(
@@ -437,12 +612,16 @@ def main() -> None:
         logger.warning("[publish_v3] publish_v3.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v3")
+        _steps.append(("5c Publish V3", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish_v3] briefing-v3 updated.")
+        _steps.append(("5c Publish V3", "DONE", "cjipro.com/briefing-v3 updated"))
 
     logger.info("--- Step 6: Log Run ---")
-    _log_run(fetch_counts, _benchmark_result, failed_steps)
+    _run_entry = _log_run(fetch_counts, _benchmark_result, failed_steps)
+    _steps.append(("6  Log Run", "DONE", f"Run #{_run_entry.get('run', '?')} | streak={_run_entry.get('m1_streak', '?')}/5"))
 
+    _print_run_summary(_steps, fetch_counts, _benchmark_result, failed_steps, _enrich_model, _run_entry.get("run", 0))
     logger.info("=== Done ===")
 
 
@@ -452,7 +631,7 @@ def main() -> None:
 
 RUN_LOG = REPO_ROOT / "mil" / "data" / "daily_run_log.jsonl"
 
-def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_steps: list | None = None) -> None:
+def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_steps: list | None = None) -> dict:
     """Append a run record to daily_run_log.jsonl and report M1 streak."""
     import json as _json
 
@@ -541,6 +720,8 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_st
         logger.info("*** M1 ACHIEVED — 5 consecutive clean runs complete ***")
     else:
         logger.info("M1 progress: %d/5 clean runs", streak)
+
+    return entry
 
 
 if __name__ == "__main__":

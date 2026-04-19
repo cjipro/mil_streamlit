@@ -282,6 +282,12 @@ def _build_commentary_section(boxes: list[dict]) -> str:
         )
         sev_badge = f'<span class="commentary-badge {sev_cls}">{sev}</span>'
         cat_label = cat.upper()
+        cached_badge = (
+            '<span style="font-size:9px;padding:2px 6px;border-radius:3px;'
+            'background:#1A1200;color:#F5A623;border:1px solid #F5A623;font-weight:700;">'
+            '&#9888; CACHED</span>'
+            if box.get("cached") else ""
+        )
 
         stats_html = f"""
 <div class="commentary-stats">
@@ -307,6 +313,7 @@ def _build_commentary_section(boxes: list[dict]) -> str:
     {type_badge}
     {sev_badge}
     <span style="font-size:9px;color:#3A6A7F;">{cat_label}</span>
+    {cached_badge}
   </div>
   {stats_html}
   <div class="commentary-prose">{prose}</div>

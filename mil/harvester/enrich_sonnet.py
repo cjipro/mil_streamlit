@@ -29,12 +29,20 @@ logger = logging.getLogger(__name__)
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mil.config.get_model import get_model as _get_model
+from mil.config.taxonomy_loader import (
+    issue_types as _issue_types,
+    customer_journeys as _customer_journeys,
+    apply_severity_gate as _apply_severity_gate,
+)
 
 MIL_ROOT      = Path(__file__).parent.parent
 ENRICHED_DIR  = MIL_ROOT / "data" / "historical" / "enriched"
 HIST_BASE     = MIL_ROOT / "data" / "historical"
 
-MODEL         = _get_model("enrichment")["model"]
+_ENRICHMENT_CFG = _get_model("enrichment")
+MODEL           = _ENRICHMENT_CFG["model"]
+_PROVIDER       = _ENRICHMENT_CFG["provider"]
+_API_COMPAT_URL = _ENRICHMENT_CFG.get("api_compat_url", "http://127.0.0.1:11434/v1")
 BATCH_SIZE    = 10
 
 try:
@@ -43,36 +51,8 @@ except ImportError:
     from config.thresholds import T as _T
 MAX_RETRIES = int(_T("api.max_retries"))
 
-ISSUE_TYPES = [
-    "App Not Opening",
-    "App Crashing",
-    "Login Failed",
-    "Payment Failed",
-    "Transfer Failed",
-    "Biometric / Face ID Issue",
-    "Card Frozen or Blocked",
-    "Slow Performance",
-    "Feature Broken",
-    "Notification Issue",
-    "Account Locked",
-    "Missing Transaction",
-    "Incorrect Balance",
-    "Customer Support Failure",
-    "Positive Feedback",
-    "Other",
-]
-
-CUSTOMER_JOURNEYS = [
-    "Log In to Account",
-    "Make a Payment",
-    "Transfer Money",
-    "Check Balance or Statement",
-    "Open or Register Account",
-    "Apply for Loan or Overdraft",
-    "Manage Card",
-    "Get Support",
-    "General App Use",
-]
+ISSUE_TYPES       = _issue_types()
+CUSTOMER_JOURNEYS = _customer_journeys()
 
 SYSTEM_PROMPT = (
     "You are a banking app complaints analyst. "
@@ -97,20 +77,27 @@ Reviews:
 
 
 def _get_client():
-    try:
-        import anthropic
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise EnvironmentError("ANTHROPIC_API_KEY not found in environment")
+    if _PROVIDER == "ollama":
         try:
-            from mil.config.thresholds import T
+            from openai import OpenAI
         except ImportError:
-            from config.thresholds import T
-        return anthropic.Anthropic(api_key=api_key, timeout=float(T("api.anthropic_timeout_s")))
-    except ImportError:
-        raise ImportError("anthropic package not installed. Run: pip install anthropic")
+            raise ImportError("openai package required for Ollama provider. Run: pip install openai")
+        return OpenAI(base_url=_API_COMPAT_URL, api_key="ollama")
+    else:
+        try:
+            import anthropic
+            from dotenv import load_dotenv
+            load_dotenv()
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+            if not api_key:
+                raise EnvironmentError("ANTHROPIC_API_KEY not found in environment")
+            try:
+                from mil.config.thresholds import T
+            except ImportError:
+                from config.thresholds import T
+            return anthropic.Anthropic(api_key=api_key, timeout=float(T("api.anthropic_timeout_s")))
+        except ImportError:
+            raise ImportError("anthropic package not installed. Run: pip install anthropic")
 
 
 def _get_review_text(record: dict) -> str:
@@ -136,17 +123,8 @@ def _normalise(obj: dict) -> dict:
     if severity not in ("P0", "P1", "P2"):
         severity = "P2"
 
-    # Severity gate: P0/P1 only for genuine blocking issues
-    BLOCKING_ISSUES = {
-        "App Not Opening", "Login Failed", "Payment Failed",
-        "Transfer Failed", "Account Locked", "App Crashing",
-    }
-    if severity in ("P0", "P1") and issue not in BLOCKING_ISSUES:
-        severity = "P2"
-
-    # Positive feedback is always P2
-    if issue == "Positive Feedback":
-        severity = "P2"
+    # Severity gate: cap at max_severity defined in domain_taxonomy.yaml
+    severity = _apply_severity_gate(issue, severity)
 
     reasoning = str(obj.get("reasoning", ""))[:300]
 
@@ -175,13 +153,24 @@ def _classify_batch(client, records: list[dict], batch_id: str) -> list[dict]:
     last_exc = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            response = client.messages.create(
-                model=MODEL,
-                max_tokens=1024,
-                system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            raw = response.content[0].text.strip()
+            if _PROVIDER == "ollama":
+                response = client.chat.completions.create(
+                    model=MODEL,
+                    max_tokens=1024,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                )
+                raw = response.choices[0].message.content.strip()
+            else:
+                response = client.messages.create(
+                    model=MODEL,
+                    max_tokens=1024,
+                    system=SYSTEM_PROMPT,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                raw = response.content[0].text.strip()
             break
         except Exception as exc:
             last_exc = exc

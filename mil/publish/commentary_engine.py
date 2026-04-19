@@ -29,6 +29,7 @@ logger = logging.getLogger("commentary_engine")
 MIL_ROOT         = Path(__file__).parent.parent
 PERSISTENCE_LOG  = MIL_ROOT / "data" / "issue_persistence_log.jsonl"
 ENRICHED_DIR     = MIL_ROOT / "data" / "historical" / "enriched"
+COMMENTARY_LOG   = MIL_ROOT / "data" / "commentary_log.jsonl"
 
 sys.path.insert(0, str(MIL_ROOT))
 sys.path.insert(0, str(MIL_ROOT.parent))
@@ -104,19 +105,49 @@ def get_top_quotes(issue_type: str, n: int = 2, records: list[dict] | None = Non
 # ── Sonnet synthesis ──────────────────────────────────────────────────────────
 
 def _call_sonnet(prompt: str) -> str:
-    """Call Sonnet via model_client unified wrapper. Returns prose string."""
-    try:
-        from mil.config.model_client import call_anthropic
-        from mil.config.get_model import get_model
-        cfg = get_model("commentary")
-        return call_anthropic(
-            task="commentary",
-            user_prompt=prompt,
-            max_tokens=cfg.get("max_tokens", 300),
-        )
-    except Exception as exc:
-        logger.warning("[commentary] Sonnet call failed: %s", exc)
-        return ""
+    """Call Sonnet via model_client. Raises CircuitBreakerError if breaker tripped."""
+    from mil.config.model_client import call_anthropic, CircuitBreakerError
+    from mil.config.get_model import get_model
+    cfg = get_model("commentary")
+    return call_anthropic(
+        task="commentary",
+        user_prompt=prompt,
+        max_tokens=cfg.get("max_tokens", 300),
+    )
+
+
+def _load_cached_commentary(today: str) -> list[dict]:
+    """
+    Load most recent commentary from commentary_log.jsonl that is NOT today.
+    Returns entries with cached=True added. Returns [] if no prior log exists.
+    """
+    if not COMMENTARY_LOG.exists():
+        return []
+    entries: list[dict] = []
+    for line in COMMENTARY_LOG.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line:
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+    # Find most recent prior date
+    prior_dates = sorted(
+        {e["date"] for e in entries if e.get("date") and e["date"] != today},
+        reverse=True,
+    )
+    if not prior_dates:
+        return []
+    prior_date = prior_dates[0]
+    cached = [
+        {**e, "cached": True, "cached_from": prior_date}
+        for e in entries if e.get("date") == prior_date
+    ]
+    logger.warning(
+        "[commentary] circuit breaker active — using cached commentary from %s (%d boxes)",
+        prior_date, len(cached),
+    )
+    return cached
 
 
 def _prose_risk(entry: dict, quotes: list[str], chr_context: str) -> tuple[str, str]:
@@ -256,6 +287,8 @@ def generate_commentary(today: str | None = None) -> list[dict]:
     # Load Barclays records once — reused across all get_top_quotes calls
     _barclays_records = _load_barclays_records()
 
+    from mil.config.model_client import CircuitBreakerError
+
     # Generate risk commentaries
     for entry in risk_entries:
         issue = entry["issue_type"]
@@ -263,7 +296,11 @@ def generate_commentary(today: str | None = None) -> list[dict]:
         chr_context = CHR_RESONANCE.get(issue, "")
         logger.info("[commentary] generating risk prose for '%s' (gap=+%.1fpp, %dd, %s)",
                     issue, entry["gap_pp"], entry["days_active"], entry["dominant_severity"])
-        prose, prompt_hash = _prose_risk(entry, quotes, chr_context)
+        try:
+            prose, prompt_hash = _prose_risk(entry, quotes, chr_context)
+        except CircuitBreakerError:
+            logger.warning("[commentary] circuit breaker tripped — loading cached commentary")
+            return _load_cached_commentary(today)
         if not prose:
             prose = f"{issue} is running {entry['gap_pp']:.1f}pp above the peer average and has persisted for {entry['days_active']} consecutive days."
 
@@ -282,6 +319,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
             "chr_resonance":     chr_context,
             "prompt_hash":       prompt_hash,
             "model":             _commentary_model,
+            "cached":            False,
         })
 
     # Generate strength commentary
@@ -290,7 +328,11 @@ def generate_commentary(today: str | None = None) -> list[dict]:
         quotes = get_top_quotes(issue, n=1, records=_barclays_records)
         logger.info("[commentary] generating strength prose for '%s' (gap=%.1fpp)",
                     issue, entry["gap_pp"])
-        prose, prompt_hash = _prose_strength(entry)
+        try:
+            prose, prompt_hash = _prose_strength(entry)
+        except CircuitBreakerError:
+            logger.warning("[commentary] circuit breaker tripped — loading cached commentary")
+            return _load_cached_commentary(today)
         if not prose:
             prose = f"Barclays is {abs(entry['gap_pp']):.1f}pp below the peer average on {issue} — a meaningful competitive advantage."
 
@@ -309,6 +351,7 @@ def generate_commentary(today: str | None = None) -> list[dict]:
             "chr_resonance":     "",
             "prompt_hash":       prompt_hash,
             "model":             _commentary_model,
+            "cached":            False,
         })
 
     logger.info("[commentary] generated %d boxes (%d risk, %d strength)",

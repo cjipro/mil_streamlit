@@ -32,8 +32,8 @@ Key: MIL
 Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
-Tickets: MIL-1 through MIL-31 (BUILT)
-Next ticket: MIL-32
+Tickets: MIL-1 through MIL-33 (BUILT)
+Next ticket: MIL-34
 Scope: Public market intelligence only. No PII. Open governance.
 
 ### Hard Rule
@@ -114,7 +114,11 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - Run: `py mil/publish/publish_v3.py`
 - **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
 
-**Next ticket: MIL-32 (undefined)**
+**Next ticket: MIL-34 (CHRONICLE YAML format — Phase A clone foundation)**
+
+**Phase A — Clone Foundation (IN PROGRESS 2026-04-19)**
+- MIL-32: Taxonomy extraction — domain_taxonomy.yaml + taxonomy_loader.py (BUILT 2026-04-19)
+- MIL-33: Circuit breaker — cached commentary fallback on provider failure (BUILT 2026-04-19)
 
 **Phase 2 — COMPLETE (2026-04-16)**
 - MIL-25: QLoRA Gate Clearance — ALL 5 GATES CLEAR. Qwen3-4B trained, Gate 5 ACTIVE (BUILT 2026-04-05, COMPLETE 2026-04-19)
@@ -138,16 +142,17 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 
 ### Enrichment Pipeline (enrich_sonnet.py — schema v3) ← ACTIVE
 File: `mil/harvester/enrich_sonnet.py`
-- Model: claude-haiku-4-5-20251001 via Anthropic API
+- Model: **qwen3:14b via Ollama** (switched from Haiku — ARCH-004 2026-04-19, cost saving)
 - Batch size: 10 records per API call
 - Schema v3 fields per record:
-  - issue_type: 16 categories (App Not Opening, Login Failed, Payment Failed, etc.)
-  - customer_journey: 9 categories (Log In, Make a Payment, Transfer Money, etc.)
+  - issue_type: 16 categories — loaded from `mil/config/domain_taxonomy.yaml` (MIL-32)
+  - customer_journey: 9 categories — loaded from `mil/config/domain_taxonomy.yaml` (MIL-32)
   - sentiment_score: float -1.0 to 1.0
-  - severity_class: P0 / P1 / P2 with severity gate in _normalise()
+  - severity_class: P0 / P1 / P2 with severity gate via `apply_severity_gate()` (MIL-32)
   - reasoning: one sentence
-- **Severity gate**: P0/P1 only for blocking issues (App Not Opening, Login Failed, Payment Failed,
-  Transfer Failed, Account Locked, App Crashing). Positive Feedback always P2.
+- **Taxonomy config (MIL-32 2026-04-19)**: issue types, journeys, severity gate all moved to `mil/config/domain_taxonomy.yaml`. Never hardcode taxonomy in pipeline files — import from `mil/config/taxonomy_loader.py`.
+- **Severity gate**: `apply_severity_gate(issue, severity)` in taxonomy_loader — caps severity at `max_severity` per issue type defined in domain_taxonomy.yaml. Blocking issues (P0 permitted): App Not Opening, Login Failed, Payment Failed, Transfer Failed, Account Locked, App Crashing.
+- **ARCH-004**: enrichment switched Haiku→qwen3:14b (Ollama local). Provider-aware client: Ollama uses OpenAI-compat endpoint. Anthropic path retained as fallback if routing changes back.
 - v3 skip logic: `_is_v3(r)` check — already-enriched records skipped, daily run < 1 second
 - JSON repair pipeline: trim → json.loads → json_repair fallback → ENRICHMENT_FAILED
 - **rsplit fix**: new source+competitor keys split on last `_` so `app_store_barclays` → source=`app_store`, competitor=`barclays`
@@ -348,7 +353,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-32 (undefined — focus shifting to CJI Pulse from 2026-04-20)**
+**Next ticket: MIL-34 (CHRONICLE YAML format)**
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
@@ -408,7 +413,23 @@ File: `mil/publish/publish_v3.py`
 - **research_agent.py**: CHR proposal drafting upgraded Haiku → Opus (chr_proposal route)
   - CHR entries anchor CAC formula permanently — Opus quality non-negotiable
 
-### model_client.py — Unified LLM Wrapper (hardened 2026-04-18)
+### Domain Taxonomy (MIL-32 — BUILT 2026-04-19)
+File: `mil/config/domain_taxonomy.yaml` + `mil/config/taxonomy_loader.py`
+- Single source of truth for all taxonomy. Never hardcode issue types, journeys, or severity gate in pipeline files.
+- 16 enrichment issue types with `max_severity` (P0/P1/P2) + `category` (technical/service/other) + `enrichment` flag
+- 9 customer journeys. 30-key journey_map (v3 + v2 legacy). exclude_from_rates list.
+- `taxonomy_loader.py`: typed accessors with `@lru_cache`. Key functions: `issue_types()`, `customer_journeys()`, `apply_severity_gate(issue, sev)`, `journey_map()`, `technical_issues()`, `service_issues()`.
+- Backslash bug in `"Biometric \ Face ID Issue"` fixed — forward slash canonical in YAML.
+- Clone operators update domain_taxonomy.yaml to swap taxonomy for their domain — no code changes required.
+
+### Circuit Breaker — Commentary (MIL-33 — BUILT 2026-04-19)
+File: `mil/config/model_client.py` + `mil/publish/commentary_engine.py` + `mil/publish/publish_v3.py`
+- `CircuitBreakerError` in model_client.py. `_failure_counts` dict tracks consecutive failures per task per process run. Threshold=3. Resets to 0 on success.
+- commentary_engine.py catches `CircuitBreakerError` → loads cached commentary from `commentary_log.jsonl` (most recent prior date) → returns with `cached: True` flag.
+- publish_v3.py renders amber `⚠ CACHED` badge on affected commentary cards.
+- Autonomous run behaviour: Sonnet down → 3 failures → breaker trips → cached boxes published → run status PARTIAL not FAILED.
+
+### model_client.py — Unified LLM Wrapper (hardened 2026-04-18, circuit breaker 2026-04-19)
 File: `mil/config/model_client.py`
 - **Prompt caching (2026-04-18)**: `cache_system: bool = False` param. When enabled and system prompt ≥ 4000 chars (`_CACHE_MIN_CHARS`), wraps as `[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]`. Use for long static system prompts (CHR synthesis, teacher autopsies).
 - **Token usage logging (2026-04-18)**: every call logs `in={X} out={Y} cache_read={Z} cache_create={W}` at INFO level for cost tracking.

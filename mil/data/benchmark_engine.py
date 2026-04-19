@@ -38,6 +38,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger("benchmark_engine")
 
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).parent.parent.parent))
+from mil.config.taxonomy_loader import (
+    technical_issues as _technical_issues,
+    service_issues   as _service_issues,
+    exclude_from_rates as _exclude_from_rates,
+)
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 MIL_ROOT       = Path(__file__).parent.parent
 ENRICHED_DIR   = MIL_ROOT / "data" / "historical" / "enriched"
@@ -45,31 +54,11 @@ PERSISTENCE_LOG = MIL_ROOT / "data" / "issue_persistence_log.jsonl"
 BENCHMARK_CACHE = MIL_ROOT / "data" / "benchmark_cache.json"
 RUN_LOG        = MIL_ROOT / "data" / "daily_run_log.jsonl"
 
-# ── Issue categories ──────────────────────────────────────────────────────────
-TECHNICAL_ISSUES = {
-    "App Not Opening",
-    "App Crashing",
-    "Login Failed",
-    "Biometric / Face ID Issue",
-    "Notification Issue",
-    "Account Locked",
-}
-
-SERVICE_ISSUES = {
-    "Payment Failed",
-    "Transfer Failed",
-    "Feature Broken",
-    "Feature Not Working",
-    "Customer Support Failure",
-    "Incorrect Balance",
-    "Missing Transaction",
-    "Card Frozen or Blocked",
-    "Slow Performance",
-    "Security Concern",
-}
-
+# ── Issue categories — loaded from mil/config/domain_taxonomy.yaml (MIL-32) ──
+TECHNICAL_ISSUES   = _technical_issues()
+SERVICE_ISSUES     = _service_issues()
 ALL_TRACKED_ISSUES = TECHNICAL_ISSUES | SERVICE_ISSUES
-EXCLUDE_FROM_RATES = {"Positive Feedback", "Other", ""}
+EXCLUDE_FROM_RATES = _exclude_from_rates() | {""}  # empty string guard retained
 
 # Competitor peer groups (excludes Barclays)
 PEERS            = ["natwest", "lloyds", "hsbc", "monzo", "revolut"]

@@ -1,0 +1,181 @@
+schema_version: "1.0"
+spec_id: "MIL-TAXONOMY-001"
+name: "MIL Domain Taxonomy — Banking"
+domain: "banking"
+owner: "Hussain Ahmed"
+created: "2026-04-19"
+last_updated: "2026-04-19"
+
+# ── How to read this file ──────────────────────────────────────────────────────
+#
+# This is the single source of truth for all taxonomy decisions in MIL.
+# No pipeline file may hardcode issue types, customer journeys, or the
+# severity gate. All must import via mil/config/taxonomy_loader.py.
+#
+# When cloning for a new domain:
+#   1. Replace issue_types with domain-appropriate categories (min 8, max 20)
+#   2. Replace customer_journeys with domain-appropriate intents (min 4, max 12)
+#   3. Set max_severity per issue type (P0 = blocking, P1 = friction, P2 = minor)
+#   4. Update journey_map to map your issue types to journey IDs
+#   5. Always keep "Positive Feedback" (max_severity: P2) and "Other" (max_severity: P2)
+#
+# max_severity controls the severity gate in enrichment:
+#   P0 — issue can be classified P0, P1, or P2 (complete blocking failure)
+#   P1 — issue can be classified P1 or P2 only (significant friction)
+#   P2 — issue is always P2 regardless of model output (minor / positive)
+#
+# enrichment: true  → appears in the enrichment prompt sent to the LLM
+# enrichment: false → tracked in benchmark only, not an enrichment category
+
+# ── Issue Types ────────────────────────────────────────────────────────────────
+issue_types:
+
+  # ── Blocking (P0 permitted) ────────────────────────────────────────────────
+  - name: "App Not Opening"
+    category: technical
+    max_severity: P0
+    enrichment: true
+
+  - name: "App Crashing"
+    category: technical
+    max_severity: P0
+    enrichment: true
+
+  - name: "Login Failed"
+    category: technical
+    max_severity: P0
+    enrichment: true
+
+  - name: "Payment Failed"
+    category: service
+    max_severity: P0
+    enrichment: true
+
+  - name: "Transfer Failed"
+    category: service
+    max_severity: P0
+    enrichment: true
+
+  - name: "Account Locked"
+    category: technical
+    max_severity: P0
+    enrichment: true
+
+  # ── Non-blocking enrichment categories (P2 gate) ───────────────────────────
+  # Update max_severity to P1 for your domain if these represent significant
+  # friction (e.g. Biometric failure on a mobile-first product).
+  - name: "Biometric / Face ID Issue"
+    category: technical
+    max_severity: P2
+    enrichment: true
+
+  - name: "Card Frozen or Blocked"
+    category: technical
+    max_severity: P2
+    enrichment: true
+
+  - name: "Slow Performance"
+    category: technical
+    max_severity: P2
+    enrichment: true
+
+  - name: "Feature Broken"
+    category: service
+    max_severity: P2
+    enrichment: true
+
+  - name: "Notification Issue"
+    category: service
+    max_severity: P2
+    enrichment: true
+
+  - name: "Missing Transaction"
+    category: service
+    max_severity: P2
+    enrichment: true
+
+  - name: "Incorrect Balance"
+    category: service
+    max_severity: P2
+    enrichment: true
+
+  - name: "Customer Support Failure"
+    category: service
+    max_severity: P2
+    enrichment: true
+
+  - name: "Positive Feedback"
+    category: other
+    max_severity: P2
+    enrichment: true
+
+  - name: "Other"
+    category: other
+    max_severity: P2
+    enrichment: true
+
+  # ── Benchmark-only (not in enrichment prompt) ──────────────────────────────
+  - name: "Security Concern"
+    category: service
+    max_severity: P1
+    enrichment: false
+
+# ── Customer Journeys ──────────────────────────────────────────────────────────
+# What the customer was trying to accomplish when the issue occurred.
+customer_journeys:
+  - "Log In to Account"
+  - "Make a Payment"
+  - "Transfer Money"
+  - "Check Balance or Statement"
+  - "Open or Register Account"
+  - "Apply for Loan or Overdraft"
+  - "Manage Card"
+  - "Get Support"
+  - "General App Use"
+
+# ── Journey Map ────────────────────────────────────────────────────────────────
+# Maps issue_type → journey_id for CAC inference clustering.
+# null = unmappable (Positive Feedback, Other) — skipped in inference.
+# Includes v2 legacy keys for backwards compatibility with older enriched records.
+journey_map:
+
+  # v3 issue_type keys (current schema)
+  "Login Failed":              "J_LOGIN_01"
+  "Biometric / Face ID Issue": "J_LOGIN_01"
+  "Account Locked":            "J_LOGIN_01"
+  "Payment Failed":            "J_PAY_01"
+  "Transfer Failed":           "J_PAY_01"
+  "Missing Transaction":       "J_PAY_01"
+  "Incorrect Balance":         "J_PAY_01"
+  "App Not Opening":           "J_SERVICE_01"
+  "App Crashing":              "J_SERVICE_01"
+  "Slow Performance":          "J_SERVICE_01"
+  "Feature Broken":            "J_SERVICE_01"
+  "Notification Issue":        "J_SERVICE_01"
+  "Card Frozen or Blocked":    "J_SERVICE_01"
+  "Customer Support Failure":  "J_SERVICE_01"
+  "Security Concern":          "J_SERVICE_01"
+  "Positive Feedback":         null
+  "Other":                     null
+  "ENRICHMENT_FAILED":         null
+
+  # v2 legacy journey_category keys (backwards compatibility)
+  "Login & Account Access":    "J_LOGIN_01"
+  "Password Issues":           "J_LOGIN_01"
+  "Failed Transaction":        "J_PAY_01"
+  "Transaction Charges":       "J_PAY_01"
+  "Account Registration":      "J_ONBOARD_01"
+  "App Installation Issues":   "J_ONBOARD_01"
+  "App crashes or Slow":       "J_SERVICE_01"
+  "App not Opening":           "J_SERVICE_01"
+  "Network Failure":           "J_SERVICE_01"
+  "Customer Support":          "J_SERVICE_01"
+  "Customer Inquiry":          "J_SERVICE_01"
+  "General Feedback":          null
+
+# ── Exclude from benchmark rates ───────────────────────────────────────────────
+# These issue types are excluded from complaint-rate calculations.
+# The empty string guard is applied in code.
+exclude_from_rates:
+  - "Positive Feedback"
+  - "Other"
