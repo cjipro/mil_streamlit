@@ -37,7 +37,8 @@ os.environ["XFORMERS_MORE_DETAILS"] = "0"
 MIL_DIR       = Path(__file__).resolve().parent.parent
 REPO_ROOT     = MIL_DIR.parent
 SPECIALIST    = Path(__file__).parent
-PAIRS_FILE    = MIL_DIR / "teacher" / "output" / "synthetic_pairs.jsonl"
+PAIRS_FILE         = MIL_DIR / "teacher" / "output" / "synthetic_pairs.jsonl"
+SEVERITY_PAIRS_FILE = MIL_DIR / "teacher" / "output" / "severity_pairs.jsonl"
 RUN_LOG       = MIL_DIR / "data" / "daily_run_log.jsonl"
 
 sys.path.insert(0, str(MIL_DIR))
@@ -203,23 +204,24 @@ def print_gate_report(report: dict) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _count_approved_pairs() -> int:
-    if not PAIRS_FILE.exists():
-        return 0
     count = 0
-    for line in PAIRS_FILE.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
+    for src in [PAIRS_FILE, SEVERITY_PAIRS_FILE]:
+        if not src.exists():
             continue
-        try:
-            p = json.loads(line)
-            if not p.get("quarantine") and p.get("inference_approved", True):
-                count += 1
-        except json.JSONDecodeError:
-            pass
+        for line in src.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                p = json.loads(line)
+                if not p.get("quarantine") and p.get("inference_approved", True):
+                    count += 1
+            except json.JSONDecodeError:
+                pass
     return count
 
 
-def run_training() -> None:
+def run_training(resume: bool = False) -> None:
     """
     QLoRA fine-tuning via HuggingFace PEFT on RTX 5070 Ti.
     Requires: pip install transformers peft bitsandbytes accelerate datasets
@@ -227,9 +229,10 @@ def run_training() -> None:
     n_pairs = _count_approved_pairs()
     print(f"\n[train_qwen] Starting QLoRA fine-tuning")
     print(f"  Base model:    qwen3:8b")
-    print(f"  Pairs:         {n_pairs} approved (CHR-001 x200, CHR-002 x150, CHR-004 x100)")
+    sev_n = sum(1 for l in (SEVERITY_PAIRS_FILE.read_text(encoding="utf-8").splitlines() if SEVERITY_PAIRS_FILE.exists() else []) if l.strip())
+    print(f"  Pairs:         {n_pairs} approved ({n_pairs - sev_n} CAC inference + {sev_n} severity calibration)")
     print(f"  Hardware:      RTX 5070 Ti")
-    print(f"  Output:        mil/specialist/qwen3-mil-v1/")
+    print(f"  Output:        mil/specialist/qwen3-mil-v1-4b/")
     print()
 
     try:
@@ -242,28 +245,31 @@ def run_training() -> None:
         print("  Run: pip install unsloth transformers")
         sys.exit(1)
 
-    # Build training texts from synthetic pairs
+    # Build training texts from synthetic pairs + severity calibration pairs
     texts = []
-    for line in PAIRS_FILE.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
+    for src in [PAIRS_FILE, SEVERITY_PAIRS_FILE]:
+        if not src.exists():
             continue
-        try:
-            p = json.loads(line)
-            if not p.get("quarantine") and p.get("inference_approved", True):
-                instruction = p.get("input", "")
-                response    = p.get("reasoning_chain", "") + "\n\nAction: " + p.get("recommended_action", "")
-                texts.append(f"### Instruction:\n{instruction}\n\n### Response:\n{response}")
-        except json.JSONDecodeError:
-            pass
+        for line in src.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                p = json.loads(line)
+                if not p.get("quarantine") and p.get("inference_approved", True):
+                    instruction = p.get("input", "")
+                    response    = p.get("reasoning_chain", "") + "\n\nAction: " + p.get("recommended_action", "")
+                    texts.append(f"### Instruction:\n{instruction}\n\n### Response:\n{response}")
+            except json.JSONDecodeError:
+                pass
 
     if not texts:
         print("ERROR: No approved pairs found for training.")
         sys.exit(1)
 
-    output_dir = Path(__file__).parent / "qwen3-mil-v1"
+    output_dir = Path(__file__).parent / "qwen3-mil-v1-4b"
 
-    model_id = "unsloth/Qwen3-8B-unsloth-bnb-4bit"  # Qwen3-8B, pre-quantised 4-bit — fits 12GB VRAM
+    model_id = "unsloth/Qwen3-4B-unsloth-bnb-4bit"  # Qwen3-4B, pre-quantised 4-bit — stable on RTX 5070 Ti Blackwell
     print(f"  Loading model: {model_id}")
 
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -332,8 +338,16 @@ def run_training() -> None:
         data_collator=collator,
     )
 
+    resume_ckpt = None
+    if resume:
+        # Find latest checkpoint
+        ckpts = sorted(output_dir.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[-1]))
+        if ckpts:
+            resume_ckpt = str(ckpts[-1])
+            print(f"[train_qwen] Resuming from {ckpts[-1].name}")
+
     print(f"\n[train_qwen] Training started — {n_pairs} pairs, 3 epochs")
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume_ckpt)
     model.save_pretrained(str(output_dir))
     tokenizer.save_pretrained(str(output_dir))
     print(f"\n[train_qwen] Training complete. Model saved to: {output_dir}")
@@ -345,7 +359,8 @@ def run_training() -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="MIL QLoRA Fine-Tuning — train_qwen.py")
-    parser.add_argument("--check", action="store_true", help="Gate check only — do not train")
+    parser.add_argument("--check",  action="store_true", help="Gate check only — do not train")
+    parser.add_argument("--resume", action="store_true", help="Resume from latest checkpoint in qwen3-mil-v1/")
     args = parser.parse_args()
 
     report = run_gate_check()
@@ -354,9 +369,8 @@ def main():
     if args.check or not report["all_pass"]:
         sys.exit(0 if report["all_pass"] else 1)
 
-    # All gates clear — proceed to training
     print("[train_qwen] All gates cleared. Starting QLoRA fine-tuning...")
-    run_training()
+    run_training(resume=args.resume)
 
 
 if __name__ == "__main__":

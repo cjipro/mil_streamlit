@@ -70,46 +70,93 @@ def _load_sample_records(n: int = SAMPLE_SIZE) -> list[dict]:
     return pool
 
 
+FINETUNED_ADAPTER = Path(__file__).parent / "qwen3-mil-v1-4b"
+FINETUNED_BASE_ID  = "unsloth/Qwen3-4B-unsloth-bnb-4bit"
+
+_ft_model = None
+_ft_tokenizer = None
+
+def _load_finetuned():
+    """Load fine-tuned Qwen3-4B LoRA adapter (cached after first call)."""
+    global _ft_model, _ft_tokenizer
+    if _ft_model is not None:
+        return _ft_model, _ft_tokenizer
+    from unsloth import FastLanguageModel
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=str(FINETUNED_ADAPTER),
+        max_seq_length=1024,
+        load_in_4bit=True,
+        dtype=None,
+    )
+    FastLanguageModel.for_inference(model)
+    _ft_model, _ft_tokenizer = model, tokenizer
+    return model, tokenizer
+
+
 def _classify_with_qwen3(record: dict) -> str:
-    """Ask qwen3:14b to classify severity for a review text."""
+    """Classify severity using the fine-tuned Qwen3-4B LoRA model."""
+    import re
+    import torch
     text = (record.get("review") or record.get("review_text") or record.get("text") or record.get("body") or "")[:300]
     if not text:
         return "P2"
 
     prompt = (
-        "Banking app review severity classification.\n"
-        "P0 = blocking: app not opening, login failed, payment failed, account locked, crashing.\n"
-        "P1 = degraded: slow, partial errors, intermittent failures.\n"
-        "P2 = minor issue or positive feedback.\n\n"
-        f'Review: "{text}"\n'
-        'Reply with ONLY valid JSON, nothing else: {"severity_class": "P0"}'
+        "### Instruction:\n"
+        "Banking app review severity classification.\n\n"
+        "P0 = complete block (cannot log in at all, payment completely fails, app will not open, total loss of access).\n"
+        "P1 = significant friction (repeated failures, feature broken after update, cannot complete key action after retrying).\n"
+        "P2 = minor annoyance, cosmetic issue, or positive review.\n\n"
+        f'Review: "{text}"\n\n'
+        "Return valid JSON with severity_class and reasoning.\n\n"
+        "### Response:\n"
     )
 
     try:
-        from openai import OpenAI
-        from mil.config.get_model import get_model
-        cfg    = get_model("exec_alert")  # qwen3:14b
-        client = OpenAI(base_url=cfg["api_compat_url"], api_key="ollama")
-        resp   = client.chat.completions.create(
-            model=cfg["model"],
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.0,
-            max_tokens=2000,  # qwen3 needs budget for thinking before output
-        )
-        raw = (resp.choices[0].message.content or "").strip()
-        if not raw:
-            return "UNKNOWN"
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        # Extract first JSON object if surrounded by prose
-        import re
-        match = re.search(r'\{[^}]+\}', raw)
-        if match:
-            raw = match.group()
-        result = json.loads(raw)
-        return result.get("severity_class", "P2")
+        model, tokenizer = _load_finetuned()
+        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+        with torch.no_grad():
+            out = model.generate(
+                **inputs,
+                max_new_tokens=200,
+                temperature=0.01,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        decoded = tokenizer.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True).strip()
+
+        # Try JSON extraction first (severity pair format)
+        brace_start = decoded.find("{")
+        if brace_start != -1:
+            depth, end = 0, -1
+            for i, ch in enumerate(decoded[brace_start:], brace_start):
+                if ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        end = i
+                        break
+            if end != -1:
+                try:
+                    result = json.loads(decoded[brace_start:end + 1])
+                    sev = result.get("severity_class", "")
+                    if sev in ("P0", "P1", "P2"):
+                        return sev
+                except Exception:
+                    pass
+
+        # Fallback: extract from inline text (CAC inference format)
+        # e.g. "Severity classification: P1." or "severity: P0"
+        sev_match = re.search(r'[Ss]everity[\s\w]*:\s*(P[012])', decoded)
+        if sev_match:
+            return sev_match.group(1)
+
+        logger.debug("could not parse severity from: %s", decoded[:150])
+        return "UNKNOWN"
+    except Exception as exc:
+        logger.warning("fine-tuned model classification failed: %s", exc)
+        return "UNKNOWN"
     except Exception as exc:
         logger.warning("qwen3 classification failed: %s", exc)
         return "UNKNOWN"
