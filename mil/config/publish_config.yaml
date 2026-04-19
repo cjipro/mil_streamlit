@@ -1,0 +1,17 @@
+# mil/config/publish_config.yaml — MIL-35 PublishAdapter
+#
+# Set adapter to: github_pages | local | null
+# Clone operators swap this single value to retarget where briefings land.
+# Credentials (GITHUB_TOKEN, PUBLISH_REPO) are read from .env, not this file.
+
+adapter: github_pages
+
+github_pages:
+  branch: main
+  commit_subject: "publish: {path} {ts}"
+  committer_email: "sonar-publish@cjipro.com"
+  committer_name:  "Sonar Publisher"
+
+local:
+  # Useful for Clone operators doing dry runs or standalone deploys.
+  root_dir: "./published"

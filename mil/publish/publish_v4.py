@@ -33,10 +33,7 @@ CLI:
 from __future__ import annotations
 
 import difflib
-import os
-import subprocess
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -568,78 +565,15 @@ def diff_gate() -> int:
     return 1
 
 
-# ── GitHub Pages push (briefing-v4/index.html) ───────────────────────────────
+# ── Publish (MIL-35 PublishAdapter) ──────────────────────────────────────────
 def publish_v4(html_content: str) -> tuple[bool, str]:
-    """Push briefing-v4/index.html to GitHub Pages. Mirrors publish_v3.publish_v3."""
-    env      = legacy._load_env()
-    token    = env.get("GITHUB_TOKEN", "")
-    repo_url = env.get("PUBLISH_REPO", "")
-
-    if not token:
-        return False, "GITHUB_TOKEN not set"
-    if not repo_url:
-        return False, "PUBLISH_REPO not set"
-
-    if repo_url.startswith("https://"):
-        auth_url = repo_url.replace("https://", f"https://{token}@")
-    else:
-        slug = repo_url.rstrip("/")
-        if not slug.endswith(".git"):
-            slug += ".git"
-        auth_url = f"https://{token}@github.com/{slug}"
-
-    commit_msg = f"publish: Sonar V4 briefing {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp       = Path(tmpdir)
-        clone_dir = tmp / "pages_repo"
-
-        print("  Cloning repo ...")
-        r = subprocess.run(
-            ["git", "clone", "--depth=1", auth_url, str(clone_dir)],
-            capture_output=True, text=True, timeout=60,
-        )
-        if r.returncode != 0:
-            return False, f"git clone failed: {r.stderr.replace(token,'***').strip()}"
-
-        v4_dir = clone_dir / "briefing-v4"
-        v4_dir.mkdir(exist_ok=True)
-        dest = v4_dir / "index.html"
-        dest.write_text(html_content, encoding="utf-8")
-        print(f"  Written to {dest}")
-
-        for cmd in [
-            ["git", "-C", str(clone_dir), "config", "user.email", "sonar-publish@cjipro.com"],
-            ["git", "-C", str(clone_dir), "config", "user.name",  "Sonar Publisher"],
-        ]:
-            subprocess.run(cmd, capture_output=True)
-
-        r = subprocess.run(
-            ["git", "-C", str(clone_dir), "add", "briefing-v4/index.html"],
-            capture_output=True, text=True,
-        )
-        if r.returncode != 0:
-            return False, f"git add failed: {r.stderr.strip()}"
-
-        r = subprocess.run(
-            ["git", "-C", str(clone_dir), "commit", "-m", commit_msg],
-            capture_output=True, text=True,
-        )
-        if r.returncode != 0:
-            s = r.stderr.strip() + r.stdout.strip()
-            if "nothing to commit" in s:
-                return True, "Nothing to commit — already up to date"
-            return False, f"git commit failed: {s}"
-
-        print("  Pushing to main ...")
-        r = subprocess.run(
-            ["git", "-C", str(clone_dir), "push", "origin", "main"],
-            capture_output=True, text=True, timeout=60,
-        )
-        if r.returncode != 0:
-            return False, f"git push failed: {r.stderr.replace(token,'***').strip()}"
-
-    return True, commit_msg
+    """
+    Push briefing-v4/index.html via the configured PublishAdapter
+    (mil/config/publish_config.yaml). Clone operators swap targets there
+    without touching this file.
+    """
+    from adapters import get_adapter
+    return get_adapter().publish("briefing-v4/index.html", html_content)
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────

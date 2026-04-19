@@ -120,7 +120,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-32: Taxonomy extraction — domain_taxonomy.yaml + taxonomy_loader.py (BUILT 2026-04-19)
 - MIL-33: Circuit breaker — cached commentary fallback on provider failure (BUILT 2026-04-19)
 - MIL-34: CHRONICLE YAML format — entries/CHR-XXX.yaml, loader reads dir (BUILT 2026-04-19)
-- MIL-35: Publish adapter — PublishAdapter base class, GitHubPagesAdapter + LocalAdapter (CREATED 2026-04-19)
+- MIL-35: Publish adapter — BUILT 2026-04-19. `mil/publish/adapters.py` holds `PublishAdapter` base + `GitHubPagesAdapter`, `LocalAdapter`, `NullAdapter`. `mil/config/publish_config.yaml` selects adapter. `publish_v4.py` migrated to call `get_adapter().publish("briefing-v4/index.html", html)` — 70 lines of git-boilerplate replaced with 2. V1/V2/V3 still on legacy push (migrate when Clone operators need to retarget). Credentials (GITHUB_TOKEN, PUBLISH_REPO) stay in `.env`, never in YAML.
 - MIL-36: Vault backend abstraction — VaultBackend base class, HDFSBackend + LocalBackend stubs (CREATED 2026-04-19)
 - MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (BUILT 2026-04-19)
 - MIL-38: Notification layer — Slack adapter live; Autonomous Heartbeat live — STARTING ping at main() entry + CRASHED ping from outer exception handler at `__main__`, plus existing CLEAN/PARTIAL/FAILED completion ping (zero-finding runs included). Absence of a completion ping within ~30 min of STARTING = mid-pipeline crash; no STARTING at 06:30 UTC = cron didn't fire. (BUILT 2026-04-19)
