@@ -4,10 +4,10 @@
 # Populate the matching section with credentials.
 # Leave adapter: null to disable all notifications.
 
-adapter: null   # change to slack / teams / email when ready
+adapter: slack
 
 slack:
-  webhook_url: ""   # Slack incoming webhook URL
+  webhook_url: "${SLACK_WEBHOOK_URL}"
 
 teams:
   webhook_url: ""   # Microsoft Teams incoming webhook URL
