@@ -117,7 +117,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 **Next ticket: MIL-32 (undefined)**
 
 **Phase 2 — COMPLETE (2026-04-16)**
-- MIL-25: QLoRA Gate Clearance — specialist stack built, 4/5 gates passed (BUILT 2026-04-05, Gate 1 clears 2026-04-19)
+- MIL-25: QLoRA Gate Clearance — ALL 5 GATES CLEAR. Qwen3-4B trained, Gate 5 ACTIVE (BUILT 2026-04-05, COMPLETE 2026-04-19)
 - MIL-26: ARCH-003 model routing — model_routing.yaml schema v1.1, four-tier Opus/Sonnet/Haiku/Qwen3 (BUILT 2026-04-12)
 - MIL-27: Benchmark Engine + Persistence Log — mil/data/benchmark_engine.py, issue_persistence_log.jsonl (BUILT 2026-04-12)
 - MIL-28: Commentary Engine — mil/publish/commentary_engine.py, Sonnet analyst prose per issue type (BUILT 2026-04-12)
@@ -193,18 +193,18 @@ File: `mil/inference/mil_agent.py`
 - Refuel-8B called per finding for `blind_spots` + `failure_mode` only (not finding_summary)
 - Deterministic fallback if Refuel unavailable (Article Zero compliant)
 - issue_type (v3) -> journey_id mapping in JOURNEY_MAP (updated from v2 journey_category)
-- **Current findings: 136 total | 100% anchored | 7 Designed Ceiling (2026-04-18, Run #34)**
+- **Current findings: 138 total | 100% anchored | 7 Designed Ceiling (2026-04-19, Run #35)**
 - **blind_spots fix**: Refuel-8B returns blind_spots as string; coerced to list on ingest (2026-04-05)
 
 ### Analytics Database — mil_analytics.db (BUILT 2026-04-17, updated 2026-04-18)
 File: `mil/analytics/build_analytics_db.py`
 - Complete queryable analytics layer — 9 tables, rebuilt every run as Step 4e
-- **Tables (as of Run #34, 2026-04-18):**
+- **Tables (as of Run #35, 2026-04-19):**
   - `reviews` — 7,418 enriched records across all 6 sources / 6 competitors
   - `findings` — 136 CAC findings (confidence_score, cac_components, chronicle_id, clark tier, ceiling flag)
   - `chr_entries` — 19 rows (CHR-001 to CHR-019)
   - `benchmark_history` — 240 rows, daily gap_pp / days_active / over_indexed per issue type
-  - `daily_runs` — 33 rows, pipeline run log. Fields as of 2026-04-18: run, date, status, failed_steps, new_records, findings, p0_count, p1_count, chr_anchor_top3, clark_tier_max, m1_streak, churn_risk_score, churn_risk_trend
+  - `daily_runs` — 34 rows, pipeline run log. Fields as of 2026-04-19: run, date, status, failed_steps, new_records, findings, p0_count, p1_count, chr_anchor_top3, clark_tier_max, m1_streak, churn_risk_score, churn_risk_trend
   - `clark_log` — 231 rows, full escalation / downgrade history with Opus synthesis
   - `vault_log` — 31 rows, mirror of mil_vault.db anchor log
   - `commentary` — 4 rows, Sonnet analyst prose per issue per day
@@ -437,6 +437,7 @@ Fixes applied:
 - `test_cac.py`: rewritten to import from cac.py (was testing an inline copy of the formula)
 
 CHR distribution check (Run #34): CHR-003 22%, CHR-002 18%, CHR-005 18% — no magnet. Spread healthy.
+Churn score Run #35: 53.4 WORSENING (up from 49.2). 182 new records ingested.
 Churn score normalization break: runs 1–32 unnormalized (77–107), run 33+ normalized 0–100. Anomaly threshold not valid until Run #47.
 31 tests passing: `py -m pytest mil/tests/test_cac.py mil/tests/test_rag.py -v`
 
@@ -457,29 +458,28 @@ File: `mil/researcher/research_agent.py`
 - Run: `py mil/researcher/research_agent.py`
 - Flags: `--dry-run` (cluster report only), `--competitor <name>` (filter), `--force` (bypass coverage skip)
 
-### MIL-25 — QLoRA Gate Clearance (BUILT 2026-04-05)
+### MIL-25 — QLoRA Gate Clearance (COMPLETE 2026-04-19)
 Specialist stack: `mil/specialist/`
 
 | Gate | Condition | Status |
 |------|-----------|--------|
-| 1 | 14+ days real signal data | PENDING — 16/14 days as of 2026-04-16, clears 2026-04-19 |
+| 1 | 14+ days real signal data | PASS — 16 run days confirmed 2026-04-19 |
 | 2 | Synthetic pairs validated (human) | PASS — countersigned by Hussain 2026-04-05 |
 | 3 | CAC weights approved on real corpus | PASS — retained, approved by Hussain 2026-04-05 |
 | 4 | Adversarial Attacker passes evaluation | PASS — 80% survival rate on high-CAC findings |
-| 5 | Collision Lock baseline recorded | PASS — pre-training LOCKED documented |
+| 5 | Collision Lock ACTIVE | PASS — post-training P0=90% P1=100% overall=95% (2026-04-19) |
 
-- `mil/specialist/adversarial_attacker.py` — Gate 4: stress-tests high-CAC findings via Refuel-8B. Pass = >=80% survival.
-- `mil/specialist/collision_lock.py` — Gate 5: Haiku vs qwen3 P0/P1 agreement check. Pre-training LOCKED expected. Re-run post-training to confirm ACTIVE.
-- `mil/specialist/cac_calibrator.py` — Gate 3: CAC weight analysis on real corpus. RETAIN confirmed (100% chr match, 37.7% ceiling rate). `--approve` records human sign-off.
-- `mil/specialist/validate_pairs.py` — Gate 2: side-by-side synthetic pair vs real finding review. `--sign` records countersignature.
-- `mil/specialist/train_qwen.py` — entry point: gate check + QLoRA training. Run `--check` to see gate status. Training only executes when all 5 pass.
+**Trained model:** `mil/specialist/qwen3-mil-v1-4b/` — Qwen3-4B, 600 pairs (450 CAC + 150 severity), 3 epochs, loss=2.293
+- **Why 4B not 8B**: RTX 5070 Ti Blackwell (sm_120) has bitsandbytes instability at 8B 4-bit. 4B stable at 9GB VRAM.
+- `mil/specialist/build_severity_pairs.py` — generates 150 severity calibration pairs from Haiku corpus (60 P0, 60 P1, 30 P2)
+- `mil/teacher/output/severity_pairs.jsonl` — severity training pairs (used alongside synthetic_pairs.jsonl)
+- `mil/specialist/train_qwen.py` — `--resume` flag added; loads both pair files; Qwen3-4B base
+- `mil/specialist/collision_lock.py` — tests fine-tuned LoRA adapter directly via unsloth (not Ollama base); dual-format JSON + inline CAC text parser
 
-Gate check: `py mil/specialist/train_qwen.py --check`
-Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
-**Training stack ready (2026-04-18)**: unsloth installed, torch 2.11.0+cu128, RTX 5070 Ti confirmed. Restart machine after CUDA Toolkit 13.2 install before training run.
+**Next:** Wire qwen3-mil-v1-4b into model_routing.yaml. Collision lock re-run required post any retraining.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
-- **M1**: DONE — streak 18/5 as of 2026-04-18. Run #34 logged. Tracker: mil/data/daily_run_log.jsonl
+- **M1**: DONE — streak 19/5 as of 2026-04-19. Run #35 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
 - **M3**: DONE — 34 ceiling triggers (threshold was 22). Now 7 ceiling with 90-day window (stale all-time volume removed)
 
@@ -491,12 +491,8 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 
 ### Pending Human Actions (Hussain)
 - Close MIL-11 through MIL-31 in Jira UI
-- **Apr 19 (Gate 1 clears)**: Restart machine first (CUDA Toolkit 13.2 PATH). Then:
-  1. `py mil/specialist/collision_lock.py` (pre-training baseline)
-  2. `py mil/tests/enrichment_spot_check.py --sample 50` — generates stratified 50-record held-out eval set
-  3. Label the 50 records (human_issue_type + human_severity_class) — ~1–2 hours
-  4. `py mil/specialist/train_qwen.py` (fine-tune on RTX 5070 Ti via unsloth) — only after labels complete
-- **Apr 20 (MIL autonomous)**: Swap fine-tuned model into enrichment route in model_routing.yaml. Schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
+- **Apr 19 DONE**: Gate 1 cleared. Collision lock ACTIVE (P0=90%, P1=100%). Qwen3-4B trained (qwen3-mil-v1-4b). Run #35 clean, streak 19/5.
+- **Apr 20 (MIL autonomous)**: Wire qwen3-mil-v1-4b into model_routing.yaml. Schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
 - **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
@@ -508,7 +504,7 @@ Post Gate 1 (~2026-04-19): re-run collision_lock.py then execute training.
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 7,418 enriched records across 31 files (schema v3, claude-haiku-4-5-20251001). 136 findings | 100% anchored | 7 Designed Ceiling. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score normalised 0-100 (49.2 WORSENING) — normalization introduced Run #33; anomaly threshold valid from Run #47. Run #34, streak 18/5, 2026-04-18. MIL goes autonomous 2026-04-20.**
+**Current corpus: 7,570 enriched records. 138 findings | 100% anchored | 7 Designed Ceiling. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 53.4 WORSENING (Run #35). Normalization introduced Run #33; anomaly threshold valid from Run #47. Run #35, streak 19/5, 2026-04-19. QLoRA complete — qwen3-mil-v1-4b Gate 5 ACTIVE. MIL goes autonomous 2026-04-20.**
 
 ### MIL Zero Entanglement — HARD RULE
 
