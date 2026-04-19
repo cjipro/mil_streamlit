@@ -262,6 +262,14 @@ def log_escalation(finding: dict, tier: str, reason: str) -> None:
     if synthesis_note:
         logger.info("[clark] CLARK-3 Opus synthesis generated for %s", entry["finding_id"])
 
+    # MIL-38: send immediate notification on CLARK-3
+    if tier == "CLARK-3":
+        try:
+            from mil.notify.notifier import notify_clark3
+            notify_clark3(finding, synthesis=synthesis_note)
+        except Exception as exc:
+            logger.warning("[clark] CLARK-3 notification failed (non-fatal): %s", exc)
+
 
 def log_downgrade(finding_id: str, from_tier: str, to_tier: str, reason: str) -> None:
     entry = {

@@ -670,6 +670,27 @@ def main() -> None:
     _steps.append(("6  Log Run", "DONE", f"Run #{_run_entry.get('run', '?')} | streak={_run_entry.get('m1_streak', '?')}/5"))
 
     _print_run_summary(_steps, fetch_counts, _benchmark_result, failed_steps, _enrich_model, _run_entry.get("run", 0))
+
+    # MIL-38: send run-completion notification
+    try:
+        from mil.notify.notifier import notify_run_complete
+        _eg      = _egress_today_summary()
+        _bm      = _benchmark_result or {}
+        _status  = ("FAILED" if (_CRITICAL_STEPS & set(failed_steps)) else
+                    ("PARTIAL" if failed_steps else "CLEAN"))
+        notify_run_complete(
+            run_number   = _run_entry.get("run", 0),
+            status       = _status,
+            failed_steps = failed_steps,
+            churn_score  = _bm.get("churn_risk_score"),
+            churn_trend  = _bm.get("churn_risk_trend", "?"),
+            clark_max    = _run_entry.get("clark_tier_max", "CLARK-0"),
+            cost_usd     = _eg.get("cost_usd", 0.0),
+            new_records  = sum(fetch_counts.values()),
+        )
+    except Exception as exc:
+        logger.warning("[notify] run-complete notification failed (non-fatal): %s", exc)
+
     logger.info("=== Done ===")
 
 
