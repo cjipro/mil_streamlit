@@ -24,6 +24,17 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Force stdout/stderr to UTF-8 so the ✓/✗/etc. glyphs in _print_run_summary
+# don't crash autonomous runs on Windows (Task Scheduler redirects to a log
+# file, at which point Python defaults to cp1252). Same pattern publish_v3.py
+# uses. errors="replace" means a truly un-encodable glyph degrades to "?"
+# instead of killing the pipeline.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -506,6 +517,16 @@ def main() -> None:
     except Exception:
         _enrich_model = "unknown"
 
+    # MIL-38 Autonomous Heartbeat: STARTING ping before any step can fail.
+    # Pairs with the CLEAN/PARTIAL/FAILED ping at end of main(). Absence of a
+    # follow-up ping within ~30 min means the pipeline crashed mid-run.
+    try:
+        from mil.notify.notifier import notify_run_starting
+        _hb_mode = "dry-run" if args.dry_run else ("skip-fetch" if args.skip_fetch else "full")
+        notify_run_starting(enrich_model=_enrich_model, mode=_hb_mode)
+    except Exception as exc:
+        logger.warning("[notify] start heartbeat failed (non-fatal): %s", exc)
+
     if not args.skip_fetch:
         logger.info("--- Step 1: Fetch ---")
         fetch_counts = fetch_new_records()
@@ -811,4 +832,16 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_st
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as _exc:
+        # MIL-38 Autonomous Heartbeat: CRASH ping fires when an unhandled
+        # exception escapes main() — before the normal completion heartbeat
+        # would. Step-level failures still take the PARTIAL/FAILED path.
+        try:
+            from mil.notify.notifier import notify_run_crashed
+            notify_run_crashed(_exc)
+        except Exception:
+            pass
+        logger.exception("[run_daily] uncaught exception — crash heartbeat sent")
+        raise

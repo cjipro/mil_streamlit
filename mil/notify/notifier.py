@@ -16,6 +16,7 @@ import logging
 import smtplib
 import urllib.request
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from functools import lru_cache
@@ -211,6 +212,46 @@ def notify_clark3(finding: dict, synthesis: str = "") -> bool:
         lines += ["", "Opus synthesis:", synthesis]
     lines += ["", "Review at: cjipro.com/briefing-v3"]
     body = "\n".join(lines)
+    return notifier._safe_send(subject, body)
+
+
+# ── Autonomous Heartbeat (MIL-38) ─────────────────────────────────────────────
+# Two pings bracket the pipeline so Hussain can distinguish:
+#   STARTING present, completion ping absent within ~30min → crashed mid-run
+#   STARTING absent at 06:30 UTC                            → cron didn't fire
+# The CRASHED ping fires from an outer try/except in run_daily.py, catching
+# anything the step-level handlers let slip through.
+
+def notify_run_starting(enrich_model: str = "unknown", mode: str = "full") -> bool:
+    """Pipeline-start heartbeat. Call first thing in run_daily.py main()."""
+    notifier = get_notifier()
+    if isinstance(notifier, NullAdapter):
+        return True
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    subject = "MIL Run ▶ STARTING"
+    body = (
+        f"Pipeline started at {now}.\n"
+        f"Mode         : {mode}\n"
+        f"Enrich model : {enrich_model}\n"
+        f"Expect a CLEAN / PARTIAL / FAILED completion ping within ~15 min.\n"
+        f"If no follow-up ping arrives, the run crashed mid-pipeline."
+    )
+    return notifier._safe_send(subject, body)
+
+
+def notify_run_crashed(exc: BaseException) -> bool:
+    """Uncaught-exception heartbeat. Call from outer try/except at __main__."""
+    notifier = get_notifier()
+    if isinstance(notifier, NullAdapter):
+        return True
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    subject = "MIL Run ✗ CRASHED"
+    body = (
+        f"Pipeline raised an unhandled exception at {now}.\n"
+        f"Exception: {type(exc).__name__}: {str(exc)[:200]}\n\n"
+        f"Fired AFTER the STARTING heartbeat but BEFORE the normal completion ping. "
+        f"daily_run_log.jsonl may be missing today's entry — investigate run_daily.py logs."
+    )
     return notifier._safe_send(subject, body)
 
 

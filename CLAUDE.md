@@ -123,7 +123,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-35: Publish adapter — PublishAdapter base class, GitHubPagesAdapter + LocalAdapter (CREATED 2026-04-19)
 - MIL-36: Vault backend abstraction — VaultBackend base class, HDFSBackend + LocalBackend stubs (CREATED 2026-04-19)
 - MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (BUILT 2026-04-19)
-- MIL-38: Notification layer — Slack adapter live; add Autonomous Heartbeat (success ping even on zero-finding runs) (BUILT 2026-04-19, heartbeat TODO)
+- MIL-38: Notification layer — Slack adapter live; Autonomous Heartbeat live — STARTING ping at main() entry + CRASHED ping from outer exception handler at `__main__`, plus existing CLEAN/PARTIAL/FAILED completion ping (zero-finding runs included). Absence of a completion ping within ~30 min of STARTING = mid-pipeline crash; no STARTING at 06:30 UTC = cron didn't fire. (BUILT 2026-04-19)
 - MIL-39: Jinja2 migration — BUILT 2026-04-19 as **Sonar V4 parallel briefing** at cjipro.com/briefing-v4. Same layout as V3 plus four-field Provenance Chain per Inference Card (chronicle_id / signal_ids / class_ver / teacher_ver — FCA Consumer Duty 2.0). V3 untouched on legacy f-string path for cutover window. Retire V3 only after V4 proves out 7+ clean days.
 - MIL-48: Drift Detection Monitor — include "Silent Wall" detection (spike in 1-star ratings with zero review text = non-vocal regression signal)
 
