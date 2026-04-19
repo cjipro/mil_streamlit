@@ -119,11 +119,13 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 **Phase A — Clone Foundation (IN PROGRESS 2026-04-19)**
 - MIL-32: Taxonomy extraction — domain_taxonomy.yaml + taxonomy_loader.py (BUILT 2026-04-19)
 - MIL-33: Circuit breaker — cached commentary fallback on provider failure (BUILT 2026-04-19)
-- MIL-34: CHRONICLE YAML format — structured CHR entries, auto-generated Markdown view (CREATED 2026-04-19)
+- MIL-34: CHRONICLE YAML format — entries/CHR-XXX.yaml, loader reads dir (BUILT 2026-04-19)
 - MIL-35: Publish adapter — PublishAdapter base class, GitHubPagesAdapter + LocalAdapter (CREATED 2026-04-19)
 - MIL-36: Vault backend abstraction — VaultBackend base class, HDFSBackend + LocalBackend stubs (CREATED 2026-04-19)
-- MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (CREATED 2026-04-19)
-- MIL-38: Notification layer — email/Slack/Teams webhook on CLARK-3 + run completion (CREATED 2026-04-19)
+- MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (BUILT 2026-04-19)
+- MIL-38: Notification layer — Slack adapter live; add Autonomous Heartbeat (success ping even on zero-finding runs) (BUILT 2026-04-19, heartbeat TODO)
+- MIL-39: Jinja2 migration — golden snapshot captured 2026-04-19 (1741 lines / 106KB). Must render four-field Provenance Chain (chronicle_id/signal_ids/class_ver/teacher_ver) on every Inference Card (FCA Consumer Duty 2.0)
+- MIL-48: Drift Detection Monitor — include "Silent Wall" detection (spike in 1-star ratings with zero review text = non-vocal regression signal)
 
 **Phase 2 — COMPLETE (2026-04-16)**
 - MIL-25: QLoRA Gate Clearance — ALL 5 GATES CLEAR. Qwen3-4B trained, Gate 5 ACTIVE (BUILT 2026-04-05, COMPLETE 2026-04-19)
