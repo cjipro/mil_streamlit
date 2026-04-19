@@ -33,7 +33,7 @@ Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
 Tickets: MIL-1 through MIL-33 (BUILT)
-Next ticket: MIL-34
+Next ticket: MIL-39
 Scope: Public market intelligence only. No PII. Open governance.
 
 ### Hard Rule
@@ -114,11 +114,16 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - Run: `py mil/publish/publish_v3.py`
 - **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
 
-**Next ticket: MIL-34 (CHRONICLE YAML format — Phase A clone foundation)**
+**Next ticket: MIL-39**
 
 **Phase A — Clone Foundation (IN PROGRESS 2026-04-19)**
 - MIL-32: Taxonomy extraction — domain_taxonomy.yaml + taxonomy_loader.py (BUILT 2026-04-19)
 - MIL-33: Circuit breaker — cached commentary fallback on provider failure (BUILT 2026-04-19)
+- MIL-34: CHRONICLE YAML format — structured CHR entries, auto-generated Markdown view (CREATED 2026-04-19)
+- MIL-35: Publish adapter — PublishAdapter base class, GitHubPagesAdapter + LocalAdapter (CREATED 2026-04-19)
+- MIL-36: Vault backend abstraction — VaultBackend base class, HDFSBackend + LocalBackend stubs (CREATED 2026-04-19)
+- MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (CREATED 2026-04-19)
+- MIL-38: Notification layer — email/Slack/Teams webhook on CLARK-3 + run completion (CREATED 2026-04-19)
 
 **Phase 2 — COMPLETE (2026-04-16)**
 - MIL-25: QLoRA Gate Clearance — ALL 5 GATES CLEAR. Qwen3-4B trained, Gate 5 ACTIVE (BUILT 2026-04-05, COMPLETE 2026-04-19)
@@ -353,7 +358,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-34 (CHRONICLE YAML format)**
+**Next ticket: MIL-39**
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
