@@ -19,6 +19,17 @@ last_updated: "2026-04-12"
 #             Tier 3 (Haiku/Refuel-8B): classifies at scale — enrichment, CAC+RAG
 #             Tier 4 (Qwen3):   generates and transforms — YAML, scripts, labour
 #             qwen3 exec_alert superseded by Sonnet (exec_alert_v3). MIL-26 2026-04-12.
+#   ARCH-005: qwen3-mil-v1-4b specialist declared (MIL-25 Gate 5 ACTIVE, P0=90% P1=100%).
+#             Status: DECLARED, not live-routed. Trained on 600 pairs (450 CAC +
+#             150 severity calibration). LoRA adapter at mil/specialist/qwen3-mil-v1-4b/
+#             has NOT been merged to GGUF and NOT deployed to Ollama. The
+#             specialist_severity route below points to the future Ollama tag
+#             `qwen3-mil-v1:latest` so callers can fetch the reference via
+#             get_model("specialist_severity"), but any actual call will 404
+#             against Ollama until deploy. Path to live: (a) merge LoRA + GGUF
+#             quantise, (b) `ollama create qwen3-mil-v1 -f Modelfile`, (c) held-out
+#             eval vs qwen3:14b enrichment baseline, (d) manual spot-check,
+#             (e) flip status: declared -> status: live. 2026-04-19.
 
 providers:
   anthropic:
@@ -136,6 +147,23 @@ routes:
       CAC formula, RAG against CHRONICLE, signal classification.
       Deterministic fallback if Refuel unavailable (Article Zero).
       Unchanged ARCH-003.
+
+  # ── MIL Specialist: CAC + Severity (DECLARED, NOT LIVE) ───────
+  specialist_severity:
+    model: "qwen3-mil-v1:latest"
+    provider: ollama
+    max_tokens: 512
+    status: declared
+    note: >
+      ARCH-005. qwen3-mil-v1-4b — QLoRA-tuned Qwen3-4B, trained on 450 CAC
+      pairs + 150 severity pairs. Gate 5 ACTIVE (P0=90%, P1=100%, overall=95%
+      on collision-lock). NOT yet merged to GGUF, NOT yet deployed to Ollama.
+      This route is a forward declaration — callers can reference it but any
+      actual call will 404 against Ollama until the specialist is deployed.
+      Intended use when live: second-opinion severity calibration on P0/P1
+      classifications, audit trail for important findings. Promote to
+      status: live after (a) GGUF quantise + `ollama create qwen3-mil-v1`,
+      (b) held-out eval, (c) manual spot-check. 2026-04-19.
 
   # ════════════════════════════════════════════════════════════════
   # TIER 4 — QWEN3 (LOCAL) — Generates and transforms

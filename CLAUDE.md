@@ -518,7 +518,7 @@ Specialist stack: `mil/specialist/`
 - `mil/specialist/train_qwen.py` — `--resume` flag added; loads both pair files; Qwen3-4B base
 - `mil/specialist/collision_lock.py` — tests fine-tuned LoRA adapter directly via unsloth (not Ollama base); dual-format JSON + inline CAC text parser
 
-**Next:** Wire qwen3-mil-v1-4b into model_routing.yaml. Collision lock re-run required post any retraining.
+**Wiring status (2026-04-19):** `specialist_severity` route **declared** in model_routing.yaml (ARCH-005). `get_model("specialist_severity")` resolves to `qwen3-mil-v1:latest` on Ollama, but **not live** — LoRA adapter hasn't been merged to GGUF and Ollama doesn't yet serve the model. Path to live: (a) merge LoRA + GGUF quantise, (b) `ollama create qwen3-mil-v1 -f Modelfile`, (c) held-out eval vs qwen3:14b enrichment baseline, (d) manual spot-check, (e) flip `status: declared` → `status: live` in model_routing.yaml. Collision lock re-run required post any retraining.
 
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
 - **M1**: DONE — streak 19/5 as of 2026-04-19. Run #35 logged. Tracker: mil/data/daily_run_log.jsonl
@@ -535,7 +535,7 @@ Specialist stack: `mil/specialist/`
 - Close MIL-11 through MIL-31 in Jira UI
 - **Apr 19 DONE**: Gate 1 cleared. Collision lock ACTIVE (P0=90%, P1=100%). Qwen3-4B trained (qwen3-mil-v1-4b). Run #35 clean, streak 19/5. MIL-32/33/34/37/38 all BUILT. Slack notification layer LIVE. Golden HTML snapshot locked for MIL-39.
 - **Apr 20 autonomy HELD** (panel-reviewed decision): tighten every screw first. Use Apr 20–27 for MIL-39 (Jinja2), MIL-35 (publish adapter), MIL-36 (vault backend), held-out eval of qwen3-mil-v1-4b, calibration baseline, drift detection, 3 consecutive clean manual runs.
-- **Apr 28–30 (revised autonomy target)**: wire qwen3-mil-v1-4b into model_routing.yaml, schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
+- **Apr 28–30 (revised autonomy target)**: qwen3-mil-v1-4b now declared in model_routing.yaml (ARCH-005, `specialist_severity` route). Remaining before live: GGUF quantise → `ollama create` → held-out eval vs qwen3:14b baseline → flip `status: declared` → `status: live`. Then schedule `run_daily.py` via cron (06:30 UTC). MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
 - **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
