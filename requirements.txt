@@ -30,6 +30,9 @@ json-repair>=0.30.0
 streamlit>=1.40.0
 plotly>=5.22.0
 
+# ── Templating (MIL-39 briefing_v3 Jinja2 migration) ─────────────────────────
+jinja2>=3.1
+
 # ── Scheduling ────────────────────────────────────────────────────────────────
 apscheduler>=3.10.4
 

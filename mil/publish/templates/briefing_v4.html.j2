@@ -1,0 +1,243 @@
+{# MIL Sonar Briefing V3 — Jinja2 skeleton (MIL-39).
+
+   Blocks are filled section-by-section in Steps 3–7 of the execution plan.
+   Do not migrate content here; content goes block-by-block in subsequent steps.
+
+   Block emission order / destination:
+     box3_intelligence_brief → injected into V1 Box 3 slot via <!-- V3-BOX3 --> marker.
+                               Renders standalone; lives outside v3-outer.
+     churn_risk_score        → v3-outer (below-fold intelligence layer)
+     analyst_commentary      → v3-outer
+     technical_benchmark     → v3-outer
+     service_benchmark       → v3-outer
+     intelligence_findings   → v3-outer — MUST render four-field Provenance Chain
+                               per card: chronicle_id / signal_ids / class_ver /
+                               teacher_ver (FCA Consumer Duty 2.0).
+     clark_protocol          → v3-outer
+
+   Rendered by publish_v3_jinja.py (parallel build). publish_v3.py (f-string
+   legacy) stays untouched until golden-diff gate passes for every section.
+#}
+{#─ box3 (Intelligence Brief) — injected into V1's Box 3 slot ─────────────────
+   Context required:
+     situation   : str  — THE SITUATION prose (Sonnet commentary or deterministic fallback)
+     top_quote   : str  — pre-truncated review quote (<= 220 chars) or "" to suppress block
+     peer_prose  : str  — PEER COMPARISON prose (deterministic from benchmark gap data)
+     call_prose  : str  — THE CALL prose (mapped from Clark tier)
+     top_tier    : str  — "CLARK-3" | "CLARK-2" | "CLARK-1" | "CLARK-0"
+     clark_label : str  — human label ("ACT NOW" | "ESCALATE" | "WATCH" | "NOMINAL")
+     clark_col   : str  — hex colour for tier (label + tier badge)
+#}
+{% block box3_intelligence_brief -%}
+<div class="topbar-box exec-alert-panel">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE BRIEF</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
+  </div>
+  <div class="topbar-box-body">
+    <div style="margin-bottom:14px;">
+      <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
+                  letter-spacing:1px;margin-bottom:5px;">The Situation</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{{ situation }}</div>
+    </div>
+    {%- if top_quote %}
+    <div style="font-size:11px;color:#4A7A8F;font-style:italic;
+                border-left:2px solid #003A5C;padding-left:10px;
+                margin:10px 0 14px;">&ldquo;{{ top_quote }}&rdquo;</div>
+    {%- endif %}
+    <div style="margin-bottom:14px;border-top:1px solid #003A5C;padding-top:14px;">
+      <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
+                  letter-spacing:1px;margin-bottom:5px;">Peer Comparison</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{{ peer_prose }}</div>
+    </div>
+    <div style="margin-bottom:14px;border-top:1px solid #003A5C;padding-top:14px;">
+      <div style="font-size:9px;color:{{ clark_col }};text-transform:uppercase;
+                  letter-spacing:1px;margin-bottom:5px;">The Call</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{{ call_prose }}</div>
+    </div>
+    <div style="margin-top:6px;">
+      <span style="padding:2px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                   background:{{ clark_col }}22;color:{{ clark_col }};border:1px solid {{ clark_col }};">
+        {{ top_tier }} — {{ clark_label }}
+      </span>
+    </div>
+  </div>
+</div>
+{%- endblock %}
+{#─ /box3 ─────────────────────────────────────────────────────────────────────#}
+
+{#─ Below-fold intelligence layer — appended before V1 </body> ────────────────#}
+{{ v3_styles | safe }}
+<hr class="v3-divider">
+<div class="v3-outer">
+  <div class="v3-label">
+    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; {{ now_utc }}
+  </div>
+  {% block churn_risk_score %}{% endblock %}
+  {%- block analyst_commentary -%}
+  {#─ Context required: commentary.cards[], commentary.risk_count, commentary.strength_count
+     Each card: btype, issue, cat_label, sev, sev_cls, b_rate, p_rate, gap_str, gap_col,
+                days, first, cached, prose, quote, chr_line.
+     Renders nothing when cards list is empty. #}
+  {%- if commentary.cards %}
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">ANALYST COMMENTARY</span>
+    <span style="font-size:10px;color:#3A6A7F;">
+      Sonnet inference per issue type &nbsp;&middot;&nbsp;
+      {{ commentary.risk_count }} risk &nbsp;&middot;&nbsp;
+      {{ commentary.strength_count }} strength
+    </span>
+  </div>
+  <div class="topbar-box-body">
+    <div class="commentary-grid">
+      {%- for c in commentary.cards %}
+      <div class="commentary-card {{ c.btype }}">
+        <div class="commentary-card-header">
+          <span class="commentary-issue">{{ c.issue }}</span>
+          {%- if c.btype == "risk" %}
+          <span class="commentary-badge risk">RISK</span>
+          {%- else %}
+          <span class="commentary-badge strength">STRENGTH</span>
+          {%- endif %}
+          <span class="commentary-badge {{ c.sev_cls }}">{{ c.sev }}</span>
+          <span style="font-size:9px;color:#3A6A7F;">{{ c.cat_label }}</span>
+          {%- if c.cached %}
+          <span style="font-size:9px;padding:2px 6px;border-radius:3px;background:#1A1200;color:#F5A623;border:1px solid #F5A623;font-weight:700;">&#9888; CACHED</span>
+          {%- endif %}
+        </div>
+        <div class="commentary-stats">
+          <div class="commentary-stat">Barclays rate <span>{{ "%.1f"|format(c.b_rate) }}%</span></div>
+          <div class="commentary-stat">Peer avg <span>{{ "%.1f"|format(c.p_rate) }}%</span></div>
+          <div class="commentary-stat">Gap <span style="color:{{ c.gap_col }};">{{ c.gap_str }}</span></div>
+          {%- if c.days > 0 %}
+          <div class="commentary-stat">Active <span>{{ c.days }} days</span></div>
+          {%- endif %}
+          {%- if c.first %}
+          <div class="commentary-stat">Since <span>{{ c.first }}</span></div>
+          {%- endif %}
+        </div>
+        <div class="commentary-prose">{{ c.prose }}</div>
+        {%- if c.quote %}
+        <div class="commentary-quote">&ldquo;{{ c.quote }}&rdquo;</div>
+        {%- endif %}
+        {%- if c.chr_line %}
+        <div class="commentary-chr">Chronicle context: {{ c.chr_line }}</div>
+        {%- endif %}
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</div>
+  {%- endif %}
+  {%- endblock %}
+  {%- block technical_benchmark -%}
+  {%- set s = tech_bench -%}
+  {%- include "_benchmark_section.html.j2" -%}
+  {%- endblock %}
+  {%- block service_benchmark -%}
+  {%- set s = svc_bench -%}
+  {%- include "_benchmark_section.html.j2" -%}
+  {%- endblock %}
+  {%- block intelligence_findings -%}
+  {#─ Context required: findings.cards[], findings.total, findings.ceiling_count,
+     findings.render_provenance (bool).
+     Each card: fid, tier, tier_col, sev, ceiling (bool), chr_id, summary_text,
+                cac, cac_pct, cac_col, journey, counts.{P0,P1,P2}, keywords[],
+                provenance.{chronicle_id, signal_ids_display, class_ver, teacher_ver}.
+     render_provenance=True adds the four-field Provenance Chain per card
+     (FCA Consumer Duty 2.0). Set to False only inside the structural diff gate. #}
+  {%- if findings.cards %}
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE FINDINGS</span>
+    <span style="font-size:10px;color:#3A6A7F;">
+      Barclays &nbsp;&middot;&nbsp; top {{ findings.total }} by CAC score &nbsp;&middot;&nbsp;
+      <span style="color:#CC0000;">{{ findings.ceiling_count }} ceiling</span>
+    </span>
+  </div>
+  <div class="topbar-box-body">
+    {%- for c in findings.cards %}
+    <div class="inf-card" style="border-left-color:{{ c.tier_col }};">
+      <div class="inf-header">
+        <span class="inf-id">{{ c.fid }}</span>
+        <span class="inf-tier" style="color:{{ c.tier_col }};">{{ c.tier }}</span>
+        <span class="inf-sev">SIG {{ c.sev }}</span>
+        {%- if c.ceiling %}
+        <span class="badge-ceiling">&#9873; CEILING</span>
+        {%- endif %}
+        {%- if c.chr_id %}
+        <span class="badge-chr">{{ c.chr_id }}</span>
+        {%- endif %}
+      </div>
+      <div class="inf-summary">{{ c.summary_text }}</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:{{ c.cac_pct }}%;background:{{ c.cac_col }};"></div>
+        <span class="cac-val" style="color:{{ c.cac_col }};">{{ "%.3f"|format(c.cac) }}</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>{{ c.journey or "—" }}</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:{{ c.counts.P0 }}</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:{{ c.counts.P1 }}</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:{{ c.counts.P2 }}</span>
+        </span>
+        <span class="inf-kw">{% for k in c.keywords %}<span class="kw-pill">{{ k }}</span>{% endfor %}</span>
+      </div>
+      {%- if findings.render_provenance %}
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> {{ c.provenance.chronicle_id or "—" }}</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> {{ c.provenance.signal_ids_display }}</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> {{ c.provenance.class_ver or "—" }}</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> {{ c.provenance.teacher_ver or "—" }}</span>
+      </div>
+      {%- endif %}
+    </div>
+    {%- endfor %}
+  </div>
+</div>
+  {%- endif %}
+  {%- endblock %}
+  {%- block clark_protocol -%}
+  {#─ Context required: clark.tiles[] (always 4: CLARK-3/2/1/0),
+                        clark.rows[] (may be empty → fallback msg).
+     Each tile: tier, label, count, colour.
+     Each row:  fid, tier, label, colour, cac, reason, ts. #}
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">CLARK PROTOCOL</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays escalation status</span>
+  </div>
+  <div class="topbar-box-body">
+    <div class="clark-strip">
+    {%- for t in clark.tiles %}
+      <div class="clark-tile" style="border-top-color:{{ t.colour }};">
+        <div class="clark-count" style="color:{{ t.colour }};">{{ t.count }}</div>
+        <div class="clark-tier">{{ t.tier }}</div>
+        <div class="clark-label">{{ t.label }}</div>
+      </div>
+    {%- endfor %}
+    </div>
+    <div>
+    {%- if clark.rows %}
+    {%- for r in clark.rows %}
+      <div class="clark-row" style="border-left-color:{{ r.colour }};">
+        <span class="clark-badge" style="background:{{ r.colour }}22;color:{{ r.colour }};border:1px solid {{ r.colour }};">{{ r.tier }} — {{ r.label }}</span>
+        <span class="clark-fid">{{ r.fid }}</span>
+        <span class="clark-cac">CAC {{ "%.3f"|format(r.cac) }}</span>
+        <span class="clark-reason">{{ r.reason }}</span>
+        <span class="clark-ts">{{ r.ts }}</span>
+      </div>
+    {%- endfor %}
+    {%- else %}
+      <div style="font-size:11px;color:#3A6A7F;padding:8px 0;">No active Barclays escalations.</div>
+    {%- endif %}
+    </div>
+  </div>
+</div>
+  {%- endblock %}
+</div>

@@ -1,0 +1,65 @@
+{#─ Shared benchmark-table partial — rendered by technical_benchmark and
+   service_benchmark blocks. Caller must bind `s` to the section context.
+
+   s.icon         : str  — entity (&#9888; for technical, &#9998; for service)
+   s.label_upper  : str  — category label ("TECHNICAL ISSUES" | "SERVICE ISSUES")
+   s.comp_pills   : list[{label, col, rate}]  — peer competitor avg rates
+   s.rows         : list[{issue, sev_col, b_rate, p_rate, b_pct, p_pct,
+                          b_col, gap_str, gap_cls, days_active}]
+#}
+{%- if s.rows %}
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">{{ s.icon }} {{ s.label_upper }} BENCHMARK</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays complaint rate vs 5-bank peer average &middot; % of complaint records</span>
+  </div>
+  <div class="topbar-box-body">
+    <div style="margin-bottom:12px;font-size:10px;color:#3A6A7F;">
+      Peer avg rates: {% for p in s.comp_pills %}<span style="font-size:10px;color:{{ p.col }};margin-right:10px;">{{ p.label }}: {{ "%.1f"|format(p.rate) }}%</span>{% endfor %}
+    </div>
+    <table class="bench-table">
+      <thead>
+        <tr>
+          <th class="bench-row-head">Issue Type</th>
+          <th class="bench-row-head">Rate Comparison</th>
+          <th class="bench-row-head" style="text-align:right;">Gap</th>
+          <th class="bench-row-head">Persistence</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for r in s.rows %}
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:{{ r.sev_col }};font-size:8px;margin-right:2px;">&#9679;</span>{{ r.issue }}</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:{{ r.b_pct }}%;background:{{ r.b_col }};"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:{{ r.b_col }};">{{ "%.1f"|format(r.b_rate) }}%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:{{ r.p_pct }}%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">{{ "%.1f"|format(r.p_rate) }}%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell {{ r.gap_cls }}">{{ r.gap_str }}</td>
+          {%- if r.days_active > 0 %}
+          <div class="bench-days-cell">{{ r.days_active }}d active</div>
+          {%- else %}
+          <div class="bench-days-cell"></div>
+          {%- endif %}
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{%- endif %}

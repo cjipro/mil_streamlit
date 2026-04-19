@@ -124,7 +124,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-36: Vault backend abstraction — VaultBackend base class, HDFSBackend + LocalBackend stubs (CREATED 2026-04-19)
 - MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (BUILT 2026-04-19)
 - MIL-38: Notification layer — Slack adapter live; add Autonomous Heartbeat (success ping even on zero-finding runs) (BUILT 2026-04-19, heartbeat TODO)
-- MIL-39: Jinja2 migration — golden snapshot captured 2026-04-19 (1741 lines / 106KB). Must render four-field Provenance Chain (chronicle_id/signal_ids/class_ver/teacher_ver) on every Inference Card (FCA Consumer Duty 2.0)
+- MIL-39: Jinja2 migration — BUILT 2026-04-19 as **Sonar V4 parallel briefing** at cjipro.com/briefing-v4. Same layout as V3 plus four-field Provenance Chain per Inference Card (chronicle_id / signal_ids / class_ver / teacher_ver — FCA Consumer Duty 2.0). V3 untouched on legacy f-string path for cutover window. Retire V3 only after V4 proves out 7+ clean days.
 - MIL-48: Drift Detection Monitor — include "Silent Wall" detection (spike in 1-star ratings with zero review text = non-vocal regression signal)
 
 **Phase 2 — COMPLETE (2026-04-16)**
@@ -296,6 +296,18 @@ File: `mil/publish/publish_v3.py`
 - Run: `py mil/publish/publish_v3.py`
 - **publish_v3.py wired into run_daily.py as Step 5c** (after V2 publish, before log run)
 
+### Sonar Briefing V4 — publish_v4.py (LIVE 2026-04-19, MIL-39)
+File: `mil/publish/publish_v4.py` + `mil/publish/templates/briefing_v4.html.j2` + `mil/publish/templates/_benchmark_section.html.j2`
+- **LIVE at cjipro.com/briefing-v4** — FCA Consumer Duty 2.0 parallel to V3.
+- Same layout as V3 (Intelligence Brief / Churn Risk / Analyst Commentary / Technical + Service Benchmark / Intelligence Findings / Clark Protocol) plus **four-field Provenance Chain** rendered on every Inference Card: chronicle_id / signal_ids / class_ver / teacher_ver. Missing data renders as "—" (visible audit gap, not hidden absence).
+- Jinja2-rendered (autoescape=False for f-string parity, StrictUndefined). Monkeypatches six section builders in `publish_v3` to route through the template, then delegates to `legacy.generate_v3_html` for non-section orchestration (V3_STYLES, `_replace_box3`, `_load_env`). Patches are scoped to the render; V3 is untouched.
+- Parallel build rationale: same pattern as V1→V2→V3. Zero risk to live V3. Retire V3 only after V4 proves out (7+ clean days recommended).
+- Structural diff gate: `py mil/publish/publish_v4.py --diff-gate` — renders V3 + V4 side-by-side from identical live data, asserts structural equivalence on every section (with provenance OFF on V4 for fair comparison), then separately validates all eight production cards render the four FCA fields. Exits 0 on full pass. No publish.
+- Local-only render: `py mil/publish/publish_v4.py --render` — writes `mil/publish/output/index_v4.html`, skips GitHub push.
+- Full publish: `py mil/publish/publish_v4.py` — build + local copy + push to `briefing-v4/index.html`.
+- **publish_v4.py wired into run_daily.py as Step 5d** (after V3 publish, before log run). Treated as CRITICAL.
+- **Upstream data gaps surfaced by Provenance Chain** (for Phase B follow-up, not blocking): `signal_ids` is empty on most findings (inference isn't recording anchoring signals); `teacher_model_version` is `None` across all 138 findings (enrichment doesn't stamp teacher model version into provenance).
+
 ### Daily Pipeline — ONE COMMAND (fully agentic)
 ```
 py run_daily.py
@@ -312,6 +324,7 @@ Steps (zero human intervention required):
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
   5b. Publish V2 — publish_v2.py, injects V2 sections, GitHub Pages push -> cjipro.com/briefing-v2
   5c. Publish V3 — publish_v3.py, commentary_engine.py (Sonnet), saves commentary_log.jsonl, cjipro.com/briefing-v3
+  5d. Publish V4 — publish_v4.py, Jinja2-rendered V3 + FCA Provenance Chain, cjipro.com/briefing-v4 (MIL-39)
   6. Log Run — appends to mil/data/daily_run_log.jsonl, status=CLEAN/PARTIAL/FAILED + failed_steps[]
 
 Flags:

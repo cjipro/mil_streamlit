@@ -300,9 +300,10 @@ _STEP_FIXES = {
     "publish_v1":       "Check publish.py. GitHub Pages push may have failed — check git remote.",
     "publish_v2":       "Requires index.html from V1 publish. Run V1 first, then retry.",
     "publish_v3":       "Check publish_v3.py + commentary_engine.py (Sonnet API or Ollama down?).",
+    "publish_v4":       "Check publish_v4.py — Jinja2 render or briefing_v4.html.j2 template. V3 unaffected.",
 }
 
-_CRITICAL_STEPS = {"inference", "publish_v1", "publish_v2", "publish_v3"}
+_CRITICAL_STEPS = {"inference", "publish_v1", "publish_v2", "publish_v3", "publish_v4"}
 
 
 def _egress_today_summary() -> dict:
@@ -665,6 +666,22 @@ def main() -> None:
         logger.info("[publish_v3] briefing-v3 updated.")
         _steps.append(("5c Publish V3", "DONE", "cjipro.com/briefing-v3 updated"))
 
+    # MIL-39: V4 is Jinja2-rendered + FCA Consumer Duty 2.0 Provenance Chain.
+    # Runs parallel to V3 for the cutover window.
+    logger.info("--- Step 5d: Publish V4 (Jinja + FCA) ---")
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish_v4.py")],
+        cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish_v4] publish_v4.py exited with code %d\n%s",
+                       result.returncode, result.stderr.decode(errors="replace"))
+        failed_steps.append("publish_v4")
+        _steps.append(("5d Publish V4", "FAIL", f"exit code {result.returncode}"))
+    else:
+        logger.info("[publish_v4] briefing-v4 updated.")
+        _steps.append(("5d Publish V4", "DONE", "cjipro.com/briefing-v4 updated"))
+
     logger.info("--- Step 6: Log Run ---")
     _run_entry = _log_run(fetch_counts, _benchmark_result, failed_steps)
     _steps.append(("6  Log Run", "DONE", f"Run #{_run_entry.get('run', '?')} | streak={_run_entry.get('m1_streak', '?')}/5"))
@@ -752,7 +769,7 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_st
 
     bm = benchmark_result or {}
     _failed = failed_steps or []
-    _critical = {"inference", "publish_v1", "publish_v2", "publish_v3"}
+    _critical = {"inference", "publish_v1", "publish_v2", "publish_v3", "publish_v4"}
     if _critical & set(_failed):
         _status = "FAILED"
     elif _failed:
