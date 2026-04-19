@@ -24,7 +24,7 @@ import duckdb
 
 # Only MIL-internal import
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from mil.storage.hdfs_client import get_client, MIL_HDFS_DIRS
+from mil.vault.backends import get_backend  # MIL-36 — backend-agnostic anchoring
 
 logger = logging.getLogger(__name__)
 
@@ -104,15 +104,15 @@ def sync_to_hdfs(dry_run: bool = False) -> dict:
 
     dry_run=True: check HDFS availability and log what would be synced, no writes.
     """
-    client = get_client()
-    hdfs_available = client.is_available()
-
-    if not hdfs_available:
+    client = get_backend()  # MIL-36 — selected by mil/config/vault_config.yaml
+    if not client.is_available():
         logger.error(
-            "[VaultSync] MIL HDFS not reachable at port 9871. "
-            "Ensure mil-namenode container is running: docker compose up -d mil-namenode mil-datanode"
+            "[VaultSync] Vault backend unavailable (backend=%s). "
+            "For HDFS: ensure mil-namenode is running (docker compose up -d mil-namenode mil-datanode). "
+            "For local: check root_dir exists in vault_config.yaml.",
+            type(client).__name__,
         )
-        return {"error": "MIL HDFS unavailable --mil-namenode not running"}
+        return {"error": f"Vault backend unavailable ({type(client).__name__})"}
 
     con = duckdb.connect(str(VAULT_DB))
     _ensure_anchor_table(con)

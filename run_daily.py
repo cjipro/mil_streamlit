@@ -304,7 +304,7 @@ _STEP_FIXES = {
     "enrichment":       "Is Ollama running? `ollama serve`. Check model pulled: `ollama list`.",
     "inference":        "Check mil_agent.py logs above. Chronicle loader needs ≥15 entries.",
     "research_trigger": "Non-fatal. Inspect harvester/research_trigger.py manually.",
-    "vault":            "Start HDFS: `docker-compose up -d`. Check mil-namenode on port 9871.",
+    "vault":            "Check vault backend in mil/config/vault_config.yaml. If hdfs: `docker-compose up -d` (mil-namenode on 9871). If local: check root_dir exists.",
     "clark":            "Non-fatal. Inspect clark_protocol.py. Briefing will still publish.",
     "benchmark":        "Check benchmark_engine.py. May need `--backfill` if run log is empty.",
     "analytics":        "Check build_analytics_db.py. DuckDB may have a lock conflict.",
@@ -487,14 +487,40 @@ def _print_run_summary(
 # Main
 # ---------------------------------------------------------------------------
 
-def _hdfs_preflight() -> bool:
-    """Quick TCP check on HDFS NameNode port 9871 before attempting vault."""
+def _vault_preflight() -> bool:
+    """
+    Backend-aware preflight. Reads mil/config/vault_config.yaml (MIL-36):
+      hdfs   — fast TCP check on NameNode host:port (localhost:9871 default)
+      local  — no preflight; LocalBackend is always available
+      null   — no preflight; NullBackend is a no-op
+    Returns True if the run_daily Step 4b subprocess should proceed.
+    """
     import socket
+    import yaml as _yaml
+    cfg_path = MIL_ROOT / "config" / "vault_config.yaml"
+    adapter = "hdfs"  # pre-MIL-36 default
+    host, port = "localhost", 9871
+    if cfg_path.exists():
+        try:
+            cfg = _yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+            adapter = (cfg.get("adapter") or "hdfs").lower()
+            h = cfg.get("hdfs", {}) or {}
+            host = h.get("host", "localhost")
+            port = int(h.get("port", 9871))
+            # docker-compose hostname unreachable from host — default to localhost
+            if host == "mil-namenode":
+                host = "localhost"
+        except Exception as exc:
+            logger.warning("[vault] preflight: failed to parse vault_config.yaml (%s); assuming hdfs", exc)
+
+    if adapter != "hdfs":
+        logger.info("[vault] preflight skipped — adapter=%s", adapter)
+        return True
     try:
-        with socket.create_connection(("localhost", 9871), timeout=3):
+        with socket.create_connection((host, port), timeout=3):
             return True
     except OSError:
-        logger.warning("[vault] HDFS NameNode not reachable on port 9871 — is mil-namenode running?")
+        logger.warning("[vault] HDFS NameNode not reachable on %s:%d — is mil-namenode running?", host, port)
         return False
 
 
@@ -581,8 +607,8 @@ def main() -> None:
         _steps.append(("4a Research Trigger", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4b: Vault ---")
-    _hdfs_ok = _hdfs_preflight()
-    if _hdfs_ok:
+    _vault_ok = _vault_preflight()
+    if _vault_ok:
         result = subprocess.run(
             [sys.executable, str(MIL_ROOT / "vault" / "vault_sync.py")],
             cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
@@ -594,9 +620,9 @@ def main() -> None:
             _steps.append(("4b Vault", "FAIL", f"exit code {result.returncode}"))
         else:
             logger.info("[vault] complete.")
-            _steps.append(("4b Vault", "DONE", "HDFS sync complete"))
+            _steps.append(("4b Vault", "DONE", "vault sync complete"))
     else:
-        logger.warning("[vault] skipped — HDFS preflight failed")
+        logger.warning("[vault] skipped — preflight failed")
         failed_steps.append("vault")
         _steps.append(("4b Vault", "FAIL", "HDFS NameNode unreachable (port 9871)"))
 

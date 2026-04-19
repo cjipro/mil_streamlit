@@ -1,0 +1,18 @@
+# mil/config/vault_config.yaml — MIL-36 VaultBackend
+#
+# Set adapter to: hdfs | local | null
+# Clone operators swap this single value to retarget where enriched signals anchor.
+# Default stays hdfs so existing pipelines keep today's wire behaviour.
+
+adapter: hdfs
+
+hdfs:
+  host: mil-namenode
+  port: 9871
+  user: root
+
+local:
+  # Useful for Clone operators without an HDFS cluster.
+  # HDFS-style absolute paths map to root_dir/<stripped-path>:
+  #   "/user/mil/enriched/x.json"  ->  "<root_dir>/user/mil/enriched/x.json"
+  root_dir: "./vault"
