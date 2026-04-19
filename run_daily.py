@@ -312,6 +312,7 @@ _STEP_FIXES = {
     "publish_v2":       "Requires index.html from V1 publish. Run V1 first, then retry.",
     "publish_v3":       "Check publish_v3.py + commentary_engine.py (Sonnet API or Ollama down?).",
     "publish_v4":       "Check publish_v4.py — Jinja2 render or briefing_v4.html.j2 template. V3 unaffected.",
+    "drift":            "Non-fatal. Check mil/monitoring/drift_monitor.py + mil/config/drift_thresholds.yaml. Alerts still land in mil/data/drift_log.jsonl even if Slack escalation failed.",
 }
 
 _CRITICAL_STEPS = {"inference", "publish_v1", "publish_v2", "publish_v3", "publish_v4"}
@@ -670,6 +671,26 @@ def main() -> None:
         logger.warning("[analytics] failed (non-fatal): %s", exc)
         failed_steps.append("analytics")
         _steps.append(("4e Analytics DB", "FAIL", str(exc)[:60]))
+
+    # MIL-48: Drift detection (Silent Wall today; more detectors over time).
+    # Non-fatal — drift alerts log + optionally Slack, but never block the run.
+    logger.info("--- Step 4f: Drift Monitor ---")
+    try:
+        from mil.monitoring.drift_monitor import run_drift_checks
+        _alerts = run_drift_checks(escalate_to_slack=True)
+        by_sev: dict[str, int] = {}
+        for a in _alerts:
+            by_sev[a.severity] = by_sev.get(a.severity, 0) + 1
+        if _alerts:
+            logger.info("[drift] %d alert(s): %s", len(_alerts), by_sev)
+            _steps.append(("4f Drift Monitor", "DONE",
+                           f"{len(_alerts)} alert(s): {by_sev}"))
+        else:
+            _steps.append(("4f Drift Monitor", "DONE", "no alerts"))
+    except Exception as exc:
+        logger.warning("[drift] failed (non-fatal): %s", exc)
+        failed_steps.append("drift")
+        _steps.append(("4f Drift Monitor", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 5: Publish ---")
     result = subprocess.run(

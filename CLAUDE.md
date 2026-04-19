@@ -125,7 +125,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-37: Data Egress Logger — data_egress_log.jsonl, every external API call logged (BUILT 2026-04-19)
 - MIL-38: Notification layer — Slack adapter live; Autonomous Heartbeat live — STARTING ping at main() entry + CRASHED ping from outer exception handler at `__main__`, plus existing CLEAN/PARTIAL/FAILED completion ping (zero-finding runs included). Absence of a completion ping within ~30 min of STARTING = mid-pipeline crash; no STARTING at 06:30 UTC = cron didn't fire. (BUILT 2026-04-19)
 - MIL-39: Jinja2 migration — BUILT 2026-04-19 as **Sonar V4 parallel briefing** at cjipro.com/briefing-v4. Same layout as V3 plus four-field Provenance Chain per Inference Card (chronicle_id / signal_ids / class_ver / teacher_ver — FCA Consumer Duty 2.0). V3 untouched on legacy f-string path for cutover window. Retire V3 only after V4 proves out 7+ clean days.
-- MIL-48: Drift Detection Monitor — include "Silent Wall" detection (spike in 1-star ratings with zero review text = non-vocal regression signal)
+- MIL-48: Drift Detection Monitor — BUILT 2026-04-19. `mil/monitoring/drift_monitor.py` + `mil/config/drift_thresholds.yaml`. MVP ships Silent Wall detector with baseline-relative spike semantics: compares current 14-day window's silent-1-star ratio against a 30-day baseline preceding it; WARN at 2× baseline, HIGH at 3× (both require ≥3 silent reviews in the current window). Absolute-ratio fallback (50% WARN / 75% HIGH) covers cold-start deployments below `min_baseline_1star=10`. Alerts append to `mil/data/drift_log.jsonl`; HIGH escalates via Slack. Wired as run_daily.py **Step 4f** (non-fatal). Calibration helper: `py mil/monitoring/drift_monitor.py --baseline-report`. Current corpus: 0 alerts (largest spike = Monzo 5.56× but only 1 silent review, correctly filtered by sample-size guard). Extend with more detectors (fetch-volume, enrichment-failure, severity-distribution) as operational needs surface.
 
 **Phase 2 — COMPLETE (2026-04-16)**
 - MIL-25: QLoRA Gate Clearance — ALL 5 GATES CLEAR. Qwen3-4B trained, Gate 5 ACTIVE (BUILT 2026-04-05, COMPLETE 2026-04-19)
@@ -321,6 +321,7 @@ Steps (zero human intervention required):
   4c. Clark Escalation — scan_and_escalate() + scan_and_downgrade(), runs BEFORE both publish steps
   4d. Benchmark + Persistence — benchmark_engine.py, churn_risk_score + issue_persistence_log.jsonl
   4e. Analytics DB — build_analytics_db.py, full rebuild of mil_analytics.db (9 tables)
+  4f. Drift Monitor — drift_monitor.py, Silent Wall detector (MIL-48). Alerts → drift_log.jsonl; HIGH → Slack.
   5. Publish — publish.py, briefing_data.py, GitHub Pages push -> cjipro.com/briefing
   5b. Publish V2 — publish_v2.py, injects V2 sections, GitHub Pages push -> cjipro.com/briefing-v2
   5c. Publish V3 — publish_v3.py, commentary_engine.py (Sonnet), saves commentary_log.jsonl, cjipro.com/briefing-v3

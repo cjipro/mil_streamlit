@@ -1,0 +1,30 @@
+# mil/config/drift_thresholds.yaml — MIL-48 drift detector thresholds
+#
+# Silent Wall uses baseline-relative spike detection: today's silent-1-star
+# ratio is compared to a 30-day baseline preceding the current 14-day
+# window. Alert fires when the ratio spikes 2x (WARN) or 3x (HIGH) vs
+# baseline. Absolute-ratio fallback catches cold-start deployments where
+# there isn't enough history to compute a baseline.
+#
+# Calibrate with: `py mil/monitoring/drift_monitor.py --baseline-report`
+
+silent_wall:
+  # What counts as "silent": review text under N chars after strip.
+  min_chars: 20
+
+  # Rolling windows.
+  window_days: 14           # current observation window
+  baseline_days: 30         # baseline period preceding the current window
+
+  # Sample-size guards.
+  min_silent_count: 3       # skip entity if current_silent < N
+  min_baseline_1star: 10    # use absolute-ratio fallback below this
+
+  # Baseline-relative (primary path).
+  spike_multiplier_warn: 2.0   # WARN when current / baseline >= 2x
+  spike_multiplier_high: 3.0   # HIGH when current / baseline >= 3x
+  baseline_ratio_floor: 0.02   # div-by-zero guard (treats "0% baseline" as 2%)
+
+  # Absolute-ratio fallback (cold-start path).
+  fallback_ratio_warn: 0.5     # WARN when silent/total >= 50% (insufficient baseline)
+  fallback_ratio_high: 0.75    # HIGH when silent/total >= 75% (insufficient baseline)
