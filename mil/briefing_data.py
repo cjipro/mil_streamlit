@@ -955,19 +955,25 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     box2_quote_date = ""
     box2_issue_type = ""
     if issues_performance:
-        _top_issue = issues_performance[0]["journey"]
-        box2_issue_type = _top_issue
-        # Prefer P0/P1 but fall back to P2 when the top issue has no P0/P1 records
-        # (happens for cosmetic/feature-broken issues where volume alone ranks them high).
+        # Prioritise severity over volume across the top 5 issues. If App Crashing
+        # has a P0 and Feature Broken has only P2s, surface the App Crashing P0
+        # even though Feature Broken ranks higher on volume × severity. box2_issue_type
+        # will reflect whichever issue the chosen quote came from.
+        _top_issues  = {e["journey"] for e in issues_performance[:5]}
+        _issue_rank  = {e["journey"]: e["rank"] for e in issues_performance[:5]}
         _b2_pool = [
             r for r in barclays_records
-            if r.get("issue_type") == _top_issue
+            if r.get("issue_type") in _top_issues
             and r.get("severity_class") in ("P0", "P1", "P2")
             and len((r.get("review") or r.get("content", "")).strip()) >= 40
             and r.get("issue_type") != "Positive Feedback"
         ]
         _sev_rank = {"P0": 0, "P1": 1, "P2": 2}
-        _b2_pool.sort(key=lambda r: _sev_rank.get(r.get("severity_class"), 9))
+        # Severity first, then issue rank as tiebreaker (higher-ranked issue wins).
+        _b2_pool.sort(key=lambda r: (
+            _sev_rank.get(r.get("severity_class"), 9),
+            _issue_rank.get(r.get("issue_type"), 99),
+        ))
         _b1_keys = {as_quote[:80], gp_quote[:80]} - {""}
         # First pass: prefer 60-200 chars, not duplicate
         for _b2r in _b2_pool:
@@ -987,6 +993,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         if box2_quote:
             _b2r = next(r for r in _b2_pool
                         if (r.get("review") or r.get("content","")).strip() == box2_quote)
+            box2_issue_type   = _b2r.get("issue_type", "")
             box2_quote_rating = int(_b2r.get("rating", 0) or 0)
             box2_quote_source = "App Store" if _b2r.get("review") else "Google Play"
             _b2_raw = str(_b2r.get("date") or _b2r.get("at", "") or "")[:10]
