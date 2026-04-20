@@ -60,6 +60,7 @@ unsloth_compiled_cache/
 # MIL runtime logs + egress artifacts — regenerated each run, never committed
 mil/data/run_*.log
 mil/data/run_v3_smoke.log
+mil/data/run_auto_*.log
 mil/data/data_egress_log.jsonl
 mil/data/refuel_strategy_corpus.json
 
