@@ -429,12 +429,15 @@ def _print_run_summary(
         try:
             fd = json.loads(findings_path.read_text(encoding="utf-8"))
             all_f = fd.get("findings", [])
-            p0 = sum(1 for f in all_f if f.get("dominant_severity") == "P0")
-            p1 = sum(1 for f in all_f if f.get("dominant_severity") == "P1")
-            anchored = sum(1 for f in all_f if f.get("chronicle_id") and not f.get("chronicle_id", "").startswith("UNK"))
-            ceiling  = sum(1 for f in all_f if f.get("designed_ceiling"))
-            tier_order = {"CLARK-3": 3, "CLARK-2": 2, "CLARK-1": 1, "CLARK-0": 0}
-            clark_max = max((f.get("clark_tier", "CLARK-0") for f in all_f), key=lambda t: tier_order.get(t, 0), default="CLARK-0")
+            p0 = sum(1 for f in all_f if f.get("signal_severity") == "P0")
+            p1 = sum(1 for f in all_f if f.get("signal_severity") == "P1")
+            anchored = sum(1 for f in all_f if not f.get("is_unanchored", True))
+            ceiling  = sum(1 for f in all_f if f.get("designed_ceiling_reached"))
+            try:
+                from mil.command.components.clark_protocol import active_clark_summary as _acs
+                clark_max = _acs().get("top_tier", "CLARK-0")
+            except Exception:
+                clark_max = "CLARK-0"
             lines.append("  INTELLIGENCE")
             lines.append("  " + "-" * (W - 2))
             lines.append(f"  Findings         : {len(all_f)} total | {p0} P0 | {p1} P1")
@@ -825,13 +828,18 @@ def _log_run(fetch_counts: dict, benchmark_result: dict | None = None, failed_st
             fd = _json.loads(findings_path.read_text(encoding="utf-8"))
             all_findings = fd.get("findings", [])
             findings_count = len(all_findings)
-            p0_count = sum(1 for f in all_findings if f.get("dominant_severity") == "P0")
-            p1_count = sum(1 for f in all_findings if f.get("dominant_severity") == "P1")
-            chr_dist = _Counter(f.get("chronicle_id", "UNANCHORED") for f in all_findings)
+            p0_count = sum(1 for f in all_findings if f.get("signal_severity") == "P0")
+            p1_count = sum(1 for f in all_findings if f.get("signal_severity") == "P1")
+            chr_dist = _Counter(
+                ((f.get("chronicle_match") or {}).get("chronicle_id") or "UNANCHORED")
+                for f in all_findings
+            )
             chr_top3 = [cid for cid, _ in chr_dist.most_common(3)]
-            clark_tiers = [f.get("clark_tier", "CLARK-0") for f in all_findings]
-            tier_order = {"CLARK-3": 3, "CLARK-2": 2, "CLARK-1": 1, "CLARK-0": 0}
-            clark_tier_max = max(clark_tiers, key=lambda t: tier_order.get(t, 0), default="CLARK-0")
+            try:
+                from mil.command.components.clark_protocol import active_clark_summary as _acs
+                clark_tier_max = _acs().get("top_tier", "CLARK-0")
+            except Exception:
+                clark_tier_max = "CLARK-0"
         except Exception as exc:
             logger.warning("[log_run] could not parse findings for health fields: %s", exc)
 
