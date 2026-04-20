@@ -844,10 +844,10 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
         pass
 
     call_map = {
-        "CLARK-3": "At CLARK-3, this warrants escalation to product engineering today — not a watch brief.",
-        "CLARK-2": "At CLARK-2, a formal escalation brief to the product team is warranted this week.",
-        "CLARK-1": "At CLARK-1, this is on the watch list. Monitor daily. Escalate if P0 count rises.",
-        "CLARK-0": "Signal is at nominal levels. No escalation action required at this time.",
+        "CLARK-3": "Escalate to product engineering today — this is not a watch brief.",
+        "CLARK-2": "Escalate to product leadership this week; formal brief required.",
+        "CLARK-1": "On the watch list. Daily monitoring. Escalate if P0 volume rises in 72 hours.",
+        "CLARK-0": "Nominal. No escalation required.",
     }
     call_prose = call_map[top_tier]
     clark_label = CLARK_LABELS[top_tier]

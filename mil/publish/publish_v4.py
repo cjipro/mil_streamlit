@@ -132,8 +132,6 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
                 f"a 5-bank peer average of {p_rate:.1f}% — a gap of {gap:+.1f} percentage points. "
                 f"{best_peer} shows the lowest rate in the cohort at {best_rate:.1f}%."
             )
-            if days > 3:
-                peer_prose += f" This gap has been sustained for {days} days, indicating a structural pattern rather than a transient spike."
         else:
             peer_prose = (
                 f"Barclays {issue_name} complaint rate is {gap:+.1f}pp above the 5-bank peer average "
@@ -162,21 +160,25 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
     except Exception:
         pass
 
+    # Keep in sync with publish_v3.py:_build_exec_summary_box call_map.
     call_map = {
-        "CLARK-3": "At CLARK-3, this warrants escalation to product engineering today — not a watch brief.",
-        "CLARK-2": "At CLARK-2, a formal escalation brief to the product team is warranted this week.",
-        "CLARK-1": "At CLARK-1, this is on the watch list. Monitor daily. Escalate if P0 count rises.",
-        "CLARK-0": "Signal is at nominal levels. No escalation action required at this time.",
+        "CLARK-3": "Escalate to product engineering today — this is not a watch brief.",
+        "CLARK-2": "Escalate to product leadership this week; formal brief required.",
+        "CLARK-1": "On the watch list. Daily monitoring. Escalate if P0 volume rises in 72 hours.",
+        "CLARK-0": "Nominal. No escalation required.",
     }
 
+    volume_strip_html = legacy._build_volume_strip(over[0]) if over else ""
+
     return {
-        "situation":   situation,
-        "top_quote":   top_quote,
-        "peer_prose":  peer_prose,
-        "call_prose":  call_map[top_tier],
-        "top_tier":    top_tier,
-        "clark_label": legacy.CLARK_LABELS[top_tier],
-        "clark_col":   clark_col,
+        "situation":         situation,
+        "top_quote":         top_quote,
+        "peer_prose":        peer_prose,
+        "call_prose":        call_map[top_tier],
+        "top_tier":          top_tier,
+        "clark_label":       legacy.CLARK_LABELS[top_tier],
+        "clark_col":         clark_col,
+        "volume_strip_html": volume_strip_html,
     }
 
 

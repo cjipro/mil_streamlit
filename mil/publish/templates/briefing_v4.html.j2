@@ -20,13 +20,14 @@
 #}
 {#─ box3 (Intelligence Brief) — injected into V1's Box 3 slot ─────────────────
    Context required:
-     situation   : str  — THE SITUATION prose (Sonnet commentary or deterministic fallback)
-     top_quote   : str  — pre-truncated review quote (<= 220 chars) or "" to suppress block
-     peer_prose  : str  — PEER COMPARISON prose (deterministic from benchmark gap data)
-     call_prose  : str  — THE CALL prose (mapped from Clark tier)
-     top_tier    : str  — "CLARK-3" | "CLARK-2" | "CLARK-1" | "CLARK-0"
-     clark_label : str  — human label ("ACT NOW" | "ESCALATE" | "WATCH" | "NOMINAL")
-     clark_col   : str  — hex colour for tier (label + tier badge)
+     situation         : str — THE SITUATION prose (Sonnet commentary or deterministic fallback)
+     top_quote         : str — pre-truncated review quote (<= 220 chars) or "" to suppress block
+     peer_prose        : str — PEER COMPARISON prose (deterministic from benchmark gap data)
+     call_prose        : str — THE CALL prose (mapped from Clark tier)
+     top_tier          : str — "CLARK-3" | "CLARK-2" | "CLARK-1" | "CLARK-0"
+     clark_label       : str — human label ("ACT NOW" | "ESCALATE" | "WATCH" | "NOMINAL")
+     clark_col         : str — hex colour for tier (label + tier badge)
+     volume_strip_html : str — pre-rendered stat strip (count/WoW/days/gap + surface-signal note) or ""
 #}
 {% block box3_intelligence_brief -%}
 <div class="topbar-box exec-alert-panel">
@@ -35,6 +36,7 @@
     <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
   </div>
   <div class="topbar-box-body">
+    {{ volume_strip_html | safe }}
     <div style="margin-bottom:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">The Situation</div>

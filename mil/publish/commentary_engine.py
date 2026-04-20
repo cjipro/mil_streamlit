@@ -201,7 +201,10 @@ Write exactly 3 sentences. Hard rules — follow every one:
 - Lead with the strongest risk. Rank: regulatory > reputational > customer loss.
 - Name consequences in concrete terms, not abstract nouns.
 - Sentence 3 is a recommended move, not a caveat.
-- Do NOT restate the headline stats that appear above this paragraph. The reader already has them.
+- Do NOT restate the headline stats that appear above this paragraph.
+  The stat strip shows: count of reviews, WoW delta, days_active, gap_pp.
+  Lead with the risk, not the duration. Do not open Sentence 1 with "N days"
+  or "An N-day streak" — that duplicates the stat strip.
 
 Banned phrases (do not use any of these):
   compounding, material, sustained, structural, operational variance,
@@ -220,8 +223,9 @@ SENTENCE TEMPLATES
 
 Sentence 1 — THE RISK, IN ONE LINE.
 Pick the single strongest risk (regulatory, reputational, or customer loss) and state it plainly.
-Good: "Regulators can treat 15 days of crashes as a duty-of-care breach."
-Bad:  "There is a potential for regulatory scrutiny given that sustained inability to access card controls could be framed as a failure of adequate service availability obligations."
+Good: "Persistent crashes on Barclays Android expose the bank to duty-of-care scrutiny."
+Bad (opens with duration — duplicates stat strip): "Fifteen days of crashes expose the bank to duty-of-care scrutiny."
+Bad (verbose): "There is a potential for regulatory scrutiny given that sustained inability to access card controls could be framed as a failure of adequate service availability obligations."
 
 Sentence 2 — THE EVIDENCE.
 One concrete customer symptom plus one stat. The symptom must be specific (card access failed, PIN blocked, cache clear ineffective), not generic (customers are frustrated).
@@ -258,7 +262,8 @@ Write exactly 2 sentences. Hard rules:
 - Each sentence ≤ 22 words.
 - Sentence 1: what Barclays does better, named concretely.
 - Sentence 2: why this matters for retention or acquisition — a specific behavioural consequence, not a platitude.
-- Do not restate the headline stat that appears above this paragraph.
+- Do not restate the headline stats that appear above this paragraph
+  (count, WoW delta, days_active, gap_pp). Lead with the strength itself.
 
 Banned phrases: compounding, material, sustained, structural, digitally dependent, crystallises, relationship depth.
 
