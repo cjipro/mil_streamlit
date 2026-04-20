@@ -40,12 +40,12 @@ sys.path.insert(0, str(MIL_ROOT.parent))
 # as optional context. Sonnet decides whether to reference it.
 
 CHR_RESONANCE: dict[str, str] = {
-    "App Not Opening":    "CHR-001 (TSB 2018): sustained app access failure preceded mass lockout. CHR-003 (HSBC 2025): app refresh outage caused login failures at scale.",
-    "Login Failed":       "CHR-001 (TSB 2018): authentication failures at scale were the first visible signal of core banking collapse.",
-    "Account Locked":     "CHR-001 (TSB 2018): mass account lockout was the defining customer impact of the migration failure.",
-    "App Crashing":       "CHR-003 (HSBC 2025): app instability post-platform refresh — crashes and ERR03 errors persisted for weeks.",
-    "Incorrect Balance":  "CHR-002 (Lloyds 2025): API defect caused transaction data to cross account boundaries. Incorrect balance reports are an early exposure indicator.",
-    "Missing Transaction":"CHR-002 (Lloyds 2025): missing/crossed transactions were the customer-visible symptom of the Lloyds API defect.",
+    "App Not Opening":    "TSB 2018: app access failure preceded a week of mass lockout. HSBC 2025: refresh-driven outage caused login failures at scale.",
+    "Login Failed":       "TSB 2018: authentication failures at scale were the first visible signal of core banking collapse.",
+    "Account Locked":     "TSB 2018: mass account lockout was the defining customer impact of the migration failure.",
+    "App Crashing":       "HSBC 2025: post-refresh crashes and ERR03 errors ran three weeks before a fix.",
+    "Incorrect Balance":  "Lloyds 2025: an API defect caused transaction data to cross account boundaries. Incorrect-balance reports are the early exposure indicator.",
+    "Missing Transaction":"Lloyds 2025: missing and crossed transactions were the customer-visible symptom of the Lloyds API defect.",
 }
 
 
@@ -210,6 +210,11 @@ Banned phrases (do not use any of these):
   amplification, exposure should, framed as a failure.
 
 Banned construction: do not write "X could be framed as Y" — write "Y" directly.
+
+Banned references: do not cite internal codes (CHR-XXX, MIL-XX, CLARK-X)
+in prose. If the chronicle context names a bank and year, cite the bank
+and year directly (e.g. "HSBC's 2025 post-refresh incident"). The exec
+reading this brief has no way to decode internal codes.
 
 SENTENCE TEMPLATES
 
