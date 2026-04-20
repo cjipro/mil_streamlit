@@ -162,11 +162,38 @@ def _prose_risk(entry: dict, quotes: list[str], chr_context: str) -> tuple[str, 
 
     prompt = f"""You are a senior banking app intelligence analyst writing a briefing for a Barclays product director.
 
-Write exactly 3 sentences of analytical commentary about this signal. Follow this structure strictly:
+Write exactly 3 sentences. Hard rules — follow every one:
 
-Sentence 1 — INTRODUCE THE ISSUE: State what the issue is, how long it has been active, and its severity class. This is factual orientation — no analysis yet. Use the signal data directly.
-Sentence 2 — ROOT CAUSE INFERENCE: State what the customer evidence implies about root cause. Be specific — what does the pattern rule out, and what does it point to?
-Sentence 3 — BUSINESS RISK: State the business consequence if unresolved. Be direct about churn, regulatory, or reputational exposure.
+- Each sentence ≤ 22 words. Count them. Break or cut anything longer.
+- Lead with the strongest risk. Rank: regulatory > reputational > customer loss.
+- Name consequences in concrete terms, not abstract nouns.
+- Sentence 3 is a recommended move, not a caveat.
+- Do NOT restate the headline stats that appear above this paragraph. The reader already has them.
+
+Banned phrases (do not use any of these):
+  compounding, material, sustained, structural, operational variance,
+  over-index, consistent with the kind of, well outside, digitally
+  dependent, crystallises, emerging pattern, concerning trend,
+  amplification, exposure should, framed as a failure.
+
+Banned construction: do not write "X could be framed as Y" — write "Y" directly.
+
+SENTENCE TEMPLATES
+
+Sentence 1 — THE RISK, IN ONE LINE.
+Pick the single strongest risk (regulatory, reputational, or customer loss) and state it plainly.
+Good: "Regulators can treat 15 days of crashes as a duty-of-care breach."
+Bad:  "There is a potential for regulatory scrutiny given that sustained inability to access card controls could be framed as a failure of adequate service availability obligations."
+
+Sentence 2 — THE EVIDENCE.
+One concrete customer symptom plus one stat. The symptom must be specific (card access failed, PIN blocked, cache clear ineffective), not generic (customers are frustrated).
+Good: "Customers cite card-access and PIN-retrieval failures, with Barclays crashes running 2.1x the peer rate."
+Bad:  "The specificity of customer complaints points to a deeper session management or authentication layer fault."
+
+Sentence 3 — THE MOVE.
+A specific action with a verb and a timeframe. Not "monitor closely" and not "keep watching".
+Good: "Ship a hotfix this week before the 15-day streak becomes a regulator's exhibit."
+Bad:  "If this goes unresolved, Barclays faces compounding churn risk."
 
 SIGNAL DATA:
 - Issue type: {entry['issue_type']} ({entry['category']})
@@ -176,7 +203,7 @@ SIGNAL DATA:
 - Severity: {entry['dominant_severity']}
 - Consecutive days active: {entry['days_active']} days (first seen: {entry['first_seen']}){quote_block}{chr_block}
 
-3 sentences only. Do not start with "Barclays". Do not use bullet points."""
+Output: 3 sentences, plain prose. No bullets. No headings. Do not start the paragraph with "Barclays"."""
 
     prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]
     return _call_sonnet(prompt), prompt_hash
@@ -188,7 +215,14 @@ def _prose_strength(entry: dict) -> tuple[str, str]:
     """
     prompt = f"""You are a senior banking app intelligence analyst writing a briefing for a Barclays product director.
 
-Write exactly 2 sentences about this competitive strength. First sentence: what Barclays is doing better than peers and by how much. Second sentence: what this means for customer retention or relationship depth. Be specific, not generic.
+Write exactly 2 sentences. Hard rules:
+
+- Each sentence ≤ 22 words.
+- Sentence 1: what Barclays does better, named concretely.
+- Sentence 2: why this matters for retention or acquisition — a specific behavioural consequence, not a platitude.
+- Do not restate the headline stat that appears above this paragraph.
+
+Banned phrases: compounding, material, sustained, structural, digitally dependent, crystallises, relationship depth.
 
 SIGNAL DATA:
 - Issue type: {entry['issue_type']} ({entry['category']})
@@ -196,7 +230,7 @@ SIGNAL DATA:
 - Peer average: {entry['peer_avg_rate']:.1f}%
 - Barclays advantage: {abs(entry['gap_pp']):.1f}pp below peer average
 
-2 sentences only."""
+Output: 2 sentences, plain prose. No bullets. No headings."""
 
     prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]
     return _call_sonnet(prompt), prompt_hash
