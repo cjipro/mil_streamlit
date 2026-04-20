@@ -66,10 +66,46 @@ def _load_barclays_records() -> list[dict]:
     return records
 
 
+import re
+
+_TRAILING_FRAGMENT_RE = re.compile(
+    r"\b(and|but|or|if|when|so|that|which|because|as)\s*[.!?]?\s*$",
+    re.IGNORECASE,
+)
+_TERMINAL_PUNCT_RE = re.compile(r".*[.!?]", re.DOTALL)
+
+
+def _clean_quote(raw: str) -> str | None:
+    """
+    Clean a raw review text into a usable pull quote:
+      - Collapse whitespace
+      - Trim at the last terminal punctuation within ~220 chars so we don't
+        mid-cut a sentence
+      - Reject if the quote ends in a conjunction / subordinator (sign of a
+        truncated fragment like "...if you feel like that.")
+      - Require 40+ chars after cleaning
+    Returns None if the quote fails any quality check.
+    """
+    text = (raw or "").strip().replace("\n", " ")
+    text = re.sub(r"\s+", " ", text)
+    if len(text) < 40:
+        return None
+    trimmed = text[:220]
+    match = _TERMINAL_PUNCT_RE.match(trimmed)
+    if not match:
+        return None
+    trimmed = match.group(0)
+    if _TRAILING_FRAGMENT_RE.search(trimmed.rstrip(".!?")):
+        return None
+    if len(trimmed) < 40:
+        return None
+    return trimmed
+
+
 def get_top_quotes(issue_type: str, n: int = 2, records: list[dict] | None = None) -> list[str]:
     """
     Return up to n customer quotes for an issue type from Barclays enriched records.
-    Priority: P0 > P1 > P2. Length: 40-200 chars preferred.
+    Priority: P0 > P1 > P2. Each quote must pass _clean_quote quality rules.
     Pass pre-loaded records to avoid repeated file reads per call.
     """
     if records is None:
@@ -79,16 +115,13 @@ def get_top_quotes(issue_type: str, n: int = 2, records: list[dict] | None = Non
     for r in records:
         if r.get("issue_type") != issue_type:
             continue
-        text = r.get("review") or r.get("content", "")
-        if not text:
+        raw = r.get("review") or r.get("content", "")
+        cleaned = _clean_quote(raw)
+        if not cleaned:
             continue
-        text = text.strip().replace("\n", " ")
-        if len(text) < 40:
-            continue
-        text = text[:200]
         sev = r.get("severity_class", "P2")
         priority = {"P0": 0, "P1": 1, "P2": 2}.get(sev, 2)
-        candidates.append((priority, text))
+        candidates.append((priority, cleaned))
 
     candidates.sort(key=lambda x: x[0])
     seen: set[str] = set()
