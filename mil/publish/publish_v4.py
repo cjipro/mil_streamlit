@@ -116,33 +116,41 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
         days   = top.get("days_active", 0)
         cat    = top.get("category", "technical")
 
+        # Rank-of-6 prose (matches publish_v3.py style). Stat strip already carries the
+        # absolute gap, so peer paragraph adds relative position + best-peer identity.
         benchmark_raw = benchmark_result.get("benchmark", {})
-        peer_rates: dict[str, float] = {}
+        all_rates: dict[str, float] = {legacy.COMP_LABELS.get("barclays", "Barclays"): b_rate}
         for comp in ["natwest", "lloyds", "hsbc", "monzo", "revolut"]:
             comp_data = benchmark_raw.get("competitors", {}).get(comp, {})
             rate = comp_data.get(cat, {}).get(issue_name)
             if rate is not None:
-                peer_rates[legacy.COMP_LABELS.get(comp, comp)] = rate
+                all_rates[legacy.COMP_LABELS.get(comp, comp)] = rate
 
-        if peer_rates:
-            best_peer = min(peer_rates, key=peer_rates.get)
-            best_rate = peer_rates[best_peer]
+        if len(all_rates) > 1:
+            ranked = sorted(all_rates.items(), key=lambda kv: kv[1])
+            pos = next(
+                (i + 1 for i, (name, _) in enumerate(ranked)
+                 if name == legacy.COMP_LABELS.get("barclays", "Barclays")),
+                len(ranked),
+            )
+            if 10 <= pos % 100 <= 20:
+                suffix = "th"
+            else:
+                suffix = {1: "st", 2: "nd", 3: "rd"}.get(pos % 10, "th")
+            ordinal = f"{pos}{suffix}"
+            best_peer, best_rate = ranked[0]
             peer_prose = (
-                f"On {issue_name}, Barclays complaint rate stands at {b_rate:.1f}% against "
-                f"a 5-bank peer average of {p_rate:.1f}% — a gap of {gap:+.1f} percentage points. "
-                f"{best_peer} shows the lowest rate in the cohort at {best_rate:.1f}%."
+                f"Barclays ranks {ordinal} of {len(ranked)} on {issue_name}. "
+                f"Best in the cohort is {best_peer} at {best_rate:.1f}%."
             )
         else:
-            peer_prose = (
-                f"Barclays {issue_name} complaint rate is {gap:+.1f}pp above the 5-bank peer average "
-                f"({b_rate:.1f}% vs {p_rate:.1f}%)."
-            )
+            peer_prose = f"Benchmark data unavailable for {issue_name}."
 
         if under:
             strength = under[0]
             peer_prose += (
-                f" The one area where Barclays outperforms peers is {strength['issue_type']}, "
-                f"sitting {abs(strength['gap_pp']):.1f}pp below the cohort average."
+                f" On {strength['issue_type']}, Barclays leads the cohort — "
+                f"{abs(strength['gap_pp']):.1f}pp below average."
             )
     else:
         peer_prose = "Barclays complaint rates are broadly in line with the 5-bank peer cohort. No material over-indexed issues detected."
