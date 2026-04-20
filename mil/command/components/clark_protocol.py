@@ -78,18 +78,113 @@ CLARK2_CAC_THRESHOLD  = _T("clark.clark2_cac")
 CLARK1_CAC_THRESHOLD  = _T("clark.clark1_cac")
 DOWNGRADE_HOURS       = int(_T("clark.downgrade_hours"))
 CLARK3_P0_OVERRIDE    = int(_T("clark.p0_override_count"))
+ISSUE_CLARK3_DAYS     = int(_T("clark.issue_clark3_days"))
+ISSUE_CLARK3_GAP      = float(_T("clark.issue_clark3_gap"))
+ISSUE_CLARK2_DAYS     = int(_T("clark.issue_clark2_days"))
+ISSUE_CLARK2_GAP      = float(_T("clark.issue_clark2_gap"))
+ISSUE_CLARK1_DAYS     = int(_T("clark.issue_clark1_days"))
+ISSUE_CLARK1_GAP      = float(_T("clark.issue_clark1_gap"))
+
+ISSUE_OVERRIDE_PREFIX = "Issue-level override"
+
+PERSISTENCE_LOG       = MIL_ROOT / "data" / "issue_persistence_log.jsonl"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Tier evaluation
 # ─────────────────────────────────────────────────────────────────────────────
 
-def evaluate_clark_tier(finding: dict) -> tuple[str, str]:
+_TIER_RANK = {"CLARK-0": 0, "CLARK-1": 1, "CLARK-2": 2, "CLARK-3": 3}
+
+
+def _load_todays_issue_persistence() -> dict[str, dict]:
+    """
+    Load the most recent date's over-indexed issue-persistence entries, keyed
+    by issue_type. Used for the issue-level tier override.
+
+    Returns empty dict if the log is missing (first-ever run) — falls back to
+    finding-level rules only.
+    """
+    if not PERSISTENCE_LOG.exists():
+        return {}
+    entries: list[dict] = []
+    try:
+        for line in PERSISTENCE_LOG.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    except OSError:
+        return {}
+    if not entries:
+        return {}
+    latest_date = max((e.get("date", "") for e in entries), default="")
+    if not latest_date:
+        return {}
+    latest_over = [
+        e for e in entries
+        if e.get("date") == latest_date and e.get("over_indexed")
+    ]
+    return {e["issue_type"]: e for e in latest_over if e.get("issue_type")}
+
+
+def _issue_level_override(finding: dict, persistence_today: dict[str, dict]) -> Optional[tuple[str, str]]:
+    """
+    Check whether a finding qualifies for an issue-level tier override.
+
+    Scope: Barclays findings only (benchmark is Barclays-scoped). Matches on
+    the finding's dominant_issue_type. Returns (tier, reason) or None.
+
+    Tier assignment uses the highest threshold whose conditions are met.
+    """
+    if finding.get("competitor") != "barclays":
+        return None
+    issue_type = finding.get("dominant_issue_type") or ""
+    if not issue_type:
+        return None
+    entry = persistence_today.get(issue_type)
+    if not entry:
+        return None
+
+    days = int(entry.get("days_active", 0))
+    gap  = float(entry.get("gap_pp", 0.0))
+    sev  = entry.get("dominant_severity", "P2")
+
+    if sev == "P0" and days >= ISSUE_CLARK3_DAYS and gap > ISSUE_CLARK3_GAP:
+        return "CLARK-3", (
+            f"{ISSUE_OVERRIDE_PREFIX}: {issue_type} — {days}d persistent P0, "
+            f"{gap:+.1f}pp over peers"
+        )
+    if sev == "P0" and days >= ISSUE_CLARK2_DAYS and gap > ISSUE_CLARK2_GAP:
+        return "CLARK-2", (
+            f"{ISSUE_OVERRIDE_PREFIX}: {issue_type} — {days}d persistent P0, "
+            f"{gap:+.1f}pp over peers"
+        )
+    if sev in ("P0", "P1") and days >= ISSUE_CLARK1_DAYS and gap > ISSUE_CLARK1_GAP:
+        return "CLARK-1", (
+            f"{ISSUE_OVERRIDE_PREFIX}: {issue_type} — {days}d persistent {sev}, "
+            f"{gap:+.1f}pp over peers"
+        )
+    return None
+
+
+def evaluate_clark_tier(
+    finding: dict,
+    persistence_today: Optional[dict[str, dict]] = None,
+) -> tuple[str, str]:
     """
     Evaluate the Clark tier for a finding.
 
+    The issue-level override fires first (only for Barclays findings whose
+    dominant_issue_type is sustained/over-indexed in the benchmark). The
+    per-finding rules fire after. The result is the higher of the two tiers,
+    so an issue-level minimum never suppresses a stronger per-finding signal.
+
     Returns:
-        (tier, reason) — e.g. ("CLARK-3", "P1 + CAC 0.720 + CHR-001 + ceiling")
+        (tier, reason) — e.g. ("CLARK-3", "P1 tier + CAC 0.720 + CHR-001 + ceiling")
     """
     cac      = finding.get("confidence_score", 0.0)
     ftier    = finding.get("finding_tier", "P3")
@@ -98,32 +193,37 @@ def evaluate_clark_tier(finding: dict) -> tuple[str, str]:
     chr_id   = chr_match.get("chronicle_id")
     has_chr  = bool(chr_id and chr_match.get("inference_approved", True))
 
+    # ── Per-finding tier (existing rules) ─────────────────────────────────
+    finding_tier: str = "CLARK-0"
+    finding_reason = "below escalation threshold"
+
     # CLARK-3 (P0 override): raw blocking signals bypass CAC dilution
     # P0 ≥ 5 + Designed Ceiling + Chronicle anchor → ACT NOW regardless of CAC score
     p0_count = finding.get("signal_counts", {}).get("P0", 0)
     if p0_count >= CLARK3_P0_OVERRIDE and ceiling and has_chr:
-        reason = (
+        finding_tier = "CLARK-3"
+        finding_reason = (
             f"P0 override: {p0_count} blocking signals >= {CLARK3_P0_OVERRIDE} "
             f"+ ceiling + {chr_id}"
         )
-        return "CLARK-3", reason
+    elif ftier == "P1" and cac >= CLARK3_CAC_THRESHOLD and has_chr and ceiling:
+        finding_tier = "CLARK-3"
+        finding_reason = f"P1 tier + CAC {cac:.3f} >= {CLARK3_CAC_THRESHOLD} + {chr_id} + ceiling"
+    elif ftier == "P1" and cac >= CLARK2_CAC_THRESHOLD:
+        finding_tier = "CLARK-2"
+        finding_reason = f"P1 tier + CAC {cac:.3f} >= {CLARK2_CAC_THRESHOLD}"
+    elif ftier == "P2" and cac >= CLARK1_CAC_THRESHOLD and has_chr:
+        finding_tier = "CLARK-1"
+        finding_reason = f"P2 tier + CAC {cac:.3f} >= {CLARK1_CAC_THRESHOLD} + {chr_id}"
 
-    # CLARK-3: P1 tier + high CAC + chronicle + ceiling
-    if ftier == "P1" and cac >= CLARK3_CAC_THRESHOLD and has_chr and ceiling:
-        reason = f"P1 tier + CAC {cac:.3f} >= {CLARK3_CAC_THRESHOLD} + {chr_id} + ceiling"
-        return "CLARK-3", reason
+    # ── Issue-level override ─────────────────────────────────────────────
+    persistence_today = persistence_today if persistence_today is not None else _load_todays_issue_persistence()
+    override = _issue_level_override(finding, persistence_today) if persistence_today else None
 
-    # CLARK-2: P1 tier + threshold CAC
-    if ftier == "P1" and cac >= CLARK2_CAC_THRESHOLD:
-        reason = f"P1 tier + CAC {cac:.3f} >= {CLARK2_CAC_THRESHOLD}"
-        return "CLARK-2", reason
-
-    # CLARK-1: P2 tier + high CAC + chronicle anchor
-    if ftier == "P2" and cac >= CLARK1_CAC_THRESHOLD and has_chr:
-        reason = f"P2 tier + CAC {cac:.3f} >= {CLARK1_CAC_THRESHOLD} + {chr_id}"
-        return "CLARK-1", reason
-
-    return "CLARK-0", "below escalation threshold"
+    # Pick the higher of the two tiers.
+    if override and _TIER_RANK[override[0]] > _TIER_RANK[finding_tier]:
+        return override
+    return finding_tier, finding_reason
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -304,10 +404,11 @@ def scan_and_escalate() -> dict:
         logger.error("[clark] failed to read findings: %s", exc)
         return {}
 
+    persistence_today = _load_todays_issue_persistence()
     logged_index = _build_escalation_index(load_clark_log())
     new_counts: dict[str, int] = {}
     for finding in findings:
-        tier, reason = evaluate_clark_tier(finding)
+        tier, reason = evaluate_clark_tier(finding, persistence_today=persistence_today)
         if tier == "CLARK-0":
             continue
         fid = finding.get("finding_id", "?")
@@ -340,10 +441,14 @@ def scan_and_downgrade() -> int:
     # Build O(1) downgrade index upfront — eliminates O(n²) inner scan
     downgrade_index = _build_downgrade_index(entries)
 
+    # Issue-level overrides do not auto-downgrade on the 48h rule — they
+    # re-evaluate every run against current benchmark persistence, so the tier
+    # tracks the evidence naturally.
     escalations = [
         e for e in entries
         if e.get("event") == "CLARK_ESCALATION"
         and e.get("clark_tier") in ("CLARK-2", "CLARK-3")
+        and not e.get("reason", "").startswith(ISSUE_OVERRIDE_PREFIX)
     ]
 
     for e in escalations:

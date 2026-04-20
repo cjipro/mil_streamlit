@@ -8,6 +8,16 @@ clark:
   clark1_cac:       0.55   # CAC >= this + P2 + CHR → CLARK-1
   downgrade_hours:  48     # CLARK-2/3 findings older than this get downgraded one tier
   p0_override_count: 5     # P0 signals >= this + ceiling + CHR → CLARK-3 regardless of CAC
+  # Issue-level override: tier bumps when a Barclays issue is over-indexed
+  # and persistent in the benchmark, independent of per-finding CAC. Fires
+  # BEFORE per-finding rules. Does not auto-downgrade on 48h rule —
+  # re-evaluates every run against current benchmark.
+  issue_clark3_days:  21     # CLARK-3 min: days_active ≥ this + gap > clark3_gap + P0 dominant
+  issue_clark3_gap:   8.0    # percentage points over peer average
+  issue_clark2_days:  14     # CLARK-2 min: days_active ≥ this + gap > clark2_gap + P0 dominant
+  issue_clark2_gap:   5.0
+  issue_clark1_days:  7      # CLARK-1 min: days_active ≥ this + gap > clark1_gap + P0/P1 dominant
+  issue_clark1_gap:   3.0
 
 inference:
   min_cluster_size_p0: 2   # Minimum P0 signals required to generate a finding

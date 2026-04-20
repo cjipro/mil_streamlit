@@ -305,6 +305,7 @@ def build_finding(
     vol_sig: float,
     refuel_output: dict,
     designed_ceiling_reached: bool,
+    issue_type: str = "",
 ) -> dict:
     """Build a structured MIL finding per MIL_SCHEMA.yaml mandatory_output_fields."""
 
@@ -370,6 +371,7 @@ def build_finding(
         "human_countersign_status": "PENDING",
         "signal_severity":        dominant_sev,
         "journey_id":             journey_id or "UNMAPPED",
+        "dominant_issue_type":    issue_type or "",
         "finding_tier":           _clark_tier(cac_score),
         "designed_ceiling_reached": designed_ceiling_reached,
         # Finding content — summary is deterministic; blind_spots from Refuel
@@ -568,6 +570,7 @@ def run_inference(sample_size: Optional[int] = None) -> list[dict]:
                 vol_sig=vol_sig,
                 refuel_output=refuel_out,
                 designed_ceiling_reached=designed_ceiling,
+                issue_type=attribution,
             )
 
             findings.append(finding)
