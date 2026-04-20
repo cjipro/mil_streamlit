@@ -136,7 +136,7 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - MIL-30: Opus Governance Tier — CLARK-3 synthesis + CHR proposals upgraded to Opus (BUILT 2026-04-12)
 - MIL-31: Barclays CHRONICLE Depth — CHR-017/018/019 approved, research agent --force flag, CHR_COVERAGE bypass for Barclays J_SERVICE_01 (BUILT 2026-04-16)
 
-## MIL Pipeline State — 2026-04-18 (Phase 2 complete, MIL autonomous from 2026-04-20)
+## MIL Pipeline State — 2026-04-21 (Phase 2 complete, Task Scheduler autonomy live, first auto-fire 2026-04-28T06:30Z)
 
 ### Infrastructure
 - **docker-compose.yml**: mil-namenode (port 9871) + mil-datanode (ports 9864/9866) LIVE
@@ -160,10 +160,12 @@ File: `mil/harvester/enrich_sonnet.py`
 - **Taxonomy config (MIL-32 2026-04-19)**: issue types, journeys, severity gate all moved to `mil/config/domain_taxonomy.yaml`. Never hardcode taxonomy in pipeline files — import from `mil/config/taxonomy_loader.py`.
 - **Severity gate**: `apply_severity_gate(issue, severity)` in taxonomy_loader — caps severity at `max_severity` per issue type defined in domain_taxonomy.yaml. Blocking issues (P0 permitted): App Not Opening, Login Failed, Payment Failed, Transfer Failed, Account Locked, App Crashing.
 - **ARCH-004**: enrichment switched Haiku→qwen3:14b (Ollama local). Provider-aware client: Ollama uses OpenAI-compat endpoint. Anthropic path retained as fallback if routing changes back.
-- v3 skip logic: `_is_v3(r)` check — already-enriched records skipped, daily run < 1 second
-- JSON repair pipeline: trim → json.loads → json_repair fallback → ENRICHMENT_FAILED
+- v3 skip logic: `_is_v3(r)` check — already-enriched records skipped, daily run < 1 second. Records marked `ENRICHMENT_FAILED` are re-attempted on every run (not treated as v3-complete).
+- JSON repair pipeline: trim → json.loads → json_repair fallback → subdivide → ENRICHMENT_FAILED (only at size 1)
 - **rsplit fix**: new source+competitor keys split on last `_` so `app_store_barclays` → source=`app_store`, competitor=`barclays`
 - **Dedup fix (2026-04-17)**: dedup upgraded from 80-char text prefix to SHA-256 hash of full content — prevents duplicate records if pipeline reruns same day
+- **Subdivide-on-failure (2026-04-20, commit dc4111a)**: `_enrich_with_subdivide()` halves a failing batch recursively down to size 1 before marking records `ENRICHMENT_FAILED`. Max recursion depth ~log2(BATCH_SIZE)=4. Safety net.
+- **qwen3 root-cause patch (2026-04-21, commit 9602308)**: system prompt "banking app complaints analyst" → "banking app review classifier" so non-complaint batches classify instead of going silent. User prompt adds explicit N-in-N-out contract and maps "Positive Feedback" as the valid `issue_type` for praise/no-complaint content. `max_tokens` 1024 → 4096 (full 10-record arrays were being truncated). Subdivide still runs as safety net but should rarely fire.
 - Old pipeline (qwen_enrichment.py schema v2) — superseded, do not use for new enrichment
 
 ### Vault (vault_sync.py)
@@ -258,6 +260,8 @@ File: `mil/publish/publish.py`
 - All three boxes Barclays-scoped
 - **Two-color score rule (2026-04-12)**: `score_num_color()` — red (#cc3333) below 50, white (#E8F4FA) ≥50. Applied to ALL sentiment score numbers (Box 1, ticker, journey rows, Box 2 list). RAG system (`score_color()`) still used for arrows and status text labels.
 - **HSBC app IDs fixed (2026-04-12)**: App Store ID corrected to `1220329065`, Google Play package corrected to `uk.co.hsbc.hsbcukmobilebanking`. Both returning records from 2026-04-12 run.
+- **Box 2 row meta (2026-04-20, commit 3c34b98)**: each issue row renders `.journey-list-meta` between score and status — `"N reviews · Xd sustained"`. volume from 7-day Barclays record count; days_active joined from `issue_persistence_log.jsonl`. Zero values omitted.
+- **Box 2 severity-prioritised quote (2026-04-21, commit 884ff92)**: single-quote slot searches top 5 issues by severity (P0 > P1 > P2 > issue rank) rather than only the top-ranked issue. Previously Feature Broken P2 cosmetic quotes surfaced over App Crashing / Account Locked P0s; severity-first ordering fixes that. `box2_issue_type` label now reflects the chosen quote's real source, not the top-ranked issue. P0/P1 pool widened to include P2 so cosmetic-ranked issues don't produce an empty slot.
 - Note: cjipro.com behind Cloudflare — cache purge needed after deploy if changes not visible
 
 ### Sonar Briefing V2 — publish_v2.py (LIVE)
@@ -281,7 +285,7 @@ File: `mil/publish/publish_v3.py`
 - **Box 3 — Intelligence Brief** (`_build_exec_summary_box`):
   - THE SITUATION: full Sonnet prose from top risk commentary box (latest reviews, not Chronicle)
   - Real P0/P1 review quote (between Situation and Peer)
-  - PEER COMPARISON: deterministic prose — Barclays rate, 5-bank peer avg, gap, best-performing peer named explicitly, days sustained, under-indexed strength note
+  - PEER COMPARISON: deterministic rank-of-6 prose — "Barclays ranks {Nth} of {6} on {issue}. Best in the cohort is {peer} at {rate}%." Plus under-indexed strength note. Stat strip already carries the `+Ypp vs peers` gap, so the paragraph adds relative position (new info) rather than restating the gap.
   - THE CALL: one sentence from `call_map[clark_tier]` — Clark-3=escalate today, Clark-2=this week, Clark-1=watch, Clark-0=nominal
   - Thin `#003A5C` divider between each section (Option A — no section numbers)
   - Clark tier badge at foot
@@ -306,6 +310,8 @@ File: `mil/publish/publish_v4.py` + `mil/publish/templates/briefing_v4.html.j2` 
 - Local-only render: `py mil/publish/publish_v4.py --render` — writes `mil/publish/output/index_v4.html`, skips GitHub push.
 - Full publish: `py mil/publish/publish_v4.py` — build + local copy + push to `briefing-v4/index.html`.
 - **publish_v4.py wired into run_daily.py as Step 5d** (after V3 publish, before log run). Treated as CRITICAL.
+- **V4 Box 3 drift fixes (2026-04-20, commit e2a05bb)**: V4's duplicated Box 3 builder had not received the V3 readability arc. Three pieces ported: (1) `call_map` rewritten to drop "At CLARK-N" internal codes, matching V3; (2) Peer Comparison "sustained for N days, indicating a structural pattern rather than a transient spike" padding stripped; (3) volume stat strip now renders above The Situation via new `volume_strip_html` slot in `briefing_v4.html.j2` (reuses `legacy._build_volume_strip`). V3 and V4 now produce byte-identical Box 3 content on the same data.
+- **V4 Peer Comparison rank-of-6 parity (2026-04-21, commit d723f19)**: V4 injects Barclays into the ranked rate dict alongside the 5 peers, computes ordinal, names the best peer. Identical output to V3 on the same data.
 - **Upstream data gaps surfaced by Provenance Chain** (for Phase B follow-up, not blocking): `signal_ids` is empty on most findings (inference isn't recording anchoring signals); `teacher_model_version` is `None` across all 138 findings (enrichment doesn't stamp teacher model version into provenance).
 
 ### Daily Pipeline — ONE COMMAND (fully agentic)
@@ -547,7 +553,12 @@ Specialist stack: `mil/specialist/`
 - **Apr 20 DONE**: QLoRA specialist shelved (ARCH-005, commit 229b05d). 4B trained model loses to qwen3:14b baseline on held-out eval (83.3% vs 93.3%). Severity stays on enrichment route — no blocker for autonomy.
 - **Apr 20 DONE**: Box 3 readability arc — commentary prompt overhaul, Clark issue-level override, volume stat strip with denominator, quote selector hardened, Peer Comparison rewritten to rank-based, CHR codes stripped from prose. 9 feature commits + 5 clean runs (#43–#48) on origin/main.
 - **Apr 20 DONE**: Slack webhook scrubbed from git history via `git filter-branch` (rewrote 214 commits). Old webhook rotated in Slack. New URL in `.env` (gitignored). Notifier now resolves `${SLACK_WEBHOOK_URL}` via env-var expansion. End-to-end verified: Run #47/#48 Slack pings delivered successfully on new webhook.
-- **Apr 28–30 (revised autonomy target)**: schedule `run_daily.py` via cron at 06:30 UTC. Pipeline is specialist-independent. MIL runs without human intervention from this date. Pivot focus to CJI Pulse.
+- **Apr 20 DONE**: Task Scheduler autonomy LIVE (commit 16e2c1c). `ops/mil_daily_v5.xml` + `ops/run_mil_daily.cmd` registered as Windows task "MIL Daily". InteractiveToken logon (PIN-only local account, no password), UTF-16 LE BOM, schema 1.2, UTC StartBoundary (BST/GMT shift-proof), ExecutionTimeLimit 2h. Wrapper captures stdout to `mil/data/run_auto_YYYYMMDD_HHMMSS.log`. Manual fire of Run #49 produced CLEAN + Slack heartbeat. First unattended auto-fire: 2026-04-28T06:30:00Z (= 07:30 BST).
+- **Apr 20 DONE**: Enrichment subdivide-on-failure (commit dc4111a). Run #51 verified 40 → 0 ENRICHMENT_FAILED via subdivide.
+- **Apr 21 DONE**: qwen3 root-cause patch (commit 9602308) — prompt rewrite (classifier not complaints analyst; Positive Feedback mapping; N-in-N-out contract) + max_tokens 1024 → 4096. Subdivide stays as safety net.
+- **Apr 21 DONE**: Box 3 polish continuation — V4 drift fixes for call_map, peer padding, stat strip (e2a05bb); commentary Sentence 1 rule tightened on `days_active` (e2a05bb); V3/V4 peer convergence to rank-of-6 (d723f19).
+- **Apr 21 DONE**: Box 2 polish — review count + days sustained per row (3c34b98); single-quote slot P0/P1/P2 fallback + severity-prioritised across top 5 issues (884ff92).
+- **Apr 28 (current autonomy target)**: nothing further needed; Task Scheduler will fire `run_daily.py` at 06:30 UTC automatically. Pivot focus to CJI Pulse.
 - **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
@@ -559,7 +570,7 @@ Specialist stack: `mil/specialist/`
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 7,681+ enriched records. 139 findings | 100% anchored | 7 Designed Ceiling. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 53.0 WORSENING (Run #48, 2026-04-20). Normalization introduced Run #33; anomaly threshold valid from Run #47. Run #48, streak 20/5, 2026-04-20. QLoRA specialist SHELVED 2026-04-20 — 4B trained model loses to qwen3:14b baseline (83.3% vs 93.3% on held-out eval), severity classification stays on the enrichment route. Autonomy target: 2026-04-28–30 (cron the pipeline; no specialist dependency).**
+**Current corpus: 7,681+ enriched records. 139 findings | 100% anchored | 7 Designed Ceiling | 0 ENRICHMENT_FAILED. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 53.5 WORSENING (Run #51, 2026-04-20). Normalization introduced Run #33; anomaly threshold valid from Run #47. Streak 20/5 as of Run #51. QLoRA specialist SHELVED 2026-04-20 — 4B trained model loses to qwen3:14b baseline (83.3% vs 93.3% on held-out eval), severity classification stays on the enrichment route. **Task Scheduler autonomy LIVE 2026-04-20; first unattended auto-fire 2026-04-28T06:30Z.**
 
 **Box 3 readability arc shipped 2026-04-20 (commits 1eaac82 → f5f28ab):** Sonnet commentary prompt overhauled with 22-word sentence cap + banned-phrase list + strongest-risk-first ordering; Clark issue-level tier override lands (days + gap + severity → min tier, scoped Barclays); volume stat strip shows "N of M reviews cite this issue · WoW delta · days sustained · gap vs peers" with surface-signal qualifier; quote selector rejects trailing-fragment quotes; Peer Comparison rewritten to rank-based; internal CHR-XXX codes stripped from exec prose. Clark tier badge now matches narrative severity (CLARK-2 ESCALATE on today's Barclays App Crashing).
 
