@@ -57,6 +57,30 @@ mil/teacher/output/*.bak
 ollama-models/
 unsloth_compiled_cache/
 
+# MIL runtime logs + egress artifacts — regenerated each run, never committed
+mil/data/run_*.log
+mil/data/run_v3_smoke.log
+mil/data/data_egress_log.jsonl
+mil/data/refuel_strategy_corpus.json
+
+# MIL publish build outputs — regenerated each run. Tracked snapshots (index.html,
+# index_v2.html, index_v3.html, index_v3_golden.html, index_v4.html) stay committed;
+# everything below is local-only (diff-gate renders + standalone previews).
+mil/outputs/briefing.html
+mil/publish/output/box3_jinja.html
+mil/publish/output/box3_legacy.html
+mil/publish/output/clark_jinja.html
+mil/publish/output/clark_legacy.html
+mil/publish/output/commentary_jinja.html
+mil/publish/output/commentary_legacy.html
+mil/publish/output/findings_noprov_jinja.html
+mil/publish/output/findings_noprov_legacy.html
+mil/publish/output/svc_bench_jinja.html
+mil/publish/output/svc_bench_legacy.html
+mil/publish/output/tech_bench_jinja.html
+mil/publish/output/tech_bench_legacy.html
+mil/publish/output/index_v3_jinja.html
+
 # Local databases — regenerated from source, never committed
 *.db
 
