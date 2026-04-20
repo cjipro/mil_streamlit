@@ -148,6 +148,8 @@ def _bd_to_journey_analysis(journey_performance: list) -> list:
             "avg_rating":      round(row.get("sentiment_score", 0) / 20, 2) if row.get("sentiment_score") else None,
             "p1":              p0 + p1,
             "p2":              p2,
+            "volume":          row.get("volume", 0),
+            "days_active":     row.get("days_active", 0),
             "negative_weight": p0 * 8 + p1 * 3 + p2,
             "neg_pills":       [],
             "pos_pills":       [],
@@ -1224,11 +1226,23 @@ def generate_html(
         _jcolor = _status_colors.get(_jstatus, "#F5A623")
         _jarrow = _status_arrows.get(_jstatus, "&#8594;")
         _jscore_num_color = score_num_color(_j.get("score"))
+        _jvol = _j.get("volume")
+        _jdays = _j.get("days_active")
+        _meta_parts = []
+        if _jvol:
+            _meta_parts.append(f"{_jvol} review" if _jvol == 1 else f"{_jvol} reviews")
+        if _jdays:
+            _meta_parts.append(f"{_jdays}d sustained")
+        _jmeta = (
+            f'            <span class="journey-list-meta">{" &middot; ".join(_meta_parts)}</span>\n'
+            if _meta_parts else ""
+        )
         _journey_rows += (
             f'        <div class="journey-list-item">\n'
             f'          <span class="journey-list-name">{e(_jname)}</span>\n'
             f'          <span class="journey-list-right">\n'
             f'            <span class="journey-list-score" style="color:{_jscore_num_color};">{_jscore}</span>\n'
+            f'{_jmeta}'
             f'            <span class="journey-list-status" style="color:{_jcolor};">{_jarrow} {e(_jstatus)}</span>\n'
             f'          </span>\n'
             f'        </div>\n'
@@ -1338,6 +1352,7 @@ a {{ color: var(--blue); text-decoration: none; }}
 .journey-list-name {{ color: #7AACBF; font-weight: 600; }}
 .journey-list-right {{ display: flex; align-items: center; gap: 6px; }}
 .journey-list-score {{ font-family: var(--mono); font-size: 16px; font-weight: 700; }}
+.journey-list-meta {{ color: #4A7A8F; font-size: 11px; font-weight: 500; }}
 .journey-list-status {{ font-size: 10px; font-weight: 700; }}
 .topbar-logo {{
   font-weight: 800;

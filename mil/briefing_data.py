@@ -629,6 +629,24 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     journey_rows.sort(key=lambda x: -x["issue_score"])
 
+    # Build {issue_type -> days_active} from latest-date persistence entries so
+    # Box 2 rows can render "N reviews · Xd sustained" alongside score+trend.
+    persistence_log = Path(__file__).parent / "data" / "issue_persistence_log.jsonl"
+    days_active_by_issue: dict[str, int] = {}
+    if persistence_log.exists():
+        try:
+            pers_entries = [
+                json.loads(ln) for ln in persistence_log.read_text(encoding="utf-8").splitlines()
+                if ln.strip()
+            ]
+            if pers_entries:
+                latest_date = max(e["date"] for e in pers_entries)
+                for e in pers_entries:
+                    if e.get("date") == latest_date:
+                        days_active_by_issue[e["issue_type"]] = int(e.get("days_active", 0))
+        except Exception:
+            pass
+
     # Top 5 issues (what went wrong)
     issues_performance = []
     for rank, row in enumerate(rows[:5], 1):
@@ -641,6 +659,8 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "p0":              row["p0"],
             "p1":              row["p1"],
             "p2":              row["p2"],
+            "volume":          row["volume"],
+            "days_active":     days_active_by_issue.get(row["journey"], 0),
             "verdict":         _verdict(row["journey"], row["trend"],
                                         row["p0"], row["p1"], row["p2"]),
         })
@@ -937,14 +957,17 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     if issues_performance:
         _top_issue = issues_performance[0]["journey"]
         box2_issue_type = _top_issue
+        # Prefer P0/P1 but fall back to P2 when the top issue has no P0/P1 records
+        # (happens for cosmetic/feature-broken issues where volume alone ranks them high).
         _b2_pool = [
             r for r in barclays_records
             if r.get("issue_type") == _top_issue
-            and r.get("severity_class") in ("P0", "P1")
+            and r.get("severity_class") in ("P0", "P1", "P2")
             and len((r.get("review") or r.get("content", "")).strip()) >= 40
             and r.get("issue_type") != "Positive Feedback"
         ]
-        _b2_pool.sort(key=lambda r: 0 if r.get("severity_class") == "P0" else 1)
+        _sev_rank = {"P0": 0, "P1": 1, "P2": 2}
+        _b2_pool.sort(key=lambda r: _sev_rank.get(r.get("severity_class"), 9))
         _b1_keys = {as_quote[:80], gp_quote[:80]} - {""}
         # First pass: prefer 60-200 chars, not duplicate
         for _b2r in _b2_pool:
