@@ -148,22 +148,27 @@ routes:
       Deterministic fallback if Refuel unavailable (Article Zero).
       Unchanged ARCH-003.
 
-  # ── MIL Specialist: CAC + Severity (DECLARED, NOT LIVE) ───────
+  # ── MIL Specialist: CAC + Severity (SHELVED — does not beat baseline) ───────
   specialist_severity:
     model: "qwen3-mil-v1:latest"
     provider: ollama
     max_tokens: 512
-    status: declared
+    status: shelved
     note: >
-      ARCH-005. qwen3-mil-v1-4b — QLoRA-tuned Qwen3-4B, trained on 450 CAC
-      pairs + 150 severity pairs. Gate 5 ACTIVE (P0=90%, P1=100%, overall=95%
-      on collision-lock). NOT yet merged to GGUF, NOT yet deployed to Ollama.
-      This route is a forward declaration — callers can reference it but any
-      actual call will 404 against Ollama until the specialist is deployed.
-      Intended use when live: second-opinion severity calibration on P0/P1
-      classifications, audit trail for important findings. Promote to
-      status: live after (a) GGUF quantise + `ollama create qwen3-mil-v1`,
-      (b) held-out eval, (c) manual spot-check. 2026-04-19.
+      ARCH-005 superseded 2026-04-20. Two 4B training runs (150 pairs, 198 pairs)
+      both produce a specialist that loses to the `enrichment` route (qwen3:14b)
+      on held-out eval: specialist overall 83.3% vs qwen3:14b 93.3% (P0 75% vs
+      83%, P2 87% vs 100%; see mil/specialist/heldout_eval_report.md). The 4B
+      base appears to be the ceiling — 3x-ing P0 pair coverage improved P0 by
+      only +8.3pp with a matching P2 regression, net overall unchanged.
+      Autonomy path does NOT depend on this route: severity classification is
+      already served production-ready by the `enrichment` route (qwen3:14b,
+      93% P0 / 100% P1 / 100% P2 on held-out eval, zero parse failures in the
+      latest run). Revisit this route only if (a) bitsandbytes stabilises on
+      RTX 5070 Ti Blackwell (sm_120) for 7B/8B QLoRA, or (b) we obtain larger
+      training hardware. Backup of the most recent 4B adapter lives at
+      mil/specialist/qwen3-mil-v1-4b/ (and qwen3-mil-v1-4b.bak for the
+      150-pair version).
 
   # ════════════════════════════════════════════════════════════════
   # TIER 4 — QWEN3 (LOCAL) — Generates and transforms

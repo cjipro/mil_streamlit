@@ -1,9 +1,9 @@
 {
   "status": "ACTIVE",
-  "checked_at": "2026-04-19T11:20:53.064567+00:00",
+  "checked_at": "2026-04-19T22:45:10.492360+00:00",
   "p0_agreement": 0.9,
-  "p1_agreement": 1.0,
-  "overall_agreement": 0.95,
+  "p1_agreement": 0.9,
+  "overall_agreement": 0.9,
   "sample_size": 20,
   "p0_sample_n": 10,
   "p1_sample_n": 10,
