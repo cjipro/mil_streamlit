@@ -143,12 +143,43 @@ class EmailAdapter(NotifyAdapter):
 
 # ── Factory ───────────────────────────────────────────────────────────────────
 
+import os
+import re
+
+_ENV_VAR_RE = re.compile(r"\$\{([A-Z_][A-Z0-9_]*)\}")
+
+
+def _expand_env_vars(value):
+    """Recursively expand ${VAR} placeholders in strings within the config.
+
+    Allows notify_config.yaml to hold placeholders like
+    ``webhook_url: "${SLACK_WEBHOOK_URL}"`` without committing secrets;
+    the real URL lives in .env (gitignored). Missing env vars expand to
+    empty string, which falls through to NullAdapter with a warning.
+    """
+    if isinstance(value, str):
+        return _ENV_VAR_RE.sub(lambda m: os.getenv(m.group(1), ""), value)
+    if isinstance(value, dict):
+        return {k: _expand_env_vars(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_expand_env_vars(v) for v in value]
+    return value
+
+
 @lru_cache(maxsize=1)
 def _load_config() -> dict:
     if not _CONFIG_PATH.exists():
         return {"adapter": "null"}
+    # Load .env opportunistically so webhook URLs in ${VAR} form resolve
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass
     loaded = yaml.safe_load(_CONFIG_PATH.read_text(encoding="utf-8"))
-    return loaded if isinstance(loaded, dict) else {"adapter": "null"}
+    if not isinstance(loaded, dict):
+        return {"adapter": "null"}
+    return _expand_env_vars(loaded)
 
 
 def get_notifier() -> NotifyAdapter:
