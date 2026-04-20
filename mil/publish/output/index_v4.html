@@ -75,6 +75,7 @@ a { color: var(--blue); text-decoration: none; }
 .journey-list-name { color: #7AACBF; font-weight: 600; }
 .journey-list-right { display: flex; align-items: center; gap: 6px; }
 .journey-list-score { font-family: var(--mono); font-size: 16px; font-weight: 700; }
+.journey-list-meta { color: #4A7A8F; font-size: 11px; font-weight: 500; }
 .journey-list-status { font-size: 10px; font-weight: 700; }
 .topbar-logo {
   font-weight: 800;
@@ -399,6 +400,7 @@ a { color: var(--blue); text-decoration: none; }
           <span class="journey-list-name">Feature Broken</span>
           <span class="journey-list-right">
             <span class="journey-list-score" style="color:#E8F4FA;">50</span>
+            <span class="journey-list-meta">23 reviews &middot; 15d sustained</span>
             <span class="journey-list-status" style="color:#F5A623;">&#8594; WATCH</span>
           </span>
         </div>
@@ -406,6 +408,7 @@ a { color: var(--blue); text-decoration: none; }
           <span class="journey-list-name">App Not Opening</span>
           <span class="journey-list-right">
             <span class="journey-list-score" style="color:#cc3333;">20</span>
+            <span class="journey-list-meta">4 reviews</span>
             <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
@@ -413,6 +416,7 @@ a { color: var(--blue); text-decoration: none; }
           <span class="journey-list-name">App Crashing</span>
           <span class="journey-list-right">
             <span class="journey-list-score" style="color:#cc3333;">42</span>
+            <span class="journey-list-meta">9 reviews &middot; 15d sustained</span>
             <span class="journey-list-status" style="color:#F5A623;">&#8594; WATCH</span>
           </span>
         </div>
@@ -420,6 +424,7 @@ a { color: var(--blue); text-decoration: none; }
           <span class="journey-list-name">Account Locked</span>
           <span class="journey-list-right">
             <span class="journey-list-score" style="color:#E8F4FA;">60</span>
+            <span class="journey-list-meta">2 reviews &middot; 1d sustained</span>
             <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
@@ -427,10 +432,11 @@ a { color: var(--blue); text-decoration: none; }
           <span class="journey-list-name">Payment Failed</span>
           <span class="journey-list-right">
             <span class="journey-list-score" style="color:#cc3333;">47</span>
+            <span class="journey-list-meta">3 reviews &middot; 15d sustained</span>
             <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
           </span>
         </div>
-    </div>
+<div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;text-align:left;background:#001E2E;overflow:hidden;"><div style="font-size:10px;color:#3A6A7F;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Feature Broken</div><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;Unlike HSBC lacks helpful insights like upcoming payments and easy navigation to check on tracking activity, requesting increases&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★★☆☆☆ &middot; App Store &middot; 15 Apr</div></div>    </div>
   </div>
   <div class="topbar-box exec-alert-panel">
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
@@ -442,7 +448,7 @@ a { color: var(--blue); text-decoration: none; }
 <div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
             padding:8px 10px;background:#001828;border:1px solid #003A5C;
             border-radius:3px;margin-bottom:12px;font-size:11px;">
-  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">6 of 217 reviews</span>
+  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">6 of 216 reviews</span>
   <span style="color:#7AACBF;">cite this issue, last 7 days</span>
   <span style="color:#00AFA0;font-weight:600;">&darr; 40% vs prior week</span>
   <span style="color:#3A6A7F;">&middot;</span>
@@ -456,7 +462,7 @@ a { color: var(--blue); text-decoration: none; }
     <div style="margin-bottom:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">The Situation</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Persistent Android crashes blocking card access and OTP retrieval expose Barclays to FCA duty-of-care scrutiny. Customers report PIN checks and card controls are entirely inaccessible, with Barclays' crash rate running 2.3x above the peer average. Ship an emergency Android hotfix by Friday; HSBC's 2025 post-refresh incident shows a three-week delay turns a fixable bug into a regulator's case file.</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Persistent Android crashes blocking card access and OTP delivery expose Barclays to FCA duty-of-care scrutiny. Customers report cache clears failing, PIN retrieval broken, and OTP setup blocked — mirroring HSBC's 2025 post-refresh incident, which escalated before a fix shipped. Deploy an emergency Android hotfix by Friday, before regulators or journalists make this a named incident.</div>
     </div>
     <div style="font-size:11px;color:#4A7A8F;font-style:italic;
                 border-left:2px solid #003A5C;padding-left:10px;
@@ -695,7 +701,7 @@ a { color: var(--blue); text-decoration: none; }
   <span class="footer-sep">-</span>
   <span class="footer-item">Article Zero</span>
   <span class="footer-sep">-</span>
-  <span class="footer-item">Published 2026-04-20 21:16 UTC</span>
+  <span class="footer-item">Published 2026-04-20 22:03 UTC</span>
 </div>
 
 <!-- -- Ask Sonar Button ----------------------------------------------------- -->
@@ -905,7 +911,7 @@ document.addEventListener('click', function(e) {
 <hr class="v3-divider">
 <div class="v3-outer">
   <div class="v3-label">
-    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-20 21:42 UTC
+    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-20 22:04 UTC
   </div>
   
 <div class="topbar-box">
@@ -969,7 +975,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Active <span>15 days</span></div>
           <div class="commentary-stat">Since <span>2026-04-03</span></div>
         </div>
-        <div class="commentary-prose">Persistent Android crashes blocking card access and OTP retrieval expose Barclays to FCA duty-of-care scrutiny. Customers report PIN checks and card controls are entirely inaccessible, with Barclays' crash rate running 2.3x above the peer average. Ship an emergency Android hotfix by Friday; HSBC's 2025 post-refresh incident shows a three-week delay turns a fixable bug into a regulator's case file.</div>
+        <div class="commentary-prose">Persistent Android crashes blocking card access and OTP delivery expose Barclays to FCA duty-of-care scrutiny. Customers report cache clears failing, PIN retrieval broken, and OTP setup blocked — mirroring HSBC's 2025 post-refresh incident, which escalated before a fix shipped. Deploy an emergency Android hotfix by Friday, before regulators or journalists make this a named incident.</div>
         <div class="commentary-quote">&ldquo;Dreadful. Can't access cards on it, each time I do it keeps crashing and clearing cache does nothing so I can't check my pin numbers or anything in relation to my card nor barclaycard.&rdquo;</div>
         <div class="commentary-chr">Chronicle context: HSBC 2025: post-refresh crashes and ERR03 errors ran three weeks before a fix....</div>
       </div>
@@ -987,7 +993,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Active <span>15 days</span></div>
           <div class="commentary-stat">Since <span>2026-04-03</span></div>
         </div>
-        <div class="commentary-prose">Broken self-service features — mortgage direct-debit edits and direct-debit cancellations — risk FCA scrutiny over adequate access to account controls. Customers report personal and business detail updates failing repeatedly, with Barclays' complaint rate running 4.2 percentage points above the six-peer average. Prioritise a targeted fix for direct-debit management and notification routing within five working days, before regulators treat the streak as evidence of inadequate service availability.</div>
+        <div class="commentary-prose">Broken self-service features — blocked direct-debit edits, failed notifications, and repeated personal-details errors — expose Barclays to FCA duty-of-care scrutiny over adequate digital access. Customers report being unable to cancel direct debits or update mortgage details, with Barclays complaints running 4.2 percentage points above the peer average. Prioritise a targeted fix for direct-debit and details-update flows within five working days before regulators treat the failure as evidence of inadequate service provision.</div>
         <div class="commentary-quote">&ldquo;You cant change your mortgage direct debits in any way on here - useless!&rdquo;</div>
       </div>
       <div class="commentary-card risk">
@@ -1004,7 +1010,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Active <span>15 days</span></div>
           <div class="commentary-stat">Since <span>2026-04-03</span></div>
         </div>
-        <div class="commentary-prose">Payment failures that block customers from completing transactions risk breaching FCA access-to-banking service obligations. Customers report app crashes mid-authorisation and PIN entry failures, with Barclays' complaint rate running 0.8 percentage points above the peer average. Escalate this to a P0 hotfix deployment within 48 hours, targeting the authorisation handoff and PIN session flow specifically.</div>
+        <div class="commentary-prose">Persistent payment-authorisation failures on the Barclays app expose the bank to FCA duty-of-care scrutiny over denied service access. Customers report the app closing mid-authorisation and PIN entry failing, with Barclays' complaint rate running 0.8 percentage points above peers. Deploy a targeted hotfix to the payment-authorisation flow by end of this week, before regulators cite this as a service-availability breach.</div>
         <div class="commentary-quote">&ldquo;Terrible app sends me to authorise payments to my bank then app closes and doesn't take payment.&rdquo;</div>
       </div>
       <div class="commentary-card strength">
@@ -1019,7 +1025,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Peer avg <span>7.7%</span></div>
           <div class="commentary-stat">Gap <span style="color:#00AFA0;">-4.3pp</span></div>
         </div>
-        <div class="commentary-prose">Barclays delivers significantly more reliable authentication, with login failures occurring at roughly half the rate seen across competing banks. When customers can access their money without friction, they are far less likely to open a second account elsewhere as a fallback.</div>
+        <div class="commentary-prose">Barclays resolves login authentication failures at roughly half the rate seen across comparable high-street banking apps. Customers who access accounts without friction are significantly less likely to seek alternatives, directly protecting current account switching decisions.</div>
         <div class="commentary-quote">&ldquo;Absolute dross of an application. Updated it and needed a card reader just to log in again which took ages to arrive and therefore missed payment which will affect my credit because of some stupid developer.&rdquo;</div>
       </div>
     </div>
