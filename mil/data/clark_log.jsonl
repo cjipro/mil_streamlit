@@ -237,3 +237,12 @@
 {"ts": "2026-04-19T06:56:11.224873+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260416-042", "clark_tier": "CLARK-1", "from_tier": "CLARK-2", "reason": "48h elapsed \u2014 no new signals"}
 {"ts": "2026-04-19T06:56:11.225438+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260416-080", "clark_tier": "CLARK-2", "from_tier": "CLARK-3", "reason": "48h elapsed \u2014 no new signals"}
 {"ts": "2026-04-19T06:56:11.225957+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260416-084", "clark_tier": "CLARK-1", "from_tier": "CLARK-2", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.514288+00:00", "event": "CLARK_ESCALATION", "finding_id": "MIL-F-20260420-010", "competitor": "hsbc", "clark_tier": "CLARK-1", "cac_score": 0.55, "finding_tier": "P2", "reason": "P2 tier + CAC 0.550 >= 0.55 + CHR-003"}
+{"ts": "2026-04-20T06:42:21.514619+00:00", "event": "CLARK_ESCALATION", "finding_id": "MIL-F-20260420-090", "competitor": "natwest", "clark_tier": "CLARK-1", "cac_score": 0.5555, "finding_tier": "P2", "reason": "P2 tier + CAC 0.555 >= 0.55 + CHR-002"}
+{"ts": "2026-04-20T06:42:21.515623+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-014", "clark_tier": "CLARK-1", "from_tier": "CLARK-2", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.515889+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-025", "clark_tier": "CLARK-1", "from_tier": "CLARK-2", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.516087+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-032", "clark_tier": "CLARK-2", "from_tier": "CLARK-3", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.516261+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-045", "clark_tier": "CLARK-1", "from_tier": "CLARK-2", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.516431+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-072", "clark_tier": "CLARK-2", "from_tier": "CLARK-3", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.516615+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-084", "clark_tier": "CLARK-2", "from_tier": "CLARK-3", "reason": "48h elapsed \u2014 no new signals"}
+{"ts": "2026-04-20T06:42:21.516783+00:00", "event": "CLARK_DOWNGRADE", "finding_id": "MIL-F-20260417-088", "clark_tier": "CLARK-1", "from_tier": "CLARK-2", "reason": "48h elapsed \u2014 no new signals"}
