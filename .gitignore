@@ -43,3 +43,23 @@ mil/data/findings/*
 
 # MIL HDFS volumes — outside repo, never committed
 C:/Users/hussa/hdfs-volumes/mil/
+
+# MIL specialist model weights — too large for git (GBs), live on disk only
+mil/specialist/qwen3-mil-v1/
+mil/specialist/qwen3-mil-v1-4b/
+mil/specialist/qwen3-mil-v1-4b.bak/
+mil/specialist/qwen3-mil-v1-gguf/
+mil/specialist/*.pid
+mil/specialist/*.log
+mil/teacher/output/*.bak
+
+# Local LLM runtime — Ollama storage, Unsloth/Triton caches
+ollama-models/
+unsloth_compiled_cache/
+
+# Local databases — regenerated from source, never committed
+*.db
+
+# Editor/tooling local state
+.claude/
+.continue/

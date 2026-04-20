@@ -3,7 +3,7 @@
   "_schema_version": "1.0",
   "_status": "LIVE",
   "_zero_entanglement": "mil/outputs/mil_findings.json is the only file CJI Pulse may read from mil/. No other mil/ file may be imported or read by external systems.",
-  "generated_at": "2026-04-19T06:56:07.188861+00:00",
+  "generated_at": "2026-04-19T21:00:54.808606+00:00",
   "summary": {
     "total_findings": 138,
     "anchored": 138,
@@ -19,12 +19,13 @@
   "findings": [
     {
       "finding_id": "MIL-F-20260419-001",
-      "generated_at": "2026-04-19T06:54:59.572691+00:00",
+      "generated_at": "2026-04-19T20:59:37.545338+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "password_required"
+        "time_to_close_account",
+        "user_dob_matches_chronicle_date"
       ],
       "top_3_keywords": [
         "access",
@@ -74,11 +75,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-002",
-      "generated_at": "2026-04-19T06:54:59.984334+00:00",
+      "generated_at": "2026-04-19T20:59:38.126914+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.196,
-      "blind_spots": [],
+      "blind_spots": [
+        "high-risk journey and product"
+      ],
       "top_3_keywords": [
         "customer",
         "significant",
@@ -124,11 +127,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-003",
-      "generated_at": "2026-04-19T06:55:00.403631+00:00",
+      "generated_at": "2026-04-19T20:59:38.583594+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.4228,
-      "blind_spots": [],
+      "blind_spots": [
+        "username"
+      ],
       "top_3_keywords": [
         "customer",
         "significant",
@@ -174,14 +179,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-004",
-      "generated_at": "2026-04-19T06:55:01.030929+00:00",
+      "generated_at": "2026-04-19T20:59:39.013365+00:00",
       "competitor": "barclays",
       "source": "app_store",
-      "confidence_score": 0.1887,
-      "blind_spots": [
-        "invalid_token",
-        "missing_data"
-      ],
+      "confidence_score": 0.1902,
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "reports",
@@ -189,10 +191,10 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-014.",
+      "finding_summary": "P2 signal cluster: barclays J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-018.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -204,35 +206,36 @@
       },
       "cac_components": {
         "vol_sig": 0.06097560975609756,
-        "sim_hist": 0.4107,
+        "sim_hist": 0.4145,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-014",
+        "chronicle_id": "CHR-018",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-014",
-        "bank": "HSBC UK",
-        "incident_type": "app_friction_pattern",
-        "sim_hist_score": 0.4107,
+        "chronicle_id": "CHR-018",
+        "bank": "Barclays",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.4145,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-005",
-      "generated_at": "2026-04-19T06:55:01.495759+00:00",
+      "generated_at": "2026-04-19T20:59:39.510817+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "competitor name"
+        "JOURNEY_ID",
+        "USERNAME"
       ],
       "top_3_keywords": [
         "access",
@@ -283,13 +286,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-006",
-      "generated_at": "2026-04-19T06:55:02.050621+00:00",
+      "generated_at": "2026-04-19T20:59:39.980477+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.2091,
       "blind_spots": [
-        "CHR-004",
-        "J_SERVICE_01"
+        "CHR-004"
       ],
       "top_3_keywords": [
         "lacks",
@@ -336,15 +338,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-007",
-      "generated_at": "2026-04-19T06:55:02.711817+00:00",
+      "generated_at": "2026-04-19T20:59:40.561325+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "app_store",
-        "app_store_barclays",
-        "J_01_PAY",
-        "workflow"
+        "app_id",
+        "auth_method",
+        "switching_action"
       ],
       "top_3_keywords": [
         "payment",
@@ -398,13 +399,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-008",
-      "generated_at": "2026-04-19T06:55:03.171691+00:00",
+      "generated_at": "2026-04-19T20:59:41.165160+00:00",
       "competitor": "barclays",
       "source": "app_store",
       "confidence_score": 0.1896,
       "blind_spots": [
-        "competitor",
-        "journey"
+        "app_store_undocumented_events",
+        "journey_user_experience_metrics"
       ],
       "top_3_keywords": [
         "minor",
@@ -417,7 +418,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -451,13 +452,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-009",
-      "generated_at": "2026-04-19T06:55:03.565633+00:00",
+      "generated_at": "2026-04-19T20:59:41.746890+00:00",
       "competitor": "hsbc",
       "source": "app_store",
       "confidence_score": 0.4664,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Competitor"
+        "competitor's API",
+        "journy's internal architecture design"
       ],
       "top_3_keywords": [
         "crashes",
@@ -470,7 +472,7 @@
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
       "finding_summary": "P0 signal cluster: hsbc J_SERVICE_01, 4 P0 / 2 P1 signals, anchor: CHR-003.",
-      "failure_mode": "no_chronicle_match",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 6,
@@ -511,14 +513,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-010",
-      "generated_at": "2026-04-19T06:55:04.034438+00:00",
+      "generated_at": "2026-04-19T20:59:42.253873+00:00",
       "competitor": "hsbc",
       "source": "app_store",
       "confidence_score": 0.55,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Journey",
-        "CHR-003"
+        "competitor names",
+        "keywords"
       ],
       "top_3_keywords": [
         "access",
@@ -574,12 +576,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-011",
-      "generated_at": "2026-04-19T06:55:04.435633+00:00",
+      "generated_at": "2026-04-19T20:59:42.771207+00:00",
       "competitor": "hsbc",
       "source": "app_store",
       "confidence_score": 0.2507,
       "blind_spots": [
-        "app_loyalty"
+        "account_number",
+        "password"
       ],
       "top_3_keywords": [
         "service",
@@ -592,7 +595,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_IGNORABLE_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -626,12 +629,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-012",
-      "generated_at": "2026-04-19T06:55:04.760240+00:00",
+      "generated_at": "2026-04-19T20:59:43.665143+00:00",
       "competitor": "hsbc",
       "source": "app_store",
       "confidence_score": 0.5395,
       "blind_spots": [
-        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2."
+        "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
+        "P0/P1 signal combination",
+        "Top keywords motivation for journey choice",
+        "CHR-003 chronicle anchor"
       ],
       "top_3_keywords": [
         "account",
@@ -644,7 +650,7 @@
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
       "finding_summary": "P2 signal cluster: hsbc J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "none",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 14,
@@ -678,13 +684,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-013",
-      "generated_at": "2026-04-19T06:55:05.235133+00:00",
+      "generated_at": "2026-04-19T20:59:44.226739+00:00",
       "competitor": "hsbc",
       "source": "app_store",
       "confidence_score": 0.2487,
       "blind_spots": [
-        "app_licenses",
-        "app_description"
+        "app_store_ghsbc"
       ],
       "top_3_keywords": [
         "payment",
@@ -697,7 +702,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-018.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -731,14 +736,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-014",
-      "generated_at": "2026-04-19T06:55:05.724065+00:00",
+      "generated_at": "2026-04-19T20:59:44.698759+00:00",
       "competitor": "hsbc",
       "source": "app_store",
       "confidence_score": 0.2074,
-      "blind_spots": [
-        "App version",
-        "Individual user account"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "inability",
         "dismiss",
@@ -784,13 +786,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-015",
-      "generated_at": "2026-04-19T06:55:06.151497+00:00",
+      "generated_at": "2026-04-19T20:59:45.377750+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.226,
-      "blind_spots": [
-        "top_keywords"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "account",
         "complete",
@@ -802,7 +802,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: lloyds J_LOGIN_01, 3 P0 / 0 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -840,14 +840,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-016",
-      "generated_at": "2026-04-19T06:55:06.609811+00:00",
+      "generated_at": "2026-04-19T20:59:46.025486+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2844,
       "blind_spots": [
-        "time",
-        "date",
-        "location"
+        "banking_app_password_policy",
+        "user_consent_policy",
+        "geolocation_limitations"
       ],
       "top_3_keywords": [
         "crashes",
@@ -860,7 +860,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: lloyds J_SERVICE_01, 4 P0 / 8 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 12,
@@ -907,13 +907,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-017",
-      "generated_at": "2026-04-19T06:55:07.026812+00:00",
+      "generated_at": "2026-04-19T20:59:46.412649+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.3295,
-      "blind_spots": [
-        "invalid_chronicle_data"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "access",
         "complete",
@@ -925,7 +923,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: lloyds J_SERVICE_01, 9 P0 / 3 P1 signals, anchor: CHR-003.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 12,
@@ -972,14 +970,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-018",
-      "generated_at": "2026-04-19T06:55:07.611964+00:00",
+      "generated_at": "2026-04-19T20:59:46.982334+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2194,
       "blind_spots": [
-        "invalid_account_details",
-        "insufficient_user_credentials",
-        "account_deactivation"
+        "competitor_name",
+        "issue_description",
+        "complete_action"
       ],
       "top_3_keywords": [
         "customer",
@@ -1026,13 +1024,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-019",
-      "generated_at": "2026-04-19T06:55:08.075073+00:00",
+      "generated_at": "2026-04-19T20:59:47.671490+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.1928,
       "blind_spots": [
-        "customer ratings",
-        "user reviews"
+        "Journey: J_SERVICE_01",
+        "Competitor: app_store_lloyds"
       ],
       "top_3_keywords": [
         "customer",
@@ -1079,14 +1077,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-020",
-      "generated_at": "2026-04-19T06:55:08.712577+00:00",
+      "generated_at": "2026-04-19T20:59:48.188069+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2672,
       "blind_spots": [
-        "bank_type",
-        "bank_location",
-        "user_id"
+        "app_liquidity",
+        "app_data_usage"
       ],
       "top_3_keywords": [
         "customer",
@@ -1099,7 +1096,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-001.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 25,
@@ -1133,13 +1130,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-021",
-      "generated_at": "2026-04-19T06:55:09.158999+00:00",
+      "generated_at": "2026-04-19T20:59:48.586408+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.4047,
-      "blind_spots": [
-        "app_loyds_rejection"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "feature",
@@ -1151,7 +1146,7 @@
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 65,
@@ -1185,12 +1180,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-022",
-      "generated_at": "2026-04-19T06:55:09.551301+00:00",
+      "generated_at": "2026-04-19T20:59:49.104545+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "Journey"
+        "competitor_name",
+        "Journey_description"
       ],
       "top_3_keywords": [
         "access",
@@ -1249,13 +1245,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-023",
-      "generated_at": "2026-04-19T06:55:10.059844+00:00",
+      "generated_at": "2026-04-19T20:59:49.808254+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2054,
       "blind_spots": [
-        "Journey name",
-        "top keywords"
+        "delivery address (if using post), account balance",
+        "last recorded transaction date",
+        "current currency exchange rate"
       ],
       "top_3_keywords": [
         "customer",
@@ -1268,7 +1265,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-006.",
-      "failure_mode": "NO_ CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -1302,14 +1299,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-024",
-      "generated_at": "2026-04-19T06:55:10.601886+00:00",
+      "generated_at": "2026-04-19T20:59:50.364555+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2484,
       "blind_spots": [
-        "competitor",
-        "money",
-        "transfers"
+        "COMPETITION",
+        "NO_JOURNEY_03"
       ],
       "top_3_keywords": [
         "notification",
@@ -1322,7 +1318,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 9,
@@ -1356,13 +1352,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-025",
-      "generated_at": "2026-04-19T06:55:11.091448+00:00",
+      "generated_at": "2026-04-19T20:59:50.907133+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2386,
       "blind_spots": [
-        "Competitor data",
-        "journey parameters"
+        "competing apps",
+        "user reviews"
       ],
       "top_3_keywords": [
         "payment",
@@ -1419,13 +1415,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-026",
-      "generated_at": "2026-04-19T06:55:11.559343+00:00",
+      "generated_at": "2026-04-19T20:59:51.462417+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.3128,
       "blind_spots": [
-        "app store categories",
-        "manual interactions"
+        "app_store_lloyds",
+        "J SERVICE 01"
       ],
       "top_3_keywords": [
         "friction",
@@ -1438,7 +1434,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 45,
@@ -1472,13 +1468,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-027",
-      "generated_at": "2026-04-19T06:55:12.055682+00:00",
+      "generated_at": "2026-04-19T20:59:51.954581+00:00",
       "competitor": "lloyds",
       "source": "app_store",
       "confidence_score": 0.2243,
       "blind_spots": [
-        "Loyds",
-        "Competitor"
+        "app_venturebank"
       ],
       "top_3_keywords": [
         "transfer",
@@ -1529,13 +1524,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-028",
-      "generated_at": "2026-04-19T06:55:12.589866+00:00",
+      "generated_at": "2026-04-19T20:59:52.381518+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "financial institution",
-        "geography based location"
+        "app store monzo"
       ],
       "top_3_keywords": [
         "account",
@@ -1548,7 +1542,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: monzo J_LOGIN_01, 21 P0 / 5 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_CHASEABLE_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 26,
@@ -1603,13 +1597,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-029",
-      "generated_at": "2026-04-19T06:55:13.041161+00:00",
+      "generated_at": "2026-04-19T20:59:52.777234+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2165,
-      "blind_spots": [
-        "app_store_monzo"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "significant",
         "customer",
@@ -1621,7 +1613,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: monzo J_SERVICE_01, 1 P0 / 3 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -1660,13 +1652,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-030",
-      "generated_at": "2026-04-19T06:55:13.410188+00:00",
+      "generated_at": "2026-04-19T20:59:53.174405+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2843,
-      "blind_spots": [
-        "App name"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "access",
         "customer",
@@ -1678,7 +1668,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: monzo J_SERVICE_01, 8 P0 / 2 P1 signals, anchor: CHR-003.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 10,
@@ -1723,12 +1713,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-031",
-      "generated_at": "2026-04-19T06:55:13.809851+00:00",
+      "generated_at": "2026-04-19T20:59:54.528166+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2045,
       "blind_spots": [
-        "Competitor"
+        "bank"
       ],
       "top_3_keywords": [
         "account",
@@ -1741,7 +1731,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: monzo J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-001.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_/_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 11,
@@ -1775,13 +1765,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-032",
-      "generated_at": "2026-04-19T06:55:14.471789+00:00",
+      "generated_at": "2026-04-19T20:59:55.024130+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2828,
       "blind_spots": [
-        "missing_product_names",
-        "lack_of_substance"
+        "app_store_monzo"
       ],
       "top_3_keywords": [
         "customer",
@@ -1828,16 +1817,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-033",
-      "generated_at": "2026-04-19T06:55:15.037975+00:00",
+      "generated_at": "2026-04-19T20:59:55.413705+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.3015,
-      "blind_spots": [
-        "manual",
-        "animation",
-        "defaults",
-        "still"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "feature",
         "customer",
@@ -1883,12 +1867,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-034",
-      "generated_at": "2026-04-19T06:55:15.505803+00:00",
+      "generated_at": "2026-04-19T20:59:55.910734+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2464,
       "blind_spots": [
-        "app_store_ monzo app"
+        "app store username",
+        "password"
       ],
       "top_3_keywords": [
         "account",
@@ -1901,7 +1886,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: monzo J_LOGIN_01, 4 P0 / 2 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_ CHRONICLE_MATCH",
+      "failure_mode": "NO_CHANTICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 6,
@@ -1942,11 +1927,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-035",
-      "generated_at": "2026-04-19T06:55:15.874978+00:00",
+      "generated_at": "2026-04-19T20:59:56.384433+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.1901,
-      "blind_spots": [],
+      "blind_spots": [
+        "app_store Monzo"
+      ],
       "top_3_keywords": [
         "customer",
         "notifications",
@@ -1992,13 +1979,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-036",
-      "generated_at": "2026-04-19T06:55:16.310457+00:00",
+      "generated_at": "2026-04-19T20:59:56.888736+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.174,
       "blind_spots": [
-        "bank_address",
-        "password_policy"
+        "date_of_event",
+        "transaction_amount"
       ],
       "top_3_keywords": [
         "payment",
@@ -2011,7 +1998,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: monzo J_PAY_01, 1 P0 / 1 P1 signals, anchor: CHR-006.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -2048,7 +2035,7 @@
     },
     {
       "finding_id": "MIL-F-20260419-037",
-      "generated_at": "2026-04-19T06:55:16.783015+00:00",
+      "generated_at": "2026-04-19T20:59:57.296104+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2081,
@@ -2064,7 +2051,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: monzo J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-014.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 6,
@@ -2098,11 +2085,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-038",
-      "generated_at": "2026-04-19T06:55:17.178207+00:00",
+      "generated_at": "2026-04-19T20:59:57.851336+00:00",
       "competitor": "monzo",
       "source": "app_store",
       "confidence_score": 0.2349,
-      "blind_spots": [],
+      "blind_spots": [
+        "high risk",
+        "pre-validation",
+        "missing"
+      ],
       "top_3_keywords": [
         "customer",
         "transfer",
@@ -2152,15 +2143,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-039",
-      "generated_at": "2026-04-19T06:55:17.811889+00:00",
+      "generated_at": "2026-04-19T20:59:58.448156+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.3346,
       "blind_spots": [
-        "app_store_ranking",
-        "app_downloads",
-        "app_rating",
-        "security_features"
+        "banking",
+        "app_store_earnings"
       ],
       "top_3_keywords": [
         "customer",
@@ -2207,14 +2196,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-040",
-      "generated_at": "2026-04-19T06:55:18.358233+00:00",
+      "generated_at": "2026-04-19T20:59:58.982333+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.5248,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "CHR-002",
-        "app_store_entrance"
+        "app_store_02",
+        "CHR-002"
       ],
       "top_3_keywords": [
         "customer",
@@ -2261,13 +2250,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-041",
-      "generated_at": "2026-04-19T06:55:18.858657+00:00",
+      "generated_at": "2026-04-19T20:59:59.629071+00:00",
       "competitor": "natwest",
       "source": "app_store",
-      "confidence_score": 0.1945,
+      "confidence_score": 0.2265,
       "blind_spots": [
-        "app name",
-        "journey category"
+        "NatWest's banking app",
+        "statement issues caused by app malfunction"
       ],
       "top_3_keywords": [
         "customer",
@@ -2276,10 +2265,10 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-017.",
+      "finding_summary": "P2 signal cluster: natwest J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-008.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -2291,35 +2280,36 @@
       },
       "cac_components": {
         "vol_sig": 0.07142857142857142,
-        "sim_hist": 0.4149,
+        "sim_hist": 0.4949,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-017",
+        "chronicle_id": "CHR-008",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-017",
-        "bank": "Barclays",
-        "incident_type": "account_access_friction_pattern",
-        "sim_hist_score": 0.4149,
+        "chronicle_id": "CHR-008",
+        "bank": "Monzo",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.4949,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-042",
-      "generated_at": "2026-04-19T06:55:19.253301+00:00",
+      "generated_at": "2026-04-19T21:00:00.248804+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "complete recovery"
+        "app_storeNatwestDelivery",
+        "appStorePaymentsCompleteJourney"
       ],
       "top_3_keywords": [
         "access",
@@ -2332,7 +2322,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: natwest J_LOGIN_01, 2 P0 / 3 P1 signals, anchor: CHR-005.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 5,
@@ -2372,13 +2362,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-043",
-      "generated_at": "2026-04-19T06:55:19.682708+00:00",
+      "generated_at": "2026-04-19T21:00:00.760173+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.2203,
       "blind_spots": [
-        "P0",
-        "P1"
+        "app_store_4fae7"
       ],
       "top_3_keywords": [
         "communication",
@@ -2391,7 +2380,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: natwest J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-018.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -2425,13 +2414,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-044",
-      "generated_at": "2026-04-19T06:55:20.117441+00:00",
+      "generated_at": "2026-04-19T21:00:01.141636+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.3795,
-      "blind_spots": [
-        "app_store_awareness"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "review",
         "banking",
@@ -2443,7 +2430,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 12,
@@ -2477,13 +2464,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-045",
-      "generated_at": "2026-04-19T06:55:20.667814+00:00",
+      "generated_at": "2026-04-19T21:00:01.675394+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.25,
       "blind_spots": [
-        "Competitor password reset",
-        "App Store access and user account"
+        "CHR-010",
+        "CHR-012"
       ],
       "top_3_keywords": [
         "customer",
@@ -2496,7 +2483,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P1 signal cluster: natwest J_PAY_01, 0 P0 / 3 P1 signals, anchor: CHR-006.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -2534,13 +2521,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-046",
-      "generated_at": "2026-04-19T06:55:21.203773+00:00",
+      "generated_at": "2026-04-19T21:00:02.118531+00:00",
       "competitor": "natwest",
       "source": "app_store",
       "confidence_score": 0.2761,
       "blind_spots": [
-        "journyeventname",
-        "competingapp"
+        "user selection",
+        "account credentials"
       ],
       "top_3_keywords": [
         "customer",
@@ -2553,7 +2540,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: natwest J_PAY_01, 1 P0 / 1 P1 signals, anchor: CHR-018.",
-      "failure_mode": "NO_ CHRONICLE_MATCH",
+      "failure_mode": "UNKNOWN",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -2590,13 +2577,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-047",
-      "generated_at": "2026-04-19T06:55:21.674502+00:00",
+      "generated_at": "2026-04-19T21:00:02.758589+00:00",
       "competitor": "revolut",
       "source": "app_store",
       "confidence_score": 0.2434,
       "blind_spots": [
-        "User password",
-        "Personalization settings"
+        "app_store",
+        "revolut",
+        "journey"
       ],
       "top_3_keywords": [
         "access",
@@ -2609,7 +2597,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_LOGIN_01, 1 P0 / 1 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_ANNOTATION_MATCH",
+      "failure_mode": "NO_ CHRONICLE_ MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -2646,12 +2634,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-048",
-      "generated_at": "2026-04-19T06:55:22.497089+00:00",
+      "generated_at": "2026-04-19T21:00:03.291798+00:00",
       "competitor": "revolut",
       "source": "app_store",
       "confidence_score": 0.2229,
       "blind_spots": [
-        "App Store ranking"
+        "bankName",
+        "bankingServices"
       ],
       "top_3_keywords": [
         "customer",
@@ -2664,7 +2653,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 8,
@@ -2698,13 +2687,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-049",
-      "generated_at": "2026-04-19T06:55:22.958556+00:00",
+      "generated_at": "2026-04-19T21:00:03.915860+00:00",
       "competitor": "revolut",
       "source": "app_store",
       "confidence_score": 0.2123,
       "blind_spots": [
-        "app_store",
-        "revolut_url"
+        "app_store_price",
+        "customer_rating",
+        "user_reviews"
       ],
       "top_3_keywords": [
         "customer",
@@ -2751,11 +2741,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-050",
-      "generated_at": "2026-04-19T06:55:23.321329+00:00",
+      "generated_at": "2026-04-19T21:00:04.555463+00:00",
       "competitor": "revolut",
       "source": "app_store",
-      "confidence_score": 0.1912,
-      "blind_spots": [],
+      "confidence_score": 0.1763,
+      "blind_spots": [
+        "complaint",
+        "negative reviews",
+        "app store rating"
+      ],
       "top_3_keywords": [
         "customer",
         "reports",
@@ -2763,10 +2757,10 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
+      "finding_summary": "P2 signal cluster: revolut J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-008.",
       "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
@@ -2778,36 +2772,36 @@
       },
       "cac_components": {
         "vol_sig": 0.015822784810126583,
-        "sim_hist": 0.4621,
+        "sim_hist": 0.425,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-008",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.4621,
+        "chronicle_id": "CHR-008",
+        "bank": "Monzo",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.425,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-051",
-      "generated_at": "2026-04-19T06:55:23.794997+00:00",
+      "generated_at": "2026-04-19T21:00:05.155562+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2131,
       "blind_spots": [
-        "competitor_name",
-        "signal_counts"
+        "J_1_PASSWORD",
+        "TWO_FACTOR_AUTHENTICATION"
       ],
       "top_3_keywords": [
         "customer",
@@ -2820,7 +2814,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: barclays J_LOGIN_01, 3 P0 / 1 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -2859,15 +2853,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-052",
-      "generated_at": "2026-04-19T06:55:24.319714+00:00",
+      "generated_at": "2026-04-19T21:00:05.568473+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2723,
-      "blind_spots": [
-        "app_version",
-        "individual_user",
-        "login_status"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "crashes",
         "preventing",
@@ -2934,13 +2924,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-053",
-      "generated_at": "2026-04-19T06:55:24.780427+00:00",
+      "generated_at": "2026-04-19T21:00:06.004452+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2881,
       "blind_spots": [
-        "Journey",
-        "Signal counts"
+        "competitor"
       ],
       "top_3_keywords": [
         "customer",
@@ -2953,7 +2942,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: barclays J_SERVICE_01, 15 P0 / 3 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_Chronicle_Match",
       "is_unanchored": false,
       "signal_counts": {
         "total": 18,
@@ -3006,11 +2995,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-054",
-      "generated_at": "2026-04-19T06:55:25.164952+00:00",
+      "generated_at": "2026-04-19T21:00:06.533018+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.1918,
-      "blind_spots": [],
+      "blind_spots": [
+        "jewelers",
+        "fishing"
+      ],
       "top_3_keywords": [
         "customer",
         "reports",
@@ -3056,14 +3048,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-055",
-      "generated_at": "2026-04-19T06:55:25.635073+00:00",
+      "generated_at": "2026-04-19T21:00:06.932874+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.1647,
-      "blind_spots": [
-        "repeatedly",
-        "prevents"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "complete",
         "resolution",
@@ -3075,7 +3064,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_OL_ANTI_X",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -3109,13 +3098,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-056",
-      "generated_at": "2026-04-19T06:55:26.084751+00:00",
+      "generated_at": "2026-04-19T21:00:07.459724+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2312,
       "blind_spots": [
-        "Competitor",
-        "Journey"
+        "P0",
+        "P1"
       ],
       "top_3_keywords": [
         "support",
@@ -3162,12 +3151,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-057",
-      "generated_at": "2026-04-19T06:55:26.528198+00:00",
+      "generated_at": "2026-04-19T21:00:08.285386+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.3344,
       "blind_spots": [
-        "J_SERVICE_01"
+        "google_play_barclays",
+        "J_ITSV01",
+        "money",
+        "incompatible"
       ],
       "top_3_keywords": [
         "customer",
@@ -3214,14 +3206,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-058",
-      "generated_at": "2026-04-19T06:55:27.126333+00:00",
+      "generated_at": "2026-04-19T21:00:08.790285+00:00",
       "competitor": "barclays",
       "source": "google_play",
-      "confidence_score": 0.2077,
+      "confidence_score": 0.1846,
       "blind_spots": [
-        "high-risk journey",
-        "pre-validated transfer problems",
-        "broken service"
+        "Journey ID"
       ],
       "top_3_keywords": [
         "balance",
@@ -3230,11 +3220,11 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_chnoLOGUE_MATCH",
+      "finding_summary": "P2 signal cluster: barclays J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-006.",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 5,
@@ -3245,36 +3235,36 @@
       },
       "cac_components": {
         "vol_sig": 0.018436578171091445,
-        "sim_hist": 0.5008,
+        "sim_hist": 0.443,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-006",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.5008,
+        "chronicle_id": "CHR-006",
+        "bank": "Revolut",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.443,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-059",
-      "generated_at": "2026-04-19T06:55:27.616366+00:00",
+      "generated_at": "2026-04-19T21:00:09.361848+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2354,
       "blind_spots": [
-        "App username",
-        "IP address"
+        "Barclays login journey",
+        "CHR-031"
       ],
       "top_3_keywords": [
         "customer",
@@ -3287,7 +3277,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: barclays J_LOGIN_01, 3 P0 / 3 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_ CHRONICLE_MATCH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 6,
@@ -3328,14 +3318,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-060",
-      "generated_at": "2026-04-19T06:55:28.240406+00:00",
+      "generated_at": "2026-04-19T21:00:09.870347+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.1981,
       "blind_spots": [
-        "COMPETITOR_NAME",
-        "Journey",
-        "UNKNOWN_(J_XXX_XD)"
+        "Competitor",
+        "Journey"
       ],
       "top_3_keywords": [
         "issue",
@@ -3382,12 +3371,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-061",
-      "generated_at": "2026-04-19T06:55:28.793611+00:00",
+      "generated_at": "2026-04-19T21:00:10.461034+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.1716,
       "blind_spots": [
-        "Request type for P0 and P2 signal"
+        "google_play_barclays_service_01",
+        "making_force_payment_changes"
       ],
       "top_3_keywords": [
         "notifications",
@@ -3434,13 +3424,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-062",
-      "generated_at": "2026-04-19T06:55:29.243788+00:00",
+      "generated_at": "2026-04-19T21:00:11.031491+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2017,
       "blind_spots": [
-        "CHR-006",
-        "attempt"
+        "comp_name",
+        "journey_id",
+        "product_name"
       ],
       "top_3_keywords": [
         "payment",
@@ -3497,12 +3488,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-063",
-      "generated_at": "2026-04-19T06:55:29.773325+00:00",
+      "generated_at": "2026-04-19T21:00:11.496433+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2096,
       "blind_spots": [
-        "App Name"
+        "valid_app_install_count"
       ],
       "top_3_keywords": [
         "friction",
@@ -3515,7 +3506,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "UNKNOWN",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 17,
@@ -3549,13 +3540,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-064",
-      "generated_at": "2026-04-19T06:55:30.235388+00:00",
+      "generated_at": "2026-04-19T21:00:11.977173+00:00",
       "competitor": "barclays",
       "source": "google_play",
       "confidence_score": 0.2296,
       "blind_spots": [
-        "pre-validation",
-        "validation criteria"
+        "invalid_transfer",
+        "incorrect_issue"
       ],
       "top_3_keywords": [
         "significant",
@@ -3568,7 +3559,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: barclays J_PAY_01, 1 P0 / 3 P1 signals, anchor: CHR-018.",
-      "failure_mode": "NO_Chronicle_Match",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -3607,13 +3598,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-065",
-      "generated_at": "2026-04-19T06:55:30.765009+00:00",
+      "generated_at": "2026-04-19T21:00:12.409296+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.3051,
       "blind_spots": [
-        "J_ SERVICE_01",
-        "no chrono match"
+        "top_keywords"
       ],
       "top_3_keywords": [
         "customer",
@@ -3665,13 +3655,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-066",
-      "generated_at": "2026-04-19T06:55:31.196155+00:00",
+      "generated_at": "2026-04-19T21:00:12.869136+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.4318,
       "blind_spots": [
-        "alternative",
-        "requirements"
+        "banking app",
+        "complete"
       ],
       "top_3_keywords": [
         "access",
@@ -3684,7 +3674,7 @@
       "finding_tier": "P2",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: hsbc J_SERVICE_01, 8 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 8,
@@ -3727,14 +3717,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-067",
-      "generated_at": "2026-04-19T06:55:31.768084+00:00",
+      "generated_at": "2026-04-19T21:00:13.334337+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.2035,
       "blind_spots": [
-        "competing app names",
-        "specific user behavior",
-        "unique product features"
+        "CHR-005"
       ],
       "top_3_keywords": [
         "biometric",
@@ -3747,7 +3735,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_LOGIN_01, 0 P0 / 0 P1 signals, anchor: CHR-005.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -3781,13 +3769,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-068",
-      "generated_at": "2026-04-19T06:55:32.348967+00:00",
+      "generated_at": "2026-04-19T21:00:13.765905+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.2448,
-      "blind_spots": [
-        "google_play_olp"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "support",
         "friction",
@@ -3799,7 +3785,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_OLP_MATCH_CHRONICLE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 5,
@@ -3833,14 +3819,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-069",
-      "generated_at": "2026-04-19T06:55:32.853898+00:00",
+      "generated_at": "2026-04-19T21:00:14.490826+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.4552,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "competitor_app_name",
-        "journey_name"
+        "Competitor: google_play_ hsbc",
+        "Journey: J_SERVICE_01"
       ],
       "top_3_keywords": [
         "feature",
@@ -3887,13 +3873,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-070",
-      "generated_at": "2026-04-19T06:55:33.321479+00:00",
+      "generated_at": "2026-04-19T21:00:15.035963+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.25,
       "blind_spots": [
-        "J_4",
-        "blocks_complete"
+        "app_password_needed",
+        "connection_type_invalidated"
       ],
       "top_3_keywords": [
         "access",
@@ -3949,12 +3935,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-071",
-      "generated_at": "2026-04-19T06:55:33.761072+00:00",
+      "generated_at": "2026-04-19T21:00:15.587776+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.1552,
       "blind_spots": [
-        "HSBC login credentials"
+        "J_PAY_01",
+        "CHR-006"
       ],
       "top_3_keywords": [
         "information",
@@ -3967,7 +3954,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-006.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -4001,7 +3988,7 @@
     },
     {
       "finding_id": "MIL-F-20260419-072",
-      "generated_at": "2026-04-19T06:55:34.184424+00:00",
+      "generated_at": "2026-04-19T21:00:16.075251+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.2366,
@@ -4053,7 +4040,7 @@
     },
     {
       "finding_id": "MIL-F-20260419-073",
-      "generated_at": "2026-04-19T06:55:34.570036+00:00",
+      "generated_at": "2026-04-19T21:00:16.504222+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.25,
@@ -4109,11 +4096,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-074",
-      "generated_at": "2026-04-19T06:55:34.957132+00:00",
+      "generated_at": "2026-04-19T21:00:17.033038+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.2582,
-      "blind_spots": [],
+      "blind_spots": [
+        "App version",
+        "User ratings"
+      ],
       "top_3_keywords": [
         "prevent",
         "functionality",
@@ -4159,12 +4149,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-075",
-      "generated_at": "2026-04-19T06:55:35.372718+00:00",
+      "generated_at": "2026-04-19T21:00:17.641599+00:00",
       "competitor": "hsbc",
       "source": "google_play",
       "confidence_score": 0.2643,
       "blind_spots": [
-        "bank_details"
+        "app_version",
+        "security_questioning",
+        "product_name"
       ],
       "top_3_keywords": [
         "customer",
@@ -4215,13 +4207,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-076",
-      "generated_at": "2026-04-19T06:55:35.814040+00:00",
+      "generated_at": "2026-04-19T21:00:18.083992+00:00",
       "competitor": "lloyds",
       "source": "google_play",
       "confidence_score": 0.2256,
-      "blind_spots": [
-        "J_SERVICE_01"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "customer",
         "support",
@@ -4233,7 +4223,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -4267,13 +4257,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-077",
-      "generated_at": "2026-04-19T06:55:36.277416+00:00",
+      "generated_at": "2026-04-19T21:00:18.561964+00:00",
       "competitor": "lloyds",
       "source": "google_play",
       "confidence_score": 0.3127,
       "blind_spots": [
-        "Competitor",
-        "Registration date"
+        "account_type",
+        "user_id"
       ],
       "top_3_keywords": [
         "customer",
@@ -4286,7 +4276,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 8,
@@ -4320,13 +4310,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-078",
-      "generated_at": "2026-04-19T06:55:36.638706+00:00",
+      "generated_at": "2026-04-19T21:00:19.161829+00:00",
       "competitor": "lloyds",
       "source": "google_play",
       "confidence_score": 0.2124,
       "blind_spots": [
-        "Product feature availability",
-        "User's account status"
+        "banking",
+        "system",
+        "security",
+        "data"
       ],
       "top_3_keywords": [
         "payments",
@@ -4339,7 +4331,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P1 signal cluster: lloyds J_PAY_01, 0 P0 / 2 P1 signals, anchor: CHR-006.",
-      "failure_mode": "NONE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -4376,13 +4368,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-079",
-      "generated_at": "2026-04-19T06:55:37.096809+00:00",
+      "generated_at": "2026-04-19T21:00:19.750790+00:00",
       "competitor": "lloyds",
       "source": "google_play",
       "confidence_score": 0.2353,
       "blind_spots": [
-        "journey",
-        "competitors"
+        "Competitor",
+        "Journey"
       ],
       "top_3_keywords": [
         "reports",
@@ -4395,7 +4387,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: lloyds J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -4429,14 +4421,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-080",
-      "generated_at": "2026-04-19T06:55:37.666423+00:00",
+      "generated_at": "2026-04-19T21:00:20.265855+00:00",
       "competitor": "monzo",
       "source": "google_play",
       "confidence_score": 0.25,
       "blind_spots": [
-        "monzo_api_key",
-        "monzo_user",
-        "monzo_notification_url"
+        "Google Play",
+        "Monzo"
       ],
       "top_3_keywords": [
         "account",
@@ -4489,11 +4480,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-081",
-      "generated_at": "2026-04-19T06:55:38.038411+00:00",
+      "generated_at": "2026-04-19T21:00:20.967378+00:00",
       "competitor": "monzo",
       "source": "google_play",
       "confidence_score": 0.2317,
-      "blind_spots": [],
+      "blind_spots": [
+        "app",
+        "user interface",
+        "payment processing"
+      ],
       "top_3_keywords": [
         "support",
         "account",
@@ -4505,7 +4500,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: monzo J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_ CHRONICLE_ MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -4539,11 +4534,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-082",
-      "generated_at": "2026-04-19T06:55:38.385288+00:00",
+      "generated_at": "2026-04-19T21:00:21.454615+00:00",
       "competitor": "monzo",
       "source": "google_play",
       "confidence_score": 0.3101,
-      "blind_spots": [],
+      "blind_spots": [
+        "monetary transaction limits"
+      ],
       "top_3_keywords": [
         "customer",
         "rather",
@@ -4589,13 +4586,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-083",
-      "generated_at": "2026-04-19T06:55:38.849638+00:00",
+      "generated_at": "2026-04-19T21:00:21.956276+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.25,
       "blind_spots": [
-        "Account balance",
-        "Transaction history"
+        "app",
+        "cluster"
       ],
       "top_3_keywords": [
         "access",
@@ -4651,12 +4648,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-084",
-      "generated_at": "2026-04-19T06:55:39.240022+00:00",
+      "generated_at": "2026-04-19T21:00:22.677227+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.2699,
       "blind_spots": [
-        "Competitor"
+        "app_signal_cluster",
+        "google-play-natwest",
+        "J_SERVICE_01"
       ],
       "top_3_keywords": [
         "repeated",
@@ -4669,7 +4668,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: natwest J_SERVICE_01, 3 P0 / 7 P1 signals, anchor: CHR-003.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 10,
@@ -4714,13 +4713,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-085",
-      "generated_at": "2026-04-19T06:55:39.701562+00:00",
+      "generated_at": "2026-04-19T21:00:23.275840+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.3547,
       "blind_spots": [
-        "Journey",
-        "CHRONICLE"
+        "bank_name",
+        "branch_details",
+        "geo_location"
       ],
       "top_3_keywords": [
         "access",
@@ -4733,7 +4733,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: natwest J_SERVICE_01, 21 P0 / 6 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 27,
@@ -4788,11 +4788,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-086",
-      "generated_at": "2026-04-19T06:55:40.088763+00:00",
+      "generated_at": "2026-04-19T21:00:23.924209+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.2419,
-      "blind_spots": [],
+      "blind_spots": [
+        "google_play",
+        "J_LOGIN_01",
+        "CHR-005"
+      ],
       "top_3_keywords": [
         "biometric",
         "customer",
@@ -4838,14 +4842,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-087",
-      "generated_at": "2026-04-19T06:55:40.526386+00:00",
+      "generated_at": "2026-04-19T21:00:24.328439+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.1846,
-      "blind_spots": [
-        "blind",
-        "spots"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "customer's",
         "complete",
@@ -4857,7 +4858,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -4891,13 +4892,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-088",
-      "generated_at": "2026-04-19T06:55:41.010261+00:00",
+      "generated_at": "2026-04-19T21:00:24.841279+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.2249,
       "blind_spots": [
-        "banking_credentials",
-        "user_id"
+        "app_name",
+        "journey_details"
       ],
       "top_3_keywords": [
         "customer",
@@ -4910,7 +4911,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-001.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 18,
@@ -4944,14 +4945,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-089",
-      "generated_at": "2026-04-19T06:55:41.523282+00:00",
+      "generated_at": "2026-04-19T21:00:25.467887+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.5557,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "app_store",
-        "natwest_mobile_app"
+        "competitor",
+        "journey",
+        "signal"
       ],
       "top_3_keywords": [
         "feature",
@@ -4964,7 +4966,7 @@
       "finding_tier": "P2",
       "designed_ceiling_reached": true,
       "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MACH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 143,
@@ -4998,13 +5000,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-090",
-      "generated_at": "2026-04-19T06:55:41.997020+00:00",
+      "generated_at": "2026-04-19T21:00:25.976194+00:00",
       "competitor": "natwest",
       "source": "google_play",
-      "confidence_score": 0.1842,
+      "confidence_score": 0.1723,
       "blind_spots": [
-        "google",
-        "natsvc"
+        "app name",
+        "account information"
       ],
       "top_3_keywords": [
         "account",
@@ -5013,11 +5015,11 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "P2 signal cluster: natwest J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-006.",
+      "failure_mode": "NO_ETCHMATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -5028,36 +5030,35 @@
       },
       "cac_components": {
         "vol_sig": 0.018518518518518517,
-        "sim_hist": 0.4419,
+        "sim_hist": 0.4123,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-006",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.4419,
+        "chronicle_id": "CHR-006",
+        "bank": "Revolut",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.4123,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-091",
-      "generated_at": "2026-04-19T06:55:42.482592+00:00",
+      "generated_at": "2026-04-19T21:00:26.441350+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.25,
       "blind_spots": [
-        "competitor_names",
-        "journey_steps"
+        "app_id"
       ],
       "top_3_keywords": [
         "access",
@@ -5125,11 +5126,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-092",
-      "generated_at": "2026-04-19T06:55:42.836301+00:00",
+      "generated_at": "2026-04-19T21:00:26.981000+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.1849,
-      "blind_spots": [],
+      "blind_spots": [
+        "google_1",
+        "disappear_1"
+      ],
       "top_3_keywords": [
         "information",
         "account",
@@ -5175,14 +5179,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-093",
-      "generated_at": "2026-04-19T06:55:43.307755+00:00",
+      "generated_at": "2026-04-19T21:00:27.407609+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.2119,
-      "blind_spots": [
-        "product_category",
-        "journey_type"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "notifications",
         "customer",
@@ -5228,12 +5229,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-094",
-      "generated_at": "2026-04-19T06:55:43.651367+00:00",
+      "generated_at": "2026-04-19T21:00:27.985241+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.2386,
       "blind_spots": [
-        "merchant"
+        "product_name",
+        "competitor",
+        "journey_name"
       ],
       "top_3_keywords": [
         "payment",
@@ -5246,7 +5249,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: natwest J_PAY_01, 7 P0 / 7 P1 signals, anchor: CHR-006.",
-      "failure_mode": "UNKNOWN",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 14,
@@ -5295,12 +5298,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-095",
-      "generated_at": "2026-04-19T06:55:44.067423+00:00",
+      "generated_at": "2026-04-19T21:00:28.454428+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.2488,
       "blind_spots": [
-        "Competitor"
+        "CHR-004"
       ],
       "top_3_keywords": [
         "friction",
@@ -5313,7 +5316,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: natwest J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 19,
@@ -5347,15 +5350,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-096",
-      "generated_at": "2026-04-19T06:55:44.737999+00:00",
+      "generated_at": "2026-04-19T21:00:28.868947+00:00",
       "competitor": "natwest",
       "source": "google_play",
       "confidence_score": 0.242,
       "blind_spots": [
-        "Google Play NatWest",
-        "Journey J_PAY_01",
-        "Competitor",
-        "Chronicle Match"
+        "banking credentials"
       ],
       "top_3_keywords": [
         "transfer",
@@ -5368,7 +5368,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: natwest J_PAY_01, 2 P0 / 5 P1 signals, anchor: CHR-018.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "UNKNOWN",
       "is_unanchored": false,
       "signal_counts": {
         "total": 7,
@@ -5410,14 +5410,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-097",
-      "generated_at": "2026-04-19T06:55:45.410736+00:00",
+      "generated_at": "2026-04-19T21:00:29.419895+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.25,
       "blind_spots": [
-        "J_ANTI_PHOENICIAL",
-        "J_ELECTRICITY",
-        "REVOLTJOURNAY"
+        "google_play_revolut"
       ],
       "top_3_keywords": [
         "account",
@@ -5430,7 +5428,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_LOGIN_01, 28 P0 / 7 P1 signals, anchor: CHR-005.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 35,
@@ -5485,16 +5483,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-098",
-      "generated_at": "2026-04-19T06:55:46.068324+00:00",
+      "generated_at": "2026-04-19T21:00:29.985414+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.2769,
       "blind_spots": [
-        "CHR-003",
-        "money",
-        "degradation",
-        "indicate",
-        "widespread"
+        "App ratings",
+        "User reviews"
       ],
       "top_3_keywords": [
         "crashes",
@@ -5562,12 +5557,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-099",
-      "generated_at": "2026-04-19T06:55:46.542075+00:00",
+      "generated_at": "2026-04-19T21:00:30.541513+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.3219,
       "blind_spots": [
-        "J_SERVICE_01"
+        "Appstore",
+        "GooglePlay"
       ],
       "top_3_keywords": [
         "access",
@@ -5635,13 +5631,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-100",
-      "generated_at": "2026-04-19T06:55:48.140050+00:00",
+      "generated_at": "2026-04-19T21:00:31.017109+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.2269,
       "blind_spots": [
-        "invalid_email",
-        "missing_passwords"
+        "Dislike"
       ],
       "top_3_keywords": [
         "access",
@@ -5654,7 +5649,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_LOGIN_01, 0 P0 / 0 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_\u0427\u0420\u041e\u041d\u0418\u041a\u041b\u042c\u041d\u041e\u0415.match",
+      "failure_mode": "NO_CHEDRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 18,
@@ -5688,13 +5683,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-101",
-      "generated_at": "2026-04-19T06:55:48.623522+00:00",
+      "generated_at": "2026-04-19T21:00:31.684325+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.1714,
       "blind_spots": [
-        "data_source",
-        "user_numbers"
+        "google_play_revolut",
+        "J_SERVICE_01"
       ],
       "top_3_keywords": [
         "customer",
@@ -5741,12 +5736,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-102",
-      "generated_at": "2026-04-19T06:55:49.058065+00:00",
+      "generated_at": "2026-04-19T21:00:32.230776+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.2712,
       "blind_spots": [
-        "specific_date"
+        "downgrade",
+        "unethical",
+        "reaching"
       ],
       "top_3_keywords": [
         "customer",
@@ -5759,7 +5756,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-001.",
-      "failure_mode": "NO_CHEDRINE_MATCH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 58,
@@ -5793,13 +5790,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-103",
-      "generated_at": "2026-04-19T06:55:49.604172+00:00",
+      "generated_at": "2026-04-19T21:00:32.724127+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.2837,
       "blind_spots": [
-        "google_play_revolut",
-        "J_ SERVICE_01"
+        "Competitor",
+        "Journey"
       ],
       "top_3_keywords": [
         "customer",
@@ -5812,7 +5809,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_ CHRONICLE_ MATCH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 88,
@@ -5846,12 +5843,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-104",
-      "generated_at": "2026-04-19T06:55:49.973890+00:00",
+      "generated_at": "2026-04-19T21:00:33.106461+00:00",
       "competitor": "revolut",
       "source": "google_play",
-      "confidence_score": 0.1989,
+      "confidence_score": 0.1694,
       "blind_spots": [
-        "false"
+        "bank_name"
       ],
       "top_3_keywords": [
         "reports",
@@ -5860,11 +5857,11 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-014.",
-      "failure_mode": "CONTRADICTION",
+      "finding_summary": "P2 signal cluster: revolut J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-018.",
+      "failure_mode": "UNKNOWN",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -5875,36 +5872,36 @@
       },
       "cac_components": {
         "vol_sig": 0.005470459518599562,
-        "sim_hist": 0.4917,
+        "sim_hist": 0.4181,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-014",
+        "chronicle_id": "CHR-018",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-014",
-        "bank": "HSBC UK",
-        "incident_type": "app_friction_pattern",
-        "sim_hist_score": 0.4917,
+        "chronicle_id": "CHR-018",
+        "bank": "Barclays",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.4181,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-105",
-      "generated_at": "2026-04-19T06:55:50.457893+00:00",
+      "generated_at": "2026-04-19T21:00:33.650748+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.25,
       "blind_spots": [
-        "CHR-003",
-        "CHR-004"
+        "Product details",
+        "Competition"
       ],
       "top_3_keywords": [
         "customer",
@@ -5917,7 +5914,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_LOGIN_01, 18 P0 / 5 P1 signals, anchor: CHR-005.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 23,
@@ -5972,14 +5969,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-106",
-      "generated_at": "2026-04-19T06:55:51.060220+00:00",
+      "generated_at": "2026-04-19T21:00:34.156010+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.1668,
       "blind_spots": [
-        "journey name",
-        "CHR-004",
-        "CHR-008"
+        "banking"
       ],
       "top_3_keywords": [
         "customer's",
@@ -6026,12 +6021,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-107",
-      "generated_at": "2026-04-19T06:55:51.489495+00:00",
+      "generated_at": "2026-04-19T21:00:34.694119+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.1701,
       "blind_spots": [
-        "app name"
+        "banking_credentials",
+        "user_data"
       ],
       "top_3_keywords": [
         "minor",
@@ -6044,7 +6040,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "NO_ITCH_MACHINES",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 7,
@@ -6078,13 +6074,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-108",
-      "generated_at": "2026-04-19T06:55:51.963357+00:00",
+      "generated_at": "2026-04-19T21:00:35.174034+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.2433,
       "blind_spots": [
-        "invalid_product",
-        "unrecognized_keyword"
+        "Google Play"
       ],
       "top_3_keywords": [
         "customer",
@@ -6097,7 +6092,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_PAY_01, 6 P0 / 8 P1 signals, anchor: CHR-018.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 14,
@@ -6146,12 +6141,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-109",
-      "generated_at": "2026-04-19T06:55:52.384013+00:00",
+      "generated_at": "2026-04-19T21:00:35.645745+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.1867,
       "blind_spots": [
-        "app_name"
+        "premial features"
       ],
       "top_3_keywords": [
         "friction",
@@ -6164,7 +6159,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 9,
@@ -6198,13 +6193,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-110",
-      "generated_at": "2026-04-19T06:55:52.839442+00:00",
+      "generated_at": "2026-04-19T21:00:36.154970+00:00",
       "competitor": "revolut",
       "source": "google_play",
       "confidence_score": 0.2286,
       "blind_spots": [
-        "App ranking",
-        "Journey details"
+        "Competitor"
       ],
       "top_3_keywords": [
         "complete",
@@ -6217,7 +6211,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_PAY_01, 11 P0 / 6 P1 signals, anchor: CHR-018.",
-      "failure_mode": "CONTRADICTION",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 17,
@@ -6269,14 +6263,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-111",
-      "generated_at": "2026-04-19T06:55:53.479147+00:00",
+      "generated_at": "2026-04-19T21:00:36.702428+00:00",
       "competitor": "hsbc",
       "source": "reddit",
       "confidence_score": 0.2758,
       "blind_spots": [
-        "HSBC online platform",
-        "reddit_hsbc",
-        "J_SERVICE_01"
+        "reddit_hsbcdummyusername"
       ],
       "top_3_keywords": [
         "customer",
@@ -6289,7 +6281,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MMatch",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -6323,14 +6315,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-112",
-      "generated_at": "2026-04-19T06:55:53.977755+00:00",
+      "generated_at": "2026-04-19T21:00:37.195770+00:00",
       "competitor": "hsbc",
       "source": "reddit",
       "confidence_score": 0.4946,
       "blind_spots": [
         "Designed Ceiling reached: to confirm this finding I require internal HDFS telemetry data. Request Phase 2.",
-        "Journey",
-        "signals"
+        "banking"
       ],
       "top_3_keywords": [
         "reports",
@@ -6377,13 +6368,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-113",
-      "generated_at": "2026-04-19T06:55:54.459312+00:00",
+      "generated_at": "2026-04-19T21:00:37.660177+00:00",
       "competitor": "monzo",
       "source": "reddit",
       "confidence_score": 0.2338,
       "blind_spots": [
-        "app_name",
-        "app_version"
+        "User ratings"
       ],
       "top_3_keywords": [
         "monzo",
@@ -6396,7 +6386,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: monzo J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_ CHRONICLE_ MATCH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -6430,12 +6420,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-114",
-      "generated_at": "2026-04-19T06:55:54.876169+00:00",
+      "generated_at": "2026-04-19T21:00:38.149713+00:00",
       "competitor": "monzo",
       "source": "reddit",
       "confidence_score": 0.3193,
       "blind_spots": [
-        "reddit_monzo"
+        "monzo_id"
       ],
       "top_3_keywords": [
         "customer",
@@ -6448,7 +6438,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: monzo J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_ CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 6,
@@ -6482,13 +6472,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-115",
-      "generated_at": "2026-04-19T06:55:55.340040+00:00",
+      "generated_at": "2026-04-19T21:00:38.684798+00:00",
       "competitor": "monzo",
       "source": "reddit",
       "confidence_score": 0.1957,
       "blind_spots": [
-        "high-risk",
-        "representing"
+        "banking",
+        "competitor"
       ],
       "top_3_keywords": [
         "account",
@@ -6535,12 +6525,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-116",
-      "generated_at": "2026-04-19T06:55:55.766997+00:00",
+      "generated_at": "2026-04-19T21:00:39.314690+00:00",
       "competitor": "natwest",
       "source": "reddit",
       "confidence_score": 0.328,
       "blind_spots": [
-        "CHRONICLE_match"
+        "Journey",
+        "P0/P1 signals"
       ],
       "top_3_keywords": [
         "customer",
@@ -6587,13 +6578,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-117",
-      "generated_at": "2026-04-19T06:55:56.250173+00:00",
+      "generated_at": "2026-04-19T21:00:39.818215+00:00",
       "competitor": "natwest",
       "source": "reddit",
       "confidence_score": 0.2893,
       "blind_spots": [
-        "Competitor",
-        "Journey"
+        "statement",
+        "post"
       ],
       "top_3_keywords": [
         "customer",
@@ -6640,13 +6631,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-118",
-      "generated_at": "2026-04-19T06:55:56.734064+00:00",
+      "generated_at": "2026-04-19T21:00:40.316318+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.25,
       "blind_spots": [
-        "Journey title",
-        "Anchor content"
+        "System performance",
+        "User experience"
       ],
       "top_3_keywords": [
         "account",
@@ -6659,7 +6650,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_LOGIN_01, 3 P0 / 1 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -6698,14 +6689,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-119",
-      "generated_at": "2026-04-19T06:55:57.265763+00:00",
+      "generated_at": "2026-04-19T21:00:43.641074+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.209,
       "blind_spots": [
-        "Journey type",
-        "Competitor",
-        "Regulatory period"
+        "Journey",
+        "P0",
+        "P2"
       ],
       "top_3_keywords": [
         "reports",
@@ -6718,7 +6709,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "NO_URN",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -6752,12 +6743,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-120",
-      "generated_at": "2026-04-19T06:55:57.706734+00:00",
+      "generated_at": "2026-04-19T21:00:44.097100+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.2229,
       "blind_spots": [
-        "reddit_Revolut"
+        "user credentials"
       ],
       "top_3_keywords": [
         "support",
@@ -6804,13 +6795,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-121",
-      "generated_at": "2026-04-19T06:55:58.157253+00:00",
+      "generated_at": "2026-04-19T21:00:44.588104+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.1835,
       "blind_spots": [
-        "Journey",
-        "CHR-004"
+        "App signal count"
       ],
       "top_3_keywords": [
         "customer",
@@ -6823,7 +6813,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "NO_DATA_MATCH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -6857,13 +6847,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-122",
-      "generated_at": "2026-04-19T06:55:58.617655+00:00",
+      "generated_at": "2026-04-19T21:00:45.120154+00:00",
       "competitor": "revolut",
       "source": "reddit",
       "confidence_score": 0.213,
       "blind_spots": [
-        "expected",
-        "deposit"
+        "Journey duration",
+        "App version"
       ],
       "top_3_keywords": [
         "customer",
@@ -6910,13 +6900,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-123",
-      "generated_at": "2026-04-19T06:55:59.320686+00:00",
+      "generated_at": "2026-04-19T21:00:45.796903+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.2353,
       "blind_spots": [
-        "J_SERVICE_01",
-        "channel_name"
+        "journey",
+        "product",
+        "source_of_data",
+        "intent"
       ],
       "top_3_keywords": [
         "working",
@@ -6929,7 +6921,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: barclays J_SERVICE_01, 2 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -6966,13 +6958,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-124",
-      "generated_at": "2026-04-19T06:55:59.764035+00:00",
+      "generated_at": "2026-04-19T21:00:46.262486+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.2611,
-      "blind_spots": [
-        "J_SERVICE_01"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "support",
         "bank's",
@@ -6984,7 +6974,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "SINGLE_SIGNAL_P2",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -7018,13 +7008,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-125",
-      "generated_at": "2026-04-19T06:56:00.235761+00:00",
+      "generated_at": "2026-04-19T21:00:46.964933+00:00",
       "competitor": "barclays",
       "source": "youtube",
-      "confidence_score": 0.2271,
+      "confidence_score": 0.2204,
       "blind_spots": [
-        "Competitor",
-        "Journey"
+        "CHR-018",
+        "J_ PAY_01",
+        "youtube_barclays"
       ],
       "top_3_keywords": [
         "balance",
@@ -7033,11 +7024,11 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "P2 signal cluster: barclays J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-018.",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -7048,34 +7039,37 @@
       },
       "cac_components": {
         "vol_sig": 0.11834319526627218,
-        "sim_hist": 0.4493,
+        "sim_hist": 0.4326,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-018",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.4493,
+        "chronicle_id": "CHR-018",
+        "bank": "Barclays",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.4326,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-126",
-      "generated_at": "2026-04-19T06:56:01.688971+00:00",
+      "generated_at": "2026-04-19T21:00:48.637393+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.35,
-      "blind_spots": [],
+      "blind_spots": [
+        "banking",
+        "app"
+      ],
       "top_3_keywords": [
         "failure",
         "indicating",
@@ -7087,7 +7081,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: barclays J_PAY_01, 8 P0 / 3 P1 signals, anchor: CHR-018.",
-      "failure_mode": "NO_URGE_TO_CHALLENGE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 11,
@@ -7133,11 +7127,15 @@
     },
     {
       "finding_id": "MIL-F-20260419-127",
-      "generated_at": "2026-04-19T06:56:02.068515+00:00",
+      "generated_at": "2026-04-19T21:00:49.207410+00:00",
       "competitor": "barclays",
       "source": "youtube",
       "confidence_score": 0.2498,
-      "blind_spots": [],
+      "blind_spots": [
+        "complete",
+        "between",
+        "current"
+      ],
       "top_3_keywords": [
         "transfer",
         "funds",
@@ -7187,13 +7185,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-128",
-      "generated_at": "2026-04-19T06:56:02.504870+00:00",
+      "generated_at": "2026-04-19T21:00:49.713036+00:00",
       "competitor": "hsbc",
       "source": "youtube",
       "confidence_score": 0.2519,
       "blind_spots": [
-        "Journey",
-        "CHR-004"
+        "competitor_name",
+        "journey_name"
       ],
       "top_3_keywords": [
         "about",
@@ -7206,7 +7204,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: hsbc J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -7240,12 +7238,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-129",
-      "generated_at": "2026-04-19T06:56:02.937385+00:00",
+      "generated_at": "2026-04-19T21:00:50.176257+00:00",
       "competitor": "lloyds",
       "source": "youtube",
       "confidence_score": 0.25,
       "blind_spots": [
-        "Competitor name"
+        "journey"
       ],
       "top_3_keywords": [
         "comment",
@@ -7292,13 +7290,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-130",
-      "generated_at": "2026-04-19T06:56:03.384402+00:00",
+      "generated_at": "2026-04-19T21:00:50.656897+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.2436,
       "blind_spots": [
-        "launch",
-        "awful"
+        "Youtube",
+        "Revolut"
       ],
       "top_3_keywords": [
         "crashing",
@@ -7311,7 +7309,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_SERVICE_01, 3 P0 / 1 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "failure_mode": "CONTRADICTION",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
@@ -7350,14 +7348,13 @@
     },
     {
       "finding_id": "MIL-F-20260419-131",
-      "generated_at": "2026-04-19T06:56:03.959865+00:00",
+      "generated_at": "2026-04-19T21:00:51.177847+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.2193,
       "blind_spots": [
-        "journey",
-        "valid_journey",
-        "pre-validation"
+        "video_length",
+        "average_viewership"
       ],
       "top_3_keywords": [
         "functioning",
@@ -7370,7 +7367,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_SERVICE_01, 3 P0 / 0 P1 signals, anchor: CHR-003.",
-      "failure_mode": "NO_URBAN_GARDENS",
+      "failure_mode": "SILENCE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 3,
@@ -7408,14 +7405,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-132",
-      "generated_at": "2026-04-19T06:56:04.508781+00:00",
+      "generated_at": "2026-04-19T21:00:51.800000+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.1924,
       "blind_spots": [
-        "id",
-        "requirements",
-        "regulatory"
+        "Revolut",
+        "J_LOGIN_01",
+        "CHR-005"
       ],
       "top_3_keywords": [
         "comment",
@@ -7428,7 +7425,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P2 signal cluster: revolut J_LOGIN_01, 0 P0 / 0 P1 signals, anchor: CHR-005.",
-      "failure_mode": "NO_ CHRONICLE_ MATCH",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -7462,15 +7459,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-133",
-      "generated_at": "2026-04-19T06:56:05.036939+00:00",
+      "generated_at": "2026-04-19T21:00:52.213821+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.3171,
-      "blind_spots": [
-        "competitor's",
-        "app's",
-        "resolving"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "support",
         "comment",
@@ -7516,13 +7509,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-134",
-      "generated_at": "2026-04-19T06:56:05.483234+00:00",
+      "generated_at": "2026-04-19T21:00:52.672883+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.3714,
-      "blind_spots": [
-        "J_SERVICE_01"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "feature",
         "indicating",
@@ -7568,12 +7559,12 @@
     },
     {
       "finding_id": "MIL-F-20260419-135",
-      "generated_at": "2026-04-19T06:56:05.933946+00:00",
+      "generated_at": "2026-04-19T21:00:53.165804+00:00",
       "competitor": "revolut",
       "source": "youtube",
-      "confidence_score": 0.1524,
+      "confidence_score": 0.1596,
       "blind_spots": [
-        "J_SERVICE_01"
+        "youtube_Revolut"
       ],
       "top_3_keywords": [
         "reports",
@@ -7582,11 +7573,11 @@
       ],
       "human_countersign_status": "PENDING",
       "signal_severity": "P2",
-      "journey_id": "J_SERVICE_01",
+      "journey_id": "J_PAY_01",
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
-      "finding_summary": "P2 signal cluster: revolut J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-002.",
-      "failure_mode": "NO_CHRONICLE_MATCH",
+      "finding_summary": "P2 signal cluster: revolut J_PAY_01, 0 P0 / 0 P1 signals, anchor: CHR-009.",
+      "failure_mode": "NONE",
       "is_unanchored": false,
       "signal_counts": {
         "total": 2,
@@ -7597,35 +7588,36 @@
       },
       "cac_components": {
         "vol_sig": 0.033783783783783786,
-        "sim_hist": 0.3471,
+        "sim_hist": 0.3652,
         "delta_tel": 0.0,
         "alpha": 0.4,
         "beta": 0.4,
         "delta": 0.2
       },
       "provenance": {
-        "chronicle_id": "CHR-002",
+        "chronicle_id": "CHR-009",
         "signal_ids": [],
         "classification_version": "michaelborck/refuled:latest",
         "teacher_model_version": null,
         "refuel_narrative_called": true
       },
       "chronicle_match": {
-        "chronicle_id": "CHR-002",
-        "bank": "Lloyds Banking Group (Lloyds, Halifax, Bank of Scotland)",
-        "incident_type": "api_defect_data_exposure",
-        "sim_hist_score": 0.3471,
+        "chronicle_id": "CHR-009",
+        "bank": "Lloyds",
+        "incident_type": "payment_failure_cluster",
+        "sim_hist_score": 0.3652,
         "inference_approved": true
       }
     },
     {
       "finding_id": "MIL-F-20260419-136",
-      "generated_at": "2026-04-19T06:56:06.331296+00:00",
+      "generated_at": "2026-04-19T21:00:53.785433+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.2373,
       "blind_spots": [
-        "customer rating"
+        "product_details",
+        "customer_risk_profiles"
       ],
       "top_3_keywords": [
         "repeatedly",
@@ -7676,13 +7668,11 @@
     },
     {
       "finding_id": "MIL-F-20260419-137",
-      "generated_at": "2026-04-19T06:56:06.743007+00:00",
+      "generated_at": "2026-04-19T21:00:54.247203+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.25,
-      "blind_spots": [
-        "money"
-      ],
+      "blind_spots": [],
       "top_3_keywords": [
         "issue",
         "payment",
@@ -7736,13 +7726,14 @@
     },
     {
       "finding_id": "MIL-F-20260419-138",
-      "generated_at": "2026-04-19T06:56:07.186429+00:00",
+      "generated_at": "2026-04-19T21:00:54.805746+00:00",
       "competitor": "revolut",
       "source": "youtube",
       "confidence_score": 0.25,
       "blind_spots": [
-        "Competitor",
-        "Journey"
+        "user reviews",
+        "security concerns",
+        "app crashes"
       ],
       "top_3_keywords": [
         "transfer",
@@ -7755,7 +7746,7 @@
       "finding_tier": "P3",
       "designed_ceiling_reached": false,
       "finding_summary": "P0 signal cluster: revolut J_PAY_01, 1 P0 / 3 P1 signals, anchor: CHR-009.",
-      "failure_mode": "SILENCE",
+      "failure_mode": "NO_CHRONICLE_MATCH",
       "is_unanchored": false,
       "signal_counts": {
         "total": 4,
