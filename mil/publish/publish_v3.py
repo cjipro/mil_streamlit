@@ -621,10 +621,12 @@ def _replace_box3(html: str) -> str:
 def _compute_issue_volume_stats(issue_type: str) -> dict | None:
     """
     Return 7-day review volume + WoW delta for a given issue_type in Barclays
-    public reviews (App Store + Google Play).
+    public reviews (App Store + Google Play). Also returns the total 7-day
+    Barclays review volume (the denominator) so the strip can say "9 of 72".
 
-    Returns {count_7d, count_prior, wow_delta_pct} or None if no matching records.
-    wow_delta_pct is None when the prior week had zero reviews (can't compute ratio).
+    Returns {count_7d, count_prior, total_7d, wow_delta_pct} or None if no
+    matching records. wow_delta_pct is None when the prior week had zero
+    reviews (can't compute ratio).
     """
     from datetime import datetime as _dt, timezone as _tz, timedelta as _td
     enriched_dir = MIL_DIR / "data" / "historical" / "enriched"
@@ -647,9 +649,8 @@ def _compute_issue_volume_stats(issue_type: str) -> dict | None:
 
     count_7 = 0
     count_prior = 0
+    total_7 = 0
     for r in records:
-        if r.get("issue_type") != issue_type:
-            continue
         date_str = r.get("date") or r.get("at") or r.get("review_date")
         if not date_str:
             continue
@@ -659,9 +660,15 @@ def _compute_issue_volume_stats(issue_type: str) -> dict | None:
                 dt = dt.replace(tzinfo=_tz.utc)
         except (ValueError, TypeError):
             continue
-        if dt >= cutoff_7:
+        in_7 = dt >= cutoff_7
+        in_prior = (not in_7) and dt >= cutoff_14
+        if in_7:
+            total_7 += 1
+        if r.get("issue_type") != issue_type:
+            continue
+        if in_7:
             count_7 += 1
-        elif dt >= cutoff_14:
+        elif in_prior:
             count_prior += 1
 
     if count_7 + count_prior == 0:
@@ -671,7 +678,12 @@ def _compute_issue_volume_stats(issue_type: str) -> dict | None:
     if count_prior > 0:
         wow_delta = (count_7 - count_prior) / count_prior * 100.0
 
-    return {"count_7d": count_7, "count_prior": count_prior, "wow_delta_pct": wow_delta}
+    return {
+        "count_7d":      count_7,
+        "count_prior":   count_prior,
+        "total_7d":      total_7,
+        "wow_delta_pct": wow_delta,
+    }
 
 
 def _build_volume_strip(over_entry: dict) -> str:
@@ -685,6 +697,7 @@ def _build_volume_strip(over_entry: dict) -> str:
         return ""
 
     c7        = stats["count_7d"]
+    total_7   = stats.get("total_7d") or 0
     delta     = stats["wow_delta_pct"]
     days      = over_entry.get("days_active", 0)
     gap       = over_entry.get("gap_pp", 0.0)
@@ -705,13 +718,18 @@ def _build_volume_strip(over_entry: dict) -> str:
         delta_str    = "flat vs prior week"
         delta_colour = "#3A6A7F"
 
-    review_word = "review" if c7 == 1 else "reviews"
+    # "9 of 72 reviews" when we have a denominator; fall back to bare count
+    # if something went wrong computing the total.
+    if total_7 > c7:
+        lead = f"{c7} of {total_7} reviews"
+    else:
+        lead = f"{c7} review" if c7 == 1 else f"{c7} reviews"
     return f"""
 <div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
             padding:8px 10px;background:#001828;border:1px solid #003A5C;
             border-radius:3px;margin-bottom:12px;font-size:11px;">
-  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">{c7} {review_word}</span>
-  <span style="color:#7AACBF;">last 7 days</span>
+  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">{lead}</span>
+  <span style="color:#7AACBF;">cite this issue, last 7 days</span>
   <span style="color:{delta_colour};font-weight:600;">{delta_str}</span>
   <span style="color:#3A6A7F;">&middot;</span>
   <span style="color:#7AACBF;">{days} days sustained</span>
