@@ -438,10 +438,25 @@ a { color: var(--blue); text-decoration: none; }
     <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
   </div>
   <div class="topbar-box-body">
+    
+<div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
+            padding:8px 10px;background:#001828;border:1px solid #003A5C;
+            border-radius:3px;margin-bottom:12px;font-size:11px;">
+  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">6 of 217 reviews</span>
+  <span style="color:#7AACBF;">cite this issue, last 7 days</span>
+  <span style="color:#00AFA0;font-weight:600;">&darr; 40% vs prior week</span>
+  <span style="color:#3A6A7F;">&middot;</span>
+  <span style="color:#7AACBF;">15 days sustained</span>
+  <span style="color:#3A6A7F;">&middot;</span>
+  <span style="color:#7AACBF;">+7.5pp vs peers</span>
+</div>
+<div style="font-size:9px;color:#3A6A7F;font-style:italic;margin-top:-6px;margin-bottom:14px;">
+  Public reviews are surface signal. True customer impact is typically orders of magnitude larger.
+</div>
     <div style="margin-bottom:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">The Situation</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Fifteen days of unresolved crashes puts Barclays at direct risk of an FCA duty-of-care enforcement action. Customers cannot retrieve PINs or receive OTPs, blocking card access and new account setup entirely. Escalate a hotfix to production by Friday, before regulators cite this streak the way they cited HSBC's 2025 post-refresh incident.</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Persistent Android crashes blocking card access and OTP retrieval expose Barclays to FCA duty-of-care scrutiny. Customers report PIN checks and card controls are entirely inaccessible, with Barclays' crash rate running 2.3x above the peer average. Ship an emergency Android hotfix by Friday; HSBC's 2025 post-refresh incident shows a three-week delay turns a fixable bug into a regulator's case file.</div>
     </div>
     <div style="font-size:11px;color:#4A7A8F;font-style:italic;
                 border-left:2px solid #003A5C;padding-left:10px;
@@ -449,12 +464,12 @@ a { color: var(--blue); text-decoration: none; }
     <div style="margin-bottom:14px;border-top:1px solid #003A5C;padding-top:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">Peer Comparison</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">On App Crashing, Barclays complaint rate stands at 13.2% against a 5-bank peer average of 5.7% — a gap of +7.5 percentage points. NatWest shows the lowest rate in the cohort at 2.9%. This gap has been sustained for 15 days, indicating a structural pattern rather than a transient spike. The one area where Barclays outperforms peers is Login Failed, sitting 4.3pp below the cohort average.</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">On App Crashing, Barclays complaint rate stands at 13.2% against a 5-bank peer average of 5.7% — a gap of +7.5 percentage points. NatWest shows the lowest rate in the cohort at 2.9%. The one area where Barclays outperforms peers is Login Failed, sitting 4.3pp below the cohort average.</div>
     </div>
     <div style="margin-bottom:14px;border-top:1px solid #003A5C;padding-top:14px;">
       <div style="font-size:9px;color:#F5A623;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">The Call</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">At CLARK-2, a formal escalation brief to the product team is warranted this week.</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Escalate to product leadership this week; formal brief required.</div>
     </div>
     <div style="margin-top:6px;">
       <span style="padding:2px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
@@ -890,7 +905,7 @@ document.addEventListener('click', function(e) {
 <hr class="v3-divider">
 <div class="v3-outer">
   <div class="v3-label">
-    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-20 21:17 UTC
+    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-20 21:42 UTC
   </div>
   
 <div class="topbar-box">
@@ -954,7 +969,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Active <span>15 days</span></div>
           <div class="commentary-stat">Since <span>2026-04-03</span></div>
         </div>
-        <div class="commentary-prose">Fifteen days of unresolved crashes puts Barclays at direct risk of an FCA duty-of-care enforcement action. Customers cannot retrieve PINs or receive OTPs, blocking card access and new account setup entirely. Escalate a hotfix to production by Friday, before regulators cite this streak the way they cited HSBC's 2025 post-refresh incident.</div>
+        <div class="commentary-prose">Persistent Android crashes blocking card access and OTP retrieval expose Barclays to FCA duty-of-care scrutiny. Customers report PIN checks and card controls are entirely inaccessible, with Barclays' crash rate running 2.3x above the peer average. Ship an emergency Android hotfix by Friday; HSBC's 2025 post-refresh incident shows a three-week delay turns a fixable bug into a regulator's case file.</div>
         <div class="commentary-quote">&ldquo;Dreadful. Can't access cards on it, each time I do it keeps crashing and clearing cache does nothing so I can't check my pin numbers or anything in relation to my card nor barclaycard.&rdquo;</div>
         <div class="commentary-chr">Chronicle context: HSBC 2025: post-refresh crashes and ERR03 errors ran three weeks before a fix....</div>
       </div>
@@ -972,7 +987,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Active <span>15 days</span></div>
           <div class="commentary-stat">Since <span>2026-04-03</span></div>
         </div>
-        <div class="commentary-prose">A 15-day unresolved feature failure risks FCA intervention under Consumer Duty's outcome-of-access obligations. Customers cannot cancel direct debits or update personal details, leaving them locked out of basic account controls. Assign an engineering owner today and ship a targeted fix within 72 hours to close this before a regulator audits the incident log.</div>
+        <div class="commentary-prose">Broken self-service features — mortgage direct-debit edits and direct-debit cancellations — risk FCA scrutiny over adequate access to account controls. Customers report personal and business detail updates failing repeatedly, with Barclays' complaint rate running 4.2 percentage points above the six-peer average. Prioritise a targeted fix for direct-debit management and notification routing within five working days, before regulators treat the streak as evidence of inadequate service availability.</div>
         <div class="commentary-quote">&ldquo;You cant change your mortgage direct debits in any way on here - useless!&rdquo;</div>
       </div>
       <div class="commentary-card risk">
@@ -989,7 +1004,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Active <span>15 days</span></div>
           <div class="commentary-stat">Since <span>2026-04-03</span></div>
         </div>
-        <div class="commentary-prose">Fifteen days of P0 payment failures puts Barclays in breach of FCA availability obligations, inviting formal supervisory action. Customers report the app closing mid-authorisation and PIN entry failing to process payments, leaving transactions incomplete at checkout. Escalate a dedicated payment-flow fix to engineering leads by Friday, before regulators log this streak as evidence of systemic duty-of-care failure.</div>
+        <div class="commentary-prose">Payment failures that block customers from completing transactions risk breaching FCA access-to-banking service obligations. Customers report app crashes mid-authorisation and PIN entry failures, with Barclays' complaint rate running 0.8 percentage points above the peer average. Escalate this to a P0 hotfix deployment within 48 hours, targeting the authorisation handoff and PIN session flow specifically.</div>
         <div class="commentary-quote">&ldquo;Terrible app sends me to authorise payments to my bank then app closes and doesn't take payment.&rdquo;</div>
       </div>
       <div class="commentary-card strength">
@@ -1004,7 +1019,7 @@ document.addEventListener('click', function(e) {
           <div class="commentary-stat">Peer avg <span>7.7%</span></div>
           <div class="commentary-stat">Gap <span style="color:#00AFA0;">-4.3pp</span></div>
         </div>
-        <div class="commentary-prose">Barclays resolves technical login failures at roughly half the rate of competing banks, demonstrating stronger authentication infrastructure and incident recovery. Customers blocked from account access typically abandon apps within 48 hours, so this reliability directly reduces churn to challenger banks.</div>
+        <div class="commentary-prose">Barclays delivers significantly more reliable authentication, with login failures occurring at roughly half the rate seen across competing banks. When customers can access their money without friction, they are far less likely to open a second account elsewhere as a fallback.</div>
         <div class="commentary-quote">&ldquo;Absolute dross of an application. Updated it and needed a card reader just to log in again which took ages to arrive and therefore missed payment which will affect my credit because of some stupid developer.&rdquo;</div>
       </div>
     </div>
