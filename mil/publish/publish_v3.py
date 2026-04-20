@@ -618,6 +618,111 @@ def _replace_box3(html: str) -> str:
     return html[:start_comment] + '<!-- V3-BOX3 -->' + html[end_idx:]
 
 
+def _compute_issue_volume_stats(issue_type: str) -> dict | None:
+    """
+    Return 7-day review volume + WoW delta for a given issue_type in Barclays
+    public reviews (App Store + Google Play).
+
+    Returns {count_7d, count_prior, wow_delta_pct} or None if no matching records.
+    wow_delta_pct is None when the prior week had zero reviews (can't compute ratio).
+    """
+    from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+    enriched_dir = MIL_DIR / "data" / "historical" / "enriched"
+    records: list[dict] = []
+    for fname in ("app_store_barclays_enriched.json", "google_play_barclays_enriched.json"):
+        path = enriched_dir / fname
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            records.extend(data.get("records", []))
+        except Exception:
+            continue
+    if not records:
+        return None
+
+    now       = _dt.now(_tz.utc)
+    cutoff_7  = now - _td(days=7)
+    cutoff_14 = now - _td(days=14)
+
+    count_7 = 0
+    count_prior = 0
+    for r in records:
+        if r.get("issue_type") != issue_type:
+            continue
+        date_str = r.get("date") or r.get("at") or r.get("review_date")
+        if not date_str:
+            continue
+        try:
+            dt = _dt.fromisoformat(str(date_str).replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=_tz.utc)
+        except (ValueError, TypeError):
+            continue
+        if dt >= cutoff_7:
+            count_7 += 1
+        elif dt >= cutoff_14:
+            count_prior += 1
+
+    if count_7 + count_prior == 0:
+        return None
+
+    wow_delta = None
+    if count_prior > 0:
+        wow_delta = (count_7 - count_prior) / count_prior * 100.0
+
+    return {"count_7d": count_7, "count_prior": count_prior, "wow_delta_pct": wow_delta}
+
+
+def _build_volume_strip(over_entry: dict) -> str:
+    """
+    Render the stat strip shown at the top of Box 3: review count in last 7 days,
+    WoW delta, days sustained, gap vs peers. Followed by the "surface signal"
+    qualifier so the exec can calibrate against internal ticket volumes.
+    """
+    stats = _compute_issue_volume_stats(over_entry["issue_type"])
+    if not stats or stats["count_7d"] == 0:
+        return ""
+
+    c7        = stats["count_7d"]
+    delta     = stats["wow_delta_pct"]
+    days      = over_entry.get("days_active", 0)
+    gap       = over_entry.get("gap_pp", 0.0)
+
+    if delta is None:
+        delta_str    = "no prior-week baseline"
+        delta_colour = "#3A6A7F"
+    elif delta >= 30:
+        delta_str    = f"&uarr; {delta:.0f}% vs prior week"
+        delta_colour = "#CC0000"
+    elif delta > 0:
+        delta_str    = f"&uarr; {delta:.0f}% vs prior week"
+        delta_colour = "#F5A623"
+    elif delta < 0:
+        delta_str    = f"&darr; {abs(delta):.0f}% vs prior week"
+        delta_colour = "#00AFA0"
+    else:
+        delta_str    = "flat vs prior week"
+        delta_colour = "#3A6A7F"
+
+    review_word = "review" if c7 == 1 else "reviews"
+    return f"""
+<div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
+            padding:8px 10px;background:#001828;border:1px solid #003A5C;
+            border-radius:3px;margin-bottom:12px;font-size:11px;">
+  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">{c7} {review_word}</span>
+  <span style="color:#7AACBF;">last 7 days</span>
+  <span style="color:{delta_colour};font-weight:600;">{delta_str}</span>
+  <span style="color:#3A6A7F;">&middot;</span>
+  <span style="color:#7AACBF;">{days} days sustained</span>
+  <span style="color:#3A6A7F;">&middot;</span>
+  <span style="color:#7AACBF;">{gap:+.1f}pp vs peers</span>
+</div>
+<div style="font-size:9px;color:#3A6A7F;font-style:italic;margin-top:-6px;margin-bottom:14px;">
+  Public reviews are surface signal. True customer impact is typically orders of magnitude larger.
+</div>"""
+
+
 def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     """
     V3 Box 3 — Executive Intelligence Brief.
@@ -740,6 +845,8 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
   <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{prose}</div>
 </div>"""
 
+    volume_strip_html = _build_volume_strip(over[0]) if over else ""
+
     return f"""
 <div class="topbar-box exec-alert-panel">
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
@@ -747,6 +854,7 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
   </div>
   <div class="topbar-box-body">
+    {volume_strip_html}
     {_section("The Situation", situation, first=True)}
     {quote_html}
     {_section("Peer Comparison", peer_prose)}
