@@ -55,15 +55,18 @@ ISSUE_TYPES       = _issue_types()
 CUSTOMER_JOURNEYS = _customer_journeys()
 
 SYSTEM_PROMPT = (
-    "You are a banking app complaints analyst. "
+    "You are a banking app review classifier. Classify every review — "
+    "complaints, neutral observations, and positive reviews alike. "
     "Output MUST be a valid JSON array only. "
     "No preamble, no markdown, no explanation outside the JSON."
 )
 
-BATCH_PROMPT_TEMPLATE = """Classify each numbered banking app review. Return a JSON array with one object per review.
+BATCH_PROMPT_TEMPLATE = """Classify each numbered banking app review. Return a JSON array with exactly one object per input review, in the same order. N reviews in, N objects out — never skip, merge, or omit a review, even if it is short, positive, or contains no complaint.
 
 Each object must have exactly these fields:
-- issue_type: what went wrong. One of: {issues}
+- issue_type: what the review is about. One of: {issues}
+  Use "Positive Feedback" for reviews that praise the app or contain no complaint.
+  Use "Other" only when the content is unrelated to banking or unintelligible.
 - customer_journey: what the customer was trying to do. One of: {journeys}
 - sentiment_score: number from -1.0 (very negative) to 1.0 (very positive)
 - severity_class: P0, P1, or P2 using these rules:
@@ -156,7 +159,7 @@ def _classify_batch(client, records: list[dict], batch_id: str) -> list[dict]:
             if _PROVIDER == "ollama":
                 response = client.chat.completions.create(
                     model=MODEL,
-                    max_tokens=1024,
+                    max_tokens=4096,
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": prompt},
@@ -166,7 +169,7 @@ def _classify_batch(client, records: list[dict], batch_id: str) -> list[dict]:
             else:
                 response = client.messages.create(
                     model=MODEL,
-                    max_tokens=1024,
+                    max_tokens=4096,
                     system=SYSTEM_PROMPT,
                     messages=[{"role": "user", "content": prompt}],
                 )
