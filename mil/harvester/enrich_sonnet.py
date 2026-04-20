@@ -205,6 +205,36 @@ def _classify_batch(client, records: list[dict], batch_id: str) -> list[dict]:
     return parsed
 
 
+def _enrich_with_subdivide(client, records: list[dict], batch_id: str) -> list[dict]:
+    """
+    Enrich a batch. On failure (typically qwen3 returning an empty response for
+    batches heavy in short/positive content), split in half and retry each half
+    recursively. Only records that still fail at size 1 are marked
+    ENRICHMENT_FAILED. Worst-case depth log2(BATCH_SIZE) ≈ 4.
+    """
+    try:
+        results = _classify_batch(client, records, batch_id)
+        return [{**rec, **_normalise(results[i] if i < len(results) else {})}
+                for i, rec in enumerate(records)]
+    except Exception as exc:
+        if len(records) == 1:
+            logger.error("[enrich_sonnet] %s (len=1) failed: %s — marking ENRICHMENT_FAILED",
+                         batch_id, exc)
+            return [{
+                **records[0],
+                "issue_type":       "ENRICHMENT_FAILED",
+                "customer_journey": "ENRICHMENT_FAILED",
+                "sentiment_score":  0.0,
+                "severity_class":   "ENRICHMENT_FAILED",
+                "reasoning":        str(exc)[:200],
+            }]
+        logger.warning("[enrich_sonnet] %s (len=%d) failed: %s — subdividing",
+                       batch_id, len(records), exc)
+        mid = len(records) // 2
+        return (_enrich_with_subdivide(client, records[:mid], f"{batch_id}_L") +
+                _enrich_with_subdivide(client, records[mid:], f"{batch_id}_R"))
+
+
 def enrich_records(source: str, competitor: str, records: list[dict]) -> list[dict]:
     """
     Enrich a list of raw records. Returns enriched records.
@@ -219,25 +249,7 @@ def enrich_records(source: str, competitor: str, records: list[dict]) -> list[di
         batch_id = f"{source}_{competitor}_b{batch_num}"
         logger.info("[enrich_sonnet] %s/%s batch %d/%d (%d records)",
                     source, competitor, batch_num, total_batches, len(batch))
-
-        try:
-            results = _classify_batch(client, batch, batch_id)
-            # Align results to batch length
-            for i, rec in enumerate(batch):
-                enr = results[i] if i < len(results) else {}
-                enriched.append({**rec, **_normalise(enr)})
-        except Exception as exc:
-            logger.error("[enrich_sonnet] %s batch %d failed: %s — marking ENRICHMENT_FAILED",
-                         batch_id, batch_num, exc)
-            for rec in batch:
-                enriched.append({
-                    **rec,
-                    "issue_type":       "ENRICHMENT_FAILED",
-                    "customer_journey": "ENRICHMENT_FAILED",
-                    "sentiment_score":  0.0,
-                    "severity_class":   "ENRICHMENT_FAILED",
-                    "reasoning":        str(exc)[:200],
-                })
+        enriched.extend(_enrich_with_subdivide(client, batch, batch_id))
 
     return enriched
 
