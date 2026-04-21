@@ -221,6 +221,26 @@ def _issue_score(volume: int, p0: int, p1: int, p2: int,
     return round(volume * sev * tf * bonus, 4)
 
 
+def _journey_priority_streak(records: list[dict], journey_cat: str,
+                             today: date) -> int:
+    """
+    Days the journey has been "in priority" — count of distinct dates in
+    the supplied record window with ≥1 P0 or P1 review for this journey.
+
+    A count (not a strict from-today run) so short silent days don't reset
+    a journey's historical persistence signal. Matches Box 2's
+    `days_active` semantic for issues: how many distinct days has this
+    thing been hot. Records passed in should already be window-scoped
+    (30d in the default caller) so this count caps at that window size.
+    """
+    severe_dates = {
+        r["_review_date"] for r in records
+        if r.get("customer_journey") == journey_cat
+        and r.get("severity_class") in ("P0", "P1")
+    }
+    return len(severe_dates)
+
+
 # ============================================================
 # CHRONICLE LOOKUP (internal -- not exposed in output labels)
 # ============================================================
@@ -591,21 +611,33 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
 
     # ----------------------------------------------------------
     # SECTION 2b: JOURNEY PERFORMANCE — grouped by customer_journey
-    # Barclays records only. Excludes General App Use unless P0/P1.
+    # Barclays records only. "General App Use" hard-suppressed (catch-all
+    # bucket, not a coherent journey — produces "praised but regressing"
+    # contradictions when shown). Streak computed over a wider 30-day
+    # window so "days in priority" can exceed the 7-day rendering window.
     # ----------------------------------------------------------
+    JOURNEY_EXCLUDE = {"General App Use"}
+
     journey_groups: dict[str, list[dict]] = defaultdict(list)
     for r in barclays_records:
         cat = r.get("customer_journey") or "General App Use"
         journey_groups[cat].append(r)
 
+    # 30-day records — streak window extends past the 7-day rendering
+    # window so "Nd in priority" reflects true persistence, not just this week.
+    barclays_streak_records = [
+        r for r in _load_enriched_records(window_days=30)
+        if r.get("_competitor", "").lower() == "barclays"
+    ]
+
     journey_rows = []
     for cat, jrecs in journey_groups.items():
+        if cat in JOURNEY_EXCLUDE:
+            continue
+
         p0 = sum(1 for r in jrecs if r.get("severity_class") == "P0")
         p1 = sum(1 for r in jrecs if r.get("severity_class") == "P1")
         p2 = sum(1 for r in jrecs if r.get("severity_class") == "P2")
-
-        if cat == "General App Use" and p0 == 0 and p1 == 0:
-            continue
 
         vol       = len(jrecs)
         ratings   = [r["rating"] for r in jrecs if r.get("rating")]
@@ -614,6 +646,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         jid       = _CATEGORY_TO_JID.get(cat)
         chron_ids = jid_chronicles.get(jid, set()) if jid else set()
         i_score   = _issue_score(vol, p0, p1, p2, j_trend, chron_ids)
+        streak    = _journey_priority_streak(barclays_streak_records, cat, today)
 
         journey_rows.append({
             "journey":         cat,
@@ -624,10 +657,30 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "p1":              p1,
             "p2":              p2,
             "volume":          vol,
+            "streak_days":     streak,
             "chronicle_ids":   sorted(chron_ids),
         })
 
     journey_rows.sort(key=lambda x: -x["issue_score"])
+
+    # "N of 9 with signal" header data — count qualifying journeys (any
+    # P0/P1 OR trend=WORSENING) from the eligible pool (taxonomy minus
+    # General App Use). Denominator is the eligible pool size so the
+    # ratio is honest about what we evaluated.
+    journey_signal_count = sum(
+        1 for r in journey_rows
+        if r["p0"] > 0 or r["p1"] > 0 or r["trend"] == "WORSENING"
+    )
+    eligible_journey_count = max(
+        len([c for c in journey_groups.keys() if c not in JOURNEY_EXCLUDE]),
+        len(journey_rows),
+    )
+    journey_row_meta = {
+        "window_days":           window_days,
+        "signal_count":          journey_signal_count,
+        "eligible_journey_count": eligible_journey_count,
+        "excluded":              sorted(JOURNEY_EXCLUDE),
+    }
 
     # Build {issue_type -> days_active} from latest-date persistence entries so
     # Box 2 rows can render "N reviews · Xd sustained" alongside score+trend.
@@ -677,6 +730,8 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "p0":              row["p0"],
             "p1":              row["p1"],
             "p2":              row["p2"],
+            "volume":          row["volume"],
+            "streak_days":     row["streak_days"],
             "verdict":         _verdict(row["journey"], row["trend"],
                                         row["p0"], row["p1"], row["p2"]),
         })
@@ -1011,6 +1066,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         "overall_sentiment":   overall_sentiment,
         "issues_performance":  issues_performance,
         "journey_performance": journey_performance,
+        "journey_row_meta":    journey_row_meta,
         "issues_status":       issues_status,
         "box2_quote":          box2_quote,
         "box2_quote_rating":   box2_quote_rating,

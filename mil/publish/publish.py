@@ -118,6 +118,34 @@ _CATEGORY_TO_JID_PUB = {
 }
 
 
+def _severity_state(p0: int, p1: int, trend: str, persistence_days: int,
+                    persistent_threshold: int = 7) -> str:
+    """
+    4-way severity state (replaces the 3-way REGRESSION/WATCH/PERFORMING WELL
+    taxonomy for the Journey Row). Each label answers one question:
+
+      ACUTE      — severe signal present, and the situation isn't "stable bad"
+                   (either the trend is worsening or persistence is short)
+      PERSISTENT — severe signal has been present for ≥7d AND trend isn't
+                   worsening (still bad, but not getting worse — chronic)
+      DRIFT      — no severe signal yet, but rating trend is worsening
+                   (early-warning band: harm not yet flagged, but forming)
+      STABLE     — no severe signal, trend flat or improving
+
+    Mutually exclusive. Decouples "is it severe" from "is it moving" from
+    "how long has it been there" — the three signals that REGRESSION used
+    to conflate.
+    """
+    severe = p0 > 0 or p1 > 0
+    if severe:
+        if persistence_days >= persistent_threshold and trend != "WORSENING":
+            return "PERSISTENT"
+        return "ACUTE"
+    if trend == "WORSENING":
+        return "DRIFT"
+    return "STABLE"
+
+
 def _bd_to_journey_analysis(journey_performance: list) -> list:
     """
     Translate briefing_data journey_performance (or issues_performance) list
@@ -130,7 +158,12 @@ def _bd_to_journey_analysis(journey_performance: list) -> list:
         p1    = row.get("p1", 0)
         p2    = row.get("p2", 0)
         trend = row.get("trend", "STABLE")
+        # issues_performance carries days_active; journey_performance carries
+        # streak_days. Normalise to one persistence field for severity-state.
+        persistence_days = row.get("days_active") or row.get("streak_days") or 0
 
+        # Legacy 3-way status — kept for Box 2 / metrics strip / other surfaces
+        # that haven't been migrated to severity_state yet.
         if p0 > 0 or (p1 >= 2 and trend == "WORSENING"):
             status = "REGRESSION"
         elif p1 > 0 or trend == "WORSENING":
@@ -138,18 +171,23 @@ def _bd_to_journey_analysis(journey_performance: list) -> list:
         else:
             status = "PERFORMING WELL"
 
+        severity_state = _severity_state(p0, p1, trend, persistence_days)
+
         name = row.get("journey", "")
         result.append({
             "rank":            row["rank"],
             "journey_id":      name,   # use name as ID — no static mapping
             "journey_name":    name,
             "status":          status,
+            "severity_state":  severity_state,
+            "trend":           trend,
             "score":           row.get("sentiment_score"),
             "avg_rating":      round(row.get("sentiment_score", 0) / 20, 2) if row.get("sentiment_score") else None,
             "p1":              p0 + p1,
             "p2":              p2,
             "volume":          row.get("volume", 0),
             "days_active":     row.get("days_active", 0),
+            "streak_days":     row.get("streak_days", 0),
             "negative_weight": p0 * 8 + p1 * 3 + p2,
             "neg_pills":       [],
             "pos_pills":       [],
@@ -668,38 +706,121 @@ def build_ticker_html(competitor_sentiment: dict) -> str:
     )
 
 
-def build_journey_row_html(journey_analysis: list, competitor_sentiment: dict) -> str:
-    """Build the journey sentiment summary row — fully dynamic, no hardcoded IDs."""
-    colors = {
-        "REGRESSION":     "var(--red)",
-        "WATCH":          "var(--amber)",
-        "PERFORMING WELL":"var(--green)",
+def build_journey_row_html(journey_analysis: list, competitor_sentiment: dict,
+                           journey_meta: dict | None = None) -> str:
+    """Build the journey sentiment summary row — fully dynamic, no hardcoded IDs.
+
+    Header reads "TOP 5 AFFECTED JOURNEYS · last Nd · M of K with signal".
+    Each cell carries volume + "Nd in priority" (distinct severe days in
+    the 30d window), mirroring Box 2's meta shape.
+
+    Three visual signals, decoupled:
+      - top-border colour + badge = severity_state (ACUTE / PERSISTENT /
+        DRIFT / STABLE) — answers "how bad is this"
+      - arrow icon + arrow colour = trend (WORSENING / STABLE / IMPROVING)
+        — answers "is it moving"
+      - score number colour = sentiment (red <50, white >=50) — answers
+        "what do customers think of this journey"
+
+    Cells with <5 reviews carry a muted "low-volume" badge.
+    """
+    # severity_state → (border colour, badge label)
+    sev_colours = {
+        "ACUTE":      ("var(--red)",    "ACUTE"),       # severe + moving/new
+        "PERSISTENT": ("#B85450",       "PERSISTENT"),  # severe + chronic (muted red)
+        "DRIFT":      ("var(--amber)",  "DRIFT"),       # no severe, worsening trend
+        "STABLE":     ("var(--green)",  "STABLE"),      # healthy
     }
-    trajectory_icons = {
-        "REGRESSION":     "↘",
-        "WATCH":          "→",
-        "PERFORMING WELL":"↗",
+    # trend → (arrow, colour)
+    trend_visual = {
+        "WORSENING": ("↘", "var(--red)"),
+        "IMPROVING": ("↗", "var(--green)"),
+        "STABLE":    ("→", "#7AACBF"),
     }
+
     cells = []
     for j in journey_analysis:
-        status = j.get("status", "WATCH")
-        score  = j.get("score")
-        name   = j.get("journey_name") or j.get("journey", "")
-        border_color = colors.get(status, "var(--amber)")
-        score_str    = f"{score:.0f}" if score is not None else "—"
-        traj         = trajectory_icons.get(status, "→")
-        num_color    = score_num_color(score)
+        sev_state = j.get("severity_state", "STABLE")
+        trend     = j.get("trend", "STABLE")
+        score     = j.get("score")
+        name      = j.get("journey_name") or j.get("journey", "")
+        vol       = j.get("volume") or 0
+        streak    = j.get("streak_days") or 0
+
+        border_colour, badge_label = sev_colours.get(sev_state, sev_colours["STABLE"])
+        arrow, arrow_colour        = trend_visual.get(trend, trend_visual["STABLE"])
+        score_str = f"{score:.0f}" if score is not None else "—"
+        num_color = score_num_color(score)
+
+        meta_parts = []
+        if vol:
+            meta_parts.append(f"{vol} review" if vol == 1 else f"{vol} reviews")
+        if streak:
+            meta_parts.append(
+                f"{streak} severe day" if streak == 1 else f"{streak} severe days"
+            )
+        meta_line = (
+            f'<div class="journey-cell-submeta">{" &middot; ".join(meta_parts)}</div>'
+            if meta_parts else ""
+        )
+        lowvol_badge = (
+            '<span class="journey-cell-lowvol">low-volume</span>'
+            if 0 < vol < 5 else ""
+        )
+
         cells.append(
-            f'<div class="journey-cell" style="border-top:3px solid {border_color};">'
+            f'<div class="journey-cell" style="border-top:3px solid {border_colour};">'
             f'<div class="journey-cell-name">{e(name)}</div>'
             f'<div class="journey-cell-score" style="color:{num_color};">{score_str}</div>'
             f'<div class="journey-cell-meta">'
-            f'<span class="traj-icon" style="color:{border_color};">{traj}</span>'
-            f'<span class="journey-status-label" style="color:{border_color};">{e(status)}</span>'
+            f'<span class="traj-icon" style="color:{arrow_colour};">{arrow}</span>'
+            f'<span class="journey-status-label" style="color:{border_colour};">{badge_label}</span>'
+            f'{lowvol_badge}'
             f'</div>'
+            f'{meta_line}'
             f'</div>'
         )
-    return '<div class="journey-row">' + "".join(cells) + "</div>"
+
+    meta = journey_meta or {}
+    window_days    = meta.get("window_days", 7)
+    signal_count   = meta.get("signal_count", 0)
+    eligible_count = meta.get("eligible_journey_count") or len(journey_analysis) or 1
+
+    # Header row packs three groups on one flex line (title, window sub, label
+    # legend). flex-wrap lets narrow viewports drop groups to new lines
+    # individually rather than always forcing two rows.
+    legend_items = [
+        ("ACUTE",      "var(--red)",    "severe + new/worsening"),
+        ("PERSISTENT", "#B85450",       "severe &ge; 7d, stable"),
+        ("DRIFT",      "var(--amber)",  "no severe, trend worsening"),
+        ("STABLE",     "var(--green)",  "quiet"),
+    ]
+    legend_spans = "".join(
+        f'<span class="journey-legend-item">'
+        f'<span class="journey-legend-label" style="color:{colour};">{label}</span> '
+        f'<span class="journey-legend-def">{definition}</span>'
+        f'</span>'
+        for label, colour, definition in legend_items
+    )
+    # Definition of the "severe days" metric used in each tile's meta line —
+    # anchored next to the severity-state legend so the count and the states
+    # share one learnable glossary.
+    legend_spans += (
+        '<span class="journey-legend-item journey-legend-metric">'
+        '<span class="journey-legend-def">severe day = &ge;1 P0/P1 review, last 30d</span>'
+        '</span>'
+    )
+
+    header = (
+        '<div class="journey-row-header">'
+        '<span class="journey-row-title">TOP 5 AFFECTED JOURNEYS</span>'
+        f'<span class="journey-row-sub">last {window_days} days &middot; '
+        f'{signal_count} of {eligible_count} with signal</span>'
+        f'<span class="journey-row-legend">{legend_spans}</span>'
+        '</div>'
+    )
+
+    return header + '<div class="journey-row">' + "".join(cells) + "</div>"
 
 
 def build_metrics_strip_html(journey_analysis: list, competitor_sentiment: dict) -> str:
@@ -1015,6 +1136,7 @@ def generate_html(
     box2_quote_source: str = "",
     box2_quote_date: str = "",
     box2_issue_type: str = "",
+    journey_meta: dict | None = None,
 ) -> str:
     """Generate the full self-contained HTML briefing page."""
 
@@ -1039,7 +1161,8 @@ def generate_html(
     _issues = issues_analysis if issues_analysis else journey_analysis
 
     ticker_html = build_ticker_html(competitor_sentiment)
-    journey_row_html = build_journey_row_html(journey_analysis, competitor_sentiment)
+    journey_row_html = build_journey_row_html(journey_analysis, competitor_sentiment,
+                                              journey_meta=journey_meta)
     metrics_strip_html = build_metrics_strip_html(_issues, competitor_sentiment)
     inference_card_html = build_inference_card_html(findings)
     chronicle_html = build_chronicle_html()
@@ -1462,12 +1585,25 @@ a {{ color: var(--blue); text-decoration: none; }}
 .mini-bar-fill {{ height: 4px; border-radius: 2px; transition: width 0.3s ease; }}
 
 /* -- Journey Row ------------------------------------------------------------ */
-.journey-row {{ display: flex; gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 2px solid var(--border); }}
+.journey-row-header {{ display: flex; align-items: baseline; flex-wrap: wrap;
+                       padding: 10px 20px; border-top: 1px solid var(--border);
+                       background: var(--journey-bg); gap: 6px 18px; }}
+.journey-row-title {{ font-size: 12px; font-weight: 800; color: var(--text-2); letter-spacing: 1.8px; text-transform: uppercase; }}
+.journey-row-sub {{ font-size: 10px; color: #4A7A8F; font-family: var(--mono); letter-spacing: 0.5px; }}
+.journey-row-legend {{ display: inline-flex; flex-wrap: wrap; gap: 2px 14px;
+                       margin-left: auto; font-size: 9px; line-height: 1.4; }}
+.journey-legend-item {{ white-space: nowrap; }}
+.journey-legend-label {{ font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }}
+.journey-legend-def {{ color: #4A7A8F; }}
+.journey-row {{ display: flex; gap: 1px; background: var(--border); border-bottom: 2px solid var(--border); }}
 .journey-cell {{ flex: 1; padding: 10px 32px; background: var(--journey-bg); cursor: default; transition: background 0.15s; }}
 .journey-cell:hover {{ background: #002440; }}
 .journey-cell-name {{ font-size: 13px; font-weight: 700; color: var(--text-2); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }}
 .journey-cell-score {{ font-size: 30px; font-weight: 800; font-family: var(--mono); margin-bottom: 4px; }}
-.journey-cell-meta {{ display: flex; align-items: center; gap: 6px; }}
+.journey-cell-meta {{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }}
+.journey-cell-submeta {{ font-size: 10px; color: #4A7A8F; font-family: var(--mono); margin-top: 4px; letter-spacing: 0.3px; }}
+.journey-cell-lowvol {{ font-size: 8px; color: #7AACBF; background: #003A5C; border-radius: 3px;
+                        padding: 1px 6px; letter-spacing: 1px; text-transform: uppercase; margin-left: 4px; font-weight: 600; }}
 .traj-icon {{ font-size: 14px; }}
 .journey-status-label {{ font-size: 10px; font-weight: 700; letter-spacing: 0.06em; font-family: var(--mono); color: var(--text-3); }}
 
@@ -1962,6 +2098,7 @@ def main():
     bd_box2_quote_source = ""
     bd_box2_quote_date  = ""
     bd_box2_issue_type  = ""
+    bd_journey_meta     = {}
     if _BRIEFING_DATA_AVAILABLE:
         print("\n[3.5/5] Loading briefing data layer (enriched) …")
         try:
@@ -2039,6 +2176,7 @@ def main():
             bd_box2_quote_source = bd.get("box2_quote_source", "")
             bd_box2_quote_date  = bd.get("box2_quote_date", "")
             bd_box2_issue_type  = bd.get("box2_issue_type", "")
+            bd_journey_meta     = bd.get("journey_row_meta", {})
             print(f"  Exec alert: {fid}")
 
         except Exception as exc:
@@ -2084,6 +2222,7 @@ def main():
         box2_quote_source=bd_box2_quote_source,
         box2_quote_date=bd_box2_quote_date,
         box2_issue_type=bd_box2_issue_type,
+        journey_meta=bd_journey_meta,
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
