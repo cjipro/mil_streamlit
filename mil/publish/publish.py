@@ -1371,6 +1371,23 @@ def generate_html(
             f'        </div>\n'
         )
 
+    box2_legend_html = (
+        '      <div class="box2-legend">\n'
+        '        <span class="box2-legend-item">'
+        '<span class="box2-legend-label" style="color:var(--red);">REGRESSION</span> '
+        '<span class="box2-legend-def">P0 present or worsening P1s</span>'
+        '</span>\n'
+        '        <span class="box2-legend-item">'
+        '<span class="box2-legend-label" style="color:var(--amber);">WATCH</span> '
+        '<span class="box2-legend-def">P1 present or trend worsening</span>'
+        '</span>\n'
+        '        <span class="box2-legend-item">'
+        '<span class="box2-legend-label" style="color:var(--teal);">PERFORMING WELL</span> '
+        '<span class="box2-legend-def">no severe signal</span>'
+        '</span>\n'
+        '      </div>\n'
+    )
+
     box2_html = (
         '  <!-- Middle: Issues Status box -->\n'
         '  <div class="topbar-box">\n'
@@ -1394,6 +1411,7 @@ def generate_html(
         '      <div class="issues-divider"></div>\n'
         f'{_journey_rows}'
         f'{_build_single_quote_box(box2_quote, box2_quote_rating, box2_quote_source, box2_quote_date, label=box2_issue_type)}'
+        f'{box2_legend_html}'
         '    </div>\n'
         '  </div>'
     )
@@ -1469,6 +1487,16 @@ a {{ color: var(--blue); text-decoration: none; }}
 .issues-stat-label {{ font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-3); text-transform: uppercase; }}
 .issues-stat-sub {{ font-size: 13px; color: var(--text-2); margin-top: 2px; }}
 .issues-divider {{ height: 1px; background: #003A5C; margin: 4px 0; }}
+/* Box 2 legend — compact footnote explaining REGRESSION/WATCH/PERFORMING WELL.
+   Single row via flex-wrap so items flow left-to-right and only wrap when
+   the box is narrower than their combined width. Matches the Journey Row
+   legend pattern. */
+.box2-legend {{ margin-top: 14px; padding-top: 10px; border-top: 1px solid #003A5C;
+                display: flex; flex-wrap: wrap; gap: 4px 14px;
+                font-size: 10px; line-height: 1.4; }}
+.box2-legend-item {{ white-space: nowrap; }}
+.box2-legend-label {{ font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }}
+.box2-legend-def {{ color: #4A7A8F; }}
 /* Journey list in box 2 */
 .journey-list-item {{ display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #001E30; font-size: 14px; }}
 .journey-list-item:last-child {{ border-bottom: none; }}
