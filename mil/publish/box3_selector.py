@@ -43,6 +43,16 @@ CLARK_CALL_MAP = {
     "CLARK-0": "Nominal. No escalation required.",
 }
 
+# Compact action-specificity — audience · cadence · artefact. Renders on the
+# subordinate line of the Clark tier badge so action ownership is visible at a
+# glance without a standalone "The Call" prose block.
+CLARK_ACTION_DETAILS = {
+    "CLARK-3": "engineering &middot; today &middot; action brief",
+    "CLARK-2": "product leadership &middot; this week &middot; formal brief",
+    "CLARK-1": "watch list &middot; daily &middot; escalate on P0 surge within 72h",
+    "CLARK-0": "nominal &middot; no escalation required",
+}
+
 
 def _load_persistence_log() -> list[dict]:
     if not PERSISTENCE_LOG.exists():

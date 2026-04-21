@@ -53,7 +53,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 import publish_v3 as legacy
 from mil.publish.box3_selector import (
-    CLARK_CALL_MAP,
+    CLARK_ACTION_DETAILS,
     build_preamble_html,
     select_box3_issue,
 )
@@ -192,7 +192,7 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
         "situation":         situation,
         "top_quote":         top_quote,
         "peer_prose":        peer_prose,
-        "call_prose":        CLARK_CALL_MAP[top_tier],
+        "action_details":    CLARK_ACTION_DETAILS[top_tier],
         "top_tier":          top_tier,
         "clark_label":       legacy.CLARK_LABELS[top_tier],
         "clark_col":         clark_col,

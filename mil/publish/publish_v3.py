@@ -32,7 +32,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from mil.command.components.clark_protocol import active_clark_summary
 from mil.command.components.inference_cards import load_findings
 from mil.publish.box3_selector import (
-    CLARK_CALL_MAP,
+    CLARK_ACTION_DETAILS,
     build_preamble_html,
     select_box3_issue,
 )
@@ -888,9 +888,9 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
         except Exception:
             pass
 
-    clark_col   = CLARK_COLOURS[top_tier]
-    call_prose  = CLARK_CALL_MAP[top_tier]
-    clark_label = CLARK_LABELS[top_tier]
+    clark_col      = CLARK_COLOURS[top_tier]
+    action_details = CLARK_ACTION_DETAILS[top_tier]
+    clark_label    = CLARK_LABELS[top_tier]
 
     # ── Assemble prose box ────────────────────────────────────────────────────
     quote_html = ""
@@ -926,11 +926,16 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     {_section("The Situation", situation, first=True)}
     {quote_html}
     {_section("Peer Comparison", peer_prose)}
-    {_section("The Call", call_prose, clark_col)}
-    <div style="margin-top:6px;">
-      <span style="padding:2px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
-                   background:{clark_col}22;color:{clark_col};border:1px solid {clark_col};">
-        {top_tier} — {clark_label}
+    <div style="margin-top:14px;border-top:1px solid #003A5C;padding-top:14px;">
+      <span style="display:inline-block;padding:8px 14px;border-radius:4px;
+                   background:{clark_col}22;border:1px solid {clark_col};">
+        <span style="display:block;font-size:11px;font-weight:700;letter-spacing:1px;color:{clark_col};">
+          {top_tier} &mdash; {clark_label}
+        </span>
+        <span style="display:block;font-size:10px;color:#7AACBF;margin-top:4px;
+                     font-family:'DM Mono',monospace;letter-spacing:0.3px;">
+          {action_details}
+        </span>
       </span>
     </div>
   </div>

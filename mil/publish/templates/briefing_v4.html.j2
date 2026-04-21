@@ -23,7 +23,7 @@
      situation         : str — THE SITUATION prose (Sonnet commentary or deterministic fallback)
      top_quote         : str — pre-truncated review quote (<= 220 chars) or "" to suppress block
      peer_prose        : str — PEER COMPARISON prose (deterministic from benchmark gap data)
-     call_prose        : str — THE CALL prose (mapped from Clark tier)
+     action_details    : str — action specificity (audience · cadence · artefact) rendered on the badge's subordinate line
      top_tier          : str — "CLARK-3" | "CLARK-2" | "CLARK-1" | "CLARK-0"
      clark_label       : str — human label ("ACT NOW" | "ESCALATE" | "WATCH" | "NOMINAL")
      clark_col         : str — hex colour for tier (label + tier badge)
@@ -54,15 +54,16 @@
                   letter-spacing:1px;margin-bottom:5px;">Peer Comparison</div>
       <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{{ peer_prose }}</div>
     </div>
-    <div style="margin-bottom:14px;border-top:1px solid #003A5C;padding-top:14px;">
-      <div style="font-size:9px;color:{{ clark_col }};text-transform:uppercase;
-                  letter-spacing:1px;margin-bottom:5px;">The Call</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{{ call_prose }}</div>
-    </div>
-    <div style="margin-top:6px;">
-      <span style="padding:2px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
-                   background:{{ clark_col }}22;color:{{ clark_col }};border:1px solid {{ clark_col }};">
-        {{ top_tier }} — {{ clark_label }}
+    <div style="margin-top:14px;border-top:1px solid #003A5C;padding-top:14px;">
+      <span style="display:inline-block;padding:8px 14px;border-radius:4px;
+                   background:{{ clark_col }}22;border:1px solid {{ clark_col }};">
+        <span style="display:block;font-size:11px;font-weight:700;letter-spacing:1px;color:{{ clark_col }};">
+          {{ top_tier }} &mdash; {{ clark_label }}
+        </span>
+        <span style="display:block;font-size:10px;color:#7AACBF;margin-top:4px;
+                     font-family:'DM Mono',monospace;letter-spacing:0.3px;">
+          {{ action_details }}
+        </span>
       </span>
     </div>
   </div>
