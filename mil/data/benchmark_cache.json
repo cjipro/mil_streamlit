@@ -3,192 +3,192 @@
   "competitors": {
     "barclays": {
       "technical": {
-        "App Crashing": 12.92,
-        "Account Locked": 2.21,
         "Slow Performance": 7.38,
+        "Login Failed": 3.69,
+        "App Crashing": 12.92,
         "App Not Opening": 7.01,
         "Biometric / Face ID Issue": 0.74,
         "Card Frozen or Blocked": 1.85,
-        "Login Failed": 3.69
+        "Account Locked": 2.21
       },
       "service": {
-        "Feature Broken": 40.59,
+        "Transfer Failed": 1.85,
         "Security Concern": 0.0,
         "Missing Transaction": 2.58,
-        "Transfer Failed": 1.85,
-        "Payment Failed": 5.54,
         "Customer Support Failure": 7.01,
+        "Incorrect Balance": 2.58,
+        "Payment Failed": 5.54,
         "Notification Issue": 4.06,
-        "Incorrect Balance": 2.58
+        "Feature Broken": 40.59
       }
     },
     "natwest": {
       "technical": {
-        "App Crashing": 2.86,
-        "Account Locked": 2.34,
         "Slow Performance": 5.21,
+        "Login Failed": 9.11,
+        "App Crashing": 2.86,
         "App Not Opening": 7.81,
         "Biometric / Face ID Issue": 3.91,
         "Card Frozen or Blocked": 0.78,
-        "Login Failed": 9.11
+        "Account Locked": 2.34
       },
       "service": {
-        "Feature Broken": 44.01,
+        "Transfer Failed": 2.34,
         "Security Concern": 0.0,
         "Missing Transaction": 1.3,
-        "Transfer Failed": 2.34,
-        "Payment Failed": 4.95,
         "Customer Support Failure": 7.03,
+        "Incorrect Balance": 1.3,
+        "Payment Failed": 4.95,
         "Notification Issue": 7.03,
-        "Incorrect Balance": 1.3
+        "Feature Broken": 44.01
       }
     },
     "lloyds": {
       "technical": {
-        "App Crashing": 5.7,
-        "Account Locked": 1.75,
         "Slow Performance": 20.18,
+        "Login Failed": 4.82,
+        "App Crashing": 5.7,
         "App Not Opening": 6.14,
         "Biometric / Face ID Issue": 1.32,
         "Card Frozen or Blocked": 1.75,
-        "Login Failed": 4.82
+        "Account Locked": 1.75
       },
       "service": {
-        "Feature Broken": 31.58,
+        "Transfer Failed": 2.19,
         "Security Concern": 0.0,
         "Missing Transaction": 1.75,
-        "Transfer Failed": 2.19,
-        "Payment Failed": 4.39,
         "Customer Support Failure": 12.72,
+        "Incorrect Balance": 0.44,
+        "Payment Failed": 4.39,
         "Notification Issue": 5.26,
-        "Incorrect Balance": 0.44
+        "Feature Broken": 31.58
       }
     },
     "hsbc": {
       "technical": {
-        "App Crashing": 9.48,
-        "Account Locked": 0.86,
         "Slow Performance": 6.03,
+        "Login Failed": 8.62,
+        "App Crashing": 9.48,
         "App Not Opening": 15.52,
         "Biometric / Face ID Issue": 2.59,
         "Card Frozen or Blocked": 0.0,
-        "Login Failed": 8.62
+        "Account Locked": 0.86
       },
       "service": {
-        "Feature Broken": 32.76,
+        "Transfer Failed": 2.59,
         "Security Concern": 0.0,
         "Missing Transaction": 3.45,
-        "Transfer Failed": 2.59,
-        "Payment Failed": 5.17,
         "Customer Support Failure": 6.9,
+        "Incorrect Balance": 0.86,
+        "Payment Failed": 5.17,
         "Notification Issue": 5.17,
-        "Incorrect Balance": 0.86
+        "Feature Broken": 32.76
       }
     },
     "monzo": {
       "technical": {
-        "App Crashing": 5.56,
-        "Account Locked": 26.67,
         "Slow Performance": 6.67,
+        "Login Failed": 2.22,
+        "App Crashing": 5.56,
         "App Not Opening": 5.56,
         "Biometric / Face ID Issue": 1.11,
         "Card Frozen or Blocked": 7.78,
-        "Login Failed": 2.22
+        "Account Locked": 26.67
       },
       "service": {
-        "Feature Broken": 22.22,
+        "Transfer Failed": 2.22,
         "Security Concern": 0.0,
         "Missing Transaction": 2.22,
-        "Transfer Failed": 2.22,
-        "Payment Failed": 2.22,
         "Customer Support Failure": 11.11,
+        "Incorrect Balance": 0.0,
+        "Payment Failed": 2.22,
         "Notification Issue": 4.44,
-        "Incorrect Balance": 0.0
+        "Feature Broken": 22.22
       }
     },
     "revolut": {
       "technical": {
-        "App Crashing": 9.58,
-        "Account Locked": 9.83,
         "Slow Performance": 2.21,
+        "Login Failed": 6.63,
+        "App Crashing": 9.58,
         "App Not Opening": 9.34,
         "Biometric / Face ID Issue": 4.42,
         "Card Frozen or Blocked": 2.21,
-        "Login Failed": 6.63
+        "Account Locked": 9.83
       },
       "service": {
-        "Feature Broken": 25.55,
+        "Transfer Failed": 4.42,
         "Security Concern": 0.0,
         "Missing Transaction": 0.49,
-        "Transfer Failed": 4.42,
-        "Payment Failed": 4.67,
         "Customer Support Failure": 17.44,
+        "Incorrect Balance": 0.98,
+        "Payment Failed": 4.67,
         "Notification Issue": 2.21,
-        "Incorrect Balance": 0.98
+        "Feature Broken": 25.55
       }
     }
   },
   "peer_avg": {
     "technical": {
-      "App Crashing": 6.01,
-      "Account Locked": 1.65,
       "Slow Performance": 10.47,
+      "Login Failed": 7.52,
+      "App Crashing": 6.01,
       "App Not Opening": 9.82,
       "Biometric / Face ID Issue": 2.61,
       "Card Frozen or Blocked": 0.84,
-      "Login Failed": 7.52
+      "Account Locked": 1.65
     },
     "service": {
-      "Feature Broken": 36.12,
+      "Transfer Failed": 2.37,
       "Security Concern": 0.0,
       "Missing Transaction": 2.17,
-      "Transfer Failed": 2.37,
-      "Payment Failed": 4.84,
       "Customer Support Failure": 8.88,
+      "Incorrect Balance": 0.87,
+      "Payment Failed": 4.84,
       "Notification Issue": 5.82,
-      "Incorrect Balance": 0.87
+      "Feature Broken": 36.12
     }
   },
   "incumbent_avg": {
     "technical": {
-      "App Crashing": 6.01,
-      "Account Locked": 1.65,
       "Slow Performance": 10.47,
+      "Login Failed": 7.52,
+      "App Crashing": 6.01,
       "App Not Opening": 9.82,
       "Biometric / Face ID Issue": 2.61,
       "Card Frozen or Blocked": 0.84,
-      "Login Failed": 7.52
+      "Account Locked": 1.65
     },
     "service": {
-      "Feature Broken": 36.12,
+      "Transfer Failed": 2.37,
       "Security Concern": 0.0,
       "Missing Transaction": 2.17,
-      "Transfer Failed": 2.37,
-      "Payment Failed": 4.84,
       "Customer Support Failure": 8.88,
+      "Incorrect Balance": 0.87,
+      "Payment Failed": 4.84,
       "Notification Issue": 5.82,
-      "Incorrect Balance": 0.87
+      "Feature Broken": 36.12
     }
   },
   "neobank_avg": {
     "technical": {
-      "App Crashing": 7.57,
-      "Account Locked": 18.25,
       "Slow Performance": 4.44,
+      "Login Failed": 4.42,
+      "App Crashing": 7.57,
       "App Not Opening": 7.45,
       "Biometric / Face ID Issue": 2.77,
       "Card Frozen or Blocked": 5.0,
-      "Login Failed": 4.42
+      "Account Locked": 18.25
     },
     "service": {
-      "Feature Broken": 23.88,
+      "Transfer Failed": 3.32,
       "Security Concern": 0.0,
       "Missing Transaction": 1.35,
-      "Transfer Failed": 3.32,
-      "Payment Failed": 3.45,
       "Customer Support Failure": 14.28,
+      "Incorrect Balance": 0.49,
+      "Payment Failed": 3.45,
       "Notification Issue": 3.33,
-      "Incorrect Balance": 0.49
+      "Feature Broken": 23.88
     }
   },
   "record_counts": {
