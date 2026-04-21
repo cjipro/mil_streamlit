@@ -31,6 +31,11 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from mil.command.components.clark_protocol import active_clark_summary
 from mil.command.components.inference_cards import load_findings
+from mil.publish.box3_selector import (
+    CLARK_CALL_MAP,
+    build_preamble_html,
+    select_box3_issue,
+)
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 COMP_COLOURS = {
@@ -688,55 +693,86 @@ def _compute_issue_volume_stats(issue_type: str) -> dict | None:
 
 def _build_volume_strip(over_entry: dict) -> str:
     """
-    Render the stat strip shown at the top of Box 3: review count in last 7 days,
-    WoW delta, days sustained, gap vs peers. Followed by the "surface signal"
-    qualifier so the exec can calibrate against internal ticket volumes.
+    Render the KPI tile row below the preamble: movement / peer gap / persistence.
+    Each tile = big monospace number + uppercase label + context-micro.
+    flex-wrap stacks tiles below ~440px container width. Followed by the
+    surface-signal calibration caveat so the exec frames absolute volume
+    against likely true customer impact.
     """
     stats = _compute_issue_volume_stats(over_entry["issue_type"])
     if not stats or stats["count_7d"] == 0:
         return ""
 
-    c7        = stats["count_7d"]
-    total_7   = stats.get("total_7d") or 0
-    delta     = stats["wow_delta_pct"]
-    days      = over_entry.get("days_active", 0)
-    gap       = over_entry.get("gap_pp", 0.0)
+    c7         = stats["count_7d"]
+    delta      = stats["wow_delta_pct"]
+    days       = over_entry.get("days_active", 0) or 0
+    gap        = float(over_entry.get("gap_pp", 0.0) or 0.0)
+    b_rate     = float(over_entry.get("barclays_rate", 0.0) or 0.0)
+    p_rate     = float(over_entry.get("peer_avg_rate", 0.0) or 0.0)
+    first_seen = over_entry.get("first_seen") or ""
 
+    # Tile 1 — WoW volume (teal if falling, red/amber if rising).
     if delta is None:
-        delta_str    = "no prior-week baseline"
-        delta_colour = "#3A6A7F"
+        wow_num, wow_colour, wow_label = "—", "#3A6A7F", "no prior week"
     elif delta >= 30:
-        delta_str    = f"&uarr; {delta:.0f}% vs prior week"
-        delta_colour = "#CC0000"
+        wow_num, wow_colour, wow_label = f"&uarr; {delta:.0f}%", "#CC0000", "WoW volume"
     elif delta > 0:
-        delta_str    = f"&uarr; {delta:.0f}% vs prior week"
-        delta_colour = "#F5A623"
+        wow_num, wow_colour, wow_label = f"&uarr; {delta:.0f}%", "#F5A623", "WoW volume"
     elif delta < 0:
-        delta_str    = f"&darr; {abs(delta):.0f}% vs prior week"
-        delta_colour = "#00AFA0"
+        wow_num, wow_colour, wow_label = f"&darr; {abs(delta):.0f}%", "#00AFA0", "WoW volume"
     else:
-        delta_str    = "flat vs prior week"
-        delta_colour = "#3A6A7F"
+        wow_num, wow_colour, wow_label = "flat", "#7AACBF", "WoW volume"
+    wow_ctx = f"{c7} review this week" if c7 == 1 else f"{c7} reviews this week"
 
-    # "9 of 72 reviews" when we have a denominator; fall back to bare count
-    # if something went wrong computing the total.
-    if total_7 > c7:
-        lead = f"{c7} of {total_7} reviews"
+    # Tile 2 — peer gap (red when positive, teal when negative; amber narrow-miss).
+    if gap > 2:
+        gap_colour = "#CC0000"
+    elif gap > 0:
+        gap_colour = "#F5A623"
+    elif gap < -2:
+        gap_colour = "#00AFA0"
     else:
-        lead = f"{c7} review" if c7 == 1 else f"{c7} reviews"
+        gap_colour = "#7AACBF"
+    gap_num = f"+{gap:.1f}pp" if gap > 0 else f"{gap:.1f}pp"
+    gap_ctx = f"{b_rate:.1f}% vs {p_rate:.1f}%"
+
+    # Tile 3 — persistence (amber at 7d+, red at 14d+).
+    if days >= 14:
+        pers_colour = "#CC0000"
+    elif days >= 7:
+        pers_colour = "#F5A623"
+    else:
+        pers_colour = "#7AACBF"
+    pers_num = f"{days}d" if days > 0 else "new"
+    pers_ctx = f"since {first_seen}" if first_seen else "first day active"
+
+    tile_base  = ("flex:1 1 140px;min-width:140px;padding:12px 14px;"
+                  "background:#001828;border:1px solid #003A5C;border-radius:4px;")
+    num_style  = ("font-family:'DM Mono',monospace;font-size:24px;font-weight:700;"
+                  "line-height:1;margin-bottom:6px;letter-spacing:0.5px;")
+    lbl_style  = ("font-size:9px;color:#7AACBF;text-transform:uppercase;"
+                  "letter-spacing:1.2px;margin-bottom:4px;font-weight:600;")
+    ctx_style  = ("font-size:10px;color:#4A7A8F;font-family:'DM Mono',monospace;")
+
     return f"""
-<div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
-            padding:8px 10px;background:#001828;border:1px solid #003A5C;
-            border-radius:3px;margin-bottom:12px;font-size:11px;">
-  <span style="color:#E8F4FA;font-weight:700;font-size:14px;">{lead}</span>
-  <span style="color:#7AACBF;">cite this issue, last 7 days</span>
-  <span style="color:{delta_colour};font-weight:600;">{delta_str}</span>
-  <span style="color:#3A6A7F;">&middot;</span>
-  <span style="color:#7AACBF;">{days} days sustained</span>
-  <span style="color:#3A6A7F;">&middot;</span>
-  <span style="color:#7AACBF;">{gap:+.1f}pp vs peers</span>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+  <div style="{tile_base}">
+    <div style="{num_style}color:{wow_colour};">{wow_num}</div>
+    <div style="{lbl_style}">{wow_label}</div>
+    <div style="{ctx_style}">{wow_ctx}</div>
+  </div>
+  <div style="{tile_base}">
+    <div style="{num_style}color:{gap_colour};">{gap_num}</div>
+    <div style="{lbl_style}">vs peer avg</div>
+    <div style="{ctx_style}">{gap_ctx}</div>
+  </div>
+  <div style="{tile_base}">
+    <div style="{num_style}color:{pers_colour};">{pers_num}</div>
+    <div style="{lbl_style}">sustained</div>
+    <div style="{ctx_style}">{pers_ctx}</div>
+  </div>
 </div>
-<div style="font-size:9px;color:#3A6A7F;font-style:italic;margin-top:-6px;margin-bottom:14px;">
+<div style="font-size:9px;color:#3A6A7F;font-style:italic;margin-bottom:14px;">
   Public reviews are surface signal. True customer impact is typically orders of magnitude larger.
 </div>"""
 
@@ -744,28 +780,42 @@ def _build_volume_strip(over_entry: dict) -> str:
 def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     """
     V3 Box 3 — Executive Intelligence Brief.
-    Three prose paragraphs: The Situation (from latest reviews via Sonnet),
-    The Peer (from benchmark gap data), The Call (from Clark tier).
-    No metric tiles. One real review quote.
+
+    Selects a single lead issue via the 6-key tiebreaker in box3_selector
+    (Clark tier → trend → severity → days → severity-weighted gap → name).
+    Same issue drives the preamble, volume stat strip, THE SITUATION, PEER
+    COMPARISON, and THE CALL so the brief tells one story end to end.
     """
     over  = benchmark_result.get("over_indexed", [])
     under = benchmark_result.get("under_indexed", [])
 
-    # ── Paragraph 1: THE SITUATION ────────────────────────────────────────────
-    # Use full Sonnet prose from top risk commentary box (derived from latest reviews).
-    # Fall back to deterministic prose if commentary unavailable.
-    risk_boxes = [b for b in boxes if b.get("type") == "risk" and b.get("prose")]
-    top_quote  = ""
+    # ── Pick the single lead issue (6-key tiebreaker) ────────────────────────
+    try:
+        clark_summary = active_clark_summary()
+    except Exception:
+        clark_summary = {"active": []}
+    selected = select_box3_issue(over, clark_summary=clark_summary)
 
-    if risk_boxes:
-        top_box   = risk_boxes[0]
+    # ── Paragraph 1: THE SITUATION ────────────────────────────────────────────
+    # Prefer the Sonnet commentary box whose issue matches the selected lead.
+    # Fall back to the first risk box (legacy behaviour), then deterministic prose.
+    risk_boxes = [b for b in boxes if b.get("type") == "risk" and b.get("prose")]
+    matched_box = None
+    if selected:
+        matched_box = next(
+            (b for b in risk_boxes if b.get("issue_type") == selected["issue_type"]),
+            None,
+        )
+    top_box = matched_box or (risk_boxes[0] if risk_boxes else None)
+    top_quote = ""
+
+    if top_box:
         situation = top_box["prose"]
         top_quote = (top_box.get("top_quotes") or [""])[0]
-    elif over:
-        top_issue = over[0]
-        issue_name = top_issue["issue_type"]
-        sev        = top_issue.get("dominant_severity", "P1")
-        days       = top_issue.get("days_active", 0)
+    elif selected:
+        issue_name = selected["issue_type"]
+        sev        = selected.get("dominant_severity", "P1")
+        days       = selected.get("days_active", 0)
         days_str   = f" for {days} consecutive days" if days > 1 else ""
         situation  = (
             f"Barclays is showing elevated {issue_name} signals{days_str}. "
@@ -777,16 +827,13 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
 
     # ── Paragraph 2: THE PEER ────────────────────────────────────────────────
     # Deterministic from benchmark gap data — no Chronicle involved.
-    # Does a *different* job from the stat strip and Situation: headline stats
-    # (rate / gap / days / WoW) live in the stat strip; this paragraph gives
-    # the exec a rank and names the best peer. No duplicate numbers.
-    if over:
-        top = over[0]
-        issue_name = top["issue_type"]
-        b_rate     = top.get("barclays_rate", 0.0)
+    # Ranks Barclays within the 6-bank cohort on the *selected* lead issue.
+    if selected:
+        issue_name = selected["issue_type"]
+        b_rate     = selected.get("barclays_rate", 0.0)
 
         benchmark_raw = benchmark_result.get("benchmark", {})
-        cat = top.get("category", "technical")
+        cat = selected.get("category", "technical")
         peer_rates: dict[str, float] = {}
         for comp in ["natwest", "lloyds", "hsbc", "monzo", "revolut"]:
             comp_data = benchmark_raw.get("competitors", {}).get(comp, {})
@@ -795,7 +842,6 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
                 peer_rates[COMP_LABELS.get(comp, comp)] = rate
 
         if peer_rates:
-            # All 6 banks ranked best-to-worst on this issue
             all_rates = {**peer_rates, COMP_LABELS.get("barclays", "Barclays"): b_rate}
             ranked = sorted(all_rates.items(), key=lambda kv: kv[1])
             pos = next(
@@ -803,7 +849,6 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
                  if name == COMP_LABELS.get("barclays", "Barclays")),
                 len(ranked),
             )
-            # Ordinal suffix
             if 10 <= pos % 100 <= 20:
                 suffix = "th"
             else:
@@ -818,7 +863,6 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
         else:
             peer_prose = f"Benchmark data unavailable for {issue_name}."
 
-        # Strength note — this IS new information not in the stat strip.
         if under:
             strength = under[0]
             peer_prose += (
@@ -829,27 +873,23 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
         peer_prose = "Barclays complaint rates are broadly in line with the 5-bank peer cohort. No material over-indexed issues detected."
 
     # ── Paragraph 3: THE CALL ────────────────────────────────────────────────
-    # Clark tier determines urgency.
-    top_tier  = "CLARK-0"
-    clark_col = CLARK_COLOURS["CLARK-0"]
-    try:
-        clark_summary = active_clark_summary()
-        active_clark  = [e for e in clark_summary.get("active", []) if e.get("competitor") == "barclays"]
-        for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
-            if any(e.get("clark_tier") == t for e in active_clark):
-                top_tier = t
-                break
-        clark_col = CLARK_COLOURS[top_tier]
-    except Exception:
-        pass
+    # Use the selected issue's own Clark tier so the brief stays coherent.
+    # Fall back to the highest-tier Barclays escalation when the selected
+    # issue isn't itself escalated.
+    top_tier = selected.get("clark_tier", "CLARK-0") if selected else "CLARK-0"
+    if top_tier == "CLARK-0":
+        try:
+            active_clark = [e for e in clark_summary.get("active", [])
+                            if e.get("competitor") == "barclays"]
+            for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
+                if any(e.get("clark_tier") == t for e in active_clark):
+                    top_tier = t
+                    break
+        except Exception:
+            pass
 
-    call_map = {
-        "CLARK-3": "Escalate to product engineering today — this is not a watch brief.",
-        "CLARK-2": "Escalate to product leadership this week; formal brief required.",
-        "CLARK-1": "On the watch list. Daily monitoring. Escalate if P0 volume rises in 72 hours.",
-        "CLARK-0": "Nominal. No escalation required.",
-    }
-    call_prose = call_map[top_tier]
+    clark_col   = CLARK_COLOURS[top_tier]
+    call_prose  = CLARK_CALL_MAP[top_tier]
     clark_label = CLARK_LABELS[top_tier]
 
     # ── Assemble prose box ────────────────────────────────────────────────────
@@ -869,7 +909,10 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
   <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">{prose}</div>
 </div>"""
 
-    volume_strip_html = _build_volume_strip(over[0]) if over else ""
+    volume_strip_html = _build_volume_strip(selected) if selected else ""
+
+    vol_stats = _compute_issue_volume_stats(selected["issue_type"]) if selected else None
+    preamble_html = build_preamble_html(selected, vol_stats)
 
     return f"""
 <div class="topbar-box exec-alert-panel">
@@ -878,6 +921,7 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
   </div>
   <div class="topbar-box-body">
+    {preamble_html}
     {volume_strip_html}
     {_section("The Situation", situation, first=True)}
     {quote_html}

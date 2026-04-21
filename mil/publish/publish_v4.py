@@ -52,6 +52,11 @@ sys.path.insert(0, str(REPO_ROOT))
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 import publish_v3 as legacy
+from mil.publish.box3_selector import (
+    CLARK_CALL_MAP,
+    build_preamble_html,
+    select_box3_issue,
+)
 
 TEMPLATE_NAME = "briefing_v4.html.j2"
 
@@ -85,17 +90,28 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
     over  = benchmark_result.get("over_indexed", [])
     under = benchmark_result.get("under_indexed", [])
 
+    try:
+        clark_summary = legacy.active_clark_summary()
+    except Exception:
+        clark_summary = {"active": []}
+    selected = select_box3_issue(over, clark_summary=clark_summary)
+
     risk_boxes = [b for b in boxes if b.get("type") == "risk" and b.get("prose")]
+    matched_box = None
+    if selected:
+        matched_box = next(
+            (b for b in risk_boxes if b.get("issue_type") == selected["issue_type"]),
+            None,
+        )
+    top_box = matched_box or (risk_boxes[0] if risk_boxes else None)
     top_quote_raw = ""
-    if risk_boxes:
-        top_box = risk_boxes[0]
+    if top_box:
         situation = top_box["prose"]
         top_quote_raw = (top_box.get("top_quotes") or [""])[0]
-    elif over:
-        top_issue = over[0]
-        issue_name = top_issue["issue_type"]
-        sev  = top_issue.get("dominant_severity", "P1")
-        days = top_issue.get("days_active", 0)
+    elif selected:
+        issue_name = selected["issue_type"]
+        sev  = selected.get("dominant_severity", "P1")
+        days = selected.get("days_active", 0)
         days_str = f" for {days} consecutive days" if days > 1 else ""
         situation = (
             f"Barclays is showing elevated {issue_name} signals{days_str}. "
@@ -107,8 +123,8 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
 
     top_quote = top_quote_raw[:220] if top_quote_raw and len(top_quote_raw) > 20 else ""
 
-    if over:
-        top = over[0]
+    if selected:
+        top = selected
         issue_name = top["issue_type"]
         gap    = top["gap_pp"]
         b_rate = top.get("barclays_rate", 0.0)
@@ -155,38 +171,33 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
     else:
         peer_prose = "Barclays complaint rates are broadly in line with the 5-bank peer cohort. No material over-indexed issues detected."
 
-    top_tier  = "CLARK-0"
-    clark_col = legacy.CLARK_COLOURS["CLARK-0"]
-    try:
-        clark_summary = legacy.active_clark_summary()
-        active_clark  = [e for e in clark_summary.get("active", []) if e.get("competitor") == "barclays"]
-        for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
-            if any(e.get("clark_tier") == t for e in active_clark):
-                top_tier = t
-                break
-        clark_col = legacy.CLARK_COLOURS[top_tier]
-    except Exception:
-        pass
+    top_tier = selected.get("clark_tier", "CLARK-0") if selected else "CLARK-0"
+    if top_tier == "CLARK-0":
+        try:
+            active_clark = [e for e in clark_summary.get("active", [])
+                            if e.get("competitor") == "barclays"]
+            for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
+                if any(e.get("clark_tier") == t for e in active_clark):
+                    top_tier = t
+                    break
+        except Exception:
+            pass
+    clark_col = legacy.CLARK_COLOURS[top_tier]
 
-    # Keep in sync with publish_v3.py:_build_exec_summary_box call_map.
-    call_map = {
-        "CLARK-3": "Escalate to product engineering today — this is not a watch brief.",
-        "CLARK-2": "Escalate to product leadership this week; formal brief required.",
-        "CLARK-1": "On the watch list. Daily monitoring. Escalate if P0 volume rises in 72 hours.",
-        "CLARK-0": "Nominal. No escalation required.",
-    }
-
-    volume_strip_html = legacy._build_volume_strip(over[0]) if over else ""
+    volume_strip_html = legacy._build_volume_strip(selected) if selected else ""
+    vol_stats = legacy._compute_issue_volume_stats(selected["issue_type"]) if selected else None
+    preamble_html = build_preamble_html(selected, vol_stats)
 
     return {
         "situation":         situation,
         "top_quote":         top_quote,
         "peer_prose":        peer_prose,
-        "call_prose":        call_map[top_tier],
+        "call_prose":        CLARK_CALL_MAP[top_tier],
         "top_tier":          top_tier,
         "clark_label":       legacy.CLARK_LABELS[top_tier],
         "clark_col":         clark_col,
         "volume_strip_html": volume_strip_html,
+        "preamble_html":     preamble_html,
     }
 
 

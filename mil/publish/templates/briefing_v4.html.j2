@@ -28,6 +28,7 @@
      clark_label       : str — human label ("ACT NOW" | "ESCALATE" | "WATCH" | "NOMINAL")
      clark_col         : str — hex colour for tier (label + tier badge)
      volume_strip_html : str — pre-rendered stat strip (count/WoW/days/gap + surface-signal note) or ""
+     preamble_html     : str — 2-sentence self-justifying preamble that names the selected issue, severity, trend, volume, and a justification line. Rendered above the stat strip.
 #}
 {% block box3_intelligence_brief -%}
 <div class="topbar-box exec-alert-panel">
@@ -36,6 +37,7 @@
     <span style="font-size:10px;color:#3A6A7F;">Barclays &middot; latest reviews + peer signals &middot; detail below</span>
   </div>
   <div class="topbar-box-body">
+    {{ preamble_html | safe }}
     {{ volume_strip_html | safe }}
     <div style="margin-bottom:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
