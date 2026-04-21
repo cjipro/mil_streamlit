@@ -32,9 +32,15 @@ Key: MIL
 Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
-Tickets: MIL-1 through MIL-33 (BUILT)
-Next ticket: MIL-39
+Tickets: MIL-1 through MIL-48 created in Jira. MIL-1 through MIL-33 BUILT; MIL-34–MIL-38 BUILT pending Jira closure; MIL-39–MIL-48 backlog (Ask CJI Pro v1, 2026-04-21).
+Next ticket: MIL-49
 Scope: Public market intelligence only. No PII. Open governance.
+Repo host: **GitHub** (`cjipro/mil_streamlit`) — public artefacts push via GitHub Pages. CJI Pulse uses GitLab.
+
+**Jira ↔ code numbering drift (documented, not blocking):**
+- `publish_v4.py` labels itself MIL-39 in code/docs but Jira's MIL-39 is now "Ask CJI Pro tracker."
+- `drift_monitor.py` labels itself MIL-48 in code/docs but Jira's MIL-48 is now "Ask CJI Pro alpha rollout."
+- Historical drift — cleanup requires backfill tickets in a different number range. Not urgent.
 
 ### Hard Rule
 Never create a PULSE ticket for MIL work.
@@ -262,6 +268,15 @@ File: `mil/publish/publish.py`
 - **HSBC app IDs fixed (2026-04-12)**: App Store ID corrected to `1220329065`, Google Play package corrected to `uk.co.hsbc.hsbcukmobilebanking`. Both returning records from 2026-04-12 run.
 - **Box 2 row meta (2026-04-20, commit 3c34b98)**: each issue row renders `.journey-list-meta` between score and status — `"N reviews · Xd sustained"`. volume from 7-day Barclays record count; days_active joined from `issue_persistence_log.jsonl`. Zero values omitted.
 - **Box 2 severity-prioritised quote (2026-04-21, commit 884ff92)**: single-quote slot searches top 5 issues by severity (P0 > P1 > P2 > issue rank) rather than only the top-ranked issue. Previously Feature Broken P2 cosmetic quotes surfaced over App Crashing / Account Locked P0s; severity-first ordering fixes that. `box2_issue_type` label now reflects the chosen quote's real source, not the top-ranked issue. P0/P1 pool widened to include P2 so cosmetic-ranked issues don't produce an empty slot.
+- **Box 2 legend footnote (2026-04-21, commit a7f5c3d)**: compact flex-wrap row at the bottom of Box 2, under the quote, defining the three status labels in place. REGRESSION = P0 present or worsening P1s; WATCH = P1 present or trend worsening; PERFORMING WELL = no severe signal. Each label in its badge colour. Definitions tied to `_bd_to_journey_analysis` conditions.
+- **Journey Sentiment Row overhauled (2026-04-21, commit d6ec353)**: the 5-cell horizontal strip between the competitor ticker and the body grid (NOT inside Box 2). Reframed as journey-owner triage queue, not exec scoreboard.
+  - Header block: `TOP 5 AFFECTED JOURNEYS · last 7 days · N of K with signal`. Inline legend on same row carries the 4-label taxonomy + metric definition.
+  - 4-way severity taxonomy replaces legacy REGRESSION/WATCH/PERFORMING WELL (those remain on `journey_analysis.status` for Box 2 compat): **ACUTE** (severe + new/worsening), **PERSISTENT** (severe ≥7d stable), **DRIFT** (no severe yet, trend worsening), **STABLE** (quiet). Computed by `_severity_state()` in `publish.py`.
+  - Three visual signals decoupled: top-border colour + badge = severity state; arrow + arrow colour = trend direction (pure movement); score colour = sentiment (red <50, white ≥50).
+  - Per-cell meta line: `N reviews · X severe days`. "Severe day" = distinct date in last 30d with ≥1 P0 or P1 review for that journey (count, not streak). Computed by `_journey_priority_streak()` in `briefing_data.py` over an independently-loaded 30d record window.
+  - `<5` review cells carry a muted "low-volume" badge.
+  - General App Use hard-suppressed (catch-all bucket produced "praised but regressing" contradictions).
+  - `journey_row_meta` added to `briefing_data.get_briefing_data()` return dict: `{window_days, signal_count, eligible_journey_count, excluded}`. Threaded through `generate_html()` as `journey_meta` arg.
 - Note: cjipro.com behind Cloudflare — cache purge needed after deploy if changes not visible
 
 ### Sonar Briefing V2 — publish_v2.py (LIVE)
@@ -278,17 +293,20 @@ File: `mil/publish/publish_v2.py`
 - **publish_v2.py wired into run_daily.py as Step 5b** (after V1 publish, before log run)
 - **Clark race condition fix (2026-04-12)**: `scan_and_escalate()` / `scan_and_downgrade()` REMOVED from publish_v2.py. V2 reads pre-escalated clark_log only. Escalation now runs as dedicated Step 4c in run_daily.py (before both publish steps). Eliminates CLARK-0 appearing in HTML because escalation happened after V1 publish.
 
-### Sonar Briefing V3 — publish_v3.py (LIVE 2026-04-12, refined 2026-04-13)
-File: `mil/publish/publish_v3.py`
+### Sonar Briefing V3 — publish_v3.py (LIVE 2026-04-12, refined through 2026-04-21)
+File: `mil/publish/publish_v3.py` + `mil/publish/box3_selector.py`
 - **V3 LIVE** at cjipro.com/briefing-v3
 - Loads V1 HTML from mil/publish/output/index.html. Strips V1 Box 3 (exec-alert-panel) via `_replace_box3()` (div-depth counter). Injects V3 Intelligence Brief in Box 3 slot. V1 + V2 untouched.
-- **Box 3 — Intelligence Brief** (`_build_exec_summary_box`):
-  - THE SITUATION: full Sonnet prose from top risk commentary box (latest reviews, not Chronicle)
+- **Box 3 — Intelligence Brief** (`_build_exec_summary_box`, overhauled 2026-04-21):
+  - **Single-issue selection** via `box3_selector.select_box3_issue()` — 6-key tiebreaker: Clark tier > trend (gap-slope) > severity > days > severity-weighted gap > alphabetical. Same issue drives preamble, tiles, Situation (matched against commentary box by issue_type), Peer Comparison, and tier badge.
+  - **Self-justifying preamble** (`build_preamble_html()`) — 2 sentences above Situation: *"{issue} is this week's priority — {sev} severity, {trend_phrase}, cited in {vol} of {total} Barclays reviews. {justification_line}"* Justification picks low-vol/high-sev ("Volume is low by design"), high-gap, or high-sustain framing. Inoculates the "6 of 219 feels thin" optics problem.
+  - **KPI tile row** — three-tile treatment (WoW volume · peer gap · persistence). Each tile = big monospace number + uppercase label + absolute-anchored context. Semantic colour (red/amber/teal). flex-wrap stacks on mobile. Surface-signal caveat preserved under the row.
+  - THE SITUATION: full Sonnet prose from the commentary box matching the selected issue (falls back to first risk box then deterministic).
   - Real P0/P1 review quote (between Situation and Peer)
-  - PEER COMPARISON: deterministic rank-of-6 prose — "Barclays ranks {Nth} of {6} on {issue}. Best in the cohort is {peer} at {rate}%." Plus under-indexed strength note. Stat strip already carries the `+Ypp vs peers` gap, so the paragraph adds relative position (new info) rather than restating the gap.
-  - THE CALL: one sentence from `call_map[clark_tier]` — Clark-3=escalate today, Clark-2=this week, Clark-1=watch, Clark-0=nominal
-  - Thin `#003A5C` divider between each section (Option A — no section numbers)
-  - Clark tier badge at foot
+  - PEER COMPARISON: deterministic rank-of-6 prose on the selected issue — "Barclays ranks {Nth} of {6} on {issue}. Best in the cohort is {peer} at {rate}%." Plus under-indexed strength note. Peer gap is in the tile, so the paragraph adds relative position (new info) rather than restating the gap.
+  - **The Call section REMOVED 2026-04-21** (commit 08396f8) — redundant with preamble + badge. Action specificity absorbed into the badge's subordinate line.
+  - **Two-line Clark badge** (CLARK_ACTION_DETAILS map in box3_selector): primary line = `{tier} — {ACTION}`; subordinate monospace line = audience · cadence · artefact (e.g., CLARK-2 → `product leadership · this week · formal brief`). Tier pulled from the selected issue's own Clark tier (falls back to highest Barclays tier if selected issue isn't escalated).
+- **14 unit tests** in `mil/tests/test_box3_selection.py` cover every tiebreaker key + trend thresholds + clark-by-issue join semantics.
 - V3 intelligence sections (below fold):
   - **Churn Risk Score** — composite score, trend badge, over/under-indexed pills
   - **Analyst Commentary** — Sonnet 3-sentence structure per issue (Sentence 1: issue/duration/severity. Sentence 2: root cause inference. Sentence 3: business risk). 3 risk + 1 strength. All 4 cards show a real P0/P1 review quote (strength cards added 2026-04-13).
@@ -369,6 +387,27 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | MIL-29 | publish_v3.py — cjipro.com/briefing-v3 | BUILT 2026-04-12 |
 | MIL-30 | Opus governance — CLARK-3 synthesis + CHR proposals | BUILT 2026-04-12 |
 | MIL-31 | Barclays CHRONICLE depth — CHR-017/018/019, --force flag | BUILT 2026-04-16 |
+| MIL-32 | domain_taxonomy.yaml + taxonomy_loader.py | BUILT 2026-04-19 |
+| MIL-33 | Circuit breaker — cached commentary fallback | BUILT 2026-04-19 |
+| MIL-34 | CHRONICLE YAML entries + loader | BUILT 2026-04-19 |
+| MIL-35 | PublishAdapter base + GitHub/Local/Null backends | BUILT 2026-04-19 |
+| MIL-36 | VaultBackend base + HDFS/Local/Null backends | BUILT 2026-04-19 |
+| MIL-37 | Data Egress Logger — per-call API log | BUILT 2026-04-19 |
+| MIL-38 | Slack notification layer + Autonomous Heartbeat | BUILT 2026-04-19 |
+
+**Ask CJI Pro v1 — backlog (2026-04-21, not yet started):**
+| Ticket | Component | Status |
+|--------|-----------|--------|
+| MIL-39 | Ask CJI Pro v1 — lean MIL chat MVP (tracker) | BACKLOG |
+| MIL-40 | intent router (Haiku) + retriever dispatch | BACKLOG |
+| MIL-41 | retriever pool (BM25 + embeddings + SQL) | BACKLOG |
+| MIL-42 | synthesis layer (Sonnet forced-citation + confidence tags + verbatim quotes) | BACKLOG |
+| MIL-43 | refusal taxonomy + logic-probe scope enforcement | BACKLOG |
+| MIL-44 | 5 chart templates (trend / compare / heatmap / quote / peer_rank) | BACKLOG |
+| MIL-45 | `/ask` page with two-column streaming UX | BACKLOG |
+| MIL-46 | query audit log (JSONL append-only) | BACKLOG |
+| MIL-47 | tiered model routing + query-hash cache | BACKLOG |
+| MIL-48 | alpha partner onboarding + feedback capture | BACKLOG |
 
 **Source Stack (6 active):**
 | Source | Trust Weight | Status |
@@ -380,7 +419,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-39**
+**Next ticket: MIL-49**
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
@@ -558,7 +597,9 @@ Specialist stack: `mil/specialist/`
 - **Apr 21 DONE**: qwen3 root-cause patch (commit 9602308) — prompt rewrite (classifier not complaints analyst; Positive Feedback mapping; N-in-N-out contract) + max_tokens 1024 → 4096. Subdivide stays as safety net.
 - **Apr 21 DONE**: Box 3 polish continuation — V4 drift fixes for call_map, peer padding, stat strip (e2a05bb); commentary Sentence 1 rule tightened on `days_active` (e2a05bb); V3/V4 peer convergence to rank-of-6 (d723f19).
 - **Apr 21 DONE**: Box 2 polish — review count + days sustained per row (3c34b98); single-quote slot P0/P1/P2 fallback + severity-prioritised across top 5 issues (884ff92).
-- **Apr 28 (current autonomy target)**: nothing further needed; Task Scheduler will fire `run_daily.py` at 06:30 UTC automatically. Pivot focus to CJI Pulse.
+- **Apr 21 DONE (late evening)**: Box 3 overhaul — `box3_selector.py` with 6-key tiebreaker + 14 unit tests, self-justifying preamble, three-tile KPI treatment (5b302e5); Journey Row ACUTE/PERSISTENT/DRIFT/STABLE taxonomy + priority-triage header + severe-days metric (d6ec353); Box 2 legend footnote (a7f5c3d); Box 3 Call-to-badge collapse, two-line Clark badge via `CLARK_ACTION_DETAILS` (08396f8). V4 structural diff-gate still clean throughout.
+- **Apr 21 DONE**: Ask CJI Pro v1 scoped + ticketed. MIL-39 tracker + MIL-40 through MIL-48 implementation tickets on Kanban board. MIL-scope only (public signal). Heavy FCA chrome (signed bundles, Source Fidelity Gate, DPIA) deliberately reserved for future Ask CJI Pulse chat product. 10 items, ~4-5 weeks to alpha. No code scaffolded yet.
+- **Apr 28 (current autonomy target)**: Task Scheduler fires `run_daily.py` at 06:30 UTC automatically. Optionally pivot to either (a) start Ask CJI Pro implementation per MIL-39 to MIL-48, or (b) unblock CJI Pulse PULSE-11.
 - **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
@@ -570,9 +611,54 @@ Specialist stack: `mil/specialist/`
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 7,681+ enriched records. 139 findings | 100% anchored | 7 Designed Ceiling | 0 ENRICHMENT_FAILED. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 53.5 WORSENING (Run #51, 2026-04-20). Normalization introduced Run #33; anomaly threshold valid from Run #47. Streak 20/5 as of Run #51. QLoRA specialist SHELVED 2026-04-20 — 4B trained model loses to qwen3:14b baseline (83.3% vs 93.3% on held-out eval), severity classification stays on the enrichment route. **Task Scheduler autonomy LIVE 2026-04-20; first unattended auto-fire 2026-04-28T06:30Z.**
+**Current corpus: 7,681+ enriched records. 142 findings | 100% anchored | 7 Designed Ceiling | 0 ENRICHMENT_FAILED. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 50.8 WORSENING (Run #53, 2026-04-21). Streak 21/5. QLoRA specialist SHELVED 2026-04-20 — 4B trained model loses to qwen3:14b baseline (83.3% vs 93.3% on held-out eval), severity classification stays on the enrichment route. **Task Scheduler autonomy LIVE 2026-04-20; first unattended auto-fire 2026-04-28T06:30Z.**
 
-**Box 3 readability arc shipped 2026-04-20 (commits 1eaac82 → f5f28ab):** Sonnet commentary prompt overhauled with 22-word sentence cap + banned-phrase list + strongest-risk-first ordering; Clark issue-level tier override lands (days + gap + severity → min tier, scoped Barclays); volume stat strip shows "N of M reviews cite this issue · WoW delta · days sustained · gap vs peers" with surface-signal qualifier; quote selector rejects trailing-fragment quotes; Peer Comparison rewritten to rank-based; internal CHR-XXX codes stripped from exec prose. Clark tier badge now matches narrative severity (CLARK-2 ESCALATE on today's Barclays App Crashing).
+**Box 3 readability arc — 2026-04-20 foundation + 2026-04-21 overhaul:**
+- *Apr 20 (commits 1eaac82 → f5f28ab)* — Sonnet commentary prompt overhauled with 22-word sentence cap + banned-phrase list + strongest-risk-first ordering; Clark issue-level tier override; volume stat strip with surface-signal qualifier; quote selector rejects trailing fragments; Peer Comparison rank-based; internal CHR-XXX codes stripped from exec prose.
+- *Apr 21 (commits 5b302e5 + 08396f8)* — `box3_selector.py` with 6-key tiebreaker (Clark tier > trend > severity > days > weighted gap > alphabetical); self-justifying preamble above The Situation; three-tile KPI treatment (WoW volume · peer gap · persistence); The Call section removed; two-line Clark badge with action specifics on subordinate line. 14 unit tests. V3/V4 structural parity preserved.
+
+**Journey Sentiment Row overhaul (2026-04-21, commit d6ec353):** 4-way severity taxonomy (ACUTE / PERSISTENT / DRIFT / STABLE) replaces legacy REGRESSION/WATCH/PERFORMING WELL on the Journey Row only. Priority-triage header + inline legend. Severe-days persistence metric. General App Use suppressed. Box 2's inner `.journey-list-item` rows still use legacy 3-way (different surface, different purpose — top 5 issue types, not top 5 journeys). Box 2 legend footnote added (a7f5c3d) defines the 3-way labels in place.
+
+**Ask CJI Pro v1 — scoped + ticketed 2026-04-21:** MIL-39 tracker + MIL-40–MIL-48 implementation on Kanban. Panel-reviewed as MIL-scope only (public signal). Heavy FCA audit-chain stack reserved for future Ask CJI Pulse chat product. Not yet started.
+
+### Ask CJI Pro v1 — scope + principles (2026-04-21, panel-reviewed)
+
+**What it is:** conversational intelligence layer on top of the MIL vault. Dedicated page at `cjipro.com/ask`. Public-signal Q&A with forced citations + charts + refusals. The "ChatGPT moment" for the project, but scoped appropriately.
+
+**What it ISN'T:** not a ChatGPT competitor. Not a general assistant. Not a Cortex+GPT alternative.
+
+**Strategic positioning** (for Council / buyers):
+- *"Forensic Reasoning Pipeline"* — every claim carries an evidence link
+- *"Calibration product, not fluency product"* — banking needs receipts, not charm
+- *"Public Signal Specialist"* in v1 → *"Banking Journey Intelligence"* in v2 when PULSE-11 unblocks and a separate Ask CJI Pulse chat becomes fundable
+
+**Scope boundary — HARD:**
+- MIL chat = MIL data only (app reviews, DownDetector, City A.M., Reddit, YouTube). Public signals. No PII.
+- Any internal-telemetry question (why did step 3 take 45s, which customer, internal session state) triggers the `logic_probe` refusal class — mirrors code-level Zero Entanglement.
+- The heavy FCA audit-chain stack (cryptographic signed bundles, DPIA, Source Fidelity Gate numeric verifier, retention policy, Drift Monitor calibration warnings) is the right design for a future **Ask CJI Pulse chat** product — NOT for MIL v1. Do not re-import those concerns into MIL scope.
+
+**v1 compliance bar (proportionate):**
+- Article Zero — no fabrication. Every claim cites vault evidence.
+- Verbatim quotes only — no synthesised customer voices (this hard rule transfers from Pulse-grade to MIL).
+- Scope enforcement — never imply internal knowledge.
+- Basic query log — append-only JSONL.
+- Three-tag confidence: EVIDENCED / DIRECTIONAL / UNKNOWN.
+
+**v1.5 deferred (MIL-relevant, not v1-critical):** signed bundles, Drift Monitor integration, context-locked shareable URLs, Source Fidelity Gate, eval regression set (200+ gold Q&A), Phase 2 demand aggregation, per-class latency SLAs.
+
+**v2+:** artefact generation, Slack integration. **Never:** cross-session memory without FCA fairness sign-off, Python execution without sandbox.
+
+**Architecture (as specced in MIL-40 through MIL-48):**
+```
+[chat UI] -> [API gateway] -> [intent classifier, Haiku]
+                           -> [retriever pool: BM25 / embedding / SQL / structured]
+                           -> [evidence bundle]
+                           -> [synthesizer, Sonnet default / Opus on opt-in]
+                           -> [verifier (light), Haiku]
+                           -> [renderer: cards, citations, charts]
+```
+
+**v1 target:** 4-5 weeks of focused work, internal alpha to 3-5 users, then iterate.
 
 ### MIL Zero Entanglement — HARD RULE
 
