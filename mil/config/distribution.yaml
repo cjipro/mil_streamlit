@@ -1,0 +1,15 @@
+# mil/config/distribution.yaml — MIL-49
+#
+# Alpha partner distribution list. Consumed by mil/notify/briefing_email.py
+# after every CLEAN run_daily.py completion. Recipients must also be on the
+# Cloudflare Access "Alpha" policy allowlist to actually view the briefing
+# (the email contains a CTA link, not the briefing itself).
+#
+# Schema: { email, display_name, partner_id }
+# partner_id is informational here — real identity is established by CF Access
+# and stamped into audit rows via Cf-Access-Authenticated-User-Email.
+
+recipients:
+  - email: hussain.x.ahmed@barclays.com
+    display_name: Hussain
+    partner_id: hussain-barclays

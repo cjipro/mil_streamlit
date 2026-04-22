@@ -779,6 +779,17 @@ def main() -> None:
     except Exception as exc:
         logger.warning("[notify] run-complete notification failed (non-fatal): %s", exc)
 
+    # MIL-49: distribute daily briefing email to alpha partners — CLEAN runs only
+    if _status == "CLEAN":
+        try:
+            from mil.notify.briefing_email import send_briefing_notification
+            _email_summary = send_briefing_notification(_run_entry)
+            logger.info("[briefing_email] %s", _email_summary)
+        except Exception as exc:
+            logger.warning("[briefing_email] distribution failed (non-fatal): %s", exc)
+    else:
+        logger.info("[briefing_email] run status=%s — skipping partner distribution (CLEAN only)", _status)
+
     logger.info("=== Done ===")
 
 

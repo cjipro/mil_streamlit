@@ -33,7 +33,7 @@ Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
 Tickets: MIL-1 through MIL-48 created in Jira. MIL-1 through MIL-33 BUILT; MIL-34–MIL-38 BUILT pending Jira closure; MIL-39–MIL-48 backlog (Ask CJI Pro v1, 2026-04-21).
-Next ticket: MIL-49
+Next ticket: MIL-50
 Scope: Public market intelligence only. No PII. Open governance.
 Repo host: **GitHub** (`cjipro/mil_streamlit`) — public artefacts push via GitHub Pages. CJI Pulse uses GitLab.
 
@@ -419,7 +419,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-49**
+**Next ticket: MIL-50**
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored

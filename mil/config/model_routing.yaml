@@ -78,6 +78,35 @@ routes:
       escalation note: what, why, evidence, recommended action. Highest-stakes
       output in MIL — board-level action signal. MIL-26 2026-04-12.
 
+  # ── MIL-49: PDB Email Lede ─────────────────────────────────────
+  briefing_lede:
+    model: "claude-opus-4-7"
+    provider: anthropic
+    max_tokens: 800
+    note: >
+      MIL-49. Opus writes the daily briefing email headline + opening
+      paragraph in analyst voice, grounded in the run's commentary + facts.
+      Output contract: strict JSON {headline, lede}. System prompt enforces
+      verbatim-sacred, denominator-named, back-sourced judgment, confidence
+      stated, analyst voice (banned imperative verbs), no internal codes.
+      One call per CLEAN run; cached per run_number in email_lede_log.jsonl
+      so resends reuse the same output. 2026-04-22.
+
+  # ── MIL-49: PDB Email Verifier ─────────────────────────────────
+  briefing_verifier:
+    model: "claude-haiku-4-5-20251001"
+    provider: anthropic
+    max_tokens: 512
+    note: >
+      MIL-49. Light post-generation verifier that checks the Opus lede +
+      headline against the FACTS block and verbatim quotes that were passed
+      to the author. Scores each of the 8 drafting principles as pass/fail
+      and flags unsupported numeric claims or engineering diagnoses.
+      Output contract: {pass: bool, violations: [str], notes: str}.
+      On fail, briefing_email.py retries Opus once with violations fed
+      back as corrections; the second draft ships regardless of verifier
+      result but the outcome is logged in email_lede_log.jsonl. 2026-04-22.
+
   # ════════════════════════════════════════════════════════════════
   # TIER 2 — SONNET — Drives daily decisions
   # Runs every 24h. Output lands in front of product/risk teams.
