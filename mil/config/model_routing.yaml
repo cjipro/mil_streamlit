@@ -231,3 +231,60 @@ routes:
     note: >
       YAML edits, Markdown generation, scripts, pipeline helpers.
       Default local model for well-defined tasks. Unchanged ARCH-003.
+
+  # ════════════════════════════════════════════════════════════════
+  # ASK CJI PRO v1 — Conversational intelligence (MIL-39 to MIL-48)
+  # Public-signal Q&A over the MIL vault. Forced citations, verbatim
+  # quotes only, three-tag confidence, refusal-first scope enforcement.
+  # ════════════════════════════════════════════════════════════════
+
+  # ── Intent Classification (MIL-40) ────────────────────────────
+  intent_classification:
+    model: "claude-haiku-4-5-20251001"
+    provider: anthropic
+    max_tokens: 256
+    note: >
+      MIL-40. First-pass classifier — maps query to one of
+      {trend, compare, issue_lookup, quote_search, peer_rank, chronicle,
+      out_of_scope, insufficient}. Extracts entities (competitor,
+      issue_type, timeframe, journey). Haiku by design — fast + cheap,
+      called on every /ask query before retrieval dispatch.
+
+  # ── Ask Synthesis — default (MIL-42) ──────────────────────────
+  ask_synthesis:
+    model: "claude-sonnet-4-6"
+    provider: anthropic
+    max_tokens: 3072
+    note: >
+      MIL-42. Default synthesis tier for Ask CJI Pro. Takes an
+      EvidenceBundle and produces a cited answer with verbatim quotes
+      and a three-tag confidence (EVIDENCED / DIRECTIONAL / UNKNOWN).
+      Hard rule: every claim cites >=1 Evidence id. No paraphrasing
+      of customer voice.
+      max_tokens=3072: answers with 8–16 evidence items + citation
+      list routinely exceed 1024 tokens of output; truncation produces
+      invalid JSON and forces the fallback path that serves raw text
+      with zero citations (bug 2026-04-22).
+
+  # ── Ask Synthesis — deep (MIL-42) ─────────────────────────────
+  ask_synthesis_deep:
+    model: "claude-opus-4-6"
+    provider: anthropic
+    max_tokens: 2048
+    note: >
+      MIL-42. Opt-in deep-reasoning path. Reserved for multi-step
+      comparisons, causal inference across evidence sources, or when
+      the default synthesis returns UNKNOWN confidence on a high-value
+      query. Enabled by explicit user flag — never default.
+
+  # ── Ask Verifier (MIL-42) ─────────────────────────────────────
+  ask_verifier:
+    model: "claude-haiku-4-5-20251001"
+    provider: anthropic
+    max_tokens: 256
+    note: >
+      MIL-42. Post-synthesis light verifier. Checks: every citation
+      resolves to an Evidence id; no numbers appear that aren't in the
+      bundle; no internal-telemetry inference (logic_probe scope);
+      confidence tag consistent with evidence strength. Fail = retry
+      synthesis or return refusal.

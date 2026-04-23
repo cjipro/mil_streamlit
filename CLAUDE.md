@@ -32,8 +32,8 @@ Key: MIL
 Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
-Tickets: MIL-1 through MIL-54 created in Jira. MIL-1 through MIL-33 BUILT; MIL-34–MIL-38 BUILT pending Jira closure; MIL-39–MIL-48 BUILT 2026-04-22 (Ask CJI Pro v1); MIL-49 BUILT 2026-04-22 (PDB email). MIL-50 BUILT 2026-04-23 (public landing + domain unblock). MIL-51 IN_PROGRESS (vendor categorisation). MIL-52, MIL-53, MIL-54 BACKLOG.
-Next ticket: MIL-55
+Tickets: MIL-1 through MIL-55 created in Jira. MIL-1 through MIL-33 BUILT; MIL-34–MIL-38 BUILT pending Jira closure; MIL-39–MIL-48 BUILT 2026-04-22 (Ask CJI Pro v1); MIL-49 BUILT 2026-04-22 (PDB email). MIL-50 BUILT 2026-04-23 (public landing + domain unblock). MIL-51 IN_PROGRESS (vendor categorisation). MIL-52, MIL-53, MIL-54 BACKLOG. MIL-55 BACKLOG (Phase B kickoff tracker — clone-ready VCS/CI/secrets/LLM abstraction; gated until 7 days autonomous clean, earliest 2026-05-05).
+Next ticket: MIL-56
 Scope: Public market intelligence only. No PII. Open governance.
 Repo host: **GitHub** (`cjipro/mil_streamlit`) — public artefacts push via GitHub Pages. CJI Pulse uses GitLab.
 
@@ -414,6 +414,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | MIL-52 | Gmail Send-as for hello@cjipro.com + SPF update | BACKLOG |
 | MIL-53 | Track Ask CJI Pro v1 codebase in git (hygiene, load-bearing) | BACKLOG |
 | MIL-54 | Custom team domain for sonar.cjipro.com — move login from `*.cloudflareaccess.com` to `login.cjipro.com` | BACKLOG |
+| MIL-55 | Phase B kickoff — clone-ready VCS + CI + secrets + LLM abstraction (tracker; items open as sequential tickets MIL-56..MIL-61 when Phase B starts) | BACKLOG (gated: earliest 2026-05-05) |
 
 **Source Stack (6 active):**
 | Source | Trust Weight | Status |
@@ -425,7 +426,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-55**
+**Next ticket: MIL-56**
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored

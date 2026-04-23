@@ -1737,12 +1737,13 @@ a {{ color: var(--blue); text-decoration: none; }}
 
 /* -- Chat Panel ------------------------------------------------------------- */
 .chat-overlay {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }}
-.chat-panel {{ position: fixed; bottom: 80px; right: 24px; width: 360px; max-height: 500px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; z-index: 1001; box-shadow: 0 8px 40px rgba(0,0,0,0.6); overflow: hidden; }}
+.chat-panel {{ position: fixed; bottom: 80px; right: 24px; width: 440px; height: 620px; max-height: calc(100vh - 110px); background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; z-index: 1001; box-shadow: 0 8px 40px rgba(0,0,0,0.6); overflow: hidden; }}
 .chat-panel.open {{ display: flex; }}
-.chat-header {{ padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }}
+.chat-header {{ padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--topbar-bg); }}
 .chat-title {{ font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }}
-.chat-close {{ background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }}
+.chat-close {{ background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px; }}
 .chat-close:hover {{ color: var(--text); }}
+.chat-iframe {{ flex: 1; border: 0; width: 100%; background: #00273D; }}
 .chat-messages {{ flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 160px; }}
 .chat-chips {{ padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid var(--border); }}
 .chip {{ background: var(--border); color: var(--blue); border: 1px solid rgba(0,174,239,0.2); border-radius: 14px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: background 0.15s; }}
@@ -1867,75 +1868,34 @@ a {{ color: var(--blue); text-decoration: none; }}
   Ask CJI Pro
 </button>
 
-<!-- -- Chat Panel ----------------------------------------------------------- -->
+<!-- -- Chat Panel (iframe → sonar.cjipro.com, the canonical UI) ------------ -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span class="chat-title">Ask CJI Pro</span>
+    <a href="https://sonar.cjipro.com/" target="_blank" rel="noopener" style="color:var(--text-3);text-decoration:none;font-size:11px;margin-right:8px" title="Open in new tab">↗</a>
     <button class="chat-close" onclick="closeChat()">&#215;</button>
   </div>
-  <div class="chat-messages" id="chatMessages">
-    <div class="chat-msg system">Sonar is ready. Ask about any competitor journey, signal pattern, or CHRONICLE match.</div>
-  </div>
-  <div class="chat-chips">
-    <span class="chip" onclick="sendChip(this)">What is Barclays login score?</span>
-    <span class="chip" onclick="sendChip(this)">Any active P0 signals?</span>
-    <span class="chip" onclick="sendChip(this)">CHRONICLE match for Lloyds?</span>
-    <span class="chip" onclick="sendChip(this)">Which journey is regressing?</span>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" class="chat-input" id="chatInput" placeholder="Ask about market signals…" onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="chat-send" onclick="sendChat()">Send</button>
-  </div>
+  <iframe id="chatFrame" class="chat-iframe" title="Ask CJI Pro" loading="lazy" src="about:blank"></iframe>
 </div>
 
 <script>
-// -- Chat Panel ------------------------------------------------------------
-const PROXY_URL = 'https://sonar.cjipro.com/api/ask';
+// -- Chat Panel (iframe-backed) ---------------------------------------------
+// The chat UI lives at https://sonar.cjipro.com/ and is served by the same
+// backend the briefing calls. The iframe lazy-loads on first open so the
+// briefing page itself stays snappy.
+const CHAT_URL = 'https://sonar.cjipro.com/';
 
 function openChat() {{
-  document.getElementById('chatPanel').classList.add('open');
+  const panel = document.getElementById('chatPanel');
+  const frame = document.getElementById('chatFrame');
+  if (frame.src === 'about:blank' || !frame.src.startsWith(CHAT_URL)) {{
+    frame.src = CHAT_URL;
+  }}
+  panel.classList.add('open');
 }}
 function closeChat() {{
   document.getElementById('chatPanel').classList.remove('open');
-}}
-function sendChip(el) {{
-  document.getElementById('chatInput').value = el.textContent;
-  sendChat();
-}}
-async function sendChat() {{
-  const input = document.getElementById('chatInput');
-  const messages = document.getElementById('chatMessages');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  // User message
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-msg user';
-  userMsg.textContent = text;
-  messages.appendChild(userMsg);
-  messages.scrollTop = messages.scrollHeight;
-
-  // Send to proxy
-  try {{
-    const res = await fetch(PROXY_URL, {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      body: JSON.stringify({{query: text, version: '{e(version_display)}'}})
-    }});
-    const data = await res.json();
-    const reply = document.createElement('div');
-    reply.className = 'chat-msg system';
-    reply.textContent = data.response || 'No response from Sonar.';
-    messages.appendChild(reply);
-  }} catch (err) {{
-    const errMsg = document.createElement('div');
-    errMsg.className = 'chat-msg error';
-    errMsg.textContent = 'Proxy unavailable — sonar.cjipro.com/api/ask not reachable.';
-    messages.appendChild(errMsg);
-  }}
-  messages.scrollTop = messages.scrollHeight;
 }}
 
 // Close on outside click
