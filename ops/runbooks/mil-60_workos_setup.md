@@ -4,6 +4,9 @@ Runbook for Hussain. All work happens in the WorkOS dashboard +
 Cloudflare DNS. No code changes on this ticket — Claude picks up
 with MIL-61 once you have the JWKS URL + Client ID.
 
+(Terminology note: WorkOS renamed "Sandbox" to "Staging" — the
+runbook uses Staging throughout.)
+
 ## What this accomplishes
 
 1. A WorkOS organisation exists with AuthKit configured for CJI Pro
@@ -17,6 +20,12 @@ with MIL-61 once you have the JWKS URL + Client ID.
 
 1. Go to `https://dashboard.workos.com/signup`
 2. Sign up with `hello@cjipro.com` (or your work email)
+   - **Caveat (2026-04-23):** `hello@cjipro.com` is receive-only via
+     Cloudflare Email Routing right now. MIL-52 (Gmail Send-as + SPF
+     update) hasn't shipped, so you can't reply *from* that address
+     yet. WorkOS verification mail will land at whatever Gmail the
+     forwarding rule targets — that's fine for sign-up, just don't
+     expect outbound mail from `hello@` to work.
 3. Create an organisation name: `CJI Pro`
 4. Region: **EU** (data residency matters for UK bank customers —
    WorkOS's EU region keeps auth data in-region, which is a
@@ -24,20 +33,20 @@ with MIL-61 once you have the JWKS URL + Client ID.
 
 ## Step 2 — pick the environment
 
-WorkOS gives you two environments by default: **Sandbox** and
-**Production**. Use **Sandbox** for MIL-60/61/62 alpha testing. Keep
-Production pristine and only switch over when the Apr 28 auto-fire
-proves the stack out.
+WorkOS gives you two environments by default: **Staging** (previously
+called "Sandbox") and **Production**. Use **Staging** for MIL-60/61/62
+alpha testing. Keep Production pristine and only switch over when the
+Apr 28 auto-fire proves the stack out.
 
 In the dashboard top-bar, make sure the environment selector says
-**Sandbox** before proceeding.
+**Staging** before proceeding.
 
 ## Step 3 — configure AuthKit
 
 AuthKit is WorkOS's hosted login UI. Left sidebar → **Authentication**
 → **AuthKit**.
 
-Settings to enable on the sandbox:
+Settings to enable on Staging:
 - **Magic link**: ON
 - **Password**: OFF (Phase 1 is magic-link-only per MIL-63)
 - **SSO**: OFF (comes online in MIL-70)
@@ -105,7 +114,7 @@ user to test magic-link flows against once MIL-63 ships.
 
 ## Acceptance
 
-- [ ] WorkOS account exists, environment selector says **Sandbox**
+- [ ] WorkOS account exists, environment selector says **Staging**
 - [ ] AuthKit configured (magic link on, password/SSO off)
 - [ ] login.cjipro.com registered as a custom domain in WorkOS
       (CNAME + TXT records captured but NOT added to Cloudflare DNS)
@@ -115,14 +124,44 @@ user to test magic-link flows against once MIL-63 ships.
 
 ## When this is done
 
+The four public values are captured in `mil/config/workos.yaml`
+(MIL-60 output artefact). MIL-61 reads JWKS URL + client_id from
+that file at the edge. The API secret stays in `.env` as
+`WORKOS_API_KEY`.
+
 Start the next Claude session with:
 ```
-MIL-60 complete. Here are the values for MIL-61:
-  Organisation ID: org_01H...
-  Client ID:       client_01H...
-  JWKS URL:        https://api.workos.com/sso/jwks/...
-  AuthKit Domain:  <tenant>.authkit.app
+MIL-60 complete. Values in mil/config/workos.yaml (staging env).
 Let's build MIL-61.
 ```
 
 Claude picks up from there.
+
+## MIL-60 completion log (2026-04-24)
+
+- Staging env: CJI Pro organisation created
+- AuthKit configured: magic-link ON, password/SSO/passkey OFF, 24h session
+- login.cjipro.com registered as pending custom domain; DNS NOT cut
+  over (MIL-59 placeholder still owns the hostname — Cloudflare
+  Workers Route beats DNS anyway, so any CNAME added won't take
+  effect until MIL-63 explicitly removes/rewrites the Worker route)
+- Four values verified live:
+  - Org ID: `org_01KPY8K0RGC6ABNTC73YMW9ERP`
+  - Client ID: `client_01KPY7CA07ZD1WG3DMQE1FZQE1`
+  - JWKS URL returns valid RS256 keyset (HTTP 200)
+  - AuthKit domain `ideal-log-65-staging.authkit.app` serves the
+    hosted login UI, pre-wired to the client_id above
+
+## MIL-63 cutover prerequisite (flagged here so it isn't lost)
+
+When MIL-63 flips DNS, adding a `login.cjipro.com` CNAME to the
+AuthKit target is NOT sufficient — Cloudflare Workers Routes
+override DNS on matching hostnames. The flip needs either:
+
+1. Delete the `login-cjipro` Worker route on `login.cjipro.com/*`, or
+2. Rewrite the `login-cjipro` Worker to 302-redirect `/` to the
+   AuthKit authorize URL (preferred — keeps the Cloudflare-side
+   control plane in one place)
+
+Option 2 also lets us keep the placeholder HTML available as a
+fallback for crawlers and uninvited traffic.

@@ -1,0 +1,37 @@
+# MIL-60 — WorkOS AuthKit configuration
+#
+# Public identifiers only. The API secret key lives in .env as
+# WORKOS_API_KEY and never appears here.
+#
+# MIL-61 (Edge Bouncer) reads JWKS URL + client_id from this file to
+# validate session JWTs at the edge. MIL-63 (magic-link flow) reads
+# authkit_domain to build the redirect URL.
+#
+# Environment selector: switch between staging/production via the
+# active_env key. Matches WorkOS's own environment model (Staging +
+# Production, formerly Sandbox + Production).
+
+active_env: staging
+
+envs:
+  staging:
+    organisation_id: org_01KPY8K0RGC6ABNTC73YMW9ERP
+    client_id: client_01KPY7CA07ZD1WG3DMQE1FZQE1
+    jwks_url: https://api.workos.com/sso/jwks/client_01KPY7CA07ZD1WG3DMQE1FZQE1
+    authkit_domain: ideal-log-65-staging.authkit.app
+    # Future custom domain — registered in WorkOS, DNS not yet cut
+    # over (see MIL-63). Until cutover, authkit_domain above is what
+    # the Edge Bouncer redirects to.
+    custom_domain_pending: login.cjipro.com
+
+  production:
+    # Populated when MIL stack promotes from Staging to Production.
+    # Do not populate speculatively — values differ per environment.
+    organisation_id: null
+    client_id: null
+    jwks_url: null
+    authkit_domain: null
+    custom_domain_pending: login.cjipro.com
+
+# Secret reference — never inlined
+api_key_env_var: WORKOS_API_KEY
