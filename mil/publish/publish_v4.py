@@ -95,6 +95,13 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
     except Exception:
         clark_summary = {"active": []}
     selected = select_box3_issue(over, clark_summary=clark_summary)
+    # Persist the selected issue for MIL-49 briefing_email — decoupled from HTML.
+    try:
+        from mil.publish.box3_selector import write_priority_artifact
+        write_priority_artifact(selected)
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("box3 priority artifact write failed: %s", exc)
 
     risk_boxes = [b for b in boxes if b.get("type") == "risk" and b.get("prose")]
     matched_box = None

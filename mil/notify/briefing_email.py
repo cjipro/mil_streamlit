@@ -48,7 +48,7 @@ _DISTRIBUTION_YAML = _MIL_ROOT / "config" / "distribution.yaml"
 _EMAIL_LOG         = _MIL_ROOT / "data" / "email_log.jsonl"
 _LEDE_CACHE        = _MIL_ROOT / "data" / "email_lede_log.jsonl"
 _COMMENTARY_LOG    = _MIL_ROOT / "data" / "commentary_log.jsonl"
-_BRIEFING_HTML     = _MIL_ROOT / "publish" / "output" / "index_v4.html"
+_BOX3_PRIORITY     = _MIL_ROOT / "data" / "box3_priority.json"
 _ENRICHED_DIR      = _MIL_ROOT / "data" / "historical" / "enriched"
 _BRIEFING_URL      = "https://cjipro.com/briefing-v4"
 
@@ -213,45 +213,33 @@ def _date_sort_key(dstr: str) -> int:
         return 0
 
 
-# ── Box 3 priority-issue lookup (minimal; only need priority_issue) ───────────
-
-def _priority_issue_from_html(html: str) -> str | None:
-    cls_marker = 'class="topbar-box exec-alert-panel"'
-    cls_idx = html.find(cls_marker)
-    if cls_idx == -1:
-        return None
-    start = html.rfind("<div", 0, cls_idx)
-    if start == -1:
-        return None
-    depth = 0
-    i = start
-    section = ""
-    while i < len(html):
-        if html[i:i+4] == "<div":
-            depth += 1
-            i += 4
-        elif html[i:i+6] == "</div>":
-            depth -= 1
-            if depth == 0:
-                section = html[start:i+6]
-                break
-            i += 6
-        else:
-            i += 1
-    if not section:
-        return None
-    m = re.search(r"<strong[^>]*color:#FFD580[^>]*>(.*?)</strong>", section, re.DOTALL)
-    return _clean(m.group(1)) if m else None
-
+# ── Box 3 priority-issue lookup ───────────────────────────────────────────────
+# Reads the structured artifact written by publish_v3.py / publish_v4.py via
+# mil.publish.box3_selector.write_priority_artifact. Decoupled from HTML so
+# Box 3 redesigns do not silently break email firing.
 
 def _load_priority_issue() -> str | None:
-    if not _BRIEFING_HTML.exists():
+    """Return today's priority issue_type, or None on silent day / missing artifact."""
+    if not _BOX3_PRIORITY.exists():
+        logger.info("[briefing_email] %s missing — publish step may not have run",
+                    _BOX3_PRIORITY.name)
         return None
     try:
-        return _priority_issue_from_html(_BRIEFING_HTML.read_text(encoding="utf-8"))
+        raw = _BOX3_PRIORITY.read_text(encoding="utf-8").strip()
     except Exception as exc:
-        logger.warning("[briefing_email] priority lookup failed: %s", exc)
+        logger.warning("[briefing_email] box3 priority read failed: %s", exc)
         return None
+    if raw in ("", "null"):
+        return None
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        logger.warning("[briefing_email] box3_priority.json invalid JSON: %r", raw[:200])
+        return None
+    if not isinstance(data, dict):
+        return None
+    issue = data.get("issue_type")
+    return issue.strip() if isinstance(issue, str) and issue.strip() else None
 
 
 # ── Commentary lookup (today's prose per issue) ───────────────────────────────

@@ -78,6 +78,9 @@ mil/data/ask_last_raw.txt
 mil/data/email_lede_log.jsonl
 mil/data/email_log.jsonl
 
+# Box 3 priority artifact — written per run by publish_v3/v4, read by briefing_email
+mil/data/box3_priority.json
+
 # Ops runtime logs
 ops/cloudflared/fix_service.log
 ops/register_ask_api_task.log

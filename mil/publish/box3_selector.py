@@ -202,6 +202,45 @@ def select_box3_issue(over_indexed: list[dict],
     return scored[0][1]
 
 
+def write_priority_artifact(selected: dict | None, path=None) -> None:
+    """Persist the selected Box 3 issue as JSON for downstream consumers.
+
+    Currently read by MIL-49 briefing_email.py to decide whether to fire
+    the daily PDB email. Prior implementation parsed HTML and broke after
+    the 2026-04-21 Box 3 overhaul. This decouples email firing from HTML
+    structure: if select_box3_issue picks an issue, the email sees it; if
+    it returns None (silent day), the artifact is `null` and the email
+    silent-day guard triggers.
+
+    Atomic write via tempfile + os.replace to avoid email reading a
+    half-written file if the pipeline is interrupted mid-publish.
+    """
+    import json, os
+    from pathlib import Path
+    if path is None:
+        path = Path(__file__).parent.parent / "data" / "box3_priority.json"
+    else:
+        path = Path(path)
+    payload = None
+    if selected:
+        payload = {
+            "issue_type":        selected.get("issue_type"),
+            "dominant_severity": selected.get("dominant_severity"),
+            "days_active":       selected.get("days_active"),
+            "gap_pp":            selected.get("gap_pp"),
+            "barclays_rate":     selected.get("barclays_rate"),
+            "peer_avg_rate":     selected.get("peer_avg_rate"),
+            "clark_tier":        selected.get("clark_tier"),
+            "trend":             selected.get("trend"),
+            "category":          selected.get("category"),
+        }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    body = json.dumps(payload, indent=2, ensure_ascii=False) if payload else "null"
+    tmp.write_text(body, encoding="utf-8")
+    os.replace(tmp, path)
+
+
 def _trend_phrase(trend: str, sev: str, days: int) -> str:
     if trend == "REGRESSION":
         return f"regressing {days}d" if days > 1 else "regressing"

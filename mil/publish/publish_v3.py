@@ -795,6 +795,13 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     except Exception:
         clark_summary = {"active": []}
     selected = select_box3_issue(over, clark_summary=clark_summary)
+    # Persist the selected issue for MIL-49 briefing_email — decoupled from HTML.
+    try:
+        from mil.publish.box3_selector import write_priority_artifact
+        write_priority_artifact(selected)
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("box3 priority artifact write failed: %s", exc)
 
     # ── Paragraph 1: THE SITUATION ────────────────────────────────────────────
     # Prefer the Sonnet commentary box whose issue matches the selected lead.
