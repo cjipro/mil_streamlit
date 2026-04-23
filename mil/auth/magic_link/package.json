@@ -1,0 +1,20 @@
+{
+  "name": "mil-magic-link",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MIL-63 Magic Link — WorkOS OAuth code exchange + session cookie issuance at login.cjipro.com",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251015.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4",
+    "wrangler": "^3.114.17"
+  }
+}

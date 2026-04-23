@@ -34,22 +34,26 @@ npm run dev      # runs wrangler dev against Cloudflare's local sim
 
 ## Deployment
 
-Route binding is intentionally NOT in `wrangler.toml`. Deployment is
-a three-step operation the first time:
+Route binding is intentionally commented out in `wrangler.toml` —
+activate when ready. Deployment is a three-step operation the
+first time:
 
 1. **Deploy the Worker** (no routes yet):
    ```
    npx wrangler deploy
    ```
 
-2. **Bind routes** via the Cloudflare dashboard (Workers → edge-bouncer
-   → Triggers → Routes). Add:
+2. **Bind routes** by uncommenting the four `[[routes]]` blocks in
+   `wrangler.toml` and running `npx wrangler deploy` again. That
+   attaches the Worker to:
    - `cjipro.com/briefing*`
    - `cjipro.com/briefing-v2*`
    - `cjipro.com/briefing-v3*`
    - `cjipro.com/briefing-v4*`
-   - `sonar.cjipro.com/*` (after MIL-54 removes the Cloudflare Access
-     policy on sonar — otherwise Access and the Bouncer will race)
+
+   `sonar.cjipro.com/*` is DEFERRED — binding here would intercept
+   the Ask CJI Pro tunnel at `/api/*`. MIL-54 retires the sonar
+   Cloudflare Access policy; we revisit then.
 
 3. **Verify shadow mode** — tail logs:
    ```

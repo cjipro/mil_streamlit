@@ -18,8 +18,39 @@ main = "src/index.ts"
 compatibility_date = "2025-10-15"
 compatibility_flags = ["nodejs_compat"]
 
-# No `[[routes]]` block yet — activation is a manual step in the
-# deployment runbook. See README.md.
+# Routes — commented out until the chunk-3 cutover day.
+#
+# Activating briefing-path routes is safe any time after MIL-63
+# magic-link is deployed, because ENFORCE=false means shadow-mode
+# pass-through. The routes start producing real decision logs
+# against live traffic, which is what we want before flipping
+# ENFORCE=true.
+#
+# The sonar.cjipro.com/* route is DEFERRED — binding the Bouncer
+# to sonar would intercept the Ask CJI Pro tunnel at /api/*. That
+# either needs PUBLIC_PATHS updated to whitelist /api/* or lives
+# as a separate chunk (MIL-54 retires the sonar Access policy, at
+# which point we revisit).
+#
+# To activate: uncomment the four briefing routes, run
+# `npx wrangler deploy`. Keep ENFORCE=false for the first 24–72h
+# to accumulate decision logs.
+#
+# [[routes]]
+# pattern    = "cjipro.com/briefing*"
+# zone_name  = "cjipro.com"
+#
+# [[routes]]
+# pattern    = "cjipro.com/briefing-v2*"
+# zone_name  = "cjipro.com"
+#
+# [[routes]]
+# pattern    = "cjipro.com/briefing-v3*"
+# zone_name  = "cjipro.com"
+#
+# [[routes]]
+# pattern    = "cjipro.com/briefing-v4*"
+# zone_name  = "cjipro.com"
 
 [vars]
 # Non-secret, public identifiers. Match mil/config/workos.yaml

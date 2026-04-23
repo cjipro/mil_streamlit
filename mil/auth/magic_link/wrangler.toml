@@ -1,0 +1,71 @@
+# MIL-63 — Magic Link Worker
+#
+# Deploys as a NEW Worker (`magic-link`) alongside the existing
+# `login-cjipro` Worker. Routes intentionally NOT populated here —
+# the new Worker lives at the workers.dev URL until chunk 3 cuts
+# login.cjipro.com/* over to it (at which point the `login-cjipro`
+# placeholder Worker gets either deleted or demoted to a fallback).
+#
+# Two secrets are REQUIRED and are NOT in this file. Set them via:
+#   npx wrangler secret put WORKOS_CLIENT_SECRET
+#     (paste sk_live_... or sk_test_... — the WorkOS API secret)
+#   npx wrangler secret put STATE_SIGNING_KEY
+#     (paste a random 32+ byte string; generate with
+#      `openssl rand -base64 32` or similar)
+
+name = "magic-link"
+main = "src/index.ts"
+compatibility_date = "2025-10-15"
+
+# Staging WorkOS values — match mil/config/workos.yaml
+[vars]
+AUTHKIT_HOST           = "ideal-log-65-staging.authkit.app"
+CLIENT_ID              = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+REDIRECT_URI           = "https://magic-link.hussain-marketing.workers.dev/callback"
+DEFAULT_RETURN_TO      = "/"
+COOKIE_NAME            = "__Secure-cjipro-session"
+COOKIE_DOMAIN          = ".cjipro.com"
+COOKIE_MAX_AGE_SECONDS = "3600"
+RETURN_TO_PARAM        = "return_to"
+
+# NB: REDIRECT_URI currently points at the workers.dev test URL.
+# MUST be updated to https://login.cjipro.com/callback (and
+# registered in the WorkOS dashboard as an allowed redirect URI)
+# before route binding in chunk 3. Otherwise the callback never
+# reaches this Worker.
+
+# Routes — commented out until cutover day.
+#
+# Activating login.cjipro.com/* on this Worker requires first
+# removing the route/custom-domain binding from the existing
+# `login-cjipro` Worker (which currently serves the MIL-59
+# placeholder). Cloudflare rejects two Workers claiming the same
+# hostname, so the cutover sequence is:
+#
+#   1. Verify magic-link works end-to-end at its workers.dev URL
+#      (browser test: secrets provisioned, WorkOS redirect URI
+#      allowlisted, /?return_to=/briefing-v4/ flow completes).
+#   2. Add `https://login.cjipro.com/callback` to WorkOS dashboard
+#      allowed redirect URIs (alongside the workers.dev one).
+#   3. Update REDIRECT_URI below to the login.cjipro.com value.
+#   4. In Cloudflare dashboard: remove the custom domain binding
+#      of `login.cjipro.com` from the `login-cjipro` Worker.
+#   5. Uncomment the route block below.
+#   6. Run `npx wrangler deploy` — this Worker now owns the route.
+#   7. Either `wrangler delete login-cjipro` (full retirement) or
+#      demote it to a workers.dev-only fallback.
+#
+# Rollback: comment out the route, redeploy, reattach
+# login.cjipro.com to login-cjipro in the dashboard. Placeholder
+# returns.
+#
+# [[routes]]
+# pattern        = "login.cjipro.com"
+# custom_domain  = true
+# # (No zone_name, no trailing /*. Custom Domains attach at the
+# #  hostname level and route all traffic — Cloudflare manages the
+# #  DNS record automatically. This is how login-cjipro is currently
+# #  bound; we're replacing it.)
+
+[observability]
+enabled = true
