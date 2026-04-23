@@ -34,7 +34,8 @@ _LOGIN_SITE_DIR = Path(__file__).parent / "login_site"
 
 # (source_filename, destination_relative_path)
 _FILES: list[tuple[str, str]] = [
-    ("index.html", "login/index.html"),
+    ("index.html",    "login/index.html"),
+    ("wrangler.toml", "login/wrangler.toml"),
 ]
 
 

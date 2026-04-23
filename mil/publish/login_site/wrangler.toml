@@ -1,0 +1,14 @@
+name = "login-cjipro"
+compatibility_date = "2026-04-23"
+
+[assets]
+directory = "."
+
+# This Worker serves the static files in this directory (mil_briefing/login/
+# after publish) at the root of login.cjipro.com.
+#
+# The Cloudflare dashboard's "Path" field scopes the deploy to this directory,
+# so wrangler.toml is read from here and `directory = "."` maps to the same
+# folder. wrangler auto-excludes wrangler.toml itself from uploaded assets.
+#
+# Retired when MIL-61 Edge Bouncer replaces this placeholder with real auth.
