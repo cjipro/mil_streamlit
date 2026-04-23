@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /privacy/
+Allow: /about/
+Disallow: /briefing
+Disallow: /briefing-v2
+Disallow: /briefing-v3
+Disallow: /briefing-v4
+Disallow: /api/
+Disallow: /ask/
+
+Sitemap: https://cjipro.com/sitemap.xml
