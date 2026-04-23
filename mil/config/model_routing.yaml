@@ -96,7 +96,7 @@ routes:
   briefing_verifier:
     model: "claude-haiku-4-5-20251001"
     provider: anthropic
-    max_tokens: 512
+    max_tokens: 1024
     note: >
       MIL-49. Light post-generation verifier that checks the Opus lede +
       headline against the FACTS block and verbatim quotes that were passed

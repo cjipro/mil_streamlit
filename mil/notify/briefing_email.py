@@ -540,10 +540,18 @@ def _verify_lede(facts: dict, headline: str, lede: str) -> dict:
         fence = re.match(r"```(?:json)?\s*(\{.*?\})\s*```", body, re.DOTALL)
         if fence:
             body = fence.group(1)
+        else:
+            inner = re.search(r"\{.*\}", body, re.DOTALL)
+            if inner:
+                body = inner.group(0)
         data = json.loads(body)
     except (json.JSONDecodeError, AttributeError):
-        logger.warning("[briefing_email] verifier output not JSON: %r", raw[:200])
-        return {"pass": True, "violations": [], "notes": "verifier output unparseable"}
+        logger.warning("[briefing_email] verifier output not JSON (fail-safe → pass=False): %r", raw[:200])
+        return {
+            "pass":       False,
+            "violations": ["verifier output unparseable — fail-safe default"],
+            "notes":      "verifier output unparseable",
+        }
 
     return {
         "pass":       bool(data.get("pass", True)),
