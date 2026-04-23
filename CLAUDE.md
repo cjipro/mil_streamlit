@@ -412,7 +412,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | MIL-50 | Public landing page + cjipro.com domain unblock — `mil/publish/site/{home,privacy,robots,sitemap,security}.html\|txt\|xml`, `mil/publish/publish_site.py` | BUILT 2026-04-23 (commit 1d9c2c9) |
 | MIL-51 | URL-filter vendor categorisation submissions (Zscaler / Talos / Palo Alto / Forcepoint / Symantec) | IN_PROGRESS 2026-04-23 — Talos submitted |
 | MIL-52 | Gmail Send-as for hello@cjipro.com + SPF update | BACKLOG |
-| MIL-53 | Track Ask CJI Pro v1 codebase in git (hygiene, load-bearing) | BACKLOG |
+| MIL-53 | Track Ask CJI Pro v1 codebase in git (hygiene, load-bearing) | PARTIAL — `mil/config/model_routing.yaml` 4 Ask CJI Pro routes + `mil/publish/publish.py` iframe refactor accidentally bundled into `df6470d` (commit labelled docs/MIL-55 but scope-crept). Still untracked: `mil/chat/` tree, `app/pages/08_ask_cji_pro.py`, `mil/command/ask_page.py`, `ops/cloudflared/`, ops scripts, ask_* data logs. Remainder needs its own focused commit. |
 | MIL-54 | Custom team domain for sonar.cjipro.com — move login from `*.cloudflareaccess.com` to `login.cjipro.com` | BACKLOG |
 | MIL-55 | Phase B kickoff — clone-ready VCS + CI + secrets + LLM abstraction (tracker; items open as sequential tickets MIL-56..MIL-61 when Phase B starts) | BACKLOG (gated: earliest 2026-05-05) |
 
