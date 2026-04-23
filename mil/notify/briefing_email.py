@@ -53,7 +53,7 @@ _ENRICHED_DIR      = _MIL_ROOT / "data" / "historical" / "enriched"
 _BRIEFING_URL      = "https://cjipro.com/briefing-v4"
 
 # Locked constant — Teams rules depend on byte-for-byte identity.
-_SUBJECT_LINE = "Sonar PDB · 22 Apr · Barclays — App Crashing · CLARK-2 · Panel recommended"
+_SUBJECT_LINE = "Voice of the Customer: Barclays App Experience (Open Sources)"
 
 _COHORT_PEERS = ["NatWest", "Lloyds", "HSBC", "Monzo", "Revolut"]
 
@@ -711,14 +711,12 @@ def _is_silent_day(commentary: dict | None) -> tuple[bool, str]:
 
 def _build_plaintext(recipient: dict, headline: str, lede: str,
                      date: str, quotes: list[dict]) -> str:
-    name = recipient.get("display_name") or "Colleague"
-
     lines = [
         _SUBJECT_LINE,
         "",
         headline,
         "",
-        f"Dear {name},",
+        "Dear Team,",
         "",
         lede,
         "",
@@ -768,8 +766,6 @@ def _html_quote_block(quotes: list[dict]) -> str:
 
 def _build_html(recipient: dict, headline: str, lede: str,
                 quotes: list[dict]) -> str:
-    name = recipient.get("display_name") or "Colleague"
-
     header_strip = (
         f'<div style="font-family:{_MONO};font-size:11px;color:{_MUTED};'
         f'letter-spacing:0.3px;padding:8px 12px;background:#FFFFFF;'
@@ -784,7 +780,7 @@ def _build_html(recipient: dict, headline: str, lede: str,
 
     salute = (
         f'<p style="margin:0 0 14px 0;font-family:{_SERIF};font-size:15px;'
-        f'color:{_INK};">Dear {_esc(name)},</p>'
+        f'color:{_INK};">Dear Team,</p>'
     )
 
     lede_html = (

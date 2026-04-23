@@ -395,19 +395,20 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | MIL-37 | Data Egress Logger — per-call API log | BUILT 2026-04-19 |
 | MIL-38 | Slack notification layer + Autonomous Heartbeat | BUILT 2026-04-19 |
 
-**Ask CJI Pro v1 — backlog (2026-04-21, not yet started):**
+**Ask CJI Pro v1 — BUILT 2026-04-22 (alpha ready, awaiting partner onboarding):**
 | Ticket | Component | Status |
 |--------|-----------|--------|
-| MIL-39 | Ask CJI Pro v1 — lean MIL chat MVP (tracker) | BACKLOG |
-| MIL-40 | intent router (Haiku) + retriever dispatch | BACKLOG |
-| MIL-41 | retriever pool (BM25 + embeddings + SQL) | BACKLOG |
-| MIL-42 | synthesis layer (Sonnet forced-citation + confidence tags + verbatim quotes) | BACKLOG |
-| MIL-43 | refusal taxonomy + logic-probe scope enforcement | BACKLOG |
-| MIL-44 | 5 chart templates (trend / compare / heatmap / quote / peer_rank) | BACKLOG |
-| MIL-45 | `/ask` page with two-column streaming UX | BACKLOG |
-| MIL-46 | query audit log (JSONL append-only) | BACKLOG |
-| MIL-47 | tiered model routing + query-hash cache | BACKLOG |
-| MIL-48 | alpha partner onboarding + feedback capture | BACKLOG |
+| MIL-39 | Ask CJI Pro v1 — lean MIL chat MVP (tracker) | BUILT 2026-04-22 |
+| MIL-40 | intent router (Haiku) + retriever dispatch — `mil/chat/intent.py` | BUILT 2026-04-22 |
+| MIL-41 | retriever pool — `mil/chat/retrievers/{bm25,embedding,sql,structured}.py` | BUILT 2026-04-22 |
+| MIL-42 | synthesis + verifier — `mil/chat/{synthesis,verifier}.py` (Sonnet default, Opus opt-in) | BUILT 2026-04-22 |
+| MIL-43 | refusal taxonomy + logic-probe regex guard — `mil/chat/refusals.py` | BUILT 2026-04-22 |
+| MIL-44 | 5 chart templates — `mil/chat/charts.py` (trend / compare / heatmap / quote / peer_rank) | BUILT 2026-04-22 |
+| MIL-45 | `/ask` page — `mil/command/ask_page.py` + `app/pages/08_ask_cji_pro.py` | BUILT 2026-04-22 |
+| MIL-46 | append-only audit log — `mil/chat/audit.py` → `mil/data/ask_audit_log.jsonl` | BUILT 2026-04-22 |
+| MIL-47 | query-hash cache + tiered routing — `mil/chat/cache.py` + 4 routes in model_routing.yaml | BUILT 2026-04-22 |
+| MIL-48 | feedback capture — `mil/chat/feedback.py` → `mil/data/ask_feedback_log.jsonl`; partner onboarding pending | BUILT 2026-04-22 |
+| MIL-49 | Sonar PDB email distribution — `mil/notify/briefing_email.py`, Opus lede + Haiku verifier, immutable subject, silent-day guard | BUILT 2026-04-22 (commit 9fc6116) |
 
 **Source Stack (6 active):**
 | Source | Trust Weight | Status |
@@ -574,6 +575,93 @@ Specialist stack: `mil/specialist/`
 
 3x-ing P0 pair coverage to 198 pairs improved P0 by only +8.3pp with a matching P2 regression — 4B appears to be the ceiling. `specialist_severity` route flipped `declared` → `shelved` in `model_routing.yaml`. Severity classification stays on the enrichment route (qwen3:14b, which already hits the gate thresholds). Autonomy path does not depend on this route. Revisit only if bitsandbytes stabilises for 7B/8B QLoRA on Blackwell, or we obtain larger training hardware. Adapter backups kept at `mil/specialist/qwen3-mil-v1-4b/` + `.bak/` (both gitignored). Full report: `mil/specialist/heldout_eval_report.md`.
 
+### Ask CJI Pro v1 — MIL-39 to MIL-48 (BUILT 2026-04-22)
+Package root: `mil/chat/`  ·  Streamlit shim: `app/pages/08_ask_cji_pro.py` → `mil/command/ask_page.py`
+
+**Pipeline** (`mil/chat/pipeline.py::ask(query, deep=False)`):
+1. `refusals.check_logic_probe` + `check_pii` — regex guard, 0ms refusal pre-classify
+2. `intent.classify` — Haiku via `intent_classification` route, strict-JSON contract, 9 intents
+3. `cache.get` — query-hash + intent + entities → 1-hour TTL, ~20× speedup on repeats
+4. `dispatch_plan(intent)` → retrieve from {bm25, embedding, sql, structured} and merge into one `EvidenceBundle`
+5. `synthesis.synthesise` — Sonnet (default) or Opus (`deep=True`), forced `[id]` citations, verbatim quotes
+6. `verifier.verify` — two-stage: in-code citation resolve + smart-quote-normalised verbatim check + Haiku support audit
+7. `audit.log` + `cache.put` → `mil/data/ask_audit_log.jsonl` + `mil/data/ask_query_cache.json`
+
+**Retrievers** (`mil/chat/retrievers/`):
+- `structured.py` — chronicle (19 CHR entries) + mil_findings.json (142 findings), entity-keyed lookups, chronicle_id=1.0 direct hit
+- `bm25.py` — inline BM25Okapi over 8075 enriched reviews (no `rank_bm25` dep), tokenised with stopword filter
+- `embedding.py` — all-MiniLM-L6-v2 dense retriever, disk-cached vectors at `mil/data/ask_embedding_cache.npz` (12.4MB), invalidated on corpus mtime change, cosine top-k
+- `sql.py` — DuckDB over `mil_analytics.db`, three query templates (trend/compare/peer_rank) dispatched via `_intent` entity key
+- `_corpus.py` — shared review loader (handles both new `{"records": [...]}` and legacy list-shaped files)
+
+**Model routes added to `mil/config/model_routing.yaml`:**
+- `intent_classification` — Haiku, 256 tok, system prompt 2149 chars (below cache threshold)
+- `ask_synthesis` — Sonnet 4-6, 1024 tok, prompt caching enabled (system prompt static ≥4000 chars)
+- `ask_synthesis_deep` — Opus 4-6, 2048 tok, opt-in via `deep=True`
+- `ask_verifier` — Haiku, 256 tok, support-audit JSON contract
+
+**Scope enforcement (`mil/chat/refusals.py`):**
+- 9 logic-probe regexes: "our/my/internal/TAQ customers", "session state", "step N of", "internal telemetry/KPI/metric", "vulnerable customer", "HMAC/PII"
+- 4 PII heuristics: consecutive capitalised names, email, UK mobile, account number
+- 5 refusal classes with pre-baked user-facing messages
+- Chronicle scope is intentionally wider than monitored-competitor list (TSB 2018 = CHR-001 is valid)
+
+**UI** (`mil/command/ask_page.py`):
+- Two-column layout: left = query box + 5 example queries + short history; right = answer + chart (if `chart_hint`) + verbatim quote cards + citation list + verifier status + thumbs-up/down + note
+- 5 chart templates: trend (multi-series line), compare (grouped bar), heatmap (issue × competitor), quote (styled HTML blockquote), peer_rank (horizontal bar)
+- Colour palette matches MIL briefing chrome (#00273D bg, #E8F4FA fg, #0077CC accent)
+
+**Smoke-test results (2026-04-22 00:01-00:10Z):**
+- 6/6 classifier queries routed correctly after one prompt tweak (CHRONICLE scope broadened)
+- Quote search "barclays login failures" → 15 evidence / 8 citations / `confidence=evidenced` / 21s first call / 1.1s cached
+- Peer rank "app crashes last 30d" → 6 ranked rows, 0 verifier violations
+- Logic probe "vulnerable customers on step 3" → hard refusal in 0ms (pre-classify)
+- Smart-quote normalisation fix in verifier (U+2019 → U+0027, U+201C → U+0022, etc.) eliminated false-positive verbatim-mismatch violations
+
+**HTTP API layer (added 2026-04-22):** `mil/chat/api_server.py` — stdlib-only `http.server.ThreadingHTTPServer`, zero new deps. Listens on 127.0.0.1:8765 by default. Endpoints: `POST /api/ask`, `POST /api/feedback`, `GET /api/health`, `GET /api/audit/summary`, `GET /api/feedback/summary`. CORS `*` in-app; tighten via Cloudflare Access, not in code. Warm-starts BM25 + embedding in a background thread on boot so the first `/api/ask` isn't cold. Launchers: `ops/run_ask_api.cmd` (one-shot), or register as Windows service after tunnel setup.
+
+**Cloudflare Tunnel (config only — install pending Hussain):** `ops/cloudflared/config.yml` + `ops/setup_tunnel.cmd` + `ops/run_tunnel.cmd`. Maps `sonar.cjipro.com/api/*` → local 8765. The setup script handles login → create → DNS route → config patch → service install, but requires `winget install --id Cloudflare.cloudflared -e` first (Claude was blocked from installing system software on the user's behalf — correct safety posture). Tunnel is unauth by default; Cloudflare Access policy on `sonar.cjipro.com` is REQUIRED before accepting traffic or the API is open to the world.
+
+**Next step (MIL-48 partner onboarding):** needs Hussain — provision `partner_id` values, decide alpha cohort, set up feedback review cadence. Before that, install cloudflared + run `ops/setup_tunnel.cmd` + configure Cloudflare Access to actually serve `sonar.cjipro.com/api/ask`. All code plumbing is live; `mil/data/ask_feedback_log.jsonl` will start populating on first thumbs click.
+
+### MIL-49 — Sonar PDB Email Distribution (BUILT 2026-04-22, commit 9fc6116)
+File: `mil/notify/briefing_email.py` + `mil/config/distribution.yaml`
+
+Daily PDB email fires at the end of `run_daily.py` on **CLEAN runs only**. Wired as Step 8 (after Step 6 log-run, after notify_run_complete). Non-fatal — SMTP failure never flips run status.
+
+**Subject is immutable** (Teams inbox rules depend on byte-for-byte identity):
+```
+Voice of the Customer: Barclays App Experience (Open Sources)
+```
+All per-day variance lives in the body. (Changed 2026-04-23 from the earlier operator-speak subject `Sonar PDB · 22 Apr · Barclays — App Crashing · CLARK-2 · Panel recommended` — analyst/VoC framing reads cleaner to partner audiences outside the build team, and "Open Sources" signals OSINT scope to Barclays risk/compliance readers.)
+
+**Body (~200 words, ~$0.07/send typical, ~$0.15 on verifier-fail retry, free on cached resend):**
+- Greeting is always "Dear Team," (was "Dear {display_name}," until 2026-04-23 — generic salutation so the same email can fan out to a cohort without per-recipient rendering drift).
+- Immutable subject renders as a metadata strip at the top (forwarding anchor).
+- Opus 4.7 `briefing_lede` route — writes `{headline, lede}` per run, cached per run_number in `mil/data/email_lede_log.jsonl`.
+- 2–3 verbatim customer quotes — App Store + Google Play + best-of-other-media. **Zero editing, ever.** Labelled with source + date only.
+- Deterministic footer — names every source used AND every source that produced nothing, plus briefing-v4 link.
+
+**Haiku 4.5 `briefing_verifier`** runs post-generation against the 8 locked principles + a fact-accuracy check. On fail, Opus retries once with violations fed back as corrections. Second draft ships regardless of verifier result; the full trail is logged in `email_lede_log.jsonl` for review.
+
+**8 locked drafting principles (the Sonar PDB constitution — 2026-04-22):**
+1. Verbatim is sacred — no editing, no paraphrasing, no 4+ consecutive-word lifts
+2. Denominators always named — % has "of what", "sustained" has days, "peer" names peers
+3. Judgments back-sourced — regulatory/switching claims cite precedent or soften
+4. Confidence stated — "Confidence: low/medium/high" with a justification clause
+5. Analyst voice, never operator voice — banned verbs: ship, fix, deploy, mandate, issue, convene, escalate, address, resolve, launch, rollout
+6. No internal codes in reader-facing prose — CLARK/P0/P1/P2/CAC/CHR-NNN stripped via post-generation regex on both Opus output and any included commentary
+7. Lead with position, proportion, and the most diagnostic fact
+8. No unsupported engineering diagnosis — mechanism-naming ("background-state failure", "race condition", "cache corruption" etc.) forbidden unless a verbatim quote explicitly describes the trigger; hedged formulations ("is consistent with", "suggests") always allowed
+
+**Silent-day guard (principle 9 in spirit):** no email sent when no issue clears (confidence ≥ medium AND sustained ≥ 3 days). Slack operator heartbeat still fires so pipeline health is always visible. The absence of a partner email on a quiet day is itself a signal.
+
+**Distribution:** `mil/config/distribution.yaml` — initial list: `hussain.x.ahmed@barclays.com` (Hussain Barclays). Recipients must also be on the Cloudflare Access "Alpha" policy allowlist to view the linked briefing.
+
+**SMTP creds:** `.env` — `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER`, `SMTP_APP_PASSWORD`, optional `SMTP_FROM`.
+
+**Manual fire:** `py -m mil.notify.briefing_email --ignore-status [--clear-cache]`.
+
 ### Day 30 Success Metrics — ALL DONE (2026-04-05)
 - **M1**: DONE — streak 19/5 as of 2026-04-19. Run #35 logged. Tracker: mil/data/daily_run_log.jsonl
 - **M2**: DONE — NatWest MIL-F-20260402-047, CAC=0.652, CHR-001, countersigned 2026-04-02
@@ -599,7 +687,9 @@ Specialist stack: `mil/specialist/`
 - **Apr 21 DONE**: Box 2 polish — review count + days sustained per row (3c34b98); single-quote slot P0/P1/P2 fallback + severity-prioritised across top 5 issues (884ff92).
 - **Apr 21 DONE (late evening)**: Box 3 overhaul — `box3_selector.py` with 6-key tiebreaker + 14 unit tests, self-justifying preamble, three-tile KPI treatment (5b302e5); Journey Row ACUTE/PERSISTENT/DRIFT/STABLE taxonomy + priority-triage header + severe-days metric (d6ec353); Box 2 legend footnote (a7f5c3d); Box 3 Call-to-badge collapse, two-line Clark badge via `CLARK_ACTION_DETAILS` (08396f8). V4 structural diff-gate still clean throughout.
 - **Apr 21 DONE**: Ask CJI Pro v1 scoped + ticketed. MIL-39 tracker + MIL-40 through MIL-48 implementation tickets on Kanban board. MIL-scope only (public signal). Heavy FCA chrome (signed bundles, Source Fidelity Gate, DPIA) deliberately reserved for future Ask CJI Pulse chat product. 10 items, ~4-5 weeks to alpha. No code scaffolded yet.
-- **Apr 28 (current autonomy target)**: Task Scheduler fires `run_daily.py` at 06:30 UTC automatically. Optionally pivot to either (a) start Ask CJI Pro implementation per MIL-39 to MIL-48, or (b) unblock CJI Pulse PULSE-11.
+- **Apr 22 DONE (overnight autonomy run)**: Ask CJI Pro v1 BUILT end-to-end. `mil/chat/` package + 4 retrievers (bm25 over 8075 reviews, embedding with disk-cached vectors, DuckDB sql, structured chronicle+findings) + synthesis (Sonnet default, Opus opt-in) + Haiku verifier (citation resolve + verbatim quote check w/ smart-quote normalisation + LLM support audit) + regex logic-probe guard + append-only audit log + query-hash cache (1-hour TTL, ~20x speedup on repeats) + 5 Plotly chart templates + feedback capture + two-column Streamlit page at `app/pages/08_ask_cji_pro.py` → `mil/command/ask_page.py`. Four new routes in model_routing.yaml: intent_classification (Haiku), ask_synthesis (Sonnet), ask_synthesis_deep (Opus), ask_verifier (Haiku). Pipeline entry: `py -m mil.chat.pipeline "query"`. Classifier 6/6 on scope-probe set (TSB 2018 chronicle routed correctly, "vulnerable customers on step 3" hard-refused pre-classify in 0ms). Alpha onboarding (MIL-48 partner names) still requires Hussain.
+- **Apr 22 DONE (afternoon — Ask CJI Pro live at sonar.cjipro.com + polish pass)**: (a) Cloudflare Tunnel `ask-cji-pro` created + DNS routed, API live at `https://sonar.cjipro.com/api/*` and UI at `https://sonar.cjipro.com/` served by `mil/chat/api_server.py`. Tunnel foreground-running, NOT registered as service yet, Cloudflare Access policy deliberately deferred ("guardrails later") — before alpha invites both must land. (b) All 4 briefings republished — popup chat now `<iframe src="https://sonar.cjipro.com/">` instead of baked plain-text chat, single UI source of truth. (c) Bug class fixes: zombie-server trap (`allow_reuse_address = False` on ThreadingHTTPServer subclass so duplicate servers fail loud on bind); smart-quote normalisation in verifier; `ask_synthesis` max_tokens 1024 → 3072 (responses were truncating mid-JSON, forcing raw-text fallback); synthesis parser unwraps accidentally-nested JSON + flattens wrapped citation strings; verifier uses same metadata-rich evidence format as synthesiser + has today's date for "future date" judgements. (d) Classifier polish: added `status` intent + `mil/chat/retrievers/status.py` for meta-queries (coverage / freshness / source breakdown); Barclays-default logic (competitor defaults to barclays unless query explicitly asks for peer/rank/compare) enforced in both the classifier prompt AND a code-level post-check; deterministic keyword override fires if LLM refuses a query that names a known competitor + journey noun; "daily" no longer maps to `timeframe_days=1` and SQL trend floors at 7. (e) Synthesis prompt rewritten to analyst-voice — lead with the answer, translate P0→"critical"/P1→"significant friction", no `CAC`/`J_LOGIN_01`/`MIL-F-XXX` in prose (IDs live inside citation brackets only), bad/good style examples baked into prompt. (f) Run #55 completed PARTIAL (only analytics DB rebuild failed — Windows file-lock from API's cached DuckDB conn). Fixed by migrating `SQLRetriever` + `StatusRetriever` to `@contextmanager` short-lived connections; analytics DB then rebuilt cleanly. Stack state: 8,152 reviews, 143 findings, streak 22/5, churn 50.3 WORSENING. Run #55 Slack pinged PARTIAL but DB is caught up.
+- **Apr 28 (current autonomy target)**: Task Scheduler fires `run_daily.py` at 06:30 UTC automatically. Ask CJI Pro v1 ready for alpha partners — next step is (a) Cloudflare Access policy on `sonar.cjipro.com/*`, (b) `cloudflared ... service install` for boot-persistence, (c) MIL-48 partner provisioning. Alternative pivot: CJI Pulse PULSE-11 unblock.
 - **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
