@@ -108,17 +108,54 @@ def _load_distribution() -> list[dict]:
     return [r for r in (raw.get("recipients") or []) if isinstance(r, dict) and r.get("email")]
 
 
-def _log_send(recipient: str, subject: str, status: str, error: str = "") -> None:
+def _sha256_hex(s: str) -> str:
+    import hashlib
+    return hashlib.sha256((s or "").encode("utf-8")).hexdigest()
+
+
+def _quote_sigs(quotes: list[dict]) -> list[dict]:
+    """MIL-56 — per-slot signatures for the audit log. Enables MIL-57 dedup
+    and per-auditor reconstruction of evidence trail per send."""
+    return [
+        {
+            "slot":          i,
+            "source":        q.get("source", ""),
+            "text_sha256":   _sha256_hex(q.get("text", "")),
+            "original_date": (q.get("date") or "")[:10],
+        }
+        for i, q in enumerate(quotes or [], 1)
+    ]
+
+
+def _log_send(recipient: str, subject: str, status: str, error: str = "",
+              run=None, date: str | None = None, priority_issue: str | None = None,
+              headline: str | None = None, lede_sha256: str | None = None,
+              quote_sigs: list[dict] | None = None) -> None:
+    """Append one record per recipient x send to email_log.jsonl.
+
+    MIL-56: on status='ok', record the audit fields (headline, lede_sha256,
+    quote_sigs, run, date, priority_issue) so MIL-57 rotation + MIL-58
+    same-story detection can read the log. Pre-send selections are not
+    commitments — audit fields are omitted on status='error' entries.
+    """
     try:
         _EMAIL_LOG.parent.mkdir(parents=True, exist_ok=True)
+        entry: dict = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "recipient": recipient,
+            "subject":   subject,
+            "status":    status,
+            "error":     error,
+        }
+        if status == "ok":
+            if run is not None:            entry["run"] = run
+            if date is not None:           entry["date"] = date
+            if priority_issue is not None: entry["priority_issue"] = priority_issue
+            if headline is not None:       entry["headline"] = headline
+            if lede_sha256 is not None:    entry["lede_sha256"] = lede_sha256
+            if quote_sigs is not None:     entry["quote_sigs"] = quote_sigs
         with _EMAIL_LOG.open("a", encoding="utf-8") as f:
-            f.write(json.dumps({
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recipient": recipient,
-                "subject":   subject,
-                "status":    status,
-                "error":     error,
-            }) + "\n")
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except Exception as exc:
         logger.warning("[briefing_email] email_log append failed: %s", exc)
 
@@ -963,6 +1000,10 @@ def send_briefing_notification(run_entry: dict) -> dict:
         logger.info("[briefing_email] distribution list empty — skipping")
         return result
 
+    # MIL-56 — compute audit fields once per send, pass per recipient.
+    lede_hash  = _sha256_hex(lede)
+    quote_sigs = _quote_sigs(quotes)
+
     for r in recipients:
         addr = (r.get("email") or "").strip()
         if not addr:
@@ -980,7 +1021,9 @@ def send_briefing_notification(run_entry: dict) -> dict:
                 server.login(user, pwd)
                 server.sendmail(from_addr, [addr], msg.as_string())
             logger.info("[briefing_email] sent to %s", addr)
-            _log_send(addr, _SUBJECT_LINE, "ok")
+            _log_send(addr, _SUBJECT_LINE, "ok",
+                      run=run_number, date=date, priority_issue=priority,
+                      headline=headline, lede_sha256=lede_hash, quote_sigs=quote_sigs)
             result["sent"] += 1
         except Exception as exc:
             logger.warning("[briefing_email] send to %s failed: %s", addr, exc)
