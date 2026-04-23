@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CJI Pro — Secure access</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="Secure login for CJI Pro. Invitation-only alpha. Public landing page at cjipro.com.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI Pro">
+<link rel="canonical" href="https://login.cjipro.com/">
+
+<!-- Schema.org (classifier signal: legitimate business, not phishing) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "CJI Pro — Secure access",
+  "url": "https://login.cjipro.com",
+  "publisher": {
+    "@type": "Organization",
+    "name": "CJI Pro",
+    "url": "https://cjipro.com"
+  },
+  "inLanguage": "en-GB"
+}
+</script>
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 28px; width: 100%; }
+
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+  }
+  .card {
+    text-align: left;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .status-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-weight: 600;
+    color: var(--coming);
+    background: #FAF1E2;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 0 0 28px 0;
+  }
+  .divider {
+    height: 1px;
+    background: var(--hairline);
+    margin: 32px 0;
+    border: 0;
+  }
+  .info-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 14px;
+    padding: 10px 0;
+    font-size: 14px;
+  }
+  .info-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+  .info-value {
+    color: var(--ink-soft);
+  }
+  .info-value code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--cream);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 28px 0 36px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  footer a { color: var(--muted); margin-left: 18px; }
+  footer a:first-child { margin-left: 0; }
+  footer a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 28px; }
+    .lede { font-size: 16px; }
+    .info-row { grid-template-columns: 1fr; gap: 4px; padding: 8px 0; }
+    main { padding: 36px 0; }
+    .nav a { font-size: 13px; }
+    .brand-sub { display: none; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <span class="brand">CJI Pro</span>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="https://cjipro.com/">cjipro.com</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="eyebrow">
+        <span>Secure access</span>
+        <span class="status-pill">Coming soon</span>
+      </div>
+      <h1>login.cjipro.com</h1>
+      <p class="lede">
+        This is the authenticated entry point to CJI Pro. When the alpha
+        programme opens, invited partners will sign in here via a one-time
+        link sent to their work email.
+      </p>
+
+      <hr class="divider">
+
+      <div class="info-row">
+        <div class="info-label">Public site</div>
+        <div class="info-value"><a href="https://cjipro.com/">cjipro.com</a> — product overview, research principles, sector coverage.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Daily briefing</div>
+        <div class="info-value"><a href="https://cjipro.com/briefing-v4">cjipro.com/briefing-v4</a> — latest public-signal intelligence.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Access requests</div>
+        <div class="info-value">Email <a href="mailto:hello@cjipro.com">hello@cjipro.com</a> with your role, your sector, and the customer-journey question currently unanswered on your team.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Security reports</div>
+        <div class="info-value">Contact <a href="mailto:security@cjipro.com">security@cjipro.com</a> or see <a href="https://cjipro.com/.well-known/security.txt">security.txt</a>.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>&copy; 2026 CJI Pro · Independent market research</div>
+    <div>
+      <a href="https://cjipro.com/">Public site</a>
+      <a href="https://cjipro.com/privacy/">Privacy</a>
+      <a href="mailto:hello@cjipro.com">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
