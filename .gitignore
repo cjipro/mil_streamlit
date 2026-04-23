@@ -64,6 +64,24 @@ mil/data/run_auto_*.log
 mil/data/data_egress_log.jsonl
 mil/data/refuel_strategy_corpus.json
 
+# Ask CJI Pro runtime — API logs, caches, append-only audit + feedback
+mil/data/ask_api_*.log
+mil/data/ask_api_live.log
+mil/data/ask_api_tunnel.log
+mil/data/ask_audit_log.jsonl
+mil/data/ask_feedback_log.jsonl
+mil/data/ask_query_cache.json
+mil/data/ask_embedding_cache.npz
+mil/data/ask_last_raw.txt
+
+# MIL-49 Sonar PDB email runtime logs
+mil/data/email_lede_log.jsonl
+mil/data/email_log.jsonl
+
+# Ops runtime logs
+ops/cloudflared/fix_service.log
+ops/register_ask_api_task.log
+
 # MIL publish build outputs — regenerated each run. Tracked snapshots (index.html,
 # index_v2.html, index_v3.html, index_v3_golden.html, index_v4.html) stay committed;
 # everything below is local-only (diff-gate renders + standalone previews).
