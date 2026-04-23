@@ -1,0 +1,48 @@
+# MIL-61 — Cloudflare Worker Edge Bouncer
+#
+# Deployment pattern: this Worker sits in front of cjipro.com and
+# sonar.cjipro.com, checks a WorkOS-issued session JWT against the
+# WorkOS JWKS, and 302s to login.cjipro.com on miss.
+#
+# Safe-deploy story: `ENFORCE=false` by default. In that mode the
+# Worker decides (log-only) what it would have done — redirect vs
+# pass — but always passes through. Flip to `ENFORCE=true` on the
+# day MIL-63 ships the magic-link flow, not before.
+#
+# Routes are INTENTIONALLY not populated until deployment day (see
+# README). Binding this Worker to cjipro.com/briefing* while
+# ENFORCE=false is harmless but also pointless — wait until MIL-63.
+
+name = "edge-bouncer"
+main = "src/index.ts"
+compatibility_date = "2025-10-15"
+compatibility_flags = ["nodejs_compat"]
+
+# No `[[routes]]` block yet — activation is a manual step in the
+# deployment runbook. See README.md.
+
+[vars]
+# Non-secret, public identifiers. Match mil/config/workos.yaml
+# (staging env).
+ENFORCE                = "false"
+SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
+JWKS_URL               = "https://api.workos.com/sso/jwks/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+# EXPECTED_ISS is PROVISIONAL — WorkOS's exact `iss` claim format
+# varies between AuthKit Sessions and User Management Sessions. The
+# shadow-mode rollout (ENFORCE=false) will log the `invalid` reason
+# on the first real JWT from MIL-63; we update this value then and
+# only then flip ENFORCE=true.
+EXPECTED_ISS           = "https://api.workos.com/user_management/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+LOGIN_URL              = "https://login.cjipro.com/"
+RETURN_TO_PARAM        = "return_to"
+JWKS_CACHE_TTL_SECONDS = "3600"
+
+# Public route allowlist — comma-separated list of path patterns
+# that bypass auth. Uses simple prefix + suffix matching in
+# whitelist.ts. Edit here, not in code.
+PUBLIC_PATHS = "=/,=/privacy,=/privacy/,^/.well-known/,=/robots.txt,=/sitemap.xml,=/.nojekyll"
+
+# Dev/observability
+[observability]
+enabled = true
