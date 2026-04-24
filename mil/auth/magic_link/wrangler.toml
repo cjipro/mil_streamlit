@@ -35,6 +35,14 @@ COOKIE_DOMAIN          = ".cjipro.com"
 COOKIE_MAX_AGE_SECONDS = "3600"
 RETURN_TO_PARAM        = "return_to"
 
+# MIL-66b — admin routes verify the same session cookie as the
+# edge-bouncer. These values MUST match edge_bouncer/wrangler.toml so
+# the same JWT validates on both Workers.
+JWKS_URL               = "https://ideal-log-65-staging.authkit.app/oauth2/jwks"
+EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+EXPECTED_ISS           = "https://ideal-log-65-staging.authkit.app"
+JWKS_CACHE_TTL_SECONDS = "3600"
+
 # Rollback: comment out the route below, redeploy this Worker, then
 # reattach login.cjipro.com to login-cjipro in the Cloudflare dashboard
 # (Workers → login-cjipro → Settings → Custom Domains → Add

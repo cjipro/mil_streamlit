@@ -167,8 +167,9 @@ function buildDenyResponse(): Response {
 <main>
 <h1>Access pending</h1>
 <p>You're signed in, but this account isn't on the alpha access list yet.</p>
-<p>Reach out to <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>
-and we'll add you.</p>
+<p>Request access at
+<a href="https://login.cjipro.com/request-access">login.cjipro.com/request-access</a>,
+or email <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.</p>
 </main>
 </body>
 </html>`;

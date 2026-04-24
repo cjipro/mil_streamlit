@@ -15,7 +15,12 @@ export type AuthEventType =
   | "magic_link.authorize"
   | "magic_link.callback.success"
   | "magic_link.callback.error"
-  | "magic_link.logout";
+  | "magic_link.logout"
+  // MIL-66b — signup + admin
+  | "signup.request"
+  | "admin.approve"
+  | "admin.deny"
+  | "admin.revoke";
 
 // Input passed to logAuthEvent. The lib is responsible for turning
 // the raw `ip` / `user_agent` / `session_sub` into salted hashes

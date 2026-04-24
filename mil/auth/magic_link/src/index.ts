@@ -20,6 +20,20 @@ import type { Env } from "./env";
 import { isValidReturnTo, signState } from "./state";
 import { extractJwtSub, logAuthEvent } from "../../audit/src/audit";
 import type { AuthEventInput } from "../../audit/src/types";
+import { checkAdmin, type AdminGateConfig } from "./admin_gate";
+import {
+  handleRequestAccessPost,
+  renderRequestForm,
+} from "./request_access";
+import {
+  handleApiApprove,
+  handleApiDeny,
+  handleApiRevoke,
+  handleApiSignups,
+  renderDashboard,
+  renderDenied,
+} from "./admin_routes";
+import { d1SaltStore, utcDateString } from "../../audit/src/salt";
 
 function cookieConfigFromEnv(env: Env): CookieConfig {
   return {
@@ -151,6 +165,27 @@ function audit(
   );
 }
 
+function adminGateConfigFromEnv(env: Env): AdminGateConfig | null {
+  if (!env.JWKS_URL || !env.EXPECTED_AUD || !env.EXPECTED_ISS) return null;
+  return {
+    jwksUrl: env.JWKS_URL,
+    expectedIss: env.EXPECTED_ISS,
+    expectedAud: env.EXPECTED_AUD,
+    jwksCacheTtlSeconds:
+      parseInt(env.JWKS_CACHE_TTL_SECONDS ?? "3600", 10) || 3600,
+    cookieName: env.COOKIE_NAME,
+  };
+}
+
+async function currentSalt(env: Env, now: Date): Promise<string | null> {
+  if (!env.AUDIT_DB) return null;
+  try {
+    return await d1SaltStore(env.AUDIT_DB).getOrCreate(utcDateString(now));
+  } catch {
+    return null;
+  }
+}
+
 export default {
   async fetch(
     request: Request,
@@ -161,11 +196,73 @@ export default {
     const path = url.pathname;
     const method = request.method;
 
-    // Only GETs flow through magic-link. Everything else 405.
-    if (method !== "GET") {
+    // MIL-66b — routes that accept POST: /request-access and /admin/api/*.
+    // All other routes are GET-only.
+    const isPostPath =
+      path === "/request-access" || path.startsWith("/admin/api/");
+    if (method !== "GET" && !(isPostPath && method === "POST")) {
       return new Response("method not allowed", {
         status: 405,
-        headers: { allow: "GET" },
+        headers: { allow: isPostPath ? "GET, POST" : "GET" },
+      });
+    }
+
+    // --- MIL-66b: self-service signup + admin dashboard ---
+    if (path === "/request-access") {
+      if (method === "GET") return renderRequestForm();
+      // POST
+      const salt = await currentSalt(env, new Date());
+      const res = await handleRequestAccessPost(request, env.AUDIT_DB, salt);
+      // Audit after the write so we capture the actual outcome (via
+      // status code — 200 ok, 400 invalid-email, 429 rate-limited).
+      audit(env, ctx, {
+        ...baseAuditInput(request, path),
+        event_type: "signup.request",
+        reason: `http_${res.status}`,
+      });
+      return res;
+    }
+
+    if (path === "/admin" || path.startsWith("/admin/api/")) {
+      const cfg = adminGateConfigFromEnv(env);
+      if (!cfg || !env.AUDIT_DB) {
+        return renderDenied({ kind: "misconfigured" });
+      }
+      const check = await checkAdmin(request, env.AUDIT_DB, cfg);
+      if (check.kind !== "ok") return renderDenied(check);
+      const adminEmail = check.email;
+
+      if (path === "/admin") return renderDashboard(adminEmail);
+      if (path === "/admin/api/signups" && method === "GET") {
+        return handleApiSignups(env.AUDIT_DB);
+      }
+      if (path === "/admin/api/approve" && method === "POST") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.approve",
+          session_sub: adminEmail,
+        });
+        return handleApiApprove(request, env.AUDIT_DB, adminEmail);
+      }
+      if (path === "/admin/api/deny" && method === "POST") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.deny",
+          session_sub: adminEmail,
+        });
+        return handleApiDeny(request, env.AUDIT_DB, adminEmail);
+      }
+      if (path === "/admin/api/revoke" && method === "POST") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.revoke",
+          session_sub: adminEmail,
+        });
+        return handleApiRevoke(request, env.AUDIT_DB);
+      }
+      return new Response("not found", {
+        status: 404,
+        headers: { "content-type": "text/plain" },
       });
     }
 

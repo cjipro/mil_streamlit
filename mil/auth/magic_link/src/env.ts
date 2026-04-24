@@ -21,4 +21,12 @@ export interface Env {
   // MIL-65 — audit log binding. Optional; absent binding degrades to
   // console.log only. Activation procedure documented in wrangler.toml.
   AUDIT_DB?: D1Database;
+
+  // MIL-66b — admin routes require JWT verification against the same
+  // WorkOS JWKS the edge-bouncer uses. Values must match
+  // edge_bouncer/wrangler.toml so the same cookie validates on both.
+  JWKS_URL?: string;
+  EXPECTED_AUD?: string;
+  EXPECTED_ISS?: string;
+  JWKS_CACHE_TTL_SECONDS?: string;
 }
