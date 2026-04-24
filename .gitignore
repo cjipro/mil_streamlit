@@ -103,6 +103,12 @@ mil/publish/output/tech_bench_jinja.html
 mil/publish/output/tech_bench_legacy.html
 mil/publish/output/index_v3_jinja.html
 
+# MIL-49 email preview / experimental artifacts — local dev only
+mil/publish/output/email_preview.html
+mil/publish/output/email_early_signal.html
+mil/notify/_preview_email.py
+mil/notify/_early_signal_send.py
+
 # Local databases — regenerated from source, never committed
 *.db
 
