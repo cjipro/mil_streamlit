@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-04-23",
+  "computed_at": "2026-04-24",
   "competitors": {
     "barclays": {
       "technical": {},
@@ -28,64 +28,64 @@
   },
   "peer_avg": {
     "technical": {
-      "Login Failed": 0.0,
-      "Slow Performance": 0.0,
       "App Crashing": 0.0,
-      "Account Locked": 0.0,
-      "Card Frozen or Blocked": 0.0,
+      "Slow Performance": 0.0,
       "Biometric / Face ID Issue": 0.0,
-      "App Not Opening": 0.0
+      "Card Frozen or Blocked": 0.0,
+      "App Not Opening": 0.0,
+      "Login Failed": 0.0,
+      "Account Locked": 0.0
     },
     "service": {
-      "Customer Support Failure": 0.0,
-      "Security Concern": 0.0,
+      "Incorrect Balance": 0.0,
       "Transfer Failed": 0.0,
+      "Customer Support Failure": 0.0,
+      "Feature Broken": 0.0,
+      "Security Concern": 0.0,
       "Payment Failed": 0.0,
       "Missing Transaction": 0.0,
-      "Feature Broken": 0.0,
-      "Incorrect Balance": 0.0,
       "Notification Issue": 0.0
     }
   },
   "incumbent_avg": {
     "technical": {
-      "Login Failed": 0.0,
-      "Slow Performance": 0.0,
       "App Crashing": 0.0,
-      "Account Locked": 0.0,
-      "Card Frozen or Blocked": 0.0,
+      "Slow Performance": 0.0,
       "Biometric / Face ID Issue": 0.0,
-      "App Not Opening": 0.0
+      "Card Frozen or Blocked": 0.0,
+      "App Not Opening": 0.0,
+      "Login Failed": 0.0,
+      "Account Locked": 0.0
     },
     "service": {
-      "Customer Support Failure": 0.0,
-      "Security Concern": 0.0,
+      "Incorrect Balance": 0.0,
       "Transfer Failed": 0.0,
+      "Customer Support Failure": 0.0,
+      "Feature Broken": 0.0,
+      "Security Concern": 0.0,
       "Payment Failed": 0.0,
       "Missing Transaction": 0.0,
-      "Feature Broken": 0.0,
-      "Incorrect Balance": 0.0,
       "Notification Issue": 0.0
     }
   },
   "neobank_avg": {
     "technical": {
-      "Login Failed": 0.0,
-      "Slow Performance": 0.0,
       "App Crashing": 0.0,
-      "Account Locked": 0.0,
-      "Card Frozen or Blocked": 0.0,
+      "Slow Performance": 0.0,
       "Biometric / Face ID Issue": 0.0,
-      "App Not Opening": 0.0
+      "Card Frozen or Blocked": 0.0,
+      "App Not Opening": 0.0,
+      "Login Failed": 0.0,
+      "Account Locked": 0.0
     },
     "service": {
-      "Customer Support Failure": 0.0,
-      "Security Concern": 0.0,
+      "Incorrect Balance": 0.0,
       "Transfer Failed": 0.0,
+      "Customer Support Failure": 0.0,
+      "Feature Broken": 0.0,
+      "Security Concern": 0.0,
       "Payment Failed": 0.0,
       "Missing Transaction": 0.0,
-      "Feature Broken": 0.0,
-      "Incorrect Balance": 0.0,
       "Notification Issue": 0.0
     }
   },
@@ -98,7 +98,7 @@
     "revolut": 0
   },
   "window": {
-    "min_date": "2026-01-23",
-    "max_date": "2026-04-23"
+    "min_date": "2026-01-24",
+    "max_date": "2026-04-24"
   }
 }
