@@ -68,19 +68,23 @@ export async function checkAdmin(
 
   let email: string | undefined;
   try {
+    // MIL-66b — WorkOS User Management access tokens don't carry an
+    // `aud` claim, so we verify issuer + signature only. The aud the
+    // edge-bouncer and this gate were configured with is kept as a
+    // correlation value (wrangler.toml) but not passed to jose.
     const { payload } = await jwtVerify(token, getJwks(cfg), {
       issuer: cfg.expectedIss,
-      audience: cfg.expectedAud,
     });
+    void cfg.expectedAud; // retained in the config shape for future swap
     if (typeof payload.email === "string") email = payload.email;
   } catch (e) {
-    return {
-      kind: "invalid-session",
-      reason: e instanceof Error ? e.message : String(e),
-    };
+    const reason = e instanceof Error ? e.message : String(e);
+    return { kind: "invalid-session", reason };
   }
 
-  if (!email) return { kind: "invalid-session", reason: "no-email-claim" };
+  if (!email) {
+    return { kind: "invalid-session", reason: "no-email-claim" };
+  }
   const ok = await isAdmin(db, email);
   return ok ? { kind: "ok", email } : { kind: "not-admin", email };
 }

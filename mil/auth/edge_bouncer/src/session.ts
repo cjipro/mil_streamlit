@@ -65,10 +65,13 @@ export async function verifySession(
   if (!token) return { kind: "missing" };
   try {
     const jwks = getJwks(cfg);
+    // MIL-66b: WorkOS User Management access tokens do not carry an
+    // `aud` claim, so we verify issuer + signature only. The expected
+    // aud is kept in config for symmetry + future swap to id_token.
     const { payload } = await jwtVerify(token, jwks, {
       issuer: cfg.expectedIss,
-      audience: cfg.expectedAud,
     });
+    void cfg.expectedAud;
     return { kind: "valid", payload };
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
