@@ -22,6 +22,7 @@ import {
 } from "./session";
 import { logAuthEvent } from "../../audit/src/audit";
 import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
+import { isApproved } from "../../approvals/src/approvals";
 
 export interface Env {
   ENFORCE: string;
@@ -41,7 +42,8 @@ export interface Env {
 
 type Decision =
   | { action: "pass"; reason: "public" | "valid-session"; sub?: string }
-  | { action: "redirect"; reason: "missing" | "invalid"; detail?: string };
+  | { action: "redirect"; reason: "missing" | "invalid"; detail?: string }
+  | { action: "deny"; reason: "not-approved"; sub?: string; email?: string };
 
 // Pattern list is parsed per-request rather than cached in module
 // scope because wrangler vars can hot-reload.
@@ -76,14 +78,27 @@ async function decide(request: Request, env: Env): Promise<Decision> {
     env.SESSION_COOKIE_NAME,
   );
   const result: SessionCheck = await verifySession(cookie, sessionConfig(env));
-  if (result.kind === "valid") {
-    const sub = typeof result.payload.sub === "string" ? result.payload.sub : undefined;
-    return { action: "pass", reason: "valid-session", sub };
-  }
   if (result.kind === "missing") {
     return { action: "redirect", reason: "missing" };
   }
-  return { action: "redirect", reason: "invalid", detail: result.reason };
+  if (result.kind === "invalid") {
+    return { action: "redirect", reason: "invalid", detail: result.reason };
+  }
+
+  // Valid JWT. MIL-66a — additionally check the email claim against
+  // the approved_users allowlist. No AUDIT_DB means the allowlist
+  // can't be queried; fail CLOSED in that case (deny), since the
+  // alternative (implicit allow) turns the gate off silently.
+  const sub = typeof result.payload.sub === "string" ? result.payload.sub : undefined;
+  const email = typeof result.payload.email === "string" ? result.payload.email : undefined;
+  if (!env.AUDIT_DB) {
+    return { action: "deny", reason: "not-approved", sub, email, };
+  }
+  const approved = await isApproved(env.AUDIT_DB, email);
+  if (!approved) {
+    return { action: "deny", reason: "not-approved", sub, email };
+  }
+  return { action: "pass", reason: "valid-session", sub };
 }
 
 function auditEventType(decision: Decision): AuthEventType {
@@ -95,6 +110,9 @@ function auditEventType(decision: Decision): AuthEventType {
   }
   if (decision.action === "redirect" && decision.reason === "missing") {
     return "bouncer.redirect.missing";
+  }
+  if (decision.action === "deny" && decision.reason === "not-approved") {
+    return "bouncer.deny.not_approved";
   }
   return "bouncer.redirect.invalid";
 }
@@ -113,13 +131,54 @@ function buildAuditInput(
     host: url.host,
     path: url.pathname,
     enforce,
-    session_sub: decision.action === "pass" ? decision.sub : undefined,
+    session_sub: decision.action === "pass" || decision.action === "deny"
+      ? decision.sub
+      : undefined,
     ip: request.headers.get("cf-connecting-ip") ?? undefined,
     user_agent: request.headers.get("user-agent") ?? undefined,
     country: cf?.country ?? undefined,
     reason: decision.reason,
     detail: decision.action === "redirect" ? decision.detail : undefined,
   };
+}
+
+function buildDenyResponse(): Response {
+  // Inline HTML — no loop back to login, no origin fetch. 403 so
+  // caches + browsers treat it as authoritative. Page names the
+  // contact address so the user has a next step.
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Access pending · CJI Pro</title>
+<style>
+  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; }
+  html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font:16px/1.55 ui-serif,Georgia,serif; }
+  main { max-width:32rem; margin:6rem auto; padding:2rem; }
+  h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
+  p { margin:0.5rem 0; color:var(--muted); }
+  a { color:#003A5C; }
+</style>
+</head>
+<body>
+<main>
+<h1>Access pending</h1>
+<p>You're signed in, but this account isn't on the alpha access list yet.</p>
+<p>Reach out to <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>
+and we'll add you.</p>
+</main>
+</body>
+</html>`;
+  return new Response(html, {
+    status: 403,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
 }
 
 function logDecision(
@@ -175,10 +234,14 @@ export default {
     if (decision.action === "redirect" && enforce) {
       return buildRedirect(request, env);
     }
+    if (decision.action === "deny" && enforce) {
+      return buildDenyResponse();
+    }
     // Pass through to origin for all other cases:
     //   - public allowlist match
     //   - valid session
-    //   - enforce=false (shadow / monitor mode)
+    //   - enforce=false (shadow / monitor mode) — including deny cases:
+    //     we log what we WOULD have done, but never block in shadow mode
     return fetch(request);
   },
 };

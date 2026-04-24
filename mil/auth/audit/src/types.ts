@@ -10,6 +10,7 @@ export type AuthEventType =
   | "bouncer.pass.session"
   | "bouncer.redirect.missing"
   | "bouncer.redirect.invalid"
+  | "bouncer.deny.not_approved"
   // magic-link flow
   | "magic_link.authorize"
   | "magic_link.callback.success"
