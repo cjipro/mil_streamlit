@@ -319,12 +319,13 @@ a { color: var(--blue); text-decoration: none; }
 
 /* -- Chat Panel ------------------------------------------------------------- */
 .chat-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
-.chat-panel { position: fixed; bottom: 80px; right: 24px; width: 360px; max-height: 500px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; z-index: 1001; box-shadow: 0 8px 40px rgba(0,0,0,0.6); overflow: hidden; }
+.chat-panel { position: fixed; bottom: 80px; right: 24px; width: 440px; height: 620px; max-height: calc(100vh - 110px); background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; z-index: 1001; box-shadow: 0 8px 40px rgba(0,0,0,0.6); overflow: hidden; }
 .chat-panel.open { display: flex; }
-.chat-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.chat-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--topbar-bg); }
 .chat-title { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
-.chat-close { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.chat-close { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px; }
 .chat-close:hover { color: var(--text); }
+.chat-iframe { flex: 1; border: 0; width: 100%; background: #00273D; }
 .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 160px; }
 .chat-chips { padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid var(--border); }
 .chip { background: var(--border); color: var(--blue); border: 1px solid rgba(0,174,239,0.2); border-radius: 14px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: background 0.15s; }
@@ -365,20 +366,20 @@ a { color: var(--blue); text-decoration: none; }
         <div class="sent-card-inner">
           <div class="sent-row-1">
             <span class="sent-card-label">BARCLAYS SENTIMENT</span>
-            <span class="sent-card-score" style="margin-left:auto;color:#E8F4FA;">—</span>
-            <span class="sent-card-delta" style="color:#e8a030;">— vs baseline</span>
-            <span class="sent-card-traj" style="color:#e8a030;">&#8594; WATCH</span>
+            <span class="sent-card-score" style="margin-left:auto;color:#E8F4FA;">89</span>
+            <span class="sent-card-delta" style="color:#2a9a5a;">+1 vs baseline</span>
+            <span class="sent-card-traj" style="color:#2a9a5a;">&#8599; IMPROVING</span>
           </div>
           <div class="sent-row-2">
-            <span class="sent-card-baseline">Baseline: Establishing</span>
-            <span class="sent-card-ts">2026-04-23 06:48 UTC</span>
+            <span class="sent-card-baseline">Baseline: 88</span>
+            <span class="sent-card-ts">2026-04-24 06:42 UTC</span>
           </div>
           <div class="sent-card-progress">
-            <div class="sent-progress-fill" style="width:0%;"></div>
+            <div class="sent-progress-fill" style="width:89%;"></div>
           </div>
         </div>
       </div>
-      
+      <div style="display:flex;flex-direction:column;gap:8px;"><div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;text-align:left;background:#001E2E;overflow:hidden;"><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;barclays app not working 17th April 2026 on Samsung s9 plus not opening after recent update can you fix as soon as possible had no issues before this&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★☆☆☆☆ &middot; Google Play &middot; 17 Apr</div></div></div>
       <div class="brand-line">
         <span class="brand-dot brand-dot-blue"></span>
         <span>Live signals from App Store, Google Play, news and social &mdash; updated daily</span>
@@ -388,9 +389,9 @@ a { color: var(--blue); text-decoration: none; }
         <span>Historical failure patterns applied &mdash; act on intelligence, not on incident reports</span>
       </div>
       <div class="topbar-pills" style="margin-top:auto;">
-        <span class="version-pill">v—</span>
-        <span class="version-pill">2026-04-23 06:48 UTC</span>
-        <span class='bootstrap-badge'>BASELINE ESTABLISHING</span>
+        <span class="version-pill">v8.20.1</span>
+        <span class="version-pill">2026-04-24 06:42 UTC</span>
+        
         <div class="live-dot">LIVE</div>
       </div>
       <div style="font-size:10px;color:#3A6A7F;margin-top:6px;line-height:1.4;">
@@ -407,54 +408,59 @@ a { color: var(--blue); text-decoration: none; }
     </div>
     <div class="topbar-box-body">
       <div class="issues-stat-row">
-        <span class="issues-stat-num" style="color:var(--red);">0</span>
+        <span class="issues-stat-num" style="color:var(--red);">2</span>
         <div><div class="issues-stat-label">Needs Attention</div><div class="issues-stat-sub">REGRESSION journeys</div></div>
       </div>
       <div class="issues-stat-row">
-        <span class="issues-stat-num" style="color:var(--amber);">0</span>
+        <span class="issues-stat-num" style="color:var(--amber);">1</span>
         <div><div class="issues-stat-label">Watch</div><div class="issues-stat-sub">WATCH journeys</div></div>
       </div>
       <div class="issues-stat-row">
-        <span class="issues-stat-num" style="color:var(--teal);">5</span>
+        <span class="issues-stat-num" style="color:var(--teal);">2</span>
         <div><div class="issues-stat-label">Performing Well</div><div class="issues-stat-sub">across all sources</div></div>
       </div>
       <div class="issues-divider"></div>
         <div class="journey-list-item">
-          <span class="journey-list-name">Login &amp; Auth</span>
+          <span class="journey-list-name">App Not Opening</span>
           <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#E8F4FA;">—</span>
+            <span class="journey-list-score" style="color:#cc3333;">20</span>
+            <span class="journey-list-meta">3 reviews</span>
+            <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">Login Failed</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#cc3333;">20</span>
+            <span class="journey-list-meta">2 reviews</span>
+            <span class="journey-list-status" style="color:#CC0000;">&#8600; REGRESSION</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">App Crashing</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#cc3333;">32</span>
+            <span class="journey-list-meta">5 reviews &middot; 1d sustained</span>
+            <span class="journey-list-status" style="color:#F5A623;">&#8594; WATCH</span>
+          </span>
+        </div>
+        <div class="journey-list-item">
+          <span class="journey-list-name">Feature Broken</span>
+          <span class="journey-list-right">
+            <span class="journey-list-score" style="color:#E8F4FA;">57</span>
+            <span class="journey-list-meta">15 reviews &middot; 1d sustained</span>
             <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
           </span>
         </div>
         <div class="journey-list-item">
-          <span class="journey-list-name">Payments</span>
+          <span class="journey-list-name">Slow Performance</span>
           <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#E8F4FA;">—</span>
+            <span class="journey-list-score" style="color:#cc3333;">40</span>
+            <span class="journey-list-meta">3 reviews</span>
             <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
           </span>
         </div>
-        <div class="journey-list-item">
-          <span class="journey-list-name">Onboarding</span>
-          <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#E8F4FA;">—</span>
-            <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
-          </span>
-        </div>
-        <div class="journey-list-item">
-          <span class="journey-list-name">Loans — Step 3</span>
-          <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#E8F4FA;">—</span>
-            <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
-          </span>
-        </div>
-        <div class="journey-list-item">
-          <span class="journey-list-name">Servicing</span>
-          <span class="journey-list-right">
-            <span class="journey-list-score" style="color:#E8F4FA;">—</span>
-            <span class="journey-list-status" style="color:#00AFA0;">&#8599; PERFORMING WELL</span>
-          </span>
-        </div>
-      <div class="box2-legend">
+<div style="height:104px;border:1px solid #003A5C;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;text-align:left;background:#001E2E;overflow:hidden;"><div style="font-size:10px;color:#3A6A7F;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">App Not Opening</div><div style="font-size:12px;color:#B8D4E0;font-style:italic;line-height:1.5;overflow:hidden;">&ldquo;Tried to install app on my elderly mothers new tablet to find out it&#x27;s not possible. Phone screen is too small, laptop is beyond her. What is she supposed to do?? Absolutely ridiculous.&rdquo;</div><div style="font-size:11px;color:#4A7A8F;margin-top:6px;letter-spacing:0.03em;white-space:nowrap;">★☆☆☆☆ &middot; Google Play &middot; 20 Apr</div></div>      <div class="box2-legend">
         <span class="box2-legend-item"><span class="box2-legend-label" style="color:var(--red);">REGRESSION</span> <span class="box2-legend-def">P0 present or worsening P1s</span></span>
         <span class="box2-legend-item"><span class="box2-legend-label" style="color:var(--amber);">WATCH</span> <span class="box2-legend-def">P1 present or trend worsening</span></span>
         <span class="box2-legend-item"><span class="box2-legend-label" style="color:var(--teal);">PERFORMING WELL</span> <span class="box2-legend-def">no severe signal</span></span>
@@ -468,16 +474,25 @@ a { color: var(--blue); text-decoration: none; }
   </div>
   <div class="topbar-box-body">
     
+<div style="padding:10px 12px;background:#04131D;border:1px solid #003A5C;
+            border-left:3px solid #F5A623;border-radius:3px;margin-bottom:14px;
+            font-size:12px;color:#E8F4FA;line-height:1.55;">
+  <div><strong style="color:#FFD580;">Account Locked</strong> is this week's priority — P0 severity, regressing, signal active in the benchmark corpus.</div>
+  <div style="color:#7AACBF;font-size:11px;margin-top:4px;">Volume is low by design: P0 failures are rare until they aren't.</div>
+</div>
     
     <div style="margin-bottom:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">The Situation</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">No significant over-indexed signals detected in the current review corpus.</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Forced re-registration loops on Barclays Android risk duty-of-care scrutiny if regulators class repeated lockouts as denial of essential account access. Customers report being ejected mid-session and forced through full ID re-enrollment, with Barclays' lockout complaint rate running 0.5 percentage points above the peer average. Escalate this to a P0 engineering fix by end of week, before the re-registration failure earns the same regulator attention TSB's 2018 lockout crisis did.</div>
     </div>
+    <div style="font-size:11px;color:#4A7A8F;font-style:italic;
+                border-left:2px solid #003A5C;padding-left:10px;
+                margin:10px 0 14px;">&ldquo;Constantly getting logged out and having to reregister using ID on my devices. I will be closing my accounts as soon as I am able to as it is too much hassle compared with other banking apps like NatWest.&rdquo;</div>
     <div style="margin-bottom:14px;border-top:1px solid #003A5C;padding-top:14px;">
       <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;
                   letter-spacing:1px;margin-bottom:5px;">Peer Comparison</div>
-      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Barclays complaint rates are broadly in line with the 5-bank peer cohort. No material over-indexed issues detected.</div>
+      <div style="font-size:12px;color:#C5DDE8;line-height:1.65;">Barclays ranks 3rd of 6 on Account Locked. Best in the cohort is HSBC at 0.8%. On Login Failed, Barclays leads the cohort — 3.0pp below average.</div>
     </div>
     <div style="margin-top:14px;border-top:1px solid #003A5C;padding-top:14px;">
       <span style="display:inline-block;padding:8px 14px;border-radius:4px;
@@ -497,120 +512,120 @@ a { color: var(--blue); text-decoration: none; }
 
 <!-- -- Sentiment Ticker ---------------------------------------------------- -->
 <div class="ticker-wrapper">
-  <div class="ticker-track"><div class="ticker-inner"><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">NatWest</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">Lloyds</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">HSBC</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">Monzo</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">Revolut</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-barclays ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#e8a030;">Barclays</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">NatWest</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">Lloyds</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">HSBC</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">Monzo</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">Revolut</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-barclays ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#e8a030;">Barclays</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span></div></div>
+  <div class="ticker-track"><div class="ticker-inner"><span class="ticker-item"><span class="ticker-name" style="color:#e8a030;">NatWest</span><span class="ticker-score" style="color:#E8F4FA;">64.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:26px;background:#e8a030;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Lloyds</span><span class="ticker-score" style="color:#E8F4FA;">68.5</span><span class="mini-bar"><span class="mini-bar-fill" style="width:27px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">HSBC</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Monzo</span><span class="ticker-score" style="color:#E8F4FA;">83.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:33px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Revolut</span><span class="ticker-score" style="color:#E8F4FA;">84.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:34px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-barclays"><span class="ticker-name" style="color:#e8a030;">Barclays</span><span class="ticker-score" style="color:#E8F4FA;">88.8</span><span class="mini-bar"><span class="mini-bar-fill" style="width:36px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#e8a030;">NatWest</span><span class="ticker-score" style="color:#E8F4FA;">64.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:26px;background:#e8a030;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Lloyds</span><span class="ticker-score" style="color:#E8F4FA;">68.5</span><span class="mini-bar"><span class="mini-bar-fill" style="width:27px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-nodata" title="No App Store or Google Play data available for this competitor"><span class="ticker-name" style="color:#6b7088;">HSBC</span><span class="ticker-score" style="color:#555566;font-style:italic;font-size:10px;">no store data</span><span class="mini-bar"><span class="mini-bar-fill" style="width:0px;background:#6b7088;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Monzo</span><span class="ticker-score" style="color:#E8F4FA;">83.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:33px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item"><span class="ticker-name" style="color:#2a9a5a;">Revolut</span><span class="ticker-score" style="color:#E8F4FA;">84.0</span><span class="mini-bar"><span class="mini-bar-fill" style="width:34px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span><span class="ticker-item ticker-barclays"><span class="ticker-name" style="color:#e8a030;">Barclays</span><span class="ticker-score" style="color:#E8F4FA;">88.8</span><span class="mini-bar"><span class="mini-bar-fill" style="width:36px;background:#2a9a5a;"></span></span><span class="ticker-delta"><span class="delta-na">—</span></span></span><span class="ticker-sep">-</span></div></div>
 </div>
 
 <!-- -- Journey Sentiment Row ----------------------------------------------- -->
-<div class="journey-row-header"><span class="journey-row-title">TOP 5 AFFECTED JOURNEYS</span><span class="journey-row-sub">last 7 days &middot; 0 of 5 with signal</span><span class="journey-row-legend"><span class="journey-legend-item"><span class="journey-legend-label" style="color:var(--red);">ACUTE</span> <span class="journey-legend-def">severe + new/worsening</span></span><span class="journey-legend-item"><span class="journey-legend-label" style="color:#B85450;">PERSISTENT</span> <span class="journey-legend-def">severe &ge; 7d, stable</span></span><span class="journey-legend-item"><span class="journey-legend-label" style="color:var(--amber);">DRIFT</span> <span class="journey-legend-def">no severe, trend worsening</span></span><span class="journey-legend-item"><span class="journey-legend-label" style="color:var(--green);">STABLE</span> <span class="journey-legend-def">quiet</span></span><span class="journey-legend-item journey-legend-metric"><span class="journey-legend-def">severe day = &ge;1 P0/P1 review, last 30d</span></span></span></div><div class="journey-row"><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Login &amp; Auth</div><div class="journey-cell-score" style="color:#E8F4FA;">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--green);">STABLE</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Payments</div><div class="journey-cell-score" style="color:#E8F4FA;">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--green);">STABLE</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Onboarding</div><div class="journey-cell-score" style="color:#E8F4FA;">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--green);">STABLE</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Loans — Step 3</div><div class="journey-cell-score" style="color:#E8F4FA;">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--green);">STABLE</span></div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Servicing</div><div class="journey-cell-score" style="color:#E8F4FA;">—</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--green);">STABLE</span></div></div></div>
+<div class="journey-row-header"><span class="journey-row-title">TOP 5 AFFECTED JOURNEYS</span><span class="journey-row-sub">last 7 days &middot; 4 of 7 with signal</span><span class="journey-row-legend"><span class="journey-legend-item"><span class="journey-legend-label" style="color:var(--red);">ACUTE</span> <span class="journey-legend-def">severe + new/worsening</span></span><span class="journey-legend-item"><span class="journey-legend-label" style="color:#B85450;">PERSISTENT</span> <span class="journey-legend-def">severe &ge; 7d, stable</span></span><span class="journey-legend-item"><span class="journey-legend-label" style="color:var(--amber);">DRIFT</span> <span class="journey-legend-def">no severe, trend worsening</span></span><span class="journey-legend-item"><span class="journey-legend-label" style="color:var(--green);">STABLE</span> <span class="journey-legend-def">quiet</span></span><span class="journey-legend-item journey-legend-metric"><span class="journey-legend-def">severe day = &ge;1 P0/P1 review, last 30d</span></span></span></div><div class="journey-row"><div class="journey-cell" style="border-top:3px solid #B85450;"><div class="journey-cell-name">Log In to Account</div><div class="journey-cell-score" style="color:#cc3333;">45</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:#B85450;">PERSISTENT</span><span class="journey-cell-lowvol">low-volume</span></div><div class="journey-cell-submeta">4 reviews &middot; 13 severe days</div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Manage Card</div><div class="journey-cell-score" style="color:#E8F4FA;">54</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--red);">ACUTE</span></div><div class="journey-cell-submeta">7 reviews &middot; 5 severe days</div></div><div class="journey-cell" style="border-top:3px solid var(--green);"><div class="journey-cell-name">Get Support</div><div class="journey-cell-score" style="color:#E8F4FA;">98</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--green);">STABLE</span></div><div class="journey-cell-submeta">10 reviews &middot; 1 severe day</div></div><div class="journey-cell" style="border-top:3px solid #B85450;"><div class="journey-cell-name">Make a Payment</div><div class="journey-cell-score" style="color:#E8F4FA;">62</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:#B85450;">PERSISTENT</span></div><div class="journey-cell-submeta">8 reviews &middot; 13 severe days</div></div><div class="journey-cell" style="border-top:3px solid var(--red);"><div class="journey-cell-name">Open or Register Account</div><div class="journey-cell-score" style="color:#cc3333;">20</div><div class="journey-cell-meta"><span class="traj-icon" style="color:#7AACBF;">→</span><span class="journey-status-label" style="color:var(--red);">ACUTE</span><span class="journey-cell-lowvol">low-volume</span></div><div class="journey-cell-submeta">2 reviews &middot; 3 severe days</div></div></div>
 
 <!-- -- Body: Left + Right Columns ------------------------------------------ -->
 <div class="body-wrapper">
   <div class="left-col">
-    <div class="metrics-strip"><div class="metric-card"><div class="metric-value" style="color:var(--red);">0</div><div class="metric-label">Needs Attention</div><div class="metric-sub">REGRESSION journeys</div></div><div class="metric-card"><div class="metric-value" style="color:var(--amber);">0</div><div class="metric-label">Watch</div><div class="metric-sub">WATCH journeys</div></div><div class="metric-card"><div class="metric-value" style="color:var(--green);">5</div><div class="metric-label">Performing Well</div><div class="metric-sub">across all sources</div></div></div>
+    <div class="metrics-strip"><div class="metric-card"><div class="metric-value" style="color:var(--red);">2</div><div class="metric-label">Needs Attention</div><div class="metric-sub">REGRESSION journeys</div></div><div class="metric-card"><div class="metric-value" style="color:var(--amber);">1</div><div class="metric-label">Watch</div><div class="metric-sub">WATCH journeys</div></div><div class="metric-card"><div class="metric-value" style="color:var(--green);">2</div><div class="metric-label">Performing Well</div><div class="metric-sub">across all sources</div></div></div>
     
-<div class="journey-card" style="border-left:3px solid var(--green);">
+<div class="journey-card" style="border-left:3px solid var(--red);">
   <div class="card-header">
     <span class="rank-num">#1</span>
-    <span class="journey-name">Login &amp; Auth</span>
-    <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
+    <span class="journey-name">App Not Opening</span>
+    <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text verdict-baseline">Baseline establishing — check back tomorrow</div>
+  <div class="verdict-text">App Not Opening -- 3 complete-block signals, volume stable.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 0</span>
+    <span class="sig-count sig-p1">P1: 3</span>
     <span class="sig-count sig-p2">P2: 0</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 0.00 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 1.00 avg rating</div>
 </div>
 
-<div class="journey-card" style="border-left:3px solid var(--green);">
+<div class="journey-card" style="border-left:3px solid var(--red);">
   <div class="card-header">
     <span class="rank-num">#2</span>
-    <span class="journey-name">Payments</span>
-    <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
+    <span class="journey-name">Login Failed</span>
+    <span class="badge" style="color:var(--red);background:#2a0a0a;">REGRESSION</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text verdict-baseline">Baseline establishing — check back tomorrow</div>
+  <div class="verdict-text">Login Failed -- 2 complete-block signals, volume stable.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 0</span>
+    <span class="sig-count sig-p1">P1: 2</span>
     <span class="sig-count sig-p2">P2: 0</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 0.00 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 1.00 avg rating</div>
 </div>
 
-<div class="journey-card" style="border-left:3px solid var(--green);">
+<div class="journey-card" style="border-left:3px solid var(--amber);">
   <div class="card-header">
     <span class="rank-num">#3</span>
-    <span class="journey-name">Onboarding</span>
-    <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
+    <span class="journey-name">App Crashing</span>
+    <span class="badge" style="color:var(--amber);background:#1e1500;">WATCH</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text verdict-baseline">Baseline establishing — check back tomorrow</div>
+  <div class="verdict-text">App Crashing -- 5 friction signals, monitoring required.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
-    <span class="sig-count sig-p1">P1: 0</span>
+    <span class="sig-count sig-p1">P1: 5</span>
     <span class="sig-count sig-p2">P2: 0</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 0.00 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 1.60 avg rating</div>
 </div>
 
 <div class="journey-card" style="border-left:3px solid var(--green);">
   <div class="card-header">
     <span class="rank-num">#4</span>
-    <span class="journey-name">Loans — Step 3</span>
+    <span class="journey-name">Feature Broken</span>
     <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text verdict-baseline">Baseline establishing — check back tomorrow</div>
+  <div class="verdict-text">Feature Broken -- 15 signals, trend improving.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
     <span class="sig-count sig-p1">P1: 0</span>
-    <span class="sig-count sig-p2">P2: 0</span>
+    <span class="sig-count sig-p2">P2: 15</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 0.00 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 2.85 avg rating</div>
 </div>
 
 <div class="journey-card" style="border-left:3px solid var(--green);">
   <div class="card-header">
     <span class="rank-num">#5</span>
-    <span class="journey-name">Servicing</span>
+    <span class="journey-name">Slow Performance</span>
     <span class="badge" style="color:var(--green);background:#0a1e10;">PERFORMING WELL</span>
   </div>
   <div class="derived-note">SIGNAL ANALYSIS — INFERENCE PENDING</div>
   <div class="verdict-label">VERDICT</div>
-  <div class="verdict-text verdict-baseline">Baseline establishing — check back tomorrow</div>
+  <div class="verdict-text">Slow Performance -- 3 signals, minor issues only.</div>
   <div class="version-delta-row">
     <span class="version-label">v—</span>
     <code class="version-delta" style="color:#6b7088;">— no baseline</code>
   </div>
   <div class="signal-counts">
     <span class="sig-count sig-p1">P1: 0</span>
-    <span class="sig-count sig-p2">P2: 0</span>
+    <span class="sig-count sig-p2">P2: 3</span>
   </div>
   
-  <div class="market-note">Market signal analysis — public app store data - 0.00 avg rating</div>
+  <div class="market-note">Market signal analysis — public app store data - 2.00 avg rating</div>
 </div>
 
   </div>
@@ -689,7 +704,7 @@ a { color: var(--blue); text-decoration: none; }
     
 <div class="panel-section">
   <div class="panel-title">Signal Sources</div>
-  <div class="sources-grid"><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">DownDetector</span><span class="source-weight">0.95</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">App Store</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Google Play</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Financial Times</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">City A.M.</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Reddit</span><span class="source-weight">0.85</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Trustpilot</span><span class="source-weight">0.80</span></div><div class="source-item"><span class="dot dot-amber"></span><span class="source-name">Facebook</span><span class="source-weight">0.75</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">YouTube</span><span class="source-weight">0.75</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Twitter/X</span><span class="source-weight">0.60</span></div></div>
+  <div class="sources-grid"><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">DownDetector</span><span class="source-weight">0.95</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">App Store</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">Google Play</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">Financial Times</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">City A.M.</span><span class="source-weight">0.90</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Reddit</span><span class="source-weight">0.85</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Trustpilot</span><span class="source-weight">0.80</span></div><div class="source-item"><span class="dot dot-amber"></span><span class="source-name">Facebook</span><span class="source-weight">0.75</span></div><div class="source-item"><span class="dot dot-green"></span><span class="source-name">YouTube</span><span class="source-weight">0.75</span></div><div class="source-item"><span class="dot dot-grey"></span><span class="source-name">Twitter/X</span><span class="source-weight">0.60</span></div></div>
 </div>
 
   </div>
@@ -709,7 +724,7 @@ a { color: var(--blue); text-decoration: none; }
   <span class="footer-sep">-</span>
   <span class="footer-item">Article Zero</span>
   <span class="footer-sep">-</span>
-  <span class="footer-item">Published 2026-04-23 06:48 UTC</span>
+  <span class="footer-item">Published 2026-04-24 06:43 UTC</span>
 </div>
 
 <!-- -- Ask Sonar Button ----------------------------------------------------- -->
@@ -720,75 +735,34 @@ a { color: var(--blue); text-decoration: none; }
   Ask CJI Pro
 </button>
 
-<!-- -- Chat Panel ----------------------------------------------------------- -->
+<!-- -- Chat Panel (iframe → sonar.cjipro.com, the canonical UI) ------------ -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span class="chat-title">Ask CJI Pro</span>
+    <a href="https://sonar.cjipro.com/" target="_blank" rel="noopener" style="color:var(--text-3);text-decoration:none;font-size:11px;margin-right:8px" title="Open in new tab">↗</a>
     <button class="chat-close" onclick="closeChat()">&#215;</button>
   </div>
-  <div class="chat-messages" id="chatMessages">
-    <div class="chat-msg system">Sonar is ready. Ask about any competitor journey, signal pattern, or CHRONICLE match.</div>
-  </div>
-  <div class="chat-chips">
-    <span class="chip" onclick="sendChip(this)">What is Barclays login score?</span>
-    <span class="chip" onclick="sendChip(this)">Any active P0 signals?</span>
-    <span class="chip" onclick="sendChip(this)">CHRONICLE match for Lloyds?</span>
-    <span class="chip" onclick="sendChip(this)">Which journey is regressing?</span>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" class="chat-input" id="chatInput" placeholder="Ask about market signals…" onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="chat-send" onclick="sendChat()">Send</button>
-  </div>
+  <iframe id="chatFrame" class="chat-iframe" title="Ask CJI Pro" loading="lazy" src="about:blank"></iframe>
 </div>
 
 <script>
-// -- Chat Panel ------------------------------------------------------------
-const PROXY_URL = 'https://sonar.cjipro.com/api/ask';
+// -- Chat Panel (iframe-backed) ---------------------------------------------
+// The chat UI lives at https://sonar.cjipro.com/ and is served by the same
+// backend the briefing calls. The iframe lazy-loads on first open so the
+// briefing page itself stays snappy.
+const CHAT_URL = 'https://sonar.cjipro.com/';
 
 function openChat() {
-  document.getElementById('chatPanel').classList.add('open');
+  const panel = document.getElementById('chatPanel');
+  const frame = document.getElementById('chatFrame');
+  if (frame.src === 'about:blank' || !frame.src.startsWith(CHAT_URL)) {
+    frame.src = CHAT_URL;
+  }
+  panel.classList.add('open');
 }
 function closeChat() {
   document.getElementById('chatPanel').classList.remove('open');
-}
-function sendChip(el) {
-  document.getElementById('chatInput').value = el.textContent;
-  sendChat();
-}
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const messages = document.getElementById('chatMessages');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  // User message
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-msg user';
-  userMsg.textContent = text;
-  messages.appendChild(userMsg);
-  messages.scrollTop = messages.scrollHeight;
-
-  // Send to proxy
-  try {
-    const res = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({query: text, version: '—'})
-    });
-    const data = await res.json();
-    const reply = document.createElement('div');
-    reply.className = 'chat-msg system';
-    reply.textContent = data.response || 'No response from Sonar.';
-    messages.appendChild(reply);
-  } catch (err) {
-    const errMsg = document.createElement('div');
-    errMsg.className = 'chat-msg error';
-    errMsg.textContent = 'Proxy unavailable — sonar.cjipro.com/api/ask not reachable.';
-    messages.appendChild(errMsg);
-  }
-  messages.scrollTop = messages.scrollHeight;
 }
 
 // Close on outside click
@@ -919,7 +893,7 @@ document.addEventListener('click', function(e) {
 <hr class="v3-divider">
 <div class="v3-outer">
   <div class="v3-label">
-    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-23 06:48 UTC
+    Sonar V3 &nbsp;&middot;&nbsp; Intelligence Layer &nbsp;&middot;&nbsp; 2026-04-24 06:43 UTC
   </div>
   
 <div class="topbar-box">
@@ -930,25 +904,792 @@ document.addEventListener('click', function(e) {
   <div class="topbar-box-body">
     <div class="churn-header">
       <div class="churn-score-block">
-        <div class="churn-score-num" style="color:#00AFA0;">0.0</div>
+        <div class="churn-score-num" style="color:#00AFA0;">19.0</div>
         <div class="churn-score-lbl">Churn Risk Score</div>
       </div>
       <div class="churn-trend-block">
-        <span class="churn-trend-badge" style="background:#002030;color:#7AACBF;border:1px solid #3A6A7F;">STABLE</span>
+        <span class="churn-trend-badge" style="background:#2A0808;color:#CC0000;border:1px solid #CC0000;">WORSENING</span>
         <div class="churn-meta">
-          0 issue types over-indexed &nbsp;&middot;&nbsp;
-          0 under-indexed
+          7 issue types over-indexed &nbsp;&middot;&nbsp;
+          7 under-indexed
         </div>
       </div>
     </div>
     
+<div style="margin-top:12px;">
+  <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+    Risk Signals — Barclays over-indexed vs peers
+  </div>
+  <div class="churn-over-list"><span class="churn-issue-pill">App Crashing +6.4pp</span><span class="churn-issue-pill">Feature Broken +4.8pp</span><span class="churn-issue-pill">Account Locked +0.5pp</span><span class="churn-issue-pill">Incorrect Balance +1.1pp</span><span class="churn-issue-pill">Card Frozen or Blocked +0.9pp</span></div>
+</div>
     
+<div style="margin-top:10px;">
+  <div style="font-size:9px;color:#3A6A7F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+    Competitive Strengths — Barclays under-indexed vs peers
+  </div>
+  <div class="churn-over-list"><span class="churn-issue-pill strength">Login Failed -3.0pp</span><span class="churn-issue-pill strength">Slow Performance -2.7pp</span><span class="churn-issue-pill strength">Customer Support Failure -2.3pp</span></div>
+</div>
   </div>
 </div>
   
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">ANALYST COMMENTARY</span>
+    <span style="font-size:10px;color:#3A6A7F;">
+      Sonnet inference per issue type &nbsp;&middot;&nbsp;
+      3 risk &nbsp;&middot;&nbsp;
+      0 strength
+    </span>
+  </div>
+  <div class="topbar-box-body">
+    <div class="commentary-grid">
+      <div class="commentary-card risk">
+        <div class="commentary-card-header">
+          <span class="commentary-issue">App Crashing</span>
+          <span class="commentary-badge risk">RISK</span>
+          <span class="commentary-badge sev-p0">P0</span>
+          <span style="font-size:9px;color:#3A6A7F;">TECHNICAL</span>
+        </div>
+        <div class="commentary-stats">
+          <div class="commentary-stat">Barclays rate <span>12.4%</span></div>
+          <div class="commentary-stat">Peer avg <span>6.0%</span></div>
+          <div class="commentary-stat">Gap <span style="color:#CC3333;">+6.4pp</span></div>
+          <div class="commentary-stat">Active <span>1 days</span></div>
+          <div class="commentary-stat">Since <span>2026-04-24</span></div>
+        </div>
+        <div class="commentary-prose">App crashes blocking card access and OTP retrieval put Barclays at direct risk of FCA duty-of-care intervention. Customers report cache clears failing to restore PIN and card controls, with Barclays' crash rate running 2.1x the peer average. Ship a targeted hotfix for card-access and OTP session flows by Friday, before this mirrors HSBC's 2025 post-refresh incident, which ran three weeks unresolved.</div>
+        <div class="commentary-quote">&ldquo;Dreadful. Can't access cards on it, each time I do it keeps crashing and clearing cache does nothing so I can't check my pin numbers or anything in relation to my card nor barclaycard.&rdquo;</div>
+        <div class="commentary-chr">Chronicle context: HSBC 2025: post-refresh crashes and ERR03 errors ran three weeks before a fix....</div>
+      </div>
+      <div class="commentary-card risk">
+        <div class="commentary-card-header">
+          <span class="commentary-issue">Account Locked</span>
+          <span class="commentary-badge risk">RISK</span>
+          <span class="commentary-badge sev-p0">P0</span>
+          <span style="font-size:9px;color:#3A6A7F;">TECHNICAL</span>
+        </div>
+        <div class="commentary-stats">
+          <div class="commentary-stat">Barclays rate <span>2.1%</span></div>
+          <div class="commentary-stat">Peer avg <span>1.6%</span></div>
+          <div class="commentary-stat">Gap <span style="color:#CC3333;">+0.5pp</span></div>
+          <div class="commentary-stat">Active <span>1 days</span></div>
+          <div class="commentary-stat">Since <span>2026-04-24</span></div>
+        </div>
+        <div class="commentary-prose">Forced re-registration loops on Barclays Android risk duty-of-care scrutiny if regulators class repeated lockouts as denial of essential account access. Customers report being ejected mid-session and forced through full ID re-enrollment, with Barclays' lockout complaint rate running 0.5 percentage points above the peer average. Escalate this to a P0 engineering fix by end of week, before the re-registration failure earns the same regulator attention TSB's 2018 lockout crisis did.</div>
+        <div class="commentary-quote">&ldquo;Constantly getting logged out and having to reregister using ID on my devices. I will be closing my accounts as soon as I am able to as it is too much hassle compared with other banking apps like NatWest.&rdquo;</div>
+        <div class="commentary-chr">Chronicle context: TSB 2018: mass account lockout was the defining customer impact of the migration failure....</div>
+      </div>
+      <div class="commentary-card risk">
+        <div class="commentary-card-header">
+          <span class="commentary-issue">Payment Failed</span>
+          <span class="commentary-badge risk">RISK</span>
+          <span class="commentary-badge sev-p0">P0</span>
+          <span style="font-size:9px;color:#3A6A7F;">SERVICE</span>
+        </div>
+        <div class="commentary-stats">
+          <div class="commentary-stat">Barclays rate <span>5.3%</span></div>
+          <div class="commentary-stat">Peer avg <span>5.1%</span></div>
+          <div class="commentary-stat">Gap <span style="color:#CC3333;">+0.2pp</span></div>
+          <div class="commentary-stat">Active <span>1 days</span></div>
+          <div class="commentary-stat">Since <span>2026-04-24</span></div>
+        </div>
+        <div class="commentary-prose">Payment failures that close the app mid-authorisation put Barclays at direct risk of FCA access-to-banking scrutiny. Customers report app crashes during live payment flows and PIN entry failures, with Barclays at 5.3% against a 5.1% peer average. Assign an engineer to the payment-authorisation and PIN session flow today, before further complaints harden into a regulatory exhibit.</div>
+        <div class="commentary-quote">&ldquo;Terrible app sends me to authorise payments to my bank then app closes and doesn't take payment.&rdquo;</div>
+      </div>
+    </div>
+  </div>
+</div>
   
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">&#9888; TECHNICAL ISSUES BENCHMARK</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays complaint rate vs 5-bank peer average &middot; % of complaint records</span>
+  </div>
+  <div class="topbar-box-body">
+    <div style="margin-bottom:12px;font-size:10px;color:#3A6A7F;">
+      Peer avg rates: <span style="font-size:10px;color:#F5A623;margin-right:10px;">NatWest: 4.6%</span><span style="font-size:10px;color:#00AFA0;margin-right:10px;">Lloyds: 5.6%</span><span style="font-size:10px;color:#CC3300;margin-right:10px;">HSBC: 6.0%</span><span style="font-size:10px;color:#7B5EA7;margin-right:10px;">Monzo: 7.8%</span><span style="font-size:10px;color:#4A9BD4;margin-right:10px;">Revolut: 6.2%</span>
+    </div>
+    <table class="bench-table">
+      <thead>
+        <tr>
+          <th class="bench-row-head">Issue Type</th>
+          <th class="bench-row-head">Rate Comparison</th>
+          <th class="bench-row-head" style="text-align:right;">Gap</th>
+          <th class="bench-row-head">Persistence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>Account Locked</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">2.1%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:76%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">1.6%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">+0.5pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>App Crashing</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">12.4%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:48%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">6.0%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-positive">+6.4pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>App Not Opening</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:79%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">7.4%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">9.3%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">-1.9pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Biometric / Face ID Issue</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:27%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">0.7%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">2.6%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">-1.9pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Card Frozen or Blocked</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">1.8%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:48%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">0.8%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">+0.9pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>Login Failed</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:56%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">3.9%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">6.9%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-negative">-3.0pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Slow Performance</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:74%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">7.8%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">10.5%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-negative">-2.7pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
   
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">&#9998; SERVICE ISSUES BENCHMARK</span>
+    <span style="font-size:10px;color:#3A6A7F;">Barclays complaint rate vs 5-bank peer average &middot; % of complaint records</span>
+  </div>
+  <div class="topbar-box-body">
+    <div style="margin-bottom:12px;font-size:10px;color:#3A6A7F;">
+      Peer avg rates: <span style="font-size:10px;color:#F5A623;margin-right:10px;">NatWest: 8.5%</span><span style="font-size:10px;color:#00AFA0;margin-right:10px;">Lloyds: 7.6%</span><span style="font-size:10px;color:#CC3300;margin-right:10px;">HSBC: 7.2%</span><span style="font-size:10px;color:#7B5EA7;margin-right:10px;">Monzo: 5.6%</span><span style="font-size:10px;color:#4A9BD4;margin-right:10px;">Revolut: 7.1%</span>
+    </div>
+    <table class="bench-table">
+      <thead>
+        <tr>
+          <th class="bench-row-head">Issue Type</th>
+          <th class="bench-row-head">Rate Comparison</th>
+          <th class="bench-row-head" style="text-align:right;">Gap</th>
+          <th class="bench-row-head">Persistence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Customer Support Failure</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:75%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">7.1%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">9.3%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-negative">-2.3pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Feature Broken</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">41.0%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:88%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">36.1%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-positive">+4.8pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Incorrect Balance</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">2.5%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:55%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">1.4%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">+1.1pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Missing Transaction</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">2.5%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:83%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">2.1%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">+0.4pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Notification Issue</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:68%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">3.9%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">5.7%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">-1.8pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>Payment Failed</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#CC3333;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#CC3333;">5.3%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:96%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">5.1%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">+0.2pp</td>
+          <div class="bench-days-cell">1d active</div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#4A9BD4;font-size:8px;margin-right:2px;">&#9679;</span>Security Concern</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:0%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">0.0%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:0%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">0.0%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">0.0pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+        <tr class="bench-issue-row">
+          <td class="bench-issue-name"><span style="color:#CC0000;font-size:8px;margin-right:2px;">&#9679;</span>Transfer Failed</td>
+          <td class="bench-bar-cell">
+            <div style="margin-bottom:3px;">
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Barclays</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:69%;background:#00AEEF;"></div>
+                </div>
+                <span class="bench-bar-pct" style="color:#00AEEF;">1.8%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#3A6A7F;margin-bottom:2px;">Peer avg</div>
+              <div class="bench-bar-wrap">
+                <div class="bench-bar-bg">
+                  <div class="bench-bar-fill" style="width:100%;background:#3A6A7F;"></div>
+                </div>
+                <span class="bench-bar-pct">2.6%</span>
+              </div>
+            </div>
+          </td>
+          <td class="bench-gap-cell bench-gap-neutral">-0.8pp</td>
+          <div class="bench-days-cell"></div>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
   
+<div class="topbar-box">
+  <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
+    <span class="topbar-box-title" style="color:#7AACBF;">INTELLIGENCE FINDINGS</span>
+    <span style="font-size:10px;color:#3A6A7F;">
+      Barclays &nbsp;&middot;&nbsp; top 8 by CAC score &nbsp;&middot;&nbsp;
+      <span style="color:#CC0000;">0 ceiling</span>
+    </span>
+  </div>
+  <div class="topbar-box-body">
+    <div class="inf-card" style="border-left-color:#F5A623;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-004</span>
+        <span class="inf-tier" style="color:#F5A623;">P2</span>
+        <span class="inf-sev">SIG P2</span>
+        <span class="badge-chr">CHR-001</span>
+      </div>
+      <div class="inf-summary">P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-001.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:40%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.403</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:0</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:0</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:20</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">significant</span><span class="kw-pill">friction</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-001</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 0 signals</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-134</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P0</span>
+        <span class="badge-chr">CHR-018</span>
+      </div>
+      <div class="inf-summary">P0 signal cluster: barclays J_PAY_01, 8 P0 / 3 P1 signals, anchor: CHR-018.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:35%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.350</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>Make a Payment</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:8</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:3</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">failure</span><span class="kw-pill">indicating</span><span class="kw-pill">payment</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-018</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 11 signals (barclays_0, barclays_1, …)</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-060</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P2</span>
+        <span class="badge-chr">CHR-004</span>
+      </div>
+      <div class="inf-summary">P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-004.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:33%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.335</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:0</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:0</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:96</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">feature</span><span class="kw-pill">friction</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-004</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 0 signals</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-056</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P0</span>
+        <span class="badge-chr">CHR-003</span>
+      </div>
+      <div class="inf-summary">P0 signal cluster: barclays J_SERVICE_01, 17 P0 / 3 P1 signals, anchor: CHR-003.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:28%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.289</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:17</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:3</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">customer</span><span class="kw-pill">access</span><span class="kw-pill">complete</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-003</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 20 signals (barclays_0, barclays_1, …)</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-055</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P0</span>
+        <span class="badge-chr">CHR-003</span>
+      </div>
+      <div class="inf-summary">P0 signal cluster: barclays J_SERVICE_01, 8 P0 / 25 P1 signals, anchor: CHR-003.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:26%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.267</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:8</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:25</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:1</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">crashes</span><span class="kw-pill">friction</span><span class="kw-pill">preventing</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-003</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 20 signals (barclays_0, barclays_1, …)</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-132</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P2</span>
+        <span class="badge-chr">CHR-003</span>
+      </div>
+      <div class="inf-summary">P2 signal cluster: barclays J_SERVICE_01, 0 P0 / 0 P1 signals, anchor: CHR-003.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:26%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.261</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>General App Use</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:0</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:0</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:4</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">support</span><span class="kw-pill">bank's</span><span class="kw-pill">inability</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-003</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 0 signals</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-001</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P0</span>
+        <span class="badge-chr">CHR-005</span>
+      </div>
+      <div class="inf-summary">P0 signal cluster: barclays J_LOGIN_01, 1 P0 / 1 P1 signals, anchor: CHR-005.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:25%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.250</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>J_LOGIN_01</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:1</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:1</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">access</span><span class="kw-pill">repeated</span><span class="kw-pill">forced</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-005</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 2 signals (barclays_0, barclays_1)</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+    <div class="inf-card" style="border-left-color:#4A7A8F;">
+      <div class="inf-header">
+        <span class="inf-id">MIL-F-20260424-006</span>
+        <span class="inf-tier" style="color:#4A7A8F;">P3</span>
+        <span class="inf-sev">SIG P0</span>
+        <span class="badge-chr">CHR-005</span>
+      </div>
+      <div class="inf-summary">P0 signal cluster: barclays J_LOGIN_01, 2 P0 / 1 P1 signals, anchor: CHR-005.</div>
+      <div class="cac-label">CAC CONFIDENCE</div>
+      <div class="cac-track">
+        <div class="cac-fill" style="width:25%;background:#4A9BD4;"></div>
+        <span class="cac-val" style="color:#4A9BD4;">0.250</span>
+      </div>
+      <div class="inf-meta">
+        <span class="inf-meta-item"><span class="meta-label">Journey</span>J_LOGIN_01</span>
+        <span class="inf-meta-item"><span class="meta-label">Signals</span>
+          <span style="color:#CC0000;">P0:2</span>
+          <span style="color:#F5A623;margin-left:4px;">P1:1</span>
+          <span style="color:#4A9BD4;margin-left:4px;">P2:0</span>
+        </span>
+        <span class="inf-kw"><span class="kw-pill">access</span><span class="kw-pill">login</span><span class="kw-pill">complete</span></span>
+      </div>
+      <div class="inf-provenance" role="group" aria-label="Provenance Chain — FCA Consumer Duty 2.0"
+           style="margin-top:10px;padding-top:8px;border-top:1px dashed #003A5C;font-size:9px;
+                  color:#3A6A7F;display:flex;flex-wrap:wrap;gap:10px;line-height:1.5;">
+        <span style="color:#5A8A9F;font-weight:700;letter-spacing:0.5px;">PROVENANCE CHAIN</span>
+        <span data-prov="chronicle_id"><span style="color:#5A8A9F;">Chronicle:</span> CHR-005</span>
+        <span data-prov="signal_ids"><span style="color:#5A8A9F;">Signals:</span> 3 signals (barclays_0, barclays_1, …)</span>
+        <span data-prov="class_ver"><span style="color:#5A8A9F;">Class ver:</span> michaelborck/refuled:latest</span>
+        <span data-prov="teacher_ver"><span style="color:#5A8A9F;">Teacher ver:</span> —</span>
+      </div>
+    </div>
+  </div>
+</div>
   
 <div class="topbar-box">
   <div class="topbar-box-header" style="background:#001828;border-bottom:1px solid #003A5C;">
@@ -963,7 +1704,7 @@ document.addEventListener('click', function(e) {
         <div class="clark-label">ACT NOW</div>
       </div>
       <div class="clark-tile" style="border-top-color:#F5A623;">
-        <div class="clark-count" style="color:#F5A623;">2</div>
+        <div class="clark-count" style="color:#F5A623;">4</div>
         <div class="clark-tier">CLARK-2</div>
         <div class="clark-label">ESCALATE</div>
       </div>
@@ -992,6 +1733,20 @@ document.addEventListener('click', function(e) {
         <span class="clark-cac">CAC 0.271</span>
         <span class="clark-reason">Issue-level override: App Crashing — 15d persistent P0, +7.5pp over peers</span>
         <span class="clark-ts">2026-04-21 17:50</span>
+      </div>
+      <div class="clark-row" style="border-left-color:#F5A623;">
+        <span class="clark-badge" style="background:#F5A62322;color:#F5A623;border:1px solid #F5A623;">CLARK-2 — ESCALATE</span>
+        <span class="clark-fid">MIL-F-20260422-054</span>
+        <span class="clark-cac">CAC 0.270</span>
+        <span class="clark-reason">Issue-level override: App Crashing — 15d persistent P0, +6.9pp over peers</span>
+        <span class="clark-ts">2026-04-22 07:32</span>
+      </div>
+      <div class="clark-row" style="border-left-color:#F5A623;">
+        <span class="clark-badge" style="background:#F5A62322;color:#F5A623;border:1px solid #F5A623;">CLARK-2 — ESCALATE</span>
+        <span class="clark-fid">MIL-F-20260423-055</span>
+        <span class="clark-cac">CAC 0.268</span>
+        <span class="clark-reason">Issue-level override: App Crashing — 15d persistent P0, +6.8pp over peers</span>
+        <span class="clark-ts">2026-04-23 11:20</span>
       </div>
       <div class="clark-row" style="border-left-color:#00AFA0;">
         <span class="clark-badge" style="background:#00AFA022;color:#00AFA0;border:1px solid #00AFA0;">CLARK-1 — WATCH</span>
