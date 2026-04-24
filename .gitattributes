@@ -1,0 +1,14 @@
+# Pin published briefing outputs to LF in both git blob AND working
+# tree, regardless of Windows core.autocrlf setting. GitHub Pages
+# serves these as LF; local sha256 hash must match for the audit
+# story ("what we pushed is what's served") to hold.
+#
+# Without this file, autocrlf=true would CRLF-ify the working tree
+# on every `git checkout` / `git pull`, silently re-breaking parity
+# until the next pipeline run.
+#
+# See commit 49b2e9e for the originating diagnosis.
+
+mil/publish/output/*.html text eol=lf
+mil/publish/site/*.html   text eol=lf
+mil/publish/login_site/*.html text eol=lf
