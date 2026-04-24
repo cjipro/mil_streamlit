@@ -69,7 +69,7 @@ enabled = true
 # Rollback: re-comment, redeploy. handleCallback's audit calls
 # are no-ops when env.AUDIT_DB is undefined.
 #
-# [[d1_databases]]
-# binding       = "AUDIT_DB"
-# database_name = "mil-auth-audit"
-# database_id   = "REPLACE_WITH_D1_ID"
+[[d1_databases]]
+binding       = "AUDIT_DB"
+database_name = "mil-auth-audit"
+database_id   = "84acbc8b-6169-4668-ae0e-15ccfbfdf1ca"
