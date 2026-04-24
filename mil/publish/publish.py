@@ -28,6 +28,8 @@ from pathlib import Path
 _MIL_DIR_FOR_IMPORT = Path(__file__).resolve().parent.parent
 if str(_MIL_DIR_FOR_IMPORT) not in sys.path:
     sys.path.insert(0, str(_MIL_DIR_FOR_IMPORT))
+
+from publish.adapters import write_text_lf  # LF-only HTML writes
 try:
     from briefing_data import get_briefing_data as _get_briefing_data
     _BRIEFING_DATA_AVAILABLE = True
@@ -1961,7 +1963,7 @@ def publish_to_github_pages(html_content: str, env: dict) -> tuple[bool, str]:
         briefing_dir = clone_dir / "briefing"
         briefing_dir.mkdir(exist_ok=True)
         dest = briefing_dir / "index.html"
-        dest.write_text(html_content, encoding="utf-8")
+        write_text_lf(dest, html_content)
         print(f"  Written to {dest}")
 
         # git config (required in CI environments)
@@ -2215,7 +2217,7 @@ def main():
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     local_path = OUTPUT_DIR / "index.html"
-    local_path.write_text(html_content, encoding="utf-8")
+    write_text_lf(local_path, html_content)
     size_kb = local_path.stat().st_size / 1024
     print(f"  Written: {local_path} ({size_kb:.1f} KB)")
     html_ok = True

@@ -29,6 +29,8 @@ OUTPUT_DIR = SCRIPT_DIR / "output"
 sys.path.insert(0, str(MIL_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 
+from mil.publish.adapters import write_text_lf  # LF-only HTML writes
+
 from mil.command.components.clark_protocol import active_clark_summary
 from mil.command.components.inference_cards import load_findings
 from mil.publish.box3_selector import (
@@ -1086,7 +1088,7 @@ def publish_v3(html_content: str) -> tuple[bool, str]:
         v3_dir = clone_dir / "briefing-v3"
         v3_dir.mkdir(exist_ok=True)
         dest = v3_dir / "index.html"
-        dest.write_text(html_content, encoding="utf-8")
+        write_text_lf(dest, html_content)
         print(f"  Written to {dest}")
 
         for cmd in [
@@ -1144,7 +1146,7 @@ def main():
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     local_v3 = OUTPUT_DIR / "index_v3.html"
-    local_v3.write_text(v3_html, encoding="utf-8")
+    write_text_lf(local_v3, v3_html)
     print(f"  Local copy: {local_v3}")
 
     print("\n[2/3] Publishing to GitHub Pages ...")

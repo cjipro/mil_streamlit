@@ -237,7 +237,8 @@ def write_priority_artifact(selected: dict | None, path=None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     body = json.dumps(payload, indent=2, ensure_ascii=False) if payload else "null"
-    tmp.write_text(body, encoding="utf-8")
+    from mil.publish.adapters import write_text_lf
+    write_text_lf(tmp, body)
     os.replace(tmp, path)
 
 

@@ -31,6 +31,8 @@ OUTPUT_DIR = SCRIPT_DIR / "output"
 sys.path.insert(0, str(MIL_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 
+from mil.publish.adapters import write_text_lf  # LF-only HTML writes
+
 # ── Data layer imports ────────────────────────────────────────────────────────
 from briefing_data import get_briefing_data
 from mil.command.components.vane_chart import build_vane_data
@@ -514,7 +516,7 @@ def publish_v2(html_content: str) -> tuple[bool, str]:
         v2_dir = clone_dir / "briefing-v2"
         v2_dir.mkdir(exist_ok=True)
         dest = v2_dir / "index.html"
-        dest.write_text(html_content, encoding="utf-8")
+        write_text_lf(dest, html_content)
         print(f"  Written to {dest}")
 
         for cmd in [
@@ -575,7 +577,7 @@ def main():
     # 3. Save local copy
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     local_v2 = OUTPUT_DIR / "index_v2.html"
-    local_v2.write_text(v2_html, encoding="utf-8")
+    write_text_lf(local_v2, v2_html)
     print(f"  Local copy: {local_v2}")
 
     # 4. Publish

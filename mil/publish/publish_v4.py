@@ -49,6 +49,8 @@ sys.path.insert(0, str(SCRIPT_DIR))
 sys.path.insert(0, str(MIL_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 
+from adapters import write_text_lf  # LF-only HTML writes
+
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 import publish_v3 as legacy
@@ -513,8 +515,8 @@ def _diff_section(slug: str, legacy_html: str, jinja_html: str) -> bool:
         fromfile=f"{slug}_legacy.struct", tofile=f"{slug}_jinja.struct", n=2,
     ))
     OUTPUT_DIR.mkdir(exist_ok=True)
-    (OUTPUT_DIR / f"{slug}_legacy.html").write_text(legacy_html, encoding="utf-8")
-    (OUTPUT_DIR / f"{slug}_jinja.html").write_text(jinja_html, encoding="utf-8")
+    write_text_lf(OUTPUT_DIR / f"{slug}_legacy.html", legacy_html)
+    write_text_lf(OUTPUT_DIR / f"{slug}_jinja.html", jinja_html)
 
     whitespace_only = sum(
         1 for l in raw_diff
@@ -626,7 +628,7 @@ def main() -> int:
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     local_v4 = OUTPUT_DIR / "index_v4.html"
-    local_v4.write_text(v4_html, encoding="utf-8")
+    write_text_lf(local_v4, v4_html)
     print(f"  Local copy: {local_v4}")
 
     if "--render" in args:

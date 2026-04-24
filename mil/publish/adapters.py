@@ -42,6 +42,26 @@ _CONFIG_PATH = _MIL_ROOT / "config" / "publish_config.yaml"
 _DEFAULT_COMMIT_SUBJECT = "publish: {path} {ts}"
 
 
+# ── LF-safe writes ────────────────────────────────────────────────────────────
+
+def write_text_lf(path: Path, content: str, encoding: str = "utf-8") -> None:
+    """Write text with LF-only line endings — byte-stable across OS.
+
+    Default `Path.write_text` on Windows translates \\n → \\r\\n (platform
+    default text mode), producing files whose bytes drift from what GitHub
+    Pages actually serves (it normalises to LF). Every publisher that
+    writes a local copy of briefing HTML MUST use this helper so
+    `sha256sum local == sha256sum remote` holds, which is the only
+    reliable audit signal that "what we pushed is what's served."
+
+    Also strips any pre-existing \\r to handle content that was built
+    from mixed-newline sources (templates, f-strings concatenating
+    external text).
+    """
+    normalised = content.replace("\r\n", "\n").replace("\r", "\n")
+    path.write_text(normalised, encoding=encoding, newline="\n")
+
+
 # ── Base ──────────────────────────────────────────────────────────────────────
 
 class PublishAdapter(ABC):
@@ -68,7 +88,7 @@ class LocalAdapter(PublishAdapter):
     def publish(self, relative_path: str, content: str) -> tuple[bool, str]:
         dest = self.root / relative_path
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(content, encoding="utf-8")
+        write_text_lf(dest, content)
         logger.info("[publish] LocalAdapter wrote %d bytes to %s",
                     len(content), dest)
         return True, f"local: {dest}"
@@ -123,7 +143,7 @@ class GitHubPagesAdapter(PublishAdapter):
 
             dest = clone_dir / relative_path
             dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_text(content, encoding="utf-8")
+            write_text_lf(dest, content)
 
             for cmd in (
                 ["git", "-C", str(clone_dir), "config", "user.email", self._email],
