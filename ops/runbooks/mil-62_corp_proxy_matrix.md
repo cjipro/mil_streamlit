@@ -35,14 +35,43 @@ The risks to check for:
 
 Before running this matrix, confirm:
 
-- [ ] MIL-63 magic-link Worker deployed + reachable at
-      `https://login.cjipro.com/` (chunk 3 cutover complete)
+- [x] MIL-63 magic-link Worker deployed + reachable at
+      `https://login.cjipro.com/` (commits `e45b06b` + `88d2c46` +
+      `7dcebbe` on 2026-04-24; chunk 3 cutover complete; browser-
+      tested end-to-end against AuthKit staging)
 - [ ] WorkOS AuthKit staging env has `hussain.x.ahmed@barclays.com`
       (or equivalent bank-network test email) provisioned as a user
-- [ ] MIL-61 edge-bouncer deployed, ENFORCE=true (not shadow), at
+- [ ] MIL-61 edge-bouncer deployed, **ENFORCE=true** (not shadow), at
       least one briefing route bound (`cjipro.com/briefing-v4*`)
+      → **PARTIAL as of 2026-04-24**: routes bound on all four
+      briefing paths, JWKS/issuer corrected from authoritative
+      OpenID config, shadow-mode logs confirmed clean on synthetic
+      traffic, but `ENFORCE=false` still. Flip gated on 24–72h of
+      real `pass/valid-session` log entries on authenticated
+      briefing loads. Scenarios S3, S6, S7 cannot fully execute
+      until this flips (briefings currently pass through).
 - [ ] Test account credentials available for each bank's corp
       browser session
+
+### Pre-flight smoke (runs off corp network, takes 60s)
+
+Before enlisting a bank-corp tester, sanity-check the plumbing from
+any machine with public internet access:
+
+```
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://cjipro.com/
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://cjipro.com/briefing-v4/
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://login.cjipro.com/healthz
+curl -s -o /dev/null -D - https://login.cjipro.com/ 2>&1 | grep -i '^location:'
+```
+
+Expected:
+- Landing + briefing: 200 (until ENFORCE flips)
+- `login.cjipro.com/healthz`: 200 `ok`
+- `login.cjipro.com/` Location header: `https://api.workos.com/user_management/authorize?...` (NOT `authkit.app` directly — that endpoint returns `application_not_found` for User Management clients, see commit `e45b06b` postmortem)
+
+If pre-flight fails, fix before involving a corp tester — no point
+burning partner time on a broken test rig.
 
 ## Test scenarios (per bank)
 
@@ -78,15 +107,28 @@ Expected: both 200. Same fail mode as S1.
 GET https://cjipro.com/briefing-v4/
 ```
 
-Expected: HTTP 302 to
+Expected (once `ENFORCE=true`): HTTP 302 to
 `https://login.cjipro.com/?return_to=/briefing-v4/`. Browser
 follows the redirect and lands on the AuthKit login form
 (background #FAFAF7, accent #003A5C, "Sign in to CJI Pro" heading).
 
+**While `ENFORCE=false`** (current state): briefing loads directly
+with HTTP 200. That's still a useful test — it confirms edge-bouncer
+is in the request path without denying traffic. To verify, run
+`cd mil/auth/edge_bouncer && npx wrangler tail` concurrently and
+watch for a `{"action": "redirect", "reason": "missing", "enforce": false}`
+log entry. If the decision log fires, S3 is effectively pre-flighted
+even though the visible behaviour is "briefing loads". Re-run S3
+for real after the flip.
+
 Fail modes:
-- No redirect (ENFORCE probably still false)
+- In ENFORCE mode, no redirect → check route bindings in
+  `mil/auth/edge_bouncer/wrangler.toml` + `wrangler deployments list`.
 - Redirect to `*.workos.com` or `*.authkit.app` visible in URL bar
   → custom-domain cutover incomplete. Block invites.
+- Redirect loop back to `login.cjipro.com` → `DEFAULT_RETURN_TO`
+  misconfigured (see commit `e45b06b`). Confirm wrangler.toml has
+  `DEFAULT_RETURN_TO = "https://cjipro.com/briefing-v4/"`, not `/`.
 - Proxy blocks login.cjipro.com even though cjipro.com loaded →
   different categorisation between subdomain and apex. Submit
   login.cjipro.com separately.
@@ -155,17 +197,61 @@ Fail modes:
 - Redirect to login → cookie stripped between requests. Verify
   SameSite policy in corp browser settings.
 
+### S8 — JWT payload inspection (diagnostic only)
+
+Run this if S6 or S7 fails in a confusing way — it isolates "did
+WorkOS issue a valid token" from "did edge-bouncer accept it".
+
+From DevTools → Application → Cookies → `.cjipro.com` → copy the
+`__Secure-cjipro-session` value. On any machine (off corp network
+is fine — the JWT is self-contained), decode the payload:
+
+```bash
+COOKIE='<paste here>'
+echo "$COOKIE" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | python -m json.tool
+```
+
+Or paste into https://jwt.io (decode only, don't check "secret" —
+the public key lookup happens server-side via JWKS).
+
+Expected payload fields (must match edge-bouncer's env vars):
+- `iss` = `https://ideal-log-65-staging.authkit.app`
+  (matches `EXPECTED_ISS` in `mil/auth/edge_bouncer/wrangler.toml`)
+- `aud` = `client_01KPY7CA07ZD1WG3DMQE1FZQE1`
+  (matches `EXPECTED_AUD`)
+- `exp` > current Unix time
+- `sub` = opaque user ID (`user_01...`)
+- `sid` = opaque session ID (`session_01...`)
+
+Fail modes:
+- `iss` doesn't match → AuthKit tenant mismatch. Either
+  `EXPECTED_ISS` is wrong (update wrangler.toml, redeploy) or the
+  magic-link Worker was pointed at a different tenant.
+- `aud` doesn't match → AuthKit client binding drift. Check
+  `mil/config/workos.yaml` against the WorkOS dashboard.
+- `exp` already past → cookie served stale; session expired. Log
+  in again. Expected with 60-min `COOKIE_MAX_AGE_SECONDS`.
+- Payload doesn't decode at all → cookie got truncated en route.
+  Suspect corp email security rewriting the magic-link URL in a
+  way that corrupted state. Capture full request/response headers
+  for debugging.
+
+Record the decoded `iss` + `aud` in the results cell for the
+bank — useful if we later need to reconstruct what a corp browser
+actually saw.
+
 ## Results matrix
 
 Fill this in per bank. Date + tester initials in each cell; ✅ /
-❌ / ⚠ (partial) in the status column.
+❌ / ⚠ (partial) in the status column. S8 is diagnostic-only,
+run it only when another scenario fails opaquely.
 
-| Bank    | Tester | Date | S1 | S2 | S3 | S4 | S5 | S6 | S7 | Overall |
-|---------|--------|------|----|----|----|----|----|----|----|----|
-| Barclays |  |  |  |  |  |  |  |  |  |  |
-| HSBC     |  |  |  |  |  |  |  |  |  |  |
-| Lloyds   |  |  |  |  |  |  |  |  |  |  |
-| NatWest  |  |  |  |  |  |  |  |  |  |  |
+| Bank    | Tester | Date | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8 | Overall |
+|---------|--------|------|----|----|----|----|----|----|----|----|---------|
+| Barclays |  |  |  |  |  |  |  |  |  |  |  |
+| HSBC     |  |  |  |  |  |  |  |  |  |  |  |
+| Lloyds   |  |  |  |  |  |  |  |  |  |  |  |
+| NatWest  |  |  |  |  |  |  |  |  |  |  |  |
 
 ## Gate decision
 
@@ -198,6 +284,16 @@ network environment. Results come back here.
 
 ## Status log
 
-- 2026-04-24 — Runbook drafted. Matrix blank. Prerequisites not
-  yet satisfied (MIL-63 chunk 3 cutover pending; ENFORCE still
-  false on edge-bouncer).
+- 2026-04-24 (morning) — Runbook drafted. Matrix blank.
+  Prerequisites not yet satisfied (MIL-63 chunk 3 cutover pending;
+  ENFORCE still false on edge-bouncer).
+- 2026-04-24 (afternoon) — MIL-63 chunk 3 cutover DONE. login.cjipro.com
+  now served by magic-link Worker (commit `e45b06b`); browser-tested
+  end-to-end with AuthKit staging. Edge-bouncer JWKS/issuer corrected
+  from `.well-known/openid-configuration` (no longer PROVISIONAL).
+  Four briefing routes bound with ENFORCE=false (commit `88d2c46`).
+  S3/S6/S7 still blocked on ENFORCE=true flip, scheduled for
+  2026-04-26 check-in after 48h shadow-mode observation. Pre-flight
+  smoke section added. S8 JWT-inspection scenario added for
+  diagnostic use. Matrix still blank — banks still need corp-network
+  testers.
