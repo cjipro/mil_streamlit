@@ -18,13 +18,11 @@ main = "src/index.ts"
 compatibility_date = "2025-10-15"
 compatibility_flags = ["nodejs_compat"]
 
-# Routes — commented out until the chunk-3 cutover day.
-#
-# Activating briefing-path routes is safe any time after MIL-63
-# magic-link is deployed, because ENFORCE=false means shadow-mode
-# pass-through. The routes start producing real decision logs
-# against live traffic, which is what we want before flipping
-# ENFORCE=true.
+# Routes — active from 2026-04-24 (shadow-mode activation day). The
+# Worker now sits in front of every briefing path and logs decisions
+# on real traffic. ENFORCE stays false until we've seen 24-72h of
+# clean `pass/valid-session` logs on real JWTs from MIL-63; only
+# then flip ENFORCE=true.
 #
 # The sonar.cjipro.com/* route is DEFERRED — binding the Bouncer
 # to sonar would intercept the Ask CJI Pro tunnel at /api/*. That
@@ -32,25 +30,25 @@ compatibility_flags = ["nodejs_compat"]
 # as a separate chunk (MIL-54 retires the sonar Access policy, at
 # which point we revisit).
 #
-# To activate: uncomment the four briefing routes, run
-# `npx wrangler deploy`. Keep ENFORCE=false for the first 24–72h
-# to accumulate decision logs.
-#
-# [[routes]]
-# pattern    = "cjipro.com/briefing*"
-# zone_name  = "cjipro.com"
-#
-# [[routes]]
-# pattern    = "cjipro.com/briefing-v2*"
-# zone_name  = "cjipro.com"
-#
-# [[routes]]
-# pattern    = "cjipro.com/briefing-v3*"
-# zone_name  = "cjipro.com"
-#
-# [[routes]]
-# pattern    = "cjipro.com/briefing-v4*"
-# zone_name  = "cjipro.com"
+# Rollback: comment out these route blocks and redeploy. Briefings
+# revert to direct GitHub Pages serving without the Bouncer in the
+# request path.
+
+[[routes]]
+pattern    = "cjipro.com/briefing*"
+zone_name  = "cjipro.com"
+
+[[routes]]
+pattern    = "cjipro.com/briefing-v2*"
+zone_name  = "cjipro.com"
+
+[[routes]]
+pattern    = "cjipro.com/briefing-v3*"
+zone_name  = "cjipro.com"
+
+[[routes]]
+pattern    = "cjipro.com/briefing-v4*"
+zone_name  = "cjipro.com"
 
 [vars]
 # Non-secret, public identifiers. Match mil/config/workos.yaml
