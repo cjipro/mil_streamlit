@@ -4,7 +4,7 @@ compatibility_date = "2026-04-23"
 [assets]
 directory = "."
 
-# This Worker serves the static files in this directory (mil_briefing/login/
+# This Worker serves the static files in this directory (mil-briefing/login/
 # after publish) at the root of login.cjipro.com.
 #
 # The Cloudflare dashboard's "Path" field scopes the deploy to this directory,

@@ -1,14 +1,17 @@
 """
 mil/publish/publish_login_site.py — login.cjipro.com placeholder publisher
 
-Pushes the static HTML from mil/publish/login_site/ into the cjipro/mil_briefing
-deploy repo under /login/. Cloudflare Pages reads from that repo + subdirectory
-and serves login.cjipro.com.
+Pushes the static HTML from mil/publish/login_site/ into the cjipro/mil-briefing
+deploy repo under /login/. GitHub Pages serves that repo on cjipro.com
+(CNAME=cjipro.com, source branch=main), and a Cloudflare Worker attached to
+login.cjipro.com reads the /login/ subdirectory via wrangler.toml's `[assets]`
+block.
 
-Why mil_briefing and not Cloudflare-Pages-off-mil_streamlit? Cleaner build
-environment — mil_briefing contains only published assets (no requirements.txt,
-no Python, no CUDA auto-detect). Cloudflare Pages builds are fast + predictable
-because there's nothing for the build system to misidentify.
+Why a separate repo and not commit rendered HTML straight to mil_streamlit?
+The daily pipeline pushes ~30 artefact commits/month; keeping them out of the
+source repo keeps `git log main` readable and clone size small. MIL-73 tracks
+consolidating the split into one repo with a gh-pages branch — execute after
+the Apr 28 edge-bouncer ENFORCE flip has soaked.
 
 Run:
     py -m mil.publish.publish_login_site            # deploy
@@ -61,7 +64,7 @@ def publish_all(dry_run: bool = False) -> int:
 
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
-    parser = argparse.ArgumentParser(description="Deploy login.cjipro.com placeholder to mil_briefing")
+    parser = argparse.ArgumentParser(description="Deploy login.cjipro.com placeholder to mil-briefing")
     parser.add_argument("--dry-run", action="store_true", help="Print actions without deploying")
     args = parser.parse_args()
     failures = publish_all(dry_run=args.dry_run)
