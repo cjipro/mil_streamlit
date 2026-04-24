@@ -1,22 +1,24 @@
 // MIL-63 — build the WorkOS AuthKit authorize URL
 //
-// AuthKit authorize endpoint pattern:
-//   https://<authkit-host>/oauth2/authorize
+// Flow initiation goes through WorkOS's User Management authorize
+// endpoint, which issues an authorization_session_id and then 302s to
+// whichever AuthKit domain is bound to the client in the dashboard
+// (e.g. ideal-log-65-staging.authkit.app pre-cutover, login.cjipro.com
+// after). The AuthKit domain's own /oauth2/authorize is a different,
+// SSO-only endpoint that rejects User Management client_ids with
+// `application_not_found` — do not point at it.
+//
+// Canonical pattern:
+//   https://api.workos.com/user_management/authorize
 //     ?response_type=code
 //     &client_id=<client_id>
 //     &redirect_uri=<callback>
 //     &state=<signed-state>
 //     &provider=authkit
-//
-// <authkit-host> is either:
-//   - the default AuthKit domain (ideal-log-65-staging.authkit.app) before cutover, or
-//   - login.cjipro.com after cutover.
-// Both paths work with the same query params; the only difference is
-// what the user sees in the URL bar. Panel rule: only *.cjipro.com
-// in production — but pre-cutover staging is fine for dev.
+
+const AUTHORIZE_BASE = "https://api.workos.com/user_management/authorize";
 
 export type AuthorizeConfig = {
-  authkitHost: string;
   clientId: string;
   redirectUri: string;
 };
@@ -25,7 +27,6 @@ export function buildAuthorizeUrl(
   cfg: AuthorizeConfig,
   signedState: string,
 ): string {
-  const base = `https://${cfg.authkitHost}/oauth2/authorize`;
   const params = new URLSearchParams({
     response_type: "code",
     client_id: cfg.clientId,
@@ -33,5 +34,5 @@ export function buildAuthorizeUrl(
     state: signedState,
     provider: "authkit",
   });
-  return `${base}?${params.toString()}`;
+  return `${AUTHORIZE_BASE}?${params.toString()}`;
 }

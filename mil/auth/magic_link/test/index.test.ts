@@ -53,10 +53,8 @@ describe("GET / — authorize redirect", () => {
     expect(res.status).toBe(302);
     const loc = res.headers.get("location")!;
     const url = new URL(loc);
-    expect(url.origin).toBe(
-      "https://ideal-log-65-staging.authkit.app",
-    );
-    expect(url.pathname).toBe("/oauth2/authorize");
+    expect(url.origin).toBe("https://api.workos.com");
+    expect(url.pathname).toBe("/user_management/authorize");
     expect(url.searchParams.get("client_id")).toBe(ENV.CLIENT_ID);
     expect(url.searchParams.get("redirect_uri")).toBe(ENV.REDIRECT_URI);
     expect(url.searchParams.get("response_type")).toBe("code");

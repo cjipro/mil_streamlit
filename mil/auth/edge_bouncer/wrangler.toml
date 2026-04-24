@@ -57,14 +57,15 @@ compatibility_flags = ["nodejs_compat"]
 # (staging env).
 ENFORCE                = "false"
 SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
-JWKS_URL               = "https://api.workos.com/sso/jwks/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+# JWKS and issuer sourced from the AuthKit domain's OpenID config:
+#   https://ideal-log-65-staging.authkit.app/.well-known/openid-configuration
+# declares  "issuer": "https://ideal-log-65-staging.authkit.app"
+#   and     "jwks_uri": "https://ideal-log-65-staging.authkit.app/oauth2/jwks".
+# The earlier api.workos.com/sso/* values were SSO-product endpoints
+# and rejected AuthKit-issued tokens with invalid-iss / JWKS mismatch.
+JWKS_URL               = "https://ideal-log-65-staging.authkit.app/oauth2/jwks"
 EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
-# EXPECTED_ISS is PROVISIONAL — WorkOS's exact `iss` claim format
-# varies between AuthKit Sessions and User Management Sessions. The
-# shadow-mode rollout (ENFORCE=false) will log the `invalid` reason
-# on the first real JWT from MIL-63; we update this value then and
-# only then flip ENFORCE=true.
-EXPECTED_ISS           = "https://api.workos.com/user_management/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+EXPECTED_ISS           = "https://ideal-log-65-staging.authkit.app"
 LOGIN_URL              = "https://login.cjipro.com/"
 RETURN_TO_PARAM        = "return_to"
 JWKS_CACHE_TTL_SECONDS = "3600"

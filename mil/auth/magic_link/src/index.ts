@@ -54,7 +54,6 @@ async function handleAuthorize(
 
   const authorizeUrl = buildAuthorizeUrl(
     {
-      authkitHost: env.AUTHKIT_HOST,
       clientId: env.CLIENT_ID,
       redirectUri: env.REDIRECT_URI,
     },

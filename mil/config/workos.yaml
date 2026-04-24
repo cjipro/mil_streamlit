@@ -17,7 +17,13 @@ envs:
   staging:
     organisation_id: org_01KPY8K0RGC6ABNTC73YMW9ERP
     client_id: client_01KPY7CA07ZD1WG3DMQE1FZQE1
-    jwks_url: https://api.workos.com/sso/jwks/client_01KPY7CA07ZD1WG3DMQE1FZQE1
+    # AuthKit tokens are signed by the AuthKit domain, not the SSO
+    # product. The earlier /sso/jwks/<client_id> path was wrong — it
+    # served SSO-flow keys and rejected AuthKit-issued JWTs. The
+    # correct value is discoverable at
+    # https://<authkit_domain>/.well-known/openid-configuration as
+    # `jwks_uri`. Issuer = authkit_domain root (used by edge-bouncer).
+    jwks_url: https://ideal-log-65-staging.authkit.app/oauth2/jwks
     authkit_domain: ideal-log-65-staging.authkit.app
     # Future custom domain — registered in WorkOS, DNS not yet cut
     # over (see MIL-63). Until cutover, authkit_domain above is what
