@@ -18,6 +18,8 @@ import { buildClearCookie, type CookieConfig } from "./cookie";
 import { handleCallback, type CallbackConfig } from "./callback";
 import type { Env } from "./env";
 import { isValidReturnTo, signState } from "./state";
+import { extractJwtSub, logAuthEvent } from "../../audit/src/audit";
+import type { AuthEventInput } from "../../audit/src/types";
 
 function cookieConfigFromEnv(env: Env): CookieConfig {
   return {
@@ -111,8 +113,50 @@ or contact <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.</p>
   });
 }
 
+function baseAuditInput(
+  request: Request,
+  path: string,
+): Pick<AuditInputShape, "worker" | "method" | "host" | "path" | "ip" | "user_agent" | "country"> {
+  const url = new URL(request.url);
+  const cf = (request as Request & { cf?: IncomingRequestCfProperties }).cf;
+  return {
+    worker: "magic-link",
+    method: request.method,
+    host: url.host,
+    path,
+    ip: request.headers.get("cf-connecting-ip") ?? undefined,
+    user_agent: request.headers.get("user-agent") ?? undefined,
+    country: cf?.country ?? undefined,
+  };
+}
+
+type AuditInputShape = AuthEventInput;
+
+function audit(
+  env: Env,
+  ctx: ExecutionContext,
+  input: AuthEventInput,
+): void {
+  if (!env.AUDIT_DB) return;
+  const db = env.AUDIT_DB;
+  ctx.waitUntil(
+    logAuthEvent(db, input).catch((err) => {
+      console.log(
+        JSON.stringify({
+          ts: new Date().toISOString(),
+          audit_error: err instanceof Error ? err.message : String(err),
+        }),
+      );
+    }),
+  );
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext,
+  ): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method;
@@ -142,6 +186,11 @@ export default {
         callbackConfigFromEnv(env),
       );
       if (outcome.kind === "redirect") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "magic_link.callback.success",
+          session_sub: extractJwtSub(outcome.accessToken),
+        });
         return new Response(null, {
           status: 302,
           headers: {
@@ -158,14 +207,28 @@ export default {
           detail: outcome.detail,
         }),
       );
+      audit(env, ctx, {
+        ...baseAuditInput(request, path),
+        event_type: "magic_link.callback.error",
+        reason: outcome.reason,
+        detail: outcome.detail,
+      });
       return renderErrorPage(outcome.status, outcome.reason);
     }
 
     if (path === "/logout") {
+      audit(env, ctx, {
+        ...baseAuditInput(request, path),
+        event_type: "magic_link.logout",
+      });
       return handleLogout(env);
     }
 
     if (path === "/") {
+      audit(env, ctx, {
+        ...baseAuditInput(request, path),
+        event_type: "magic_link.authorize",
+      });
       return handleAuthorize(url, env, Date.now());
     }
 

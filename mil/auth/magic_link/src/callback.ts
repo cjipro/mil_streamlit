@@ -19,7 +19,15 @@ export type CallbackConfig = {
 };
 
 export type CallbackOutcome =
-  | { kind: "redirect"; location: string; setCookie: string }
+  | {
+      kind: "redirect";
+      location: string;
+      setCookie: string;
+      // MIL-65 — exposed so the Worker can audit-log the user's
+      // sub claim. The token itself is never persisted; callers
+      // extract `sub` and discard.
+      accessToken: string;
+    }
   | { kind: "error"; status: number; reason: string; detail?: string };
 
 export async function handleCallback(
@@ -74,5 +82,10 @@ export async function handleCallback(
   }
 
   const setCookie = buildSessionCookie(exchange.accessToken, cfg.cookie);
-  return { kind: "redirect", location: returnTo, setCookie };
+  return {
+    kind: "redirect",
+    location: returnTo,
+    setCookie,
+    accessToken: exchange.accessToken,
+  };
 }

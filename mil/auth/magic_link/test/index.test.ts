@@ -20,26 +20,39 @@ function get(path: string): Request {
   return new Request(`https://login.cjipro.com${path}`);
 }
 
+// Minimal ExecutionContext stub — captures waitUntil promises so
+// tests can await them if they need to, and no-ops passThroughOnException.
+function testCtx(): ExecutionContext {
+  const pending: Promise<unknown>[] = [];
+  return {
+    waitUntil(p: Promise<unknown>) {
+      pending.push(p);
+    },
+    passThroughOnException() {},
+    props: {},
+  } as unknown as ExecutionContext;
+}
+
 describe("Worker router", () => {
   test("GET /healthz → 200 ok", async () => {
-    const res = await worker.fetch(get("/healthz"), ENV);
+    const res = await worker.fetch(get("/healthz"), ENV, testCtx());
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("ok");
   });
 
   test("GET /favicon.ico → 204", async () => {
-    const res = await worker.fetch(get("/favicon.ico"), ENV);
+    const res = await worker.fetch(get("/favicon.ico"), ENV, testCtx());
     expect(res.status).toBe(204);
   });
 
   test("POST / → 405", async () => {
     const req = new Request("https://login.cjipro.com/", { method: "POST" });
-    const res = await worker.fetch(req, ENV);
+    const res = await worker.fetch(req, ENV, testCtx());
     expect(res.status).toBe(405);
   });
 
   test("GET /unknown → 404", async () => {
-    const res = await worker.fetch(get("/unknown"), ENV);
+    const res = await worker.fetch(get("/unknown"), ENV, testCtx());
     expect(res.status).toBe(404);
   });
 });
@@ -49,6 +62,7 @@ describe("GET / — authorize redirect", () => {
     const res = await worker.fetch(
       get("/?return_to=/briefing-v4/"),
       ENV,
+      testCtx(),
     );
     expect(res.status).toBe(302);
     const loc = res.headers.get("location")!;
@@ -66,6 +80,7 @@ describe("GET / — authorize redirect", () => {
     const res = await worker.fetch(
       get("/?return_to=https://evil.example.com/"),
       ENV,
+      testCtx(),
     );
     expect(res.status).toBe(302);
     // We can't see the returnTo inside the signed state from the
@@ -74,14 +89,14 @@ describe("GET / — authorize redirect", () => {
   });
 
   test("no return_to param still works", async () => {
-    const res = await worker.fetch(get("/"), ENV);
+    const res = await worker.fetch(get("/"), ENV, testCtx());
     expect(res.status).toBe(302);
   });
 });
 
 describe("GET /logout", () => {
   test("clears cookie + redirects", async () => {
-    const res = await worker.fetch(get("/logout"), ENV);
+    const res = await worker.fetch(get("/logout"), ENV, testCtx());
     expect(res.status).toBe(302);
     expect(res.headers.get("location")).toBe(ENV.DEFAULT_RETURN_TO);
     const sc = res.headers.get("set-cookie")!;
@@ -108,6 +123,7 @@ describe("GET /callback", () => {
       const res = await worker.fetch(
         get(`/callback?code=abc&state=${encodeURIComponent(state)}`),
         ENV,
+        testCtx(),
       );
       expect(res.status).toBe(302);
       expect(res.headers.get("location")).toBe("/briefing-v4/");
@@ -123,6 +139,7 @@ describe("GET /callback", () => {
     const res = await worker.fetch(
       get("/callback?code=abc&state=garbage"),
       ENV,
+      testCtx(),
     );
     expect(res.status).toBe(400);
     expect(res.headers.get("content-type")).toContain("text/html");
@@ -131,7 +148,7 @@ describe("GET /callback", () => {
   });
 
   test("missing params → 400", async () => {
-    const res = await worker.fetch(get("/callback"), ENV);
+    const res = await worker.fetch(get("/callback"), ENV, testCtx());
     expect(res.status).toBe(400);
   });
 });

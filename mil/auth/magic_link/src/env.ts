@@ -17,4 +17,8 @@ export interface Env {
   // Secrets
   WORKOS_CLIENT_SECRET: string;
   STATE_SIGNING_KEY: string;
+
+  // MIL-65 — audit log binding. Optional; absent binding degrades to
+  // console.log only. Activation procedure documented in wrangler.toml.
+  AUDIT_DB?: D1Database;
 }

@@ -76,3 +76,25 @@ PUBLIC_PATHS = "=/,=/privacy,=/privacy/,^/.well-known/,=/robots.txt,=/sitemap.xm
 # Dev/observability
 [observability]
 enabled = true
+
+# MIL-65 — Audit log D1 binding.
+#
+# Commented out until the D1 database is provisioned. Activation:
+#   1.  npx wrangler d1 create mil-auth-audit
+#       Copy the returned database_id into the block below.
+#   2.  npx wrangler d1 execute mil-auth-audit --remote \
+#         --file ../audit/schema.sql
+#   3.  Uncomment this block + the AUDIT_DB binding in src/index.ts' Env.
+#   4.  npx wrangler deploy
+#   5.  Same three steps for mil/auth/magic_link/wrangler.toml so both
+#       Workers share ONE audit database — the chain needs a single
+#       writer target, not two.
+#
+# Rollback: re-comment this block, redeploy. The Worker falls back
+# to console.log-only. No D1 writes are attempted when AUDIT_DB is
+# undefined.
+#
+# [[d1_databases]]
+# binding       = "AUDIT_DB"
+# database_name = "mil-auth-audit"
+# database_id   = "REPLACE_WITH_D1_ID"

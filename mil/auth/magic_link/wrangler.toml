@@ -54,3 +54,22 @@ custom_domain  = true
 
 [observability]
 enabled = true
+
+# MIL-65 — Audit log D1 binding.
+#
+# Must point at the SAME database_id used by edge-bouncer's
+# wrangler.toml — the hash chain is global across both Workers.
+# Activation steps live in ../audit/README.md; the short version:
+#   1. Create the D1 once from either Worker dir.
+#   2. Apply schema.sql once.
+#   3. Paste the same database_id into BOTH wrangler.toml files.
+#   4. Uncomment this block + the one in edge_bouncer/wrangler.toml.
+#   5. Redeploy both Workers.
+#
+# Rollback: re-comment, redeploy. handleCallback's audit calls
+# are no-ops when env.AUDIT_DB is undefined.
+#
+# [[d1_databases]]
+# binding       = "AUDIT_DB"
+# database_name = "mil-auth-audit"
+# database_id   = "REPLACE_WITH_D1_ID"
