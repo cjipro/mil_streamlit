@@ -170,7 +170,15 @@ REFUEL_FINDING_TEMPLATE = (
 
 
 def _repair_json_object(raw: str) -> dict:
-    """Strip preamble and attempt to parse a JSON object from Refuel response."""
+    """Strip preamble and attempt to parse a JSON object from Refuel response.
+
+    The Refuel/Qwen output *should* be an object like
+    `{"blind_spots": [...], "failure_mode": "..."}`, but sometimes the model
+    emits a JSON array at the top level (observed 2026-04-24). Since the
+    caller does `parsed.get(...)` this must be a dict — we validate here
+    and raise ValueError so the existing fallback in call_refuel_for_finding
+    kicks in rather than propagating AttributeError up.
+    """
     m = re.search(r"\{", raw)
     if not m:
         raise ValueError(f"No JSON object start in: {raw[:150]}")
@@ -179,15 +187,18 @@ def _repair_json_object(raw: str) -> dict:
     if last_close == -1:
         raise ValueError(f"No JSON object end in: {raw[:150]}")
     trimmed = raw[start: last_close + 1]
+    parsed = None
     try:
-        return json.loads(trimmed)
+        parsed = json.loads(trimmed)
     except json.JSONDecodeError:
-        pass
-    try:
-        from json_repair import repair_json  # type: ignore
-        return json.loads(repair_json(trimmed))
-    except Exception as exc:
-        raise ValueError(f"json_repair failed: {exc}")
+        try:
+            from json_repair import repair_json  # type: ignore
+            parsed = json.loads(repair_json(trimmed))
+        except Exception as exc:
+            raise ValueError(f"json_repair failed: {exc}")
+    if not isinstance(parsed, dict):
+        raise ValueError(f"expected JSON object, got {type(parsed).__name__}")
+    return parsed
 
 
 def call_refuel_for_finding(
@@ -706,7 +717,9 @@ if __name__ == "__main__":
         if f["designed_ceiling_reached"]:
             print("    ** DESIGNED CEILING: to confirm this I require internal HDFS telemetry. Request Phase 2. **")
         if f["blind_spots"]:
-            print(f"    Blind spots: {f['blind_spots'][0]}")
+            blind_raw = str(f['blind_spots'][0])
+            blind_safe = blind_raw.encode('ascii', 'replace').decode('ascii')
+            print(f"    Blind spots: {blind_safe}")
         print()
 
     if not args.dry_run:
