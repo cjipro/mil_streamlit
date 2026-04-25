@@ -16,6 +16,7 @@ Journey tags for CHR-005+ derived from incident_type via INCIDENT_JOURNEY_MAP.
 Explicit journey_tags in YAML always take precedence.
 """
 import logging
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -195,11 +196,36 @@ def load_chronicle_entries() -> list[dict]:
     logger.info("[chronicle_loader] Loaded %d inference-approved entries from %s: %s",
                 len(entries), source, [e["chronicle_id"] for e in entries])
 
-    MIN_EXPECTED = 15
-    if len(entries) < MIN_EXPECTED:
-        raise RuntimeError(
-            f"[chronicle_loader] Only {len(entries)} CHRONICLE entries loaded from {source} — "
-            f"expected at least {MIN_EXPECTED}. Check YAML files for malformed content."
+    # MIL-118: graceful degradation. RuntimeError replaced with tiered logging
+    # so a fresh clone (0–14 entries) can boot the inference pipeline. Downstream
+    # find_best_chronicle_match handles empty/short lists by returning UNANCHORED.
+    # Override floor via MIL_CHRONICLE_MIN_EXPECTED env var when cloning into a
+    # new domain where the production-grade 15-entry baseline doesn't apply.
+    try:
+        min_expected = int(os.environ.get("MIL_CHRONICLE_MIN_EXPECTED", "15"))
+    except ValueError:
+        min_expected = 15
+
+    if len(entries) >= min_expected:
+        pass  # already logged at INFO above
+    elif len(entries) == 0:
+        if skipped:
+            logger.warning(
+                "[chronicle_loader] 0 inference-approved entries loaded from %s, "
+                "but %d CHR entries exist pending governance approval — running UNANCHORED.",
+                source, len(skipped),
+            )
+        else:
+            logger.error(
+                "[chronicle_loader] 0 CHRONICLE entries loaded from %s. Fresh clone? "
+                "Seed mil/chronicle/entries/CHR-*.yaml. Inference will run UNANCHORED until then.",
+                source,
+            )
+    else:
+        logger.warning(
+            "[chronicle_loader] Only %d CHRONICLE entries loaded from %s — below floor of %d. "
+            "Acceptable in clone-mode; raise floor via MIL_CHRONICLE_MIN_EXPECTED for production.",
+            len(entries), source, min_expected,
         )
     return entries
 
