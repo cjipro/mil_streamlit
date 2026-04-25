@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CJI Pulse — Live customer journey insight (coming)</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta (classification + SEO signals) -->
+<meta name="description" content="CJI Pulse — live customer journey insight at session granularity for regulated firms. Almost-real-time observation, not intervention. Coming for enterprise teams ready to act on live evidence.">
+<meta name="keywords" content="customer journey intelligence, live customer insight, session-level analytics, consumer journey observation, regulated firm intelligence, customer experience, voice of the customer">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/products/pulse/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="CJI Pulse — Live customer journey insight (coming)">
+<meta property="og:description" content="Almost-real-time observation of customer journey signal at session granularity. Pulse senses. The firm decides. Coming for enterprise teams in regulated consumer services.">
+<meta property="og:url" content="https://cjipro.com/products/pulse/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CJI Pulse — Live customer journey insight (coming)">
+<meta name="twitter:description" content="Almost-real-time observation of customer journey signal at session granularity. Pulse senses. The firm decides.">
+
+<!-- Schema.org structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "CJI",
+  "alternateName": "Customer Journey Intelligence",
+  "url": "https://cjipro.com",
+  "description": "Customer journey intelligence platform for regulated consumer-service brands. Combines public-signal market research with internal journey analytics to produce a daily intelligence briefing for insight and product teams.",
+  "foundingDate": "2026",
+  "industry": "Market Research",
+  "knowsAbout": [
+    "Customer Journey Analytics",
+    "Voice of the Customer",
+    "Market Research",
+    "Competitive Intelligence",
+    "Consumer Insight",
+    "Journey Mapping"
+  ],
+  "areaServed": {
+    "@type": "Country",
+    "name": "United Kingdom"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "hello@cjipro.com",
+      "availableLanguage": "English",
+      "areaServed": "GB"
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "security",
+      "email": "security@cjipro.com",
+      "availableLanguage": "English"
+    }
+  ],
+  "sameAs": []
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "CJI Pulse",
+  "description": "Almost-real-time observation of customer journey signal at session granularity. CJI Pulse senses — it does not intervene. Built for regulated firms ready to act on live evidence, not lagging reports.",
+  "brand": {
+    "@type": "Brand",
+    "name": "CJI"
+  },
+  "offers": {
+    "@type": "Offer",
+    "availability": "https://schema.org/PreOrder",
+    "seller": {
+      "@type": "Organization",
+      "name": "CJI"
+    },
+    "description": "Enterprise integration. Contact sales. In development."
+  },
+  "url": "https://cjipro.com/products/pulse/"
+}
+</script>
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 88px 0 56px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  .status-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-weight: 600;
+    color: var(--coming);
+    background: #FAF1E2;
+    margin-left: 12px;
+    vertical-align: middle;
+    position: relative;
+    top: -3px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Example pull-quote ───────────────────────────────────── */
+  .example {
+    margin: 48px 0 72px 0;
+    padding: 36px 42px;
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+  }
+  .example-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .example-text {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .example-caption {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 32px 0;
+  }
+  .body-para {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 20px 0;
+  }
+  .body-para:last-child { margin-bottom: 0; }
+
+  /* ── Comparison table ─────────────────────────────────────── */
+  .comparison {
+    margin-top: 28px;
+    border: 1px solid var(--hairline);
+  }
+  .comparison-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .comparison-row:last-child { border-bottom: none; }
+  .comparison-cell {
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    border-right: 1px solid var(--hairline);
+  }
+  .comparison-cell:last-child { border-right: none; }
+  .comparison-cell.head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    background: var(--cream);
+    font-weight: 600;
+  }
+  .comparison-cell.highlight {
+    background: #FAF1E2;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .comparison-cell strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ── Principle list ───────────────────────────────────────── */
+  .hard-rules {
+    margin-top: 24px;
+    padding: 28px 32px;
+    background: var(--cream);
+    max-width: 680px;
+  }
+  .hard-rule {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .hard-rule:last-child { border-bottom: none; padding-bottom: 0; }
+  .hard-rule-marker {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.6px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .hard-rule-text {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .hard-rule-text strong { color: var(--ink); font-weight: 600; }
+
+  /* ── Environment note ─────────────────────────────────────── */
+  .env-note {
+    margin-top: 24px;
+    padding: 28px 32px;
+    border: 1px solid var(--hairline);
+    max-width: 680px;
+  }
+  .env-note-head {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .env-note-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ── Access / contact ─────────────────────────────────────── */
+  .access-card {
+    padding: 32px;
+    border: 1px solid var(--hairline);
+    background: var(--cream);
+    margin-top: 20px;
+    max-width: 560px;
+  }
+  .access-head {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .access-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ── Chain band ───────────────────────────────────────────── */
+  .chain-band {
+    background: var(--cream);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 40px 0;
+  }
+  .chain-phrase {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.1px;
+    margin: 0 0 14px 0;
+  }
+  .chain-phrase .chain-arrow { color: var(--muted); margin: 0 4px; }
+  .chain-phrase .chain-highlight { color: var(--accent); font-weight: 700; }
+  .chain-sub {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0;
+  }
+
+  /* ── Breadcrumb ───────────────────────────────────────────── */
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .breadcrumb a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .breadcrumb-sep { margin: 0 8px; }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .lede { font-size: 17px; }
+    .hero { padding: 56px 0 32px 0; }
+    .example { padding: 24px 22px; margin: 32px 0 48px 0; }
+    .example-text { font-size: 16px; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 24px; }
+    section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .comparison { overflow-x: auto; }
+    .comparison-row { grid-template-columns: 1.4fr 1fr 1fr 1fr; min-width: 540px; }
+  }
+  @media (max-width: 480px) {
+    .hard-rules { padding: 20px 18px; }
+    .env-note { padding: 20px 18px; }
+    .access-card { padding: 24px 20px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="wrap">
+      <div class="breadcrumb">
+        <a href="/">CJI</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="/#products">Products</a>
+        <span class="breadcrumb-sep">›</span>
+        Pulse
+      </div>
+
+      <div class="eyebrow">Live insight<span class="status-badge">Coming</span></div>
+
+      <h1>The live layer of the chain.</h1>
+
+      <p class="lede">
+        Reckoner sees the sector. Sonar sees the firm. Pulse sees the session —
+        almost-real-time observation of customer journey signal, down to the moment
+        a journey begins to fracture.
+      </p>
+
+      <div class="example">
+        <div class="example-label">Day-90 vision — what Pulse will return</div>
+        <div class="example-text">
+          "Customers experiencing difficulties on Step 3 of Loans journey,
+          abandoning — likely 45+, likely vulnerable. In last 3 days 5 customers
+          said App journey sucks."
+        </div>
+        <div class="example-caption">
+          Illustrative of the live insight format Pulse is being engineered to produce.
+          This is the Day-90 vision target — not a shipping feature today.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="chain-band">
+    <div class="wrap">
+      <div class="section-eyebrow">The intelligence chain</div>
+      <p class="chain-phrase">
+        Anecdote<span class="chain-arrow"> →</span>
+        Aggregate<span class="chain-arrow"> →</span>
+        Awareness<span class="chain-arrow"> →</span>
+        Action.
+      </p>
+      <p class="chain-sub">
+        Sonar listens. Reckoner reckons. <span style="color: var(--ink); font-weight: 500;">Pulse senses.</span> Lever moves.
+        Pulse is the third link — the layer that brings the chain from
+        "this week" down to "this session."
+      </p>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">What Pulse will do</div>
+      <h2>Session-granular intelligence, when you need it most.</h2>
+
+      <p class="body-para">
+        Reckoner works at industry scale, surfacing patterns across weeks of public signal.
+        Sonar brings that intelligence to your firm every day — peer-benchmarked, anchored to
+        real customer voice, delivered to the desk that needs it. Pulse is the third layer:
+        it watches individual customer journeys as they happen, flags deterioration in seconds,
+        and surfaces the live evidence before the abandonment rate moves in tomorrow's report.
+      </p>
+
+      <p class="body-para">
+        The resolution shift is deliberate. A daily briefing tells you that your Loans journey
+        has a friction problem. Pulse tells you that the problem is active right now, on
+        Step 3, in the current session cohort. The difference between "this week" and
+        "this session" is the difference between a retrospective finding and one that still
+        has time to inform a decision. That is what Pulse is being built to provide.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Reckoner · Sonar · Pulse</div>
+      <h2>How Pulse differs from the rest of the chain.</h2>
+      <p class="section-lede">
+        Each product in the chain operates at a different latency and carries a different
+        risk posture. Pulse is harder to build and harder to govern — which is why it comes last.
+      </p>
+
+      <div class="comparison">
+        <div class="comparison-row">
+          <div class="comparison-cell head">Product</div>
+          <div class="comparison-cell head">Latency</div>
+          <div class="comparison-cell head">Signal source</div>
+          <div class="comparison-cell head">Status</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell"><strong>CJI Reckoner</strong> — industry intelligence, AI-surfaced cohort patterns</div>
+          <div class="comparison-cell">Days</div>
+          <div class="comparison-cell">Public market signal — reviews, press, community</div>
+          <div class="comparison-cell" style="color: var(--live); font-weight: 500;">Live</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell"><strong>CJI Sonar</strong> — daily firm briefing, client-specific</div>
+          <div class="comparison-cell">Daily</div>
+          <div class="comparison-cell">Public customer voice, peer-benchmarked</div>
+          <div class="comparison-cell" style="color: var(--live); font-weight: 500;">Live</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell highlight"><strong>CJI Pulse</strong> — live insight, session-granular observation</div>
+          <div class="comparison-cell highlight">Seconds</div>
+          <div class="comparison-cell highlight">Internal journey telemetry, inside your environment</div>
+          <div class="comparison-cell highlight" style="color: var(--coming); font-weight: 500;">Coming</div>
+        </div>
+      </div>
+
+      <p class="body-para" style="margin-top: 28px;">
+        Reckoner and Sonar run entirely on public signal — no internal data exchanged,
+        no customer PII involved. Pulse is different in kind: it requires access to the
+        firm's own session telemetry, which means it runs inside the firm's environment,
+        not across it. That access requires a different integration model, a different
+        governance posture, and a higher bar for enterprise readiness on both sides.
+        Those requirements are the reason Pulse is in development rather than live today.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Observation, not intervention</div>
+      <h2>Pulse senses. The firm decides.</h2>
+
+      <p class="body-para">
+        The distinction between observation and intervention is not semantic — it is the
+        architectural and governance boundary that makes Pulse viable inside regulated firms.
+        Pulse will surface what is happening in the live customer journey. It will not act.
+      </p>
+
+      <div class="hard-rules">
+        <div class="hard-rule">
+          <span class="hard-rule-marker">—</span>
+          <span class="hard-rule-text">Pulse will <strong>not</strong> send automated messages to customers.</span>
+        </div>
+        <div class="hard-rule">
+          <span class="hard-rule-marker">—</span>
+          <span class="hard-rule-text">Pulse will <strong>not</strong> modify journey flows or surface content mid-session.</span>
+        </div>
+        <div class="hard-rule">
+          <span class="hard-rule-marker">—</span>
+          <span class="hard-rule-text">Pulse will <strong>not</strong> make decisions on behalf of the firm or its customers.</span>
+        </div>
+        <div class="hard-rule">
+          <span class="hard-rule-marker">—</span>
+          <span class="hard-rule-text">Pulse will <strong>not</strong> retain customer PII beyond the session signal required to produce the insight.</span>
+        </div>
+      </div>
+
+      <p class="body-para" style="margin-top: 24px;">
+        The firm chooses how to respond to what Pulse surfaces. For firms that have a
+        decision framework in place, that response typically flows through CJI Lever —
+        the decision layer that sits immediately downstream of Pulse in the chain.
+        Lever provides the structured modes (Autonomous, Guided, or Customer-led) through
+        which firms translate a live Pulse signal into an action. The responsibility
+        for that action remains with the firm, governed by its own policies and its own
+        regulatory obligations. That is how the chain is designed to work.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Signal separation, by design</div>
+      <h2>Built inside your environment.</h2>
+
+      <p class="body-para">
+        When Pulse ships, it will run on the firm's own session telemetry, inside the firm's
+        own infrastructure perimeter. CJI does not receive a copy of your customers'
+        journey data. Pulse processes signal at source and returns an intelligence output
+        — a structured observation about what is happening, for whom, at what moment in
+        which journey. The raw signal stays where it belongs.
+      </p>
+
+      <div class="env-note">
+        <div class="env-note-head">Principle 02 — Signal separation, by design.</div>
+        <p class="env-note-body">
+          Reckoner and Sonar use public market data — no customer PII collected,
+          no private data exchanged. Pulse runs inside your environment on your
+          telemetry only. Signals never cross. The intelligence chain is designed
+          so that each layer operates at the minimum access required to do its job.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="engage">
+    <div class="wrap">
+      <div class="section-eyebrow">In development</div>
+      <h2>Shaping the live-insight format.</h2>
+
+      <p class="body-para">
+        Pulse is being engineered now. The Day-90 vision above describes what it should
+        return when live — but the format, integration model, and governance standards
+        that will make it useful inside a regulated firm are still being defined.
+        The most useful input at this stage comes from the insight and product leaders
+        who will eventually rely on it: the teams who know where their live-session
+        evidence is weakest, what a real-time observation needs to contain to be
+        actionable, and what governance constraints the output must satisfy before
+        it reaches a decisions desk.
+      </p>
+
+      <p class="body-para">
+        If your team is building a live-intelligence capability inside a regulated
+        consumer-service firm, we would welcome a conversation now — before the
+        integration design is fixed. Early input shapes what Pulse becomes.
+      </p>
+
+      <div class="access-card">
+        <div class="access-head">Shape what Pulse becomes.</div>
+        <p class="access-body">
+          Insight and product leaders at regulated firms are invited to engage with
+          the live-insight design process. Contact the team at
+          <a href="mailto:hello@cjipro.com?subject=CJI%20Pulse%20engagement">hello@cjipro.com</a>
+          with a note on your role, the journeys you need to observe, and the
+          governance constraints that will govern how you can act on live signal.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Pulse%20engagement">Pulse engagement</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI &middot; Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>

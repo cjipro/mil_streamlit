@@ -96,6 +96,11 @@ _FILES: list[tuple[str, str]] = [
     ("security_index.html",           "security/index.html"),
     ("security_standards.html",       "security/standards/index.html"),
     ("security_architecture.html",    "security/architecture/index.html"),
+    # Products section — MIL-88..91
+    ("products_lever.html",           "products/lever/index.html"),
+    ("products_pulse.html",           "products/pulse/index.html"),
+    ("products_reckoner.html",        "products/reckoner/index.html"),
+    ("products_sonar.html",           "products/sonar/index.html"),
     ("",                              ".nojekyll"),
 ]
 

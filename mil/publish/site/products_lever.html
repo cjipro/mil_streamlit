@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CJI Lever — Decision framework for regulated firms</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="CJI Lever — a tailored decision framework for regulated firms ready to embed customer journey intelligence into the decision itself. Three modes: Autonomous, Guided, and Customer-led. Engagement class, design partners only.">
+<meta name="keywords" content="customer journey intelligence, decision framework, regulated firms, consumer duty, journey decision, voice of customer, banking, CJI Lever">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/products/lever/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="CJI Lever — Decision framework for regulated firms">
+<meta property="og:description" content="The decision layer of the CJI intelligence chain. Three modes: Autonomous, Guided, and Customer-led. Not a SaaS product — a bespoke engagement for firms ready to embed intelligence into the decision itself.">
+<meta property="og:url" content="https://cjipro.com/products/lever/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CJI Lever — Decision framework for regulated firms">
+<meta name="twitter:description" content="Tailored decision framework in three modes: Autonomous, Guided, and Customer-led. Design partners only.">
+
+<!-- Schema.org: Organisation -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "CJI",
+  "alternateName": "Customer Journey Intelligence",
+  "url": "https://cjipro.com",
+  "description": "Customer journey intelligence platform for regulated consumer-service brands. Combines public-signal market research with internal journey analytics to produce a daily intelligence briefing for insight and product teams.",
+  "foundingDate": "2026",
+  "industry": "Market Research",
+  "knowsAbout": [
+    "Customer Journey Analytics",
+    "Voice of the Customer",
+    "Market Research",
+    "Competitive Intelligence",
+    "Consumer Insight",
+    "Journey Mapping"
+  ],
+  "areaServed": {
+    "@type": "Country",
+    "name": "United Kingdom"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "hello@cjipro.com",
+      "availableLanguage": "English",
+      "areaServed": "GB"
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "security",
+      "email": "security@cjipro.com",
+      "availableLanguage": "English"
+    }
+  ],
+  "sameAs": []
+}
+</script>
+
+<!-- Schema.org: Service (Lever) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "CJI Lever",
+  "provider": {
+    "@type": "Organization",
+    "name": "CJI",
+    "url": "https://cjipro.com"
+  },
+  "description": "Tailored decision framework for regulated consumer-service firms. Three engagement modes — Autonomous, Guided, and Customer-led — mapped to a regulatory-readiness gradient. Design-partners only.",
+  "serviceType": "Decision Framework",
+  "areaServed": {
+    "@type": "Country",
+    "name": "United Kingdom"
+  },
+  "url": "https://cjipro.com/products/lever/"
+}
+</script>
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 88px 0 56px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Example pull-quote ───────────────────────────────────── */
+  .example {
+    margin: 48px 0 72px 0;
+    padding: 36px 42px;
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+  }
+  .example-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .example-text {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .example-caption {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Products / modes grid ────────────────────────────────── */
+  .products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .product {
+    padding: 32px;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .product-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .product-name {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .product-tag {
+    font-family: var(--sans);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .product-desc {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 20px 0;
+  }
+  .product-desc:last-child { margin-bottom: 0; }
+
+  /* ── Readiness badge ──────────────────────────────────────── */
+  .readiness-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    padding: 3px 9px;
+    border-radius: 2px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .readiness-high   { color: var(--accent);  background: #E6EEF4; }
+  .readiness-mid    { color: #7A5A00;        background: #FAF0D0; }
+  .readiness-entry  { color: var(--live);    background: #E8F5EE; }
+
+  /* ── Principles ───────────────────────────────────────────── */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 24px;
+  }
+  .principle-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .principle-title {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .principle-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  /* ── Deliverables list ────────────────────────────────────── */
+  .deliverables {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .deliverables li {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .deliverables li:first-child { border-top: 1px solid var(--hairline); }
+  .deliverable-name {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    min-width: 220px;
+    flex-shrink: 0;
+  }
+  .deliverable-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ── Access / contact ─────────────────────────────────────── */
+  .access-card {
+    padding: 32px;
+    border: 1px solid var(--hairline);
+    background: var(--cream);
+    margin-top: 20px;
+    max-width: 560px;
+  }
+  .access-head {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .access-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ── Chain band ───────────────────────────────────────────── */
+  .chain-band {
+    background: var(--cream);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 40px 0;
+  }
+  .chain-phrase {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.1px;
+    margin: 0 0 14px 0;
+  }
+  .chain-phrase .chain-arrow {
+    color: var(--muted);
+    margin: 0 4px;
+  }
+  .chain-phrase .chain-active {
+    color: var(--accent);
+  }
+  .chain-sub {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0;
+  }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 960px) {
+    .products { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .lede { font-size: 17px; }
+    .hero { padding: 56px 0 32px 0; }
+    .example { padding: 24px 22px; margin: 32px 0 48px 0; }
+    .example-text { font-size: 16px; }
+    .products { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr; gap: 20px; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 24px; }
+    section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .chain-phrase { font-size: 16px; }
+    .chain-band { padding: 28px 0; }
+    .deliverable-name { min-width: 0; }
+    .deliverables li { flex-direction: column; gap: 6px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Decision framework · Engagement class</div>
+      <h1>The right lever,<br>at the right moment.</h1>
+      <p class="lede">
+        CJI Lever is the action layer of the intelligence chain — the framework that turns
+        customer journey evidence into a governed, auditable decision for regulated firms.
+      </p>
+
+      <div class="example">
+        <div class="example-label">Where Lever sits in the chain</div>
+        <div class="example-text">
+          Reckoner surfaces the sector pattern. Sonar anchors it to your firm.
+          Pulse senses it in the live session. Lever frames the decision
+          — the moment the evidence becomes an action.
+        </div>
+        <div class="example-caption">
+          Each product in the chain is independently useful. Lever is specifically for
+          firms that have moved through the intelligence layers and are ready to embed
+          what they have learned into the decision itself.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="chain-band">
+    <div class="wrap">
+      <div class="section-eyebrow">The intelligence chain</div>
+      <p class="chain-phrase">
+        Anecdote<span class="chain-arrow"> →</span>
+        Aggregate<span class="chain-arrow"> →</span>
+        Awareness<span class="chain-arrow"> →</span>
+        <span class="chain-active">Action.</span>
+      </p>
+      <p class="chain-sub">
+        Sonar listens. Reckoner reckons. Pulse senses. <strong style="color: var(--ink);">Lever moves.</strong>
+        The action step is the hardest step in regulated firms — not for lack of insight,
+        but for lack of a structured, auditable path from evidence to decision.
+      </p>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">What Lever is</div>
+      <h2>The decision layer, not the data layer.</h2>
+
+      <p class="section-lede">
+        CJI Reckoner, CJI Sonar, and CJI Pulse are intelligence products — they surface
+        patterns, benchmark performance, and confirm live signal. Lever is different.
+        Lever is not a product you subscribe to and query. It is an engagement.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.7; color: var(--ink-soft); max-width: 720px; margin: 0 0 24px 0;">
+        Most regulated firms already have more intelligence than they act on. The constraint
+        is not information — it is structure. When a customer journey degrades, the intelligence
+        exists. What is missing is a shared, governed framework for who makes the call, on what
+        evidence, with what audit trail, and under what regulatory posture. That is what
+        Lever provides.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.7; color: var(--ink-soft); max-width: 720px; margin: 0 0 24px 0;">
+        A Lever engagement is scoped jointly with a firm's risk and product leadership. It
+        produces a named set of artefacts — a decision register, a readiness assessment,
+        a lever-runbook per decision type — and a deployment model selected from three
+        engagement modes mapped to the firm's regulatory maturity. The output is not a
+        report. It is a working framework, embedded in the firm's existing governance,
+        with a quarterly recalibration cadence built in.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.7; color: var(--ink-soft); max-width: 720px; margin: 0;">
+        Lever engagements are available to design partners only, and are currently restricted
+        to firms in UK regulated consumer services. Each engagement is evaluated individually.
+        The mode — Autonomous, Guided, or Customer-led — is chosen based on the firm's
+        existing control environment, not on ambition.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Three modes</div>
+      <h2>Matched to regulatory readiness.</h2>
+      <p class="section-lede">
+        The three Lever modes are not tiers of a product — they are positions on a
+        regulatory-readiness gradient. The right mode for a firm is determined during
+        scoping, not chosen from a pricing page.
+      </p>
+
+      <div class="products">
+
+        <article class="product">
+          <header class="product-head">
+            <span class="product-name">Autonomous</span>
+            <span class="readiness-badge readiness-high">Highest readiness</span>
+          </header>
+          <div class="product-tag">Framework executes · Full audit trail</div>
+          <p class="product-desc">
+            Lever moves the lever. The decision framework is embedded directly into the
+            firm's operating model — the logic is explicit, the evidence thresholds are
+            codified, and the outcome is executed within defined parameters. The human
+            role is governance and override, not initiation.
+          </p>
+          <p class="product-desc" style="font-size: 13px; color: var(--muted);">
+            Requires a mature internal control environment, established audit capability,
+            and board-level sign-off on the decision logic. Not a starting point — a
+            destination for firms that have already operationalised the intelligence chain.
+          </p>
+        </article>
+
+        <article class="product">
+          <header class="product-head">
+            <span class="product-name">Guided</span>
+            <span class="readiness-badge readiness-mid">Mid readiness</span>
+          </header>
+          <div class="product-tag">Framework frames · Human pulls</div>
+          <p class="product-desc">
+            Lever frames the decision; the firm pulls the lever. The framework produces
+            a structured recommendation — evidence-anchored, confidence-rated, and
+            explicitly tied to a named decision-maker — but the execution requires a
+            human handoff at a defined point in the runbook.
+          </p>
+          <p class="product-desc" style="font-size: 13px; color: var(--muted);">
+            The natural mode for firms that have insight capability but have not yet
+            formalised the governance path from evidence to action. The Guided runbook
+            establishes that path as a repeatable artefact, not a one-off conversation.
+          </p>
+        </article>
+
+        <article class="product">
+          <header class="product-head">
+            <span class="product-name">Customer-led</span>
+            <span class="readiness-badge readiness-entry">Entry readiness</span>
+          </header>
+          <div class="product-tag">Framework surfaces · Customer chooses</div>
+          <p class="product-desc">
+            Lever surfaces the choice to the customer; the customer pulls their own lever.
+            Used where journey ownership belongs with the customer — consent moments,
+            opt-in decisions, regulated friction points where the firm's obligation is
+            to present a clear, evidence-informed choice, not to make it on the customer's behalf.
+          </p>
+          <p class="product-desc" style="font-size: 13px; color: var(--muted);">
+            The lightest regulatory footprint of the three modes, and often the most
+            consequential for Consumer Duty compliance. The framework designs the
+            choice architecture and the evidence trail — not the outcome.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">What you get</div>
+      <h2>Named artefacts. Embedded governance.</h2>
+      <p class="section-lede">
+        A Lever engagement produces five core artefacts. These are not deliverables in
+        the consulting sense — they are working instruments that remain inside the firm,
+        owned by the risk and product teams who commissioned them.
+      </p>
+
+      <ul class="deliverables">
+        <li>
+          <div class="deliverable-name">The decision register</div>
+          <p class="deliverable-desc">
+            A governed inventory of the customer journey decisions in scope — what the
+            decision is, who owns it, what evidence triggers a review, and what the
+            current decision logic is. Updated as the Lever engagement matures.
+          </p>
+        </li>
+        <li>
+          <div class="deliverable-name">The journey-readiness assessment</div>
+          <p class="deliverable-desc">
+            A structured evaluation of the firm's readiness to act on each decision type
+            in scope — covering control maturity, audit capability, regulatory posture,
+            and the gap between current and target state. The basis for mode selection.
+          </p>
+        </li>
+        <li>
+          <div class="deliverable-name">The lever-runbook per decision</div>
+          <p class="deliverable-desc">
+            A named, step-by-step procedure for each decision in the register — evidence
+            threshold, confidence requirement, decision-maker, handoff point (if Guided),
+            customer-presentation specification (if Customer-led), and escalation path.
+          </p>
+        </li>
+        <li>
+          <div class="deliverable-name">The customer-evidence audit trail</div>
+          <p class="deliverable-desc">
+            A structured log connecting each decision to the customer signal that informed
+            it. Verbatim evidence only — no synthesised voices. Built to be readable
+            by regulators, auditors, and the firm's own second line.
+          </p>
+        </li>
+        <li>
+          <div class="deliverable-name">The quarterly recalibration</div>
+          <p class="deliverable-desc">
+            A scheduled review of the decision register, runbooks, and readiness
+            assessment against new signal from CJI Sonar, CJI Reckoner, and — where
+            in scope — CJI Pulse. Lever does not ship and walk away.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Positioning</div>
+      <h2>What Lever is not.</h2>
+
+      <p style="font-size: 16px; line-height: 1.7; color: var(--ink-soft); max-width: 720px; margin: 0;">
+        Lever is not a subscription, and it does not have a self-serve tier. It is not a
+        recommendation engine — it does not generate outputs that firms consume passively.
+        It is not a product for firms that are not yet ready to be accountable for the
+        decisions the framework enables: if the internal control environment, the audit
+        capability, and the regulatory posture are not in place, the Lever engagement
+        will say so during scoping and will not proceed. And it is not a shortcut to
+        Consumer Duty compliance — it is a structured way for firms that already take
+        their obligations seriously to translate that seriousness into a repeatable,
+        evidence-anchored decision practice.
+      </p>
+    </div>
+  </section>
+
+  <section id="engage">
+    <div class="wrap">
+      <div class="section-eyebrow">Engagement</div>
+      <h2>Design partners only.</h2>
+      <p class="section-lede">
+        CJI Lever is currently open to a small number of design partners in UK regulated
+        consumer services. Design partners shape the framework directly — the decision
+        register structure, the runbook format, the recalibration cadence — and receive
+        priority access as the engagement model scales. Each engagement is scoped
+        jointly with the firm's risk and product leadership before any work begins.
+      </p>
+      <div class="access-card">
+        <div class="access-head">Interested in a Lever engagement?</div>
+        <p class="access-body">
+          Contact the team at <a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">hello@cjipro.com</a>.
+          Please include your role, the regulated sector you operate in, and the
+          specific customer journey decision that is currently difficult to govern.
+          Lever engagements are evaluated individually and scoped before any commitment
+          is made on either side.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI · Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>

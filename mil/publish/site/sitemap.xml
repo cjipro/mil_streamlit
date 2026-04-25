@@ -15,7 +15,7 @@
     <priority>0.5</priority>
   </url>
 
-  <!-- Products (ship in MIL-88..91; URLs reserved here so search engines crawl on launch) -->
+  <!-- Products (MIL-88..91 — live) -->
   <url>
     <loc>https://cjipro.com/products/reckoner/</loc>
     <lastmod>2026-04-25</lastmod>

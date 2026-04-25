@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CJI Sonar — Daily firm briefing for regulated firms</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="CJI Sonar is a daily firm briefing built from public customer signals — verbatim voice-of-customer evidence, peer-benchmarked, regulator-readable. Per-firm subscription.">
+<meta name="keywords" content="voice of customer briefing, daily insight briefing, customer intelligence, customer journey intelligence, regulated firm briefing, CJI Sonar, market research briefing, banking customer intelligence">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/products/sonar/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="CJI Sonar — Daily firm briefing for regulated firms">
+<meta property="og:description" content="Your firm's reviewed customer voice, distilled to a daily briefing. Verbatim evidence. Peer-benchmarked. Regulator-readable.">
+<meta property="og:url" content="https://cjipro.com/products/sonar/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CJI Sonar — Daily firm briefing">
+<meta name="twitter:description" content="Your firm's public customer signals, assembled into a daily briefing. Verbatim, peer-benchmarked, regulator-readable.">
+
+<!-- Schema.org structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "CJI",
+  "alternateName": "Customer Journey Intelligence",
+  "url": "https://cjipro.com",
+  "description": "Customer journey intelligence platform for regulated consumer-service brands. Combines public-signal market research with internal journey analytics to produce a daily intelligence briefing for insight and product teams.",
+  "foundingDate": "2026",
+  "industry": "Market Research",
+  "knowsAbout": [
+    "Customer Journey Analytics",
+    "Voice of the Customer",
+    "Market Research",
+    "Competitive Intelligence",
+    "Consumer Insight",
+    "Journey Mapping"
+  ],
+  "areaServed": {
+    "@type": "Country",
+    "name": "United Kingdom"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "hello@cjipro.com",
+      "availableLanguage": "English",
+      "areaServed": "GB"
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "security",
+      "email": "security@cjipro.com",
+      "availableLanguage": "English"
+    }
+  ],
+  "sameAs": []
+}
+</script>
+
+<!-- Secondary JSON-LD: site-as-publication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "CJI",
+  "url": "https://cjipro.com",
+  "inLanguage": "en-GB",
+  "publisher": {
+    "@type": "Organization",
+    "name": "CJI"
+  },
+  "about": [
+    "Customer journey intelligence",
+    "Voice of the customer research",
+    "Competitive market research"
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 88px 0 56px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Example pull-quote ───────────────────────────────────── */
+  .example {
+    margin: 48px 0 72px 0;
+    padding: 36px 42px;
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+  }
+  .example-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .example-text {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .example-caption {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Briefing sections list ───────────────────────────────── */
+  .briefing-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 28px;
+  }
+  .briefing-section-item {
+    padding: 24px 28px;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .bs-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .bs-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .bs-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .bs-fold {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin: 4px 0 0 0;
+  }
+
+  /* ── Products grid (two-col for chain context) ────────────── */
+  .products {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .product {
+    padding: 32px;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .product-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .product-name {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .status-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .status-live   { color: var(--live);   background: #E8F5EE; }
+  .status-coming { color: var(--coming); background: #FAF1E2; }
+  .status-this   { color: var(--accent); background: #E6EEF4; }
+  .product-tag {
+    font-family: var(--sans);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .product-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 16px 0;
+  }
+  .product-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .product-link.disabled { color: var(--muted); cursor: default; border-bottom: none; }
+  .product-sonar-highlight {
+    border-color: var(--accent);
+    border-width: 2px;
+  }
+
+  /* ── Principles ───────────────────────────────────────────── */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 24px;
+  }
+  .principle-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .principle-title {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .principle-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  /* ── Access / contact ─────────────────────────────────────── */
+  .access-card {
+    padding: 40px;
+    border: 1px solid var(--hairline);
+    background: var(--cream);
+    margin-top: 20px;
+    max-width: 620px;
+  }
+  .access-head {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .access-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 20px 0;
+  }
+  .access-cta {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--paper);
+    background: var(--accent);
+    padding: 12px 24px;
+    border-bottom: none;
+    letter-spacing: 0.2px;
+  }
+  .access-cta:hover {
+    background: var(--navy);
+    border-bottom: none;
+  }
+  .access-note {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Anti-positioning block ───────────────────────────────── */
+  .anti-block {
+    padding: 32px 36px;
+    border: 1px solid var(--hairline);
+    background: var(--cream);
+    margin-top: 8px;
+  }
+  .anti-block p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ── Chain band ───────────────────────────────────────────── */
+  .chain-band {
+    background: var(--cream);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 40px 0;
+  }
+  .chain-phrase {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.1px;
+    margin: 0 0 14px 0;
+  }
+  .chain-phrase .chain-arrow {
+    color: var(--muted);
+    margin: 0 4px;
+  }
+  .chain-phrase .chain-active {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .chain-sub {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0;
+  }
+
+  /* ── Breadcrumb ───────────────────────────────────────────── */
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    padding: 18px 0 0 0;
+    text-transform: uppercase;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .breadcrumb a:hover { color: var(--ink); }
+  .breadcrumb .bc-sep { margin: 0 8px; }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .lede { font-size: 17px; }
+    .hero { padding: 56px 0 32px 0; }
+    .example { padding: 24px 22px; margin: 32px 0 48px 0; }
+    .example-text { font-size: 16px; }
+    .briefing-sections { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr; gap: 20px; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 24px; }
+    section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .chain-phrase { font-size: 18px; }
+    .chain-band { padding: 28px 0; }
+    .access-card { padding: 28px 24px; }
+    .anti-block { padding: 24px 22px; }
+  }
+
+  @media (max-width: 960px) {
+    .products { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .products { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/">CJI</a>
+      <span class="bc-sep">›</span>
+      <a href="/#products">Products</a>
+      <span class="bc-sep">›</span>
+      Sonar
+    </div>
+  </div>
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Daily firm briefing &middot; Per firm &middot; Contact sales</div>
+      <h1>Your firm. Your customers' voice. Daily.</h1>
+      <p class="lede">
+        CJI Sonar distils your firm's reviewed public signal into a daily intelligence
+        briefing — verbatim customer evidence, peer-benchmarked, and written to be
+        shown to a regulator without revision.
+      </p>
+
+      <div class="example">
+        <div class="example-label">From a Sonar briefing</div>
+        <div class="example-text">
+          "Login failures have been cited in 31 of 219 Kestrel Cover reviews this week,
+          ranking second in the competitor cohort. The pattern has been sustained for
+          fourteen days — consistent with the service-continuity failure profile in
+          CJI Chronicle entry CHR-003."
+        </div>
+        <div class="example-caption">
+          Illustrative &mdash; see the <a href="/insights/sample-briefing/">full sample briefing</a> for Kestrel Cover, a synthetic firm built to the same evidence standards as a live Sonar subscription.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Chain band ────────────────────────────────────────── -->
+  <div class="chain-band">
+    <div class="wrap">
+      <div class="section-eyebrow">Where Sonar sits</div>
+      <p class="chain-phrase">
+        Anecdote<span class="chain-arrow"> &rarr;</span>
+        Aggregate<span class="chain-arrow"> &rarr;</span>
+        <span class="chain-active">Awareness</span><span class="chain-arrow"> &rarr;</span>
+        Action.
+      </p>
+      <p class="chain-sub">
+        CJI Reckoner aggregates the industry. Sonar makes a firm aware of itself.
+        Where Reckoner sees a cohort pattern in the sector, Sonar anchors it to
+        your firm's own reviewed voice &mdash; so the awareness is specific, evidenced, and daily.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── What Sonar is ─────────────────────────────────────── -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">What Sonar is</div>
+      <h2>The firm-specific layer of the intelligence chain.</h2>
+      <p class="section-lede">
+        Sonar is built around your firm as the subject. Every briefing reads what your
+        customers published yesterday &mdash; on App Store, Google Play, DownDetector,
+        City A.M., Reddit, and YouTube &mdash; and places that signal against a live
+        peer cohort. The cadence is daily because the signal is daily.
+      </p>
+      <p style="font-size: 15px; line-height: 1.7; color: var(--ink-soft); max-width: 680px; margin: 0;">
+        The distinguishing characteristic is not the sources &mdash; it is the evidence
+        standard. Every claim in a Sonar briefing cites verbatim customer language and
+        a named precedent from the CJI Chronicle. There is no editorial voice layered on
+        top; there is no scoring model whose weights are invisible to the reader. A product
+        manager and a compliance officer can read the same briefing and reach the same
+        conclusions, because the evidence is present, unedited, and traceable to a public
+        source and a date. That is what makes it regulator-readable.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Inside a Sonar briefing ───────────────────────────── -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Inside a Sonar briefing</div>
+      <h2>What the briefing contains.</h2>
+      <p class="section-lede">
+        Each Sonar briefing is a structured document, not a summary email. The sections
+        below reflect what a live Sonar subscription delivers today.
+      </p>
+
+      <div class="briefing-sections">
+
+        <div class="briefing-section-item">
+          <div class="bs-label">Box 1 &middot; Above fold</div>
+          <div class="bs-title">Firm sentiment + verbatim quote pair</div>
+          <p class="bs-body">
+            Your firm's current sentiment score across App Store and Google Play,
+            with a trend direction against the prior period. Two verbatim customer
+            quotes &mdash; one from each store &mdash; drawn from the most severe
+            signal in the last seven days. No paraphrasing, no editorial softening.
+          </p>
+        </div>
+
+        <div class="briefing-section-item">
+          <div class="bs-label">Box 2 &middot; Above fold</div>
+          <div class="bs-title">Issues status</div>
+          <p class="bs-body">
+            The top customer-experience issues facing your firm, ranked by severity.
+            Each row shows volume, days sustained, peer benchmark gap, and a severity
+            class (critical / significant / standard). A single verbatim quote anchors
+            the most severe issue. Status labels are defined in place &mdash; no legend
+            required.
+          </p>
+        </div>
+
+        <div class="briefing-section-item">
+          <div class="bs-label">Box 3 &middot; Above fold</div>
+          <div class="bs-title">Intelligence brief</div>
+          <p class="bs-body">
+            The priority issue for today's briefing, selected by a six-factor
+            tiebreaker (severity, trend, peer gap, days sustained, escalation tier,
+            precedent match). Three sections: The Situation (analyst prose from the
+            signal), Peer Comparison (rank-of-cohort on this issue), and a two-line
+            decision-action badge showing the escalation tier and recommended cadence.
+          </p>
+        </div>
+
+        <div class="briefing-section-item">
+          <div class="bs-label">Below fold</div>
+          <div class="bs-title">Churn risk, commentary, benchmarks, escalation log</div>
+          <p class="bs-body">
+            Composite churn risk score with trend; analyst commentary per issue
+            (three-sentence structure: what, why, consequence); technical benchmark
+            across six issue types vs the peer cohort; service benchmark across ten
+            issue types; full intelligence findings with evidence and Chronicle anchors;
+            and the Clark escalation log showing tier history and action status.
+          </p>
+          <p class="bs-fold">Below the fold &mdash; same document, same evidence standard</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Principles ────────────────────────────────────────── -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Evidence standards</div>
+      <h2>Verbatim. Anchored. Peer-benchmarked.</h2>
+
+      <div class="principles">
+        <div>
+          <div class="principle-num">01</div>
+          <div class="principle-title">Verbatim customer voice — always.</div>
+          <div class="principle-body">
+            Every quote that appears in a Sonar briefing is what the customer
+            wrote, sourced from a public platform, labelled with the platform
+            and the date. No synthesised voices, no paraphrasing, no trimming
+            for tone. The evidence is the evidence.
+          </div>
+        </div>
+        <div>
+          <div class="principle-num">02</div>
+          <div class="principle-title">Signal separation, by design.</div>
+          <div class="principle-body">
+            Sonar is built on public market data only &mdash; App Store, Google Play,
+            DownDetector, City A.M., Reddit, YouTube. No customer PII is collected,
+            no internal data is required. The signal is yours to act on; it is not
+            yours to supply.
+          </div>
+        </div>
+        <div>
+          <div class="principle-num">03</div>
+          <div class="principle-title">Anchored to sector precedent.</div>
+          <div class="principle-body">
+            Every Sonar finding is matched against the CJI Chronicle &mdash; a growing
+            public ledger of real failures in the sector, researched in depth. When a
+            pattern in your firm's reviewed voice resembles a precedent, the briefing
+            names it, cites it, and shows the match. Patterns that rhyme with history
+            surface faster, with receipts.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── What Sonar is not ─────────────────────────────────── -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Anti-positioning</div>
+      <h2>What Sonar is not.</h2>
+
+      <div class="anti-block">
+        <p>
+          Sonar is not a sentiment-analysis tool, a customer-feedback aggregator, or a
+          consumer-experience scorecard. It does not produce charts you configure,
+          filters you maintain, or scores whose derivation is opaque to the reader.
+          The difference between Sonar and those tools is not feature breadth &mdash; it is
+          the evidence standard. In Sonar, every number is explained, every claim cites
+          the verbatim source, and the peer comparison names the peers. A claim that holds
+          up to a regulator's question is a fundamentally different object from a metric
+          on a slide. Sonar produces the former. <em>Decisions, not dashboards.</em>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Get a personalised briefing ───────────────────────── -->
+  <section id="get-briefing">
+    <div class="wrap">
+      <div class="section-eyebrow">Get a personalised briefing</div>
+      <h2>Your firm becomes the subject.</h2>
+      <p class="section-lede">
+        A Sonar subscription is not a configuration of a generic template. It requires
+        a 2&ndash;3 week onboarding in which your firm becomes the subject: the
+        competitor cohort is defined for your market, the journey taxonomy is mapped to
+        your product surface, and the public-signal stack is tuned to the source mix
+        that carries the most diagnostic signal for your firm's customers. The result
+        is a briefing where every finding, every benchmark, and every verbatim quote
+        speaks to your firm's experience &mdash; not to the sector in the aggregate.
+      </p>
+
+      <div class="access-card">
+        <div class="access-head">Request your firm's briefing</div>
+        <p class="access-body">
+          Tell us your firm, the market you operate in, and the customer-journey
+          question that remains unanswered on your insight or product team.
+          We will confirm whether your firm is in scope for the current cohort and,
+          if so, begin onboarding.
+        </p>
+        <a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing" class="access-cta">Get in touch &rarr;</a>
+        <p class="access-note">
+          Per-firm subscription &middot; Contact sales &middot; Onboarding 2&ndash;3 weeks &middot; UK regulated firms
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Where Sonar sits in the chain ─────────────────────── -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">The intelligence chain</div>
+      <h2>Aggregate &rarr; Awareness.</h2>
+      <p class="section-lede">
+        Sonar occupies the Awareness step in the CJI intelligence chain. CJI Reckoner
+        shows you what the industry is experiencing &mdash; the cohort patterns, the
+        sector-wide failure modes, the Chronicle precedents that are cycling back. Sonar
+        takes that aggregated picture and asks: where does your firm stand inside it,
+        today? CJI Pulse continues the chain into the live session; CJI Lever frames
+        the decision. Each product is independently useful. Together, the chain runs from
+        raw market signal to a firm action without a gap in the evidence.
+      </p>
+      <p style="font-size: 14px; color: var(--muted); margin: 0;">
+        Read more: <a href="/insights/methodology/">CJI methodology</a>
+        &nbsp;&middot;&nbsp; <a href="/insights/sample-briefing/">See a sample Sonar briefing</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI &middot; Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>
