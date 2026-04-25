@@ -115,3 +115,4 @@ mil/notify/_early_signal_send.py
 # Editor/tooling local state
 .claude/
 .continue/
+ops/gitlab_import/import_log.txt
