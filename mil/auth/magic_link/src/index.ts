@@ -27,6 +27,7 @@ import {
 } from "./request_access";
 import {
   handleApiApprove,
+  handleApiAuditExport,
   handleApiDeny,
   handleApiForceSignout,
   handleApiPortalLink,
@@ -309,6 +310,15 @@ export default {
       if (path === "/admin/api/signups" && method === "GET") {
         return handleApiSignups(env.AUDIT_DB);
       }
+      if (path === "/admin/api/audit_export" && method === "GET") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.audit_export",
+          session_sub: adminEmail,
+          detail: url.searchParams.get("org") ?? "",
+        });
+        return handleApiAuditExport(url, env.AUDIT_DB);
+      }
       if (path === "/admin/api/approve" && method === "POST") {
         audit(env, ctx, {
           ...baseAuditInput(request, path),
@@ -381,7 +391,12 @@ export default {
         if (env.AUDIT_DB && sub && outcome.userEmail) {
           const db = env.AUDIT_DB;
           ctx.waitUntil(
-            writeSession(db, sub, outcome.userEmail).catch((err) => {
+            writeSession(
+              db,
+              sub,
+              outcome.userEmail,
+              outcome.organizationId,
+            ).catch((err) => {
               console.log(
                 JSON.stringify({
                   ts: new Date().toISOString(),

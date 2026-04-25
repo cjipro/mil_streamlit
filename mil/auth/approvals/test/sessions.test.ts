@@ -13,22 +13,22 @@ const NOW = new Date("2026-04-24T12:00:00.000Z");
 describe("writeSession + lookupSessionEmail", () => {
   test("write then lookup returns the email", async () => {
     const db = new FakeD1();
-    await writeSession(asD1(db), "u_alpha", "alpha@example.com", NOW);
+    await writeSession(asD1(db), "u_alpha", "alpha@example.com", null, NOW);
     const email = await lookupSessionEmail(asD1(db), "u_alpha");
     expect(email).toBe("alpha@example.com");
   });
 
   test("emails are canonicalised on write", async () => {
     const db = new FakeD1();
-    await writeSession(asD1(db), "u_alpha", "  Alpha@Example.COM  ", NOW);
+    await writeSession(asD1(db), "u_alpha", "  Alpha@Example.COM  ", null, NOW);
     const email = await lookupSessionEmail(asD1(db), "u_alpha");
     expect(email).toBe("alpha@example.com");
   });
 
   test("INSERT OR REPLACE updates existing row", async () => {
     const db = new FakeD1();
-    await writeSession(asD1(db), "u_alpha", "old@example.com", NOW);
-    await writeSession(asD1(db), "u_alpha", "new@example.com", NOW);
+    await writeSession(asD1(db), "u_alpha", "old@example.com", null, NOW);
+    await writeSession(asD1(db), "u_alpha", "new@example.com", null, NOW);
     expect(db.sessions).toHaveLength(1);
     expect(await lookupSessionEmail(asD1(db), "u_alpha")).toBe("new@example.com");
   });
@@ -44,7 +44,7 @@ describe("writeSession + lookupSessionEmail", () => {
 describe("recordActivity", () => {
   test("updates last_active_at on existing session", async () => {
     const db = new FakeD1();
-    await writeSession(asD1(db), "u_alpha", "alpha@example.com", NOW);
+    await writeSession(asD1(db), "u_alpha", "alpha@example.com", null, NOW);
     expect(db.sessions[0].last_active_at).toBeNull();
     const later = new Date("2026-04-25T01:00:00.000Z");
     await recordActivity(asD1(db), "u_alpha", later);
@@ -81,7 +81,7 @@ describe("listApprovedWithSessions", () => {
       approved_by: "x",
       note: null,
     });
-    await writeSession(asD1(db), "u_alpha", "alpha@example.com", NOW);
+    await writeSession(asD1(db), "u_alpha", "alpha@example.com", null, NOW);
     await recordActivity(
       asD1(db),
       "u_alpha",
@@ -95,7 +95,7 @@ describe("listApprovedWithSessions", () => {
 describe("forceSignout", () => {
   test("removes the session row, denies next gate hit", async () => {
     const db = new FakeD1();
-    await writeSession(asD1(db), "u_alpha", "alpha@example.com", NOW);
+    await writeSession(asD1(db), "u_alpha", "alpha@example.com", null, NOW);
     expect(db.sessions).toHaveLength(1);
     const out = await forceSignout(asD1(db), "alpha@example.com");
     expect(out.kind).toBe("ok");
@@ -111,7 +111,7 @@ describe("forceSignout", () => {
 
   test("case-insensitive match on email", async () => {
     const db = new FakeD1();
-    await writeSession(asD1(db), "u_alpha", "alpha@example.com", NOW);
+    await writeSession(asD1(db), "u_alpha", "alpha@example.com", null, NOW);
     const out = await forceSignout(asD1(db), "Alpha@EXAMPLE.COM");
     expect(out.kind).toBe("ok");
     expect(db.sessions).toHaveLength(0);

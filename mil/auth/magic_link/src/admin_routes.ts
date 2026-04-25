@@ -20,6 +20,10 @@ import {
   generatePortalLink,
   type PortalIntent,
 } from "../../approvals/src/admin_portal";
+import {
+  exportAuditForOrg,
+  type ExportFormat,
+} from "../../approvals/src/audit_export";
 
 const STYLES = `
   :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --line:#e0e4e7; }
@@ -66,6 +70,21 @@ export function renderDashboard(adminEmail: string): Response {
 
 <h2>Approved users</h2>
 <div id="approved"><p class="empty">Loading…</p></div>
+
+<h2>Per-tenant audit export</h2>
+<p class="sub">Download the audit timeline scoped to a single partner
+ organization. Format: JSONL for SIEM ingest, CSV for spreadsheets.
+ Default window: last 7 days.</p>
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:0.5rem;">
+  <input id="export_org" type="text" placeholder="org_01HXYZ..." style="flex:1; min-width:14rem; padding:0.4rem 0.55rem; font:inherit; border:1px solid #b7c2ca; border-radius:3px;">
+  <input id="export_since" type="datetime-local" style="padding:0.4rem 0.55rem; font:inherit; border:1px solid #b7c2ca; border-radius:3px;">
+  <input id="export_until" type="datetime-local" style="padding:0.4rem 0.55rem; font:inherit; border:1px solid #b7c2ca; border-radius:3px;">
+  <select id="export_format" style="padding:0.4rem 0.55rem; font:inherit; border:1px solid #b7c2ca; border-radius:3px;">
+    <option value="jsonl">jsonl</option>
+    <option value="csv">csv</option>
+  </select>
+  <button class="primary" onclick="exportAudit()">Download</button>
+</div>
 
 <h2>Partner SSO setup link</h2>
 <p class="sub">Generate a one-shot WorkOS Admin Portal link for a partner
@@ -194,6 +213,27 @@ async function signout(email) {
   });
   if (!r.ok) alert("Failed: " + r.status);
   await load();
+}
+
+function isoOrEmpty(local) {
+  if (!local) return "";
+  const d = new Date(local);
+  if (isNaN(d.getTime())) return "";
+  return d.toISOString();
+}
+
+function exportAudit() {
+  const org = $("export_org").value.trim();
+  const since = isoOrEmpty($("export_since").value);
+  const until = isoOrEmpty($("export_until").value);
+  const format = $("export_format").value;
+  if (!org) { alert("Enter an organization id (e.g. org_01HXYZ…)"); return; }
+  const params = new URLSearchParams({ org, format });
+  if (since) params.set("since", since);
+  if (until) params.set("until", until);
+  // Trigger a real download by navigating to the URL — Content-Disposition
+  // headers on the response make the browser save it.
+  window.location.href = "/admin/api/audit_export?" + params.toString();
 }
 
 async function generateLink() {
@@ -363,6 +403,51 @@ export async function handleApiPortalLink(
     );
   }
   return json({ ok: true, link: out.link });
+}
+
+// MIL-72 — per-tenant audit log export. GET so partners can hit
+// it from a SIEM cron with a curl/wget. Body is plaintext (JSONL or
+// CSV); content-type set per format.
+export async function handleApiAuditExport(
+  url: URL,
+  db: D1Database,
+): Promise<Response> {
+  const orgId = url.searchParams.get("org") ?? "";
+  if (!orgId) {
+    return json({ ok: false, error: "missing org param" }, 400);
+  }
+  const since = url.searchParams.get("since") ?? defaultSince();
+  const until = url.searchParams.get("until") ?? new Date().toISOString();
+  const formatRaw = (url.searchParams.get("format") ?? "jsonl").toLowerCase();
+  if (formatRaw !== "jsonl" && formatRaw !== "csv") {
+    return json(
+      { ok: false, error: "format must be jsonl or csv" },
+      400,
+    );
+  }
+  const format = formatRaw as ExportFormat;
+  const out = await exportAuditForOrg(db, {
+    organizationId: orgId,
+    since,
+    until,
+    format,
+  });
+  const ext = format === "csv" ? "csv" : "jsonl";
+  return new Response(out.body, {
+    status: 200,
+    headers: {
+      "content-type": out.contentType,
+      "cache-control": "no-store",
+      "content-disposition": `attachment; filename="audit_${orgId}_${since.slice(0, 10)}_${until.slice(0, 10)}.${ext}"`,
+      "x-row-count": String(out.rowCount),
+    },
+  });
+}
+
+function defaultSince(): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 7);
+  return d.toISOString();
 }
 
 // MIL-68 — boot any active session for this user without removing

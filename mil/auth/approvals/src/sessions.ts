@@ -10,14 +10,19 @@ export async function writeSession(
   db: D1Database,
   sub: string,
   email: string,
+  organizationId?: string | null,
   now: Date = new Date(),
 ): Promise<void> {
   const canonical = canonicalEmail(email);
+  // MIL-72 — store organization_id for per-tenant audit log scoping.
+  // Nullable: solo-signup users (no WorkOS Org) get NULL.
   await db
     .prepare(
-      `INSERT OR REPLACE INTO sessions (sub, email, created_at) VALUES (?, ?, ?)`,
+      `INSERT OR REPLACE INTO sessions
+        (sub, email, created_at, organization_id)
+       VALUES (?, ?, ?, ?)`,
     )
-    .bind(sub, canonical, now.toISOString())
+    .bind(sub, canonical, now.toISOString(), organizationId ?? null)
     .run();
 }
 

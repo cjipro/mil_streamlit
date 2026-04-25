@@ -32,6 +32,8 @@ export type CallbackOutcome =
       // no email; this is the only place we have both.
       userId?: string;
       userEmail?: string;
+      // MIL-72 — organization_id for per-tenant audit scoping.
+      organizationId?: string;
     }
   | { kind: "error"; status: number; reason: string; detail?: string };
 
@@ -94,5 +96,6 @@ export async function handleCallback(
     accessToken: exchange.accessToken,
     userId: exchange.userId,
     userEmail: exchange.userEmail,
+    organizationId: exchange.organizationId,
   };
 }

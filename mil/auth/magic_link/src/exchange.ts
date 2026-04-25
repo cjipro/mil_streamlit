@@ -33,6 +33,9 @@ export type ExchangeSuccess = {
   // it. Stored by the Worker into the sessions table for sub→email
   // lookups at the gate.
   userEmail?: string;
+  // MIL-72 — organization_id, used to scope per-tenant audit log
+  // exports. Absent for individual sign-ups not tied to a WorkOS Org.
+  organizationId?: string;
   rawBody: Record<string, unknown>;
 };
 
@@ -118,6 +121,28 @@ export async function exchangeCode(
     typeof (body.user as { email: unknown }).email === "string"
       ? ((body.user as { email: string }).email)
       : undefined;
+  // organization_id may live at body.organization_id (top-level on
+  // the authenticate response) or at body.user.organization_id
+  // depending on the WorkOS response shape. Try both.
+  let organizationId: string | undefined;
+  if (typeof body.organization_id === "string") {
+    organizationId = body.organization_id;
+  } else if (
+    body.user &&
+    typeof body.user === "object" &&
+    typeof (body.user as { organization_id?: unknown }).organization_id ===
+      "string"
+  ) {
+    organizationId = (body.user as { organization_id: string }).organization_id;
+  }
 
-  return { ok: true, accessToken, refreshToken, userId, userEmail, rawBody: body };
+  return {
+    ok: true,
+    accessToken,
+    refreshToken,
+    userId,
+    userEmail,
+    organizationId,
+    rawBody: body,
+  };
 }

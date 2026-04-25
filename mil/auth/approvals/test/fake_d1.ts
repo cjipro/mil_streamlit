@@ -45,6 +45,7 @@ interface SessionRow {
   email: string;
   created_at: string;
   last_active_at: string | null;
+  organization_id: string | null;
 }
 
 export class FakeD1 {
@@ -216,18 +217,25 @@ export class FakeStatement {
       return {};
     }
     if (s.startsWith("INSERT OR REPLACE INTO sessions")) {
-      const [sub, email, created_at] = this.args as [string, string, string];
+      const [sub, email, created_at, organization_id] = this.args as [
+        string,
+        string,
+        string,
+        string | null,
+      ];
       const existing = this.db.sessions.find((r) => r.sub === sub);
       if (existing) {
         existing.email = email;
         existing.created_at = created_at;
         existing.last_active_at = null;
+        existing.organization_id = organization_id ?? null;
       } else {
         this.db.sessions.push({
           sub,
           email,
           created_at,
           last_active_at: null,
+          organization_id: organization_id ?? null,
         });
       }
       return {};

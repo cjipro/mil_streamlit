@@ -46,6 +46,8 @@ export type AuthEventType =
   | "dsync.group.user_removed"
   | "dsync.user.auto_approved"
   | "dsync.user.auto_revoked"
+  // MIL-72 — admin downloaded a per-tenant audit export
+  | "admin.audit_export"
   // MIL-67a — WorkOS webhook ingestion. Generic catch-all for now;
   // Phase B will split out specific passkey events
   // (passkey.registered, passkey.used, etc.) once we observe what
