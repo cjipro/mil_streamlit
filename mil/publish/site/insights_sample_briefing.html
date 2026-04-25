@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample Briefing — CJI Sonar — CJI</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="An illustrative sample of a daily CJI Sonar intelligence briefing — fictional firm, synthetic customer voice, real evidence standards. Contact CJI for your firm's briefing.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/insights/sample-briefing/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="Sample Briefing — CJI Sonar">
+<meta property="og:description" content="An illustrative sample of a daily CJI Sonar intelligence briefing — fictional firm, synthetic customer voice, real evidence standards.">
+<meta property="og:url" content="https://cjipro.com/insights/sample-briefing/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sample Briefing — CJI Sonar">
+<meta name="twitter:description" content="Illustrative sample of a daily CJI Sonar briefing. Fictional firm and synthetic customer voice.">
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --warn:      #A85638;
+    --warn-bg:   #FAF0EB;
+    --sev-p0:    #CC3333;
+    --sev-p1:    #B07A1F;
+    --sev-p2:    #2C6E8A;
+    --clark1:    #1F7A4C;
+    --clark2:    #B07A1F;
+    --clark3:    #CC3333;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Illustrative banner ──────────────────────────────────── */
+  .illustrative-banner {
+    background: var(--navy);
+    border-bottom: 3px solid var(--warn);
+    padding: 18px 0;
+  }
+  .illustrative-banner-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .illustrative-banner-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--warn);
+    white-space: nowrap;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .illustrative-banner-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #D4DFE8;
+    margin: 0;
+  }
+  .illustrative-banner-body strong {
+    color: #F0F5F8;
+    font-weight: 600;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 56px 0 36px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 14px 0;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 24px 0;
+  }
+
+  /* ── Meta strip ───────────────────────────────────────────── */
+  .meta-strip {
+    background: var(--cream);
+    border: 1px solid var(--hairline);
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .meta-strip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .meta-item-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .meta-item-value {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .meta-item-value strong { font-weight: 600; }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 40px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 16px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 28px 0;
+  }
+
+  /* ── Briefing box chrome ──────────────────────────────────── */
+  .briefing-box {
+    border: 1px solid var(--accent);
+    margin-bottom: 32px;
+  }
+  .briefing-box-header {
+    background: var(--accent);
+    color: #E8F4FA;
+    padding: 14px 24px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .briefing-box-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    font-weight: 600;
+  }
+  .briefing-box-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #A8C4D4;
+  }
+  .briefing-box-body { padding: 24px 24px; }
+
+  /* ── Sentiment score ──────────────────────────────────────── */
+  .sentiment-row {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .sentiment-score-block {}
+  .sentiment-score-num {
+    font-family: var(--mono);
+    font-size: 56px;
+    line-height: 1;
+    color: #E8F4FA;
+    background: var(--navy);
+    padding: 12px 20px;
+    display: inline-block;
+    letter-spacing: -1px;
+  }
+  .sentiment-score-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .sentiment-meta {
+    flex: 1;
+    min-width: 200px;
+  }
+  .sentiment-meta p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+  }
+  .version-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 3px 8px;
+    border: 1px solid var(--hairline);
+    color: var(--muted);
+    display: inline-block;
+    margin-right: 6px;
+    margin-top: 4px;
+  }
+
+  /* ── Quote cards ──────────────────────────────────────────── */
+  .quote-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .quote-card {
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+    padding: 18px 20px;
+  }
+  .quote-card blockquote {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 12px 0;
+    quotes: none;
+  }
+  .quote-card-source {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+  .illustrative-tag {
+    color: var(--warn);
+    font-weight: 600;
+  }
+
+  /* ── Issues table ─────────────────────────────────────────── */
+  .issues-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .issues-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--hairline);
+    font-weight: 600;
+  }
+  .issues-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--hairline);
+    vertical-align: middle;
+    color: var(--ink-soft);
+  }
+  .issues-table tr:last-child td { border-bottom: none; }
+  .issues-table td:first-child { color: var(--ink); font-weight: 500; }
+  .trend-up   { color: var(--sev-p0); font-weight: 700; }
+  .trend-dn   { color: var(--live); font-weight: 700; }
+  .trend-flat { color: var(--muted); }
+
+  .sev-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    padding: 2px 7px;
+    font-weight: 700;
+    display: inline-block;
+  }
+  .sev-p0 { color: var(--sev-p0); background: #FAEAEA; }
+  .sev-p1 { color: var(--sev-p1); background: #FAF1E2; }
+  .sev-p2 { color: var(--sev-p2); background: #E8F2F7; }
+
+  .status-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    padding: 3px 8px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .status-regression { color: var(--sev-p0); background: #FAEAEA; }
+  .status-watch      { color: var(--sev-p1); background: #FAF1E2; }
+  .status-well       { color: var(--live);   background: #E8F5EE; }
+
+  /* ── Box 3 intelligence brief ─────────────────────────────── */
+  .preamble {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 24px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .preamble strong { color: var(--ink); }
+
+  .metric-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .metric-tile {
+    background: var(--navy);
+    padding: 18px 20px;
+  }
+  .metric-tile-num {
+    font-family: var(--mono);
+    font-size: 28px;
+    line-height: 1;
+    color: #E8F4FA;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .metric-tile-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: #7AAABB;
+    margin-bottom: 4px;
+  }
+  .metric-tile-ctx {
+    font-size: 12px;
+    color: #8AABBA;
+    line-height: 1.4;
+  }
+  .metric-tile-num.warn   { color: #F5A08A; }
+  .metric-tile-num.amber  { color: #F5C87A; }
+  .metric-tile-num.teal   { color: #7AD4C0; }
+
+  .intel-divider {
+    border: none;
+    border-top: 1px solid #003A5C;
+    margin: 24px 0;
+  }
+
+  .intel-section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: #7AAABB;
+    background: var(--navy);
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 14px;
+  }
+  .intel-section-label.light-label {
+    color: var(--muted);
+    background: transparent;
+    padding: 0;
+  }
+
+  .situation-prose {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 16px 0;
+  }
+
+  .peer-prose {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 16px 0;
+  }
+
+  .clark-badge {
+    border: 1px solid currentColor;
+    padding: 14px 18px;
+    margin-top: 16px;
+    display: inline-block;
+    min-width: 320px;
+  }
+  .clark-badge-tier {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .clark-badge-detail {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    margin-top: 5px;
+    opacity: 0.8;
+  }
+  .clark-2 { color: var(--clark2); border-color: var(--clark2); }
+  .clark-1 { color: var(--clark1); border-color: var(--clark1); }
+  .clark-3 { color: var(--clark3); border-color: var(--clark3); }
+
+  /* ── Churn risk ───────────────────────────────────────────── */
+  .churn-row {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .churn-score-block {}
+  .churn-score-num {
+    font-family: var(--mono);
+    font-size: 48px;
+    line-height: 1;
+    color: #F5A08A;
+    background: var(--navy);
+    padding: 10px 18px;
+    display: inline-block;
+  }
+  .churn-trend-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    padding: 4px 10px;
+    margin-left: 12px;
+    font-weight: 700;
+    display: inline-block;
+  }
+  .trend-worsening { color: var(--sev-p0); background: #FAEAEA; }
+  .trend-stable    { color: var(--sev-p2); background: #E8F2F7; }
+  .trend-improving { color: var(--live);   background: #E8F5EE; }
+
+  .indexed-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 16px;
+  }
+  .indexed-col-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .indexed-item {
+    font-size: 14px;
+    color: var(--ink-soft);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .indexed-item:last-child { border-bottom: none; }
+  .over-val  { font-family: var(--mono); font-size: 12px; color: var(--sev-p0); font-weight: 700; }
+  .under-val { font-family: var(--mono); font-size: 12px; color: var(--live);   font-weight: 700; }
+
+  /* ── Commentary cards ─────────────────────────────────────── */
+  .commentary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 16px;
+  }
+  .commentary-card {
+    border: 1px solid var(--hairline);
+    padding: 20px 22px;
+    background: var(--paper);
+  }
+  .commentary-card.strength { border-left: 3px solid var(--live); }
+  .commentary-card.risk     { border-left: 3px solid var(--sev-p0); }
+  .commentary-card-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .commentary-card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  .commentary-card-body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 14px 0;
+  }
+  .commentary-card-quote {
+    background: var(--cream);
+    border-left: 3px solid var(--hairline);
+    padding: 10px 14px;
+    font-family: var(--serif);
+    font-size: 13px;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-top: 12px;
+  }
+  .commentary-card-quote-src {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-style: normal;
+  }
+
+  /* ── Benchmark table ──────────────────────────────────────── */
+  .benchmark-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .benchmark-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--hairline);
+    font-weight: 600;
+  }
+  .benchmark-table th:not(:first-child) { text-align: right; }
+  .benchmark-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--ink-soft);
+    vertical-align: middle;
+  }
+  .benchmark-table tr:last-child td { border-bottom: none; }
+  .benchmark-table td:first-child { color: var(--ink); font-weight: 500; }
+  .benchmark-table td:not(:first-child) { text-align: right; font-family: var(--mono); font-size: 13px; }
+  .bm-over   { color: var(--sev-p0); font-weight: 700; }
+  .bm-under  { color: var(--live);   font-weight: 700; }
+  .bm-peer   { color: var(--muted); }
+  .bm-best   { color: var(--live); }
+
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .bar {
+    height: 8px;
+    background: var(--sev-p0);
+    display: inline-block;
+    border-radius: 1px;
+  }
+  .bar.green { background: var(--live); }
+  .bar.muted { background: var(--hairline); }
+
+  .benchmark-caption {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  /* ── Intelligence findings ────────────────────────────────── */
+  .findings-list {
+    margin-top: 16px;
+  }
+  .finding-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--hairline);
+    flex-wrap: wrap;
+  }
+  .finding-row:last-child { border-bottom: none; }
+  .finding-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    min-width: 140px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .finding-main {
+    flex: 1;
+    min-width: 180px;
+  }
+  .finding-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .finding-meta {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .finding-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2px;
+  }
+  .finding-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    padding: 2px 6px;
+    border: 1px solid currentColor;
+    font-weight: 600;
+  }
+  .badge-chr  { color: var(--accent); }
+  .badge-ceil { color: var(--warn);   border-style: dashed; }
+  .cac-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    min-width: 52px;
+    text-align: right;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .findings-caption {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  /* ── Clark protocol strip ─────────────────────────────────── */
+  .clark-strip {
+    margin-top: 16px;
+  }
+  .clark-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--hairline);
+    flex-wrap: wrap;
+  }
+  .clark-row:last-child { border-bottom: none; }
+  .clark-tier-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    padding: 4px 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .clark-row-body {
+    flex: 1;
+    min-width: 200px;
+  }
+  .clark-row-issue {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .clark-row-synthesis {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Closing sample note ──────────────────────────────────── */
+  .sample-close {
+    background: var(--cream);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--accent);
+    padding: 28px 32px;
+    margin-top: 8px;
+  }
+  .sample-close p {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 12px 0;
+  }
+  .sample-close p:last-child { margin-bottom: 0; }
+  .sample-close-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hairline);
+    font-size: 14px;
+  }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    h1 { font-size: 28px; }
+    .lede { font-size: 16px; }
+    .hero { padding: 36px 0 24px 0; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 22px; }
+    h3 { font-size: 16px; }
+    section { padding: 32px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .meta-strip-grid { grid-template-columns: 1fr 1fr; }
+    .quote-cards { grid-template-columns: 1fr; }
+    .metric-tiles { grid-template-columns: 1fr; }
+    .commentary-grid { grid-template-columns: 1fr; }
+    .indexed-grid { grid-template-columns: 1fr; }
+    .briefing-box-header { flex-direction: column; gap: 4px; }
+    .clark-badge { min-width: 0; display: block; }
+    .sentiment-row { flex-direction: column; gap: 16px; }
+    .churn-row { flex-direction: column; gap: 12px; }
+    .sample-close { padding: 20px; }
+    .sample-close-links { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Persistent illustrative banner -->
+<div class="illustrative-banner">
+  <div class="wrap">
+    <div class="illustrative-banner-inner">
+      <div class="illustrative-banner-label">Illustrative</div>
+      <p class="illustrative-banner-body">
+        <strong>Illustrative sample.</strong> This page demonstrates the shape of a CJI Sonar daily briefing using a fictional firm and synthetic customer voice. It is not a real briefing and does not reflect any real customer or firm. All quotes are written examples — they were not drawn from any platform. The real product is delivered to alpha partners only.
+      </p>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Sample briefing · CJI Sonar</div>
+      <h1>What a daily CJI Sonar briefing looks like.</h1>
+      <p class="lede">
+        The briefing below is built around a fictional firm — Kestrel Cover, a mid-market UK home insurer with approximately 310,000 policies — and uses entirely synthetic customer voice. It demonstrates the format, evidence standards, and analytical framing that alpha partners receive every morning.
+      </p>
+    </div>
+  </section>
+
+  <!-- Briefing content -->
+  <section>
+    <div class="wrap">
+
+      <!-- Meta strip -->
+      <div class="meta-strip">
+        <div class="meta-item-label" style="margin-bottom: 10px;">Voice of the Customer: Kestrel Cover App Experience (Open Sources)</div>
+        <div class="meta-strip-grid">
+          <div>
+            <div class="meta-item-label">Firm</div>
+            <div class="meta-item-value"><strong>Kestrel Cover</strong> <span style="color: var(--warn); font-size: 12px; font-family: var(--mono);">[Illustrative]</span></div>
+          </div>
+          <div>
+            <div class="meta-item-label">Date</div>
+            <div class="meta-item-value">22 April 2026</div>
+          </div>
+          <div>
+            <div class="meta-item-label">Window</div>
+            <div class="meta-item-value">7-day rolling</div>
+          </div>
+          <div>
+            <div class="meta-item-label">Sources</div>
+            <div class="meta-item-value">App Store · Google Play · DownDetector · Reddit · City A.M.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX 1: Sentiment + customer voice -->
+      <div class="briefing-box">
+        <div class="briefing-box-header">
+          <span class="briefing-box-title">Box 1 — Sentiment + Customer Voice</span>
+          <span class="briefing-box-sub">7-day rolling · Kestrel Cover [Illustrative]</span>
+        </div>
+        <div class="briefing-box-body">
+
+          <div class="sentiment-row">
+            <div class="sentiment-score-block">
+              <div class="sentiment-score-num">62</div>
+              <div class="sentiment-score-label">Sentiment score (0 — 100)</div>
+            </div>
+            <div class="sentiment-meta">
+              <p>Score derived from weighted average star rating across App Store and Google Play, 7-day rolling window. Peer average across 6 comparison firms: <strong>71</strong>. Kestrel is <strong>9 points below peer average</strong>, driven primarily by claim-status friction surfaced in 14 of 184 reviews.</p>
+              <span class="version-pill">iOS 4.11.2</span>
+              <span class="version-pill">Android 4.9.7</span>
+              <span class="version-pill">Web portal v2.3</span>
+            </div>
+          </div>
+
+          <div class="quote-cards">
+            <div class="quote-card">
+              <blockquote>"submitted my contents claim three weeks ago and still cant see any status in the app — just says processing. rang three times and got told to check the app. its a loop."</blockquote>
+              <div class="quote-card-source">App Store · 1 star · April 2026 · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+            </div>
+            <div class="quote-card">
+              <blockquote>"the claim tracker was supposed to go live last month according to the email they sent me. logged in today and theres still no tracker, just a generic status page. disappointing given how long we've been waiting."</blockquote>
+              <div class="quote-card-source">Google Play · 2 stars · April 2026 · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BOX 2: Issues status -->
+      <div class="briefing-box">
+        <div class="briefing-box-header">
+          <span class="briefing-box-title">Box 2 — Issues Status</span>
+          <span class="briefing-box-sub">Top 5 issues · 7-day window · [Illustrative]</span>
+        </div>
+        <div class="briefing-box-body">
+
+          <table class="issues-table">
+            <thead>
+              <tr>
+                <th>Issue</th>
+                <th>7d Count</th>
+                <th>Trend</th>
+                <th>Severity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Claim status missing</td>
+                <td>14</td>
+                <td class="trend-up">&#9650; +6</td>
+                <td><span class="sev-badge sev-p0">P0</span></td>
+                <td><span class="status-badge status-regression">Regression</span></td>
+              </tr>
+              <tr>
+                <td>Document upload broken</td>
+                <td>9</td>
+                <td class="trend-up">&#9650; +3</td>
+                <td><span class="sev-badge sev-p0">P0</span></td>
+                <td><span class="status-badge status-regression">Regression</span></td>
+              </tr>
+              <tr>
+                <td>Policy update failing</td>
+                <td>7</td>
+                <td class="trend-flat">&#8212; 0</td>
+                <td><span class="sev-badge sev-p1">P1</span></td>
+                <td><span class="status-badge status-watch">Watch</span></td>
+              </tr>
+              <tr>
+                <td>Premium calculation error</td>
+                <td>5</td>
+                <td class="trend-dn">&#9660; -2</td>
+                <td><span class="sev-badge sev-p1">P1</span></td>
+                <td><span class="status-badge status-watch">Watch</span></td>
+              </tr>
+              <tr>
+                <td>Renewal notice unclear</td>
+                <td>3</td>
+                <td class="trend-flat">&#8212; 0</td>
+                <td><span class="sev-badge sev-p2">P2</span></td>
+                <td><span class="status-badge status-well">Performing well</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="quote-card" style="margin-bottom: 16px;">
+            <blockquote>"tried to upload my loss assessor's report four times this morning — the button goes grey after you pick the file and nothing happens. had to post a paper copy. in 2026."</blockquote>
+            <div class="quote-card-source">Google Play · 1 star · April 2026 · Document Upload Broken · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+          </div>
+
+          <div style="font-size: 12px; color: var(--muted); border-top: 1px solid var(--hairline); padding-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <span><span class="status-badge status-regression" style="font-size: 9px;">Regression</span> P0 present or worsening P1s</span>
+            <span><span class="status-badge status-watch" style="font-size: 9px;">Watch</span> P1 present or trend worsening</span>
+            <span><span class="status-badge status-well" style="font-size: 9px;">Performing well</span> No severe signal</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BOX 3: Intelligence Brief -->
+      <div class="briefing-box">
+        <div class="briefing-box-header">
+          <span class="briefing-box-title">Box 3 — Intelligence Brief</span>
+          <span class="briefing-box-sub">Analyst voice · [Illustrative] · Chronicle anchors are real; firm and peers are illustrative</span>
+        </div>
+        <div class="briefing-box-body" style="background: var(--navy); color: #E8F4FA;">
+
+          <p class="preamble" style="color: #C0D8E4; border-bottom-color: #1A4A6A;">
+            <strong style="color: #E8F4FA;">Claim Status Missing is this week's priority</strong> — P0 severity, volume accelerating week-on-week, cited in 14 of 184 Kestrel Cover reviews in the last 7 days. Volume is low by design: customers who cannot see claim status do not tend to resubmit or leave multiple reviews; they phone the contact centre, which is where this signal spills over.
+          </p>
+
+          <div class="metric-tiles">
+            <div class="metric-tile">
+              <div class="metric-tile-label">WoW Volume</div>
+              <div class="metric-tile-num warn">+75%</div>
+              <div class="metric-tile-ctx">14 reviews this week vs 8 last week on claim-status friction</div>
+            </div>
+            <div class="metric-tile">
+              <div class="metric-tile-label">Peer Gap</div>
+              <div class="metric-tile-num amber">+6.2pp</div>
+              <div class="metric-tile-ctx">Kestrel complaint rate 7.6% vs peer average 1.4% on this issue type</div>
+            </div>
+            <div class="metric-tile">
+              <div class="metric-tile-label">Persistence</div>
+              <div class="metric-tile-num teal">9d</div>
+              <div class="metric-tile-ctx">Continuous signal. Pattern predates the April 15 app release by 3 days</div>
+            </div>
+          </div>
+
+          <div class="intel-section-label">The Situation</div>
+
+          <p class="situation-prose" style="color: #C0D8E4;">
+            The claim-status journey on the Kestrel Cover app is producing a consistent failure pattern: customers who initiate a claim via the app receive no post-submission state updates within the application itself. The review corpus shows customers cycling between the app and the contact centre — each channel redirecting to the other — for periods ranging from three days to over three weeks. The signal began building on April 13, three days before the April 16 app release, which indicates the root cause is not release-specific; it is more likely an underlying API or data-synchronisation gap between the claims back-end and the customer-facing status layer.
+          </p>
+          <p class="situation-prose" style="color: #C0D8E4;">
+            Document upload failure is a compounding factor. Customers who cannot upload supporting evidence cannot progress their claim regardless of status visibility — the two issues create an additive friction wall at the post-submission stage of the claims journey. Both issues score P0 under the severity model because they block claim progression, which carries direct regulatory consequence under the FCA Consumer Duty fair-outcomes obligation.
+          </p>
+
+          <hr class="intel-divider">
+
+          <div class="quote-card" style="background: rgba(0,58,92,0.6); border-left-color: #5A8EA8; margin-bottom: 20px;">
+            <blockquote style="color: #D0E4ED;">"been waiting 19 days now. the app says processing but no one can tell me what processing actually means or when it'll change. starting to wonder if the claim even registered properly."</blockquote>
+            <div class="quote-card-source" style="color: #7AAABB;">App Store · 1 star · April 2026 · Claim status missing · <span style="color: #E8A08A; font-weight: 600;">ILLUSTRATIVE</span></div>
+          </div>
+
+          <hr class="intel-divider">
+
+          <div class="intel-section-label">Peer Comparison</div>
+
+          <p class="peer-prose" style="color: #C0D8E4;">
+            Kestrel Cover ranks 4th of 6 on claim-status visibility within the CJI-monitored consumer-insurance cohort. The leading firm in the cohort, Magpie Insure, shows a complaint rate of 0.8% on this issue type against Kestrel's 7.6%. The second-ranked firm, Larch Cover, achieves 1.1%. Both leaders operate dedicated in-app claim-tracker surfaces that update in near-real time via webhook rather than polling. Kestrel is the only firm in the cohort without a distinct post-submission status state visible to the customer prior to settlement. The gap of 6.2 percentage points above the peer average is sustained, not transient: the pattern was present in three of the last four benchmark windows, indicating a structural deficit rather than a temporary regression.
+          </p>
+          <p style="font-size: 12px; color: #7AAABB; font-style: italic; margin-top: 0;">All firms named in peer comparison are fictional. Chronicle anchors (CHR-NNN) are real entries in the public CJI Chronicle ledger.</p>
+
+          <hr class="intel-divider">
+
+          <div class="clark-badge clark-2" style="background: rgba(176,122,31,0.08);">
+            <div class="clark-badge-tier">CLARK-2 — Escalate</div>
+            <div class="clark-badge-detail">product leadership &nbsp;·&nbsp; this week &nbsp;·&nbsp; formal brief</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Churn Risk Score -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Churn Risk Score</div>
+      <h2>Customer risk composite.</h2>
+      <p class="section-lede">Composite churn risk score derived from volume, severity, peer gap, and persistence across all monitored issue types. Scale 0–100. [Illustrative]</p>
+
+      <div class="churn-row">
+        <div class="churn-score-block">
+          <div class="churn-score-num">67</div>
+          <span class="churn-trend-badge trend-worsening">Worsening</span>
+        </div>
+        <div>
+          <p style="font-size: 14px; color: var(--ink-soft); margin: 0 0 8px 0; line-height: 1.5;">Score has risen 11 points in 14 days, driven by claim-status and document-upload regressions. Trajectory is consistent with firms that experience contact-centre overflow events within 30 days of a sustained digital-journey failure at the post-submission stage.</p>
+        </div>
+      </div>
+
+      <div class="indexed-grid">
+        <div>
+          <div class="indexed-col-label">Over-indexed (risk)</div>
+          <div class="indexed-item"><span>Claim status missing</span><span class="over-val">+6.2pp vs peer</span></div>
+          <div class="indexed-item"><span>Document upload broken</span><span class="over-val">+4.9pp vs peer</span></div>
+          <div class="indexed-item"><span>Policy update failing</span><span class="over-val">+2.1pp vs peer</span></div>
+        </div>
+        <div>
+          <div class="indexed-col-label">Under-indexed (strength)</div>
+          <div class="indexed-item"><span>App Not Opening</span><span class="under-val">-1.8pp vs peer</span></div>
+          <div class="indexed-item"><span>Login Failed</span><span class="under-val">-0.9pp vs peer</span></div>
+          <div class="indexed-item"><span>Payment Processing</span><span class="under-val">-0.6pp vs peer</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Analyst Commentary -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Analyst Commentary</div>
+      <h2>Issue-by-issue analysis.</h2>
+      <p class="section-lede">Three risk and one strength, structured Sentence 1 / 2 / 3: issue orientation, root-cause inference, business risk. [Illustrative]</p>
+
+      <div class="commentary-grid">
+
+        <div class="commentary-card risk">
+          <div class="commentary-card-eyebrow">P0 · Risk · 9 days active</div>
+          <h3>Claim Status Missing</h3>
+          <p class="commentary-card-body">Claim-status visibility has been absent or non-functional on the Kestrel Cover app for 9 consecutive days, affecting customers at the post-submission stage of the claims journey with P0 severity. The review pattern rules out a front-end display bug — customers who checked via web portal report the same blank status, pointing instead to an API or event-subscription gap between the claims processing system and the customer-facing data layer. If unresolved, this failure path will sustain contact-centre volume at levels inconsistent with FCA Consumer Duty fair-outcomes standards, and risks an Ombudsman escalation pattern comparable to the service-degradation scenarios documented in CHR-007.</p>
+          <div class="commentary-card-quote">
+            "no update in the app, no update on the website, the only thing I know is what the call handler tells me verbally and they cant see much either."
+            <div class="commentary-card-quote-src">Google Play · 1 star · April 2026 · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+          </div>
+        </div>
+
+        <div class="commentary-card risk">
+          <div class="commentary-card-eyebrow">P0 · Risk · 6 days active</div>
+          <h3>Document Upload Broken</h3>
+          <p class="commentary-card-body">Document upload failure has been reported across both iOS and Android in 9 reviews over the past 7 days, with an accelerating trend that began 6 days ago and has not self-resolved. The failure mode — file selection renders the upload button inert with no error message — is consistent with a client-side file-type or file-size validation logic change that silently blocks the upload rather than rejecting it with a user-visible message. For customers mid-claim, this failure is a journey-stopper: evidence cannot be submitted digitally, forcing paper alternatives that introduce delays material to FCA Consumer Duty timely-outcomes obligations. The risk compounds alongside claim-status failure to produce a near-complete information blackout for customers in the active-claim state.</p>
+          <div class="commentary-card-quote">
+            "phone says file too large but the pdf is only 4mb — tried compressing it twice and same result. gave up and asked my broker to post it."
+            <div class="commentary-card-quote-src">App Store · 2 stars · April 2026 · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+          </div>
+        </div>
+
+        <div class="commentary-card risk">
+          <div class="commentary-card-eyebrow">P1 · Risk · 11 days active</div>
+          <h3>Policy Update Failing</h3>
+          <p class="commentary-card-body">Policy update failures — primarily mid-term changes to insured-address and added-cover details — have been reported in 7 reviews over the past 7 days, sustained at a stable rate over 11 days, indicating a persistent rather than transient issue. The failure point is the confirmation step: customers report completing the update form and submitting, but receive no confirmation and observe no change to their policy summary on next login, suggesting the write operation to the policy record is failing silently. While severity is P1 rather than P0 (a failed policy update does not block immediate access to the app), the regulatory consequence is material: a customer whose address or cover level has not been updated faces potential policy invalidity, which exposes the firm to mis-selling risk under FCA principles.</p>
+          <div class="commentary-card-quote">
+            "updated my address three times over two weeks. each time it says saved but reverts to the old address when I log back in. started to wonder if I'm even insured at the new place."
+            <div class="commentary-card-quote-src">App Store · 2 stars · April 2026 · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+          </div>
+        </div>
+
+        <div class="commentary-card strength">
+          <div class="commentary-card-eyebrow">P2 · Strength · Under-indexed</div>
+          <h3>App Not Opening — Relative Strength</h3>
+          <p class="commentary-card-body">App launch reliability for Kestrel Cover is 1.8 percentage points below the cohort average on complaint rate, representing a genuine point of differentiation in the current 7-day window. The app-opening reliability signal is stable across both platforms and has held at below-peer-average for 3 of the last 4 benchmark windows, suggesting the strength reflects infrastructure investment rather than short-term variation. This matters commercially because app-opening reliability is consistently the highest-volume complaint category across the monitored insurance cohort — Kestrel's below-peer position here partially offsets the churn-risk pressure from claim-journey failures and should be preserved as a baseline while post-submission journey issues are addressed.</p>
+          <div class="commentary-card-quote">
+            "the app opens quickly and works fine for viewing my documents — my issues are all at the claims end, not with the app itself."
+            <div class="commentary-card-quote-src">Google Play · 3 stars · April 2026 · <span class="illustrative-tag">ILLUSTRATIVE</span></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Technical Benchmark -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Technical Benchmark</div>
+      <h2>Journey failure rates vs cohort.</h2>
+      <p class="section-lede">Complaint-normalised rates per issue type. Kestrel Cover vs peer average vs best-in-cohort. All figures are illustrative. 90-day rolling window. [Illustrative]</p>
+
+      <table class="benchmark-table">
+        <thead>
+          <tr>
+            <th>Issue type</th>
+            <th>Kestrel rate</th>
+            <th>Peer avg</th>
+            <th>Best peer</th>
+            <th>Gap (pp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Claim status missing</td>
+            <td class="bm-over"><div class="bar-wrap"><div class="bar" style="width:76px;"></div> 7.6%</div></td>
+            <td class="bm-peer">1.4%</td>
+            <td class="bm-best">0.8%</td>
+            <td class="bm-over">+6.2pp</td>
+          </tr>
+          <tr>
+            <td>Document upload broken</td>
+            <td class="bm-over"><div class="bar-wrap"><div class="bar" style="width:49px;"></div> 4.9%</div></td>
+            <td class="bm-peer">0.7%</td>
+            <td class="bm-best">0.2%</td>
+            <td class="bm-over">+4.2pp</td>
+          </tr>
+          <tr>
+            <td>Policy update failing</td>
+            <td class="bm-over"><div class="bar-wrap"><div class="bar" style="width:38px;"></div> 3.8%</div></td>
+            <td class="bm-peer">1.7%</td>
+            <td class="bm-best">0.6%</td>
+            <td class="bm-over">+2.1pp</td>
+          </tr>
+          <tr>
+            <td>App Not Opening</td>
+            <td class="bm-under"><div class="bar-wrap"><div class="bar green" style="width:21px;"></div> 2.1%</div></td>
+            <td class="bm-peer">3.9%</td>
+            <td class="bm-best">1.4%</td>
+            <td class="bm-under">-1.8pp</td>
+          </tr>
+          <tr>
+            <td>Login Failed</td>
+            <td class="bm-under"><div class="bar-wrap"><div class="bar green" style="width:8px;"></div> 0.8%</div></td>
+            <td class="bm-peer">1.7%</td>
+            <td class="bm-best">0.5%</td>
+            <td class="bm-under">-0.9pp</td>
+          </tr>
+          <tr>
+            <td>Payment Processing Error</td>
+            <td><div class="bar-wrap"><div class="bar muted" style="width:14px;"></div> 1.4%</div></td>
+            <td class="bm-peer">2.0%</td>
+            <td class="bm-best">0.9%</td>
+            <td class="bm-under">-0.6pp</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="benchmark-caption">Complaint-normalised rate = issue-type mentions as % of total non-positive, non-other reviews. Peer cohort = 6 monitored UK home-insurance apps. [Illustrative]</p>
+
+    </div>
+  </section>
+
+  <!-- Service Benchmark -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Service Benchmark</div>
+      <h2>Service-layer friction vs cohort.</h2>
+      <p class="section-lede">Service-journey complaint rates by issue category. 90-day rolling window. [Illustrative]</p>
+
+      <table class="benchmark-table">
+        <thead>
+          <tr>
+            <th>Issue type</th>
+            <th>Kestrel rate</th>
+            <th>Peer avg</th>
+            <th>Best peer</th>
+            <th>Gap (pp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Renewal notice unclear</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:16px;"></div> 1.6%</div></td>
+            <td class="bm-peer">1.9%</td>
+            <td class="bm-best">0.8%</td>
+            <td class="bm-under">-0.3pp</td>
+          </tr>
+          <tr>
+            <td>Premium calculation error</td>
+            <td class="bm-over"><div class="bar-wrap"><div class="bar" style="width:28px;"></div> 2.8%</div></td>
+            <td class="bm-peer">1.1%</td>
+            <td class="bm-best">0.4%</td>
+            <td class="bm-over">+1.7pp</td>
+          </tr>
+          <tr>
+            <td>Cancellation difficulty</td>
+            <td><div class="bar-wrap"><div class="bar muted" style="width:19px;"></div> 1.9%</div></td>
+            <td class="bm-peer">2.2%</td>
+            <td class="bm-best">1.0%</td>
+            <td class="bm-under">-0.3pp</td>
+          </tr>
+          <tr>
+            <td>Contact centre wait time</td>
+            <td class="bm-over"><div class="bar-wrap"><div class="bar" style="width:51px;"></div> 5.1%</div></td>
+            <td class="bm-peer">2.6%</td>
+            <td class="bm-best">1.1%</td>
+            <td class="bm-over">+2.5pp</td>
+          </tr>
+          <tr>
+            <td>Positive Feedback</td>
+            <td class="bm-under"><div class="bar-wrap"><div class="bar green" style="width:38px;"></div> 38.2%</div></td>
+            <td class="bm-peer">34.1%</td>
+            <td class="bm-best">42.0%</td>
+            <td class="bm-under">+4.1pp</td>
+          </tr>
+          <tr>
+            <td>Settlement speed</td>
+            <td class="bm-over"><div class="bar-wrap"><div class="bar" style="width:32px;"></div> 3.2%</div></td>
+            <td class="bm-peer">1.8%</td>
+            <td class="bm-best">0.7%</td>
+            <td class="bm-over">+1.4pp</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="benchmark-caption">Contact centre wait time over-index is consistent with a digital-journey deflection failure pattern — customers unable to resolve claim status in-app route to voice, increasing handle-time volume. [Illustrative]</p>
+
+    </div>
+  </section>
+
+  <!-- Intelligence Findings -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Intelligence Findings</div>
+      <h2>Top findings by confidence score.</h2>
+      <p class="section-lede">Top 6 findings from the CJI inference engine, ranked by CAC (Confidence Anchoring Coefficient). Chronicle IDs are real public Chronicle entries; the firm and peer names are illustrative. [Illustrative]</p>
+
+      <div class="findings-list">
+
+        <div class="finding-row">
+          <div class="finding-id">MIL-F-20260422-001</div>
+          <div class="finding-main">
+            <div class="finding-title">Post-submission claim status gap — Kestrel Cover</div>
+            <div class="finding-meta">Claim journey · P0 · 9d active · CLARK-2</div>
+            <div class="finding-badges">
+              <span class="finding-badge badge-chr">CHR-007</span>
+              <span class="finding-badge badge-chr">CHR-014</span>
+            </div>
+          </div>
+          <div class="cac-num">0.831</div>
+        </div>
+
+        <div class="finding-row">
+          <div class="finding-id">MIL-F-20260422-002</div>
+          <div class="finding-main">
+            <div class="finding-title">Document upload client-side validation failure — Kestrel Cover</div>
+            <div class="finding-meta">Claim journey · P0 · 6d active · CLARK-2</div>
+            <div class="finding-badges">
+              <span class="finding-badge badge-chr">CHR-003</span>
+            </div>
+          </div>
+          <div class="cac-num">0.762</div>
+        </div>
+
+        <div class="finding-row">
+          <div class="finding-id">MIL-F-20260422-003</div>
+          <div class="finding-main">
+            <div class="finding-title">Contact centre overflow signal — digital deflection failure — Kestrel Cover</div>
+            <div class="finding-meta">Claim journey · P1 · 9d active · CLARK-1</div>
+            <div class="finding-badges">
+              <span class="finding-badge badge-chr">CHR-007</span>
+              <span class="finding-badge badge-ceil">Designed Ceiling</span>
+            </div>
+          </div>
+          <div class="cac-num">0.694</div>
+        </div>
+
+        <div class="finding-row">
+          <div class="finding-id">MIL-F-20260422-004</div>
+          <div class="finding-main">
+            <div class="finding-title">Policy record write failure — address and cover changes — Kestrel Cover</div>
+            <div class="finding-meta">Policy management journey · P1 · 11d active · CLARK-1</div>
+            <div class="finding-badges">
+              <span class="finding-badge badge-chr">CHR-011</span>
+            </div>
+          </div>
+          <div class="cac-num">0.621</div>
+        </div>
+
+        <div class="finding-row">
+          <div class="finding-id">MIL-F-20260422-005</div>
+          <div class="finding-main">
+            <div class="finding-title">Claim status — Magpie Insure — strong peer signal [Illustrative peer]</div>
+            <div class="finding-meta">Claim journey · P2 · 4d active · CLARK-1</div>
+            <div class="finding-badges">
+              <span class="finding-badge badge-chr">CHR-007</span>
+            </div>
+          </div>
+          <div class="cac-num">0.488</div>
+        </div>
+
+        <div class="finding-row">
+          <div class="finding-id">MIL-F-20260422-006</div>
+          <div class="finding-main">
+            <div class="finding-title">Premium calculation display error — Larch Cover [Illustrative peer]</div>
+            <div class="finding-meta">Pricing journey · P1 · 7d active · CLARK-1</div>
+            <div class="finding-badges">
+              <span class="finding-badge badge-chr">CHR-009</span>
+            </div>
+          </div>
+          <div class="cac-num">0.441</div>
+        </div>
+
+      </div>
+
+      <p class="findings-caption">MIL-F-20260422-003 is flagged Designed Ceiling: the contact-centre overflow pattern is a structural consequence of the post-submission digital failure and cannot be directly resolved through a single technical fix — it requires claim-journey restoration as a precondition. Chronicle anchors are real CJI Chronicle entries; firm and peer identities are entirely illustrative.</p>
+
+    </div>
+  </section>
+
+  <!-- Clark Protocol -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Clark Protocol</div>
+      <h2>Tier escalation status.</h2>
+      <p class="section-lede">The Clark Protocol assigns an escalation tier to each finding based on severity, persistence, and trend direction. Three tiers: WATCH / ESCALATE / ACT NOW. [Illustrative]</p>
+
+      <div class="clark-strip">
+
+        <div class="clark-row">
+          <span class="clark-tier-label clark-3" style="background: #FAEAEA; border: 1px solid var(--clark3);">CLARK-3 &nbsp;·&nbsp; ACT NOW</span>
+          <div class="clark-row-body">
+            <div class="clark-row-issue">Claim Status Missing + Document Upload Broken — combined signal</div>
+            <div class="clark-row-synthesis">Dual P0 findings at the post-submission claim stage, both accelerating. The combined customer experience is a complete journey blockage: no status visibility, no ability to submit evidence. CLARK-3 escalation recommended given duration, volume trajectory, and regulatory consequence under FCA Consumer Duty fair-outcomes obligation.</div>
+          </div>
+        </div>
+
+        <div class="clark-row">
+          <span class="clark-tier-label clark-2" style="background: #FAF1E2; border: 1px solid var(--clark2);">CLARK-2 &nbsp;·&nbsp; ESCALATE</span>
+          <div class="clark-row-body">
+            <div class="clark-row-issue">Policy Update Failing — silent write failure</div>
+            <div class="clark-row-synthesis">P1 finding sustained at 11 days with no change in trajectory. Write-failure without error feedback is a regulatory risk vector — customers cannot verify whether policy changes have taken effect. Formal brief to product leadership recommended this week.</div>
+          </div>
+        </div>
+
+        <div class="clark-row">
+          <span class="clark-tier-label clark-1" style="background: #E8F5EE; border: 1px solid var(--clark1);">CLARK-1 &nbsp;·&nbsp; WATCH</span>
+          <div class="clark-row-body">
+            <div class="clark-row-issue">Contact Centre Wait Time — digital deflection signal</div>
+            <div class="clark-row-synthesis">P1 finding driven by contact-centre volume increase consistent with customers unable to self-serve claim status digitally. Will resolve with the upstream claim-status fix; monitoring only until primary journey is restored.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Closing sample note -->
+  <section>
+    <div class="wrap">
+      <div class="sample-close">
+        <p>This is the shape of a daily CJI Sonar briefing. The real product carries verbatim customer voice drawn from monitored public platforms, real peer benchmarks derived from a live corpus of enriched reviews, and live tier escalation driven by the CJI inference engine. It is delivered exclusively to alpha partners — insight and product leadership teams inside the monitored firm — before the working day begins.</p>
+        <p>Kestrel Cover, Magpie Insure, and Larch Cover are entirely fictional. All quotes in this sample are written examples and do not appear on any real review platform. Chronicle anchors (CHR-007, CHR-003, etc.) are real entries in the public CJI Chronicle ledger, which documents significant sector-failure precedents.</p>
+        <p>To see your firm's briefing, contact <a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing%20request">hello@cjipro.com</a>.</p>
+        <div class="sample-close-links">
+          <a href="/insights/methodology/">How CJI works &rarr;</a>
+          <a href="/">Back to CJI &rarr;</a>
+          <a href="/insights/">All insights &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI &nbsp;&middot;&nbsp; Independent market intelligence &nbsp;&middot;&nbsp; Sample briefing — illustrative only</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>

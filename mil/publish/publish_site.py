@@ -27,6 +27,7 @@ Source files:
     mil/publish/site/solutions_index.html            -> /solutions/index.html
     mil/publish/site/insights_index.html             -> /insights/index.html
     mil/publish/site/insights_methodology.html       -> /insights/methodology/index.html
+    mil/publish/site/insights_sample_briefing.html   -> /insights/sample-briefing/index.html
     mil/publish/site/thank_you.html                  -> /thank-you/index.html
     (empty)                                          -> /.nojekyll
 
@@ -41,6 +42,9 @@ retires to the four-product strip on the homepage. Same noindex pattern.
 /insights/index.html is the MIL-77 insights hub — live section landing page.
 /insights/methodology/index.html is the MIL-77 canonical methodology page
 with brand-spine chain diagram (inline SVG) and four-stage product deep-dives.
+/insights/sample-briefing/index.html is the MIL-78 illustrative CJI Sonar sample
+briefing — fictional firm (Kestrel Cover, home insurer), synthetic customer voice,
+sanitised throughout with [Illustrative] markers and persistent banner.
 
 /thank-you/ is the MIL-81 confirmation stub for future form submissions
 (Reckoner trial signup MIL-94, contact mailto fallbacks). Carries
@@ -75,6 +79,7 @@ _FILES: list[tuple[str, str]] = [
     ("solutions_index.html",          "solutions/index.html"),
     ("insights_index.html",           "insights/index.html"),
     ("insights_methodology.html",     "insights/methodology/index.html"),
+    ("insights_sample_briefing.html", "insights/sample-briefing/index.html"),
     ("thank_you.html",                "thank-you/index.html"),
     ("",                              ".nojekyll"),
 ]
