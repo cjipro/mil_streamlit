@@ -29,7 +29,7 @@ _MIL_DIR_FOR_IMPORT = Path(__file__).resolve().parent.parent
 if str(_MIL_DIR_FOR_IMPORT) not in sys.path:
     sys.path.insert(0, str(_MIL_DIR_FOR_IMPORT))
 
-from publish.adapters import write_text_lf  # LF-only HTML writes
+from adapters import write_text_lf  # LF-only HTML writes
 try:
     from briefing_data import get_briefing_data as _get_briefing_data
     _BRIEFING_DATA_AVAILABLE = True
