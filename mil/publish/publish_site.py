@@ -101,6 +101,8 @@ _FILES: list[tuple[str, str]] = [
     ("products_pulse.html",           "products/pulse/index.html"),
     ("products_reckoner.html",        "products/reckoner/index.html"),
     ("products_sonar.html",           "products/sonar/index.html"),
+    # MIL-94 — Reckoner trial flow (signup form + Competition Act clause)
+    ("products_reckoner_trial.html",  "products/reckoner/trial/index.html"),
     ("",                              ".nojekyll"),
 ]
 

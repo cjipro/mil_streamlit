@@ -41,6 +41,14 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Reckoner trial flow (MIL-94) -->
+  <url>
+    <loc>https://cjipro.com/products/reckoner/trial/</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Insights (ship in MIL-77/78) -->
   <url>
     <loc>https://cjipro.com/insights/</loc>
