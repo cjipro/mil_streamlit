@@ -12,7 +12,7 @@
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 
 <!-- Primary meta (classification + SEO signals) -->
-<meta name="description" content="Customer journey intelligence platform for regulated consumer-service brands. Daily market-research briefing and internal journey analytics with verbatim voice-of-customer evidence. Starting with UK banking.">
+<meta name="description" content="Live customer journey intelligence for regulated firms. CJI Reckoner, Sonar, Pulse, and Lever — industry signal to firm briefing to live insight to the right decision. Decisions, not dashboards.">
 <meta name="keywords" content="customer journey intelligence, voice of the customer, market research, consumer research, customer experience analytics, journey analytics, regulated consumer services, banking insight">
 <meta name="robots" content="index, follow">
 <meta name="author" content="CJI">
@@ -24,7 +24,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CJI">
 <meta property="og:title" content="CJI — Customer Journey Intelligence">
-<meta property="og:description" content="Customer journey intelligence for regulated consumer-service brands. What your customers do, and what they say.">
+<meta property="og:description" content="Live customer journey intelligence for regulated firms. Industry signal. Firm voice. Live insight. The right lever, at the right moment. Decisions, not dashboards.">
 <meta property="og:url" content="https://cjipro.com/">
 <meta property="og:locale" content="en_GB">
 
@@ -450,6 +450,55 @@
     .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
     .footer-mark { grid-column: 1 / -1; }
   }
+
+  /* ── Chain band ───────────────────────────────────────────── */
+  .chain-band {
+    background: var(--cream);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 40px 0;
+  }
+  .chain-phrase {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.1px;
+    margin: 0 0 14px 0;
+  }
+  .chain-phrase .chain-arrow {
+    color: var(--muted);
+    margin: 0 4px;
+  }
+  .chain-sub {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0;
+  }
+
+  /* ── Four-product grid ────────────────────────────────────── */
+  .products {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .status-partners {
+    color: var(--accent);
+    background: #E6EEF4;
+  }
+
+  @media (max-width: 960px) {
+    .products { grid-template-columns: repeat(2, 1fr); }
+    .chain-phrase { font-size: 18px; }
+  }
+  @media (max-width: 720px) {
+    .products { grid-template-columns: 1fr; }
+    .chain-phrase { font-size: 16px; }
+    .chain-band { padding: 28px 0; }
+  }
 </style>
 </head>
 
@@ -474,69 +523,127 @@
   <section class="hero">
     <div class="wrap">
       <div class="eyebrow">Customer journey intelligence</div>
-      <h1>What your customers do,<br>and what they say.</h1>
+      <h1>Live customer journey intelligence<br>for regulated firms.</h1>
       <p class="lede">
-        CJI Pro is a market-research intelligence platform for regulated
-        consumer-service brands. We combine the public voice of the customer
-        with internal journey analytics to produce a daily briefing for
-        insight and product teams.
+        Industry signal. Firm voice. Live insight. The right lever, at the right moment.
+      </p>
+      <p class="lede" style="margin-top: -12px; font-size: 17px;">
+        CJI Reckoner sees the industry. CJI Sonar sees your firm.
+        CJI Pulse sees the session. CJI Lever moves.
+      </p>
+      <p style="font-family: var(--serif); font-size: 15px; font-style: italic; color: var(--muted); margin: 0 0 36px 0;">
+        Decisions, not dashboards.
       </p>
 
       <div class="example">
-        <div class="example-label">One sentence CJI Pro is built to say, daily</div>
+        <div class="example-label">The chain in one sentence</div>
         <div class="example-text">
-          "Customers experiencing difficulties on Step 3 of Loans are
-          abandoning — likely 45+, likely vulnerable. In the last three
-          days, five customers said the app journey is broken."
+          Reckoner surfaces a cohort pattern in the sector; Sonar anchors it
+          to your firm's reviewed voice; Pulse confirms it in the live session;
+          Lever frames the decision — all before the weekly leadership meeting.
         </div>
         <div class="example-caption">
-          Illustrative. Real briefings name the competitor, the exact issue,
-          the peer-relative gap, and the verbatim review that surfaced it.
+          Illustrative. Each product operates independently and compounds
+          when used together — industry signal through to firm action.
         </div>
       </div>
     </div>
   </section>
 
+  <div class="chain-band">
+    <div class="wrap">
+      <div class="section-eyebrow">The intelligence chain</div>
+      <p class="chain-phrase">
+        Anecdote<span class="chain-arrow"> →</span>
+        Aggregate<span class="chain-arrow"> →</span>
+        Awareness<span class="chain-arrow"> →</span>
+        Action.
+      </p>
+      <p class="chain-sub">
+        Sonar listens. Reckoner reckons. Pulse senses. Lever moves. Four products,
+        one continuous chain — from raw market signal to the decision that matters.
+      </p>
+    </div>
+  </div>
+
   <section id="products">
     <div class="wrap">
-      <div class="section-eyebrow">Two lenses, one briefing</div>
-      <h2>Outside in, inside out.</h2>
+      <div class="section-eyebrow">Four products. One chain.</div>
+      <h2>From market signal to firm decision.</h2>
       <p class="section-lede">
-        Consumer-service journeys are measured in telemetry and discussed
-        in public — rarely by the same team, rarely in the same sentence.
-        CJI Pro brings both into the room.
+        Each product is independently useful. Together they form the complete
+        intelligence chain — industry pattern to daily briefing to live observation
+        to the tailored decision framework.
       </p>
 
       <div class="products">
 
         <article class="product">
           <header class="product-head">
-            <span class="product-name">Sonar</span>
+            <span class="product-name">CJI Reckoner</span>
             <span class="status-pill status-live">Live</span>
           </header>
-          <div class="product-tag">Outside in · Public-signal research</div>
+          <div class="product-tag">Industry intelligence · Trial available</div>
           <p class="product-desc">
-            Daily competitive briefing built from public customer signals —
-            app-store reviews, outage reports, press coverage, community
-            discussion. Verbatim quotes, peer-benchmarked, anchored to a
-            chronicled ledger of real sector failures.
+            AI-surfaced cohort patterns across the regulated-consumer-services
+            landscape. The industry signal layer — what the sector is experiencing,
+            anchored to a chronicled ledger of real failures.
           </p>
-          <a href="/briefing-v4" class="product-link">Today's briefing →</a>
+          <p class="product-desc" style="margin-bottom: 0; font-size: 13px; color: var(--muted);">
+            Per seat. Trial available.
+          </p>
+          <a href="/products/reckoner/" class="product-link" style="display:inline-block; margin-top: 16px;">Learn more →</a>
         </article>
 
         <article class="product">
           <header class="product-head">
-            <span class="product-name">Pulse</span>
+            <span class="product-name">CJI Sonar</span>
+            <span class="status-pill status-live">Live</span>
+          </header>
+          <div class="product-tag">Daily firm briefing · Per firm</div>
+          <p class="product-desc">
+            Client-specific, regulator-readable daily briefing built from
+            public customer signals. Verbatim voice-of-customer evidence,
+            peer-benchmarked, delivered to insight and product teams.
+          </p>
+          <p class="product-desc" style="margin-bottom: 0; font-size: 13px; color: var(--muted);">
+            Per-firm subscription. Contact sales.
+          </p>
+          <a href="/products/sonar/" class="product-link" style="display:inline-block; margin-top: 16px;">Learn more →</a>
+        </article>
+
+        <article class="product">
+          <header class="product-head">
+            <span class="product-name">CJI Pulse</span>
             <span class="status-pill status-coming">Coming</span>
           </header>
-          <div class="product-tag">Inside out · Internal journey analytics</div>
+          <div class="product-tag">Live insight · Enterprise</div>
           <p class="product-desc">
-            Journey intelligence on your own telemetry — funnels, cohorts,
-            vulnerable-customer detection, cross-channel leakage. Built to
-            answer the hardest question: who is struggling on which step,
-            and what are they telling the contact centre about it.
+            Almost-real-time observation of customer journey signal at session
+            granularity. Pulse senses — it does not intervene. Built for firms
+            ready to act on live evidence, not lagging reports.
           </p>
-          <span class="product-link disabled">In development</span>
+          <p class="product-desc" style="margin-bottom: 0; font-size: 13px; color: var(--muted);">
+            Enterprise integration. Contact sales.
+          </p>
+          <a href="/products/pulse/" class="product-link disabled" style="display:inline-block; margin-top: 16px;">In development</a>
+        </article>
+
+        <article class="product">
+          <header class="product-head">
+            <span class="product-name">CJI Lever</span>
+            <span class="status-pill status-partners">Design partners</span>
+          </header>
+          <div class="product-tag">Decision framework · Engagement class</div>
+          <p class="product-desc">
+            Tailored decision framework in three modes: Autonomous, Guided,
+            and Customer-led. Not a SaaS product — a bespoke engagement for
+            firms ready to embed intelligence into the decision itself.
+          </p>
+          <p class="product-desc" style="margin-bottom: 0; font-size: 13px; color: var(--muted);">
+            Design partners only. Contact sales.
+          </p>
+          <a href="/products/lever/" class="product-link" style="display:inline-block; margin-top: 16px;">Learn more →</a>
         </article>
 
       </div>
@@ -545,35 +652,35 @@
 
   <section id="principles">
     <div class="wrap">
-      <div class="section-eyebrow">Research principles</div>
+      <div class="section-eyebrow">Intelligence principles</div>
       <h2>Evidence, not impression.</h2>
 
       <div class="principles">
         <div>
           <div class="principle-num">01</div>
-          <div class="principle-title">Public signal only, or your signal only.</div>
+          <div class="principle-title">Verbatim customer voice — always.</div>
           <div class="principle-body">
-            Sonar uses public market data — no customer PII collected, no
-            private data exchanged. Pulse runs inside your environment on
-            your telemetry only. The two never cross.
+            Customer quotes are never paraphrased, trimmed for tone, or
+            reframed. What the reader sees is what the customer wrote,
+            labelled with source and date. No synthesised voices, ever.
           </div>
         </div>
         <div>
           <div class="principle-num">02</div>
-          <div class="principle-title">Verbatim customer voice.</div>
+          <div class="principle-title">Signal separation, by design.</div>
           <div class="principle-body">
-            Customer quotes are never paraphrased, trimmed for tone, or
-            reframed. What the reader sees is what the customer wrote,
-            labelled with source and date.
+            Reckoner and Sonar use public market data — no customer PII
+            collected, no private data exchanged. Pulse runs inside your
+            environment on your telemetry only. Signals never cross.
           </div>
         </div>
         <div>
           <div class="principle-num">03</div>
           <div class="principle-title">Anchored to sector precedent.</div>
           <div class="principle-body">
-            Every finding is anchored to a chronicled sector failure —
-            a ledger of real incidents we've researched in depth.
-            Patterns that rhyme with precedent surface faster.
+            Every Sonar and Reckoner finding is anchored to the CJI Chronicle
+            — a public ledger of real sector failures researched in depth.
+            Patterns that rhyme with precedent surface faster, with receipts.
           </div>
         </div>
       </div>
@@ -585,10 +692,9 @@
       <div class="section-eyebrow">Sector coverage</div>
       <h2>Starting with banking.</h2>
       <p class="section-lede">
-        Each sector we cover adds its own public-signal stack, journey
-        taxonomy, and chronicled failure ledger. We are prioritising
-        regulated consumer-service industries where customer-journey
-        outcomes are high-stakes and publicly discussed.
+        Each sector receives its own public-signal stack, journey taxonomy,
+        and chronicled failure ledger. CJI prioritises regulated consumer-service
+        industries where journey outcomes carry high stakes for customers and firms alike.
       </p>
 
       <div class="verticals">
@@ -622,16 +728,16 @@
       <div class="section-eyebrow">Access</div>
       <h2>Alpha cohort forming.</h2>
       <p class="section-lede">
-        CJI Pro is currently available to a small invitation-only alpha
-        cohort of insight and product leaders at UK banks. We're working
-        directly with each alpha partner to shape the product.
+        CJI is currently working with an invitation-only cohort of insight
+        and product leaders at UK banks. Alpha partners shape the product
+        directly — the briefing, the evidence standards, the decision frameworks.
       </p>
       <div class="access-card">
         <div class="access-head">Interested in access?</div>
         <p class="access-body">
           Contact the team at <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.
-          Please include your role, the sector you work in, and what kind of
-          customer-journey question is currently unanswered on your team.
+          Please include your role, the sector you work in, and the customer-journey
+          question that remains unanswered on your team.
         </p>
       </div>
     </div>
