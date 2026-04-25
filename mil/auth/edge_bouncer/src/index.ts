@@ -23,7 +23,7 @@ import {
 import { logAuthEvent } from "../../audit/src/audit";
 import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
 import { isApproved } from "../../approvals/src/approvals";
-import { lookupSessionEmail } from "../../approvals/src/sessions";
+import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
 
 export interface Env {
   ENFORCE: string;
@@ -231,6 +231,28 @@ export default {
           },
         ),
       );
+      // MIL-68 — bump last_active_at on session pass-throughs so the
+      // admin dashboard can show "Last seen Xmin ago" per user. Only
+      // on the pass.session branch — public-allowlist hits aren't
+      // tied to a specific user.
+      if (
+        decision.action === "pass" &&
+        decision.reason === "valid-session" &&
+        decision.sub
+      ) {
+        const sub = decision.sub;
+        ctx.waitUntil(
+          recordActivity(db, sub).catch((err) => {
+            console.log(
+              JSON.stringify({
+                ts: new Date().toISOString(),
+                activity_write_error:
+                  err instanceof Error ? err.message : String(err),
+              }),
+            );
+          }),
+        );
+      }
     }
 
     if (decision.action === "redirect" && enforce) {

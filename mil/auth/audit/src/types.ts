@@ -21,6 +21,8 @@ export type AuthEventType =
   | "admin.approve"
   | "admin.deny"
   | "admin.revoke"
+  // MIL-68 — boot active session for a user without removing approval
+  | "admin.force_signout"
   // MIL-67a — WorkOS webhook ingestion. Generic catch-all for now;
   // Phase B will split out specific passkey events
   // (passkey.registered, passkey.used, etc.) once we observe what

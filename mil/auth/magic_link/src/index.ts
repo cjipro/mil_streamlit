@@ -28,6 +28,7 @@ import {
 import {
   handleApiApprove,
   handleApiDeny,
+  handleApiForceSignout,
   handleApiRevoke,
   handleApiSignups,
   renderDashboard,
@@ -300,6 +301,14 @@ export default {
           session_sub: adminEmail,
         });
         return handleApiRevoke(request, env.AUDIT_DB);
+      }
+      if (path === "/admin/api/force_signout" && method === "POST") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.force_signout",
+          session_sub: adminEmail,
+        });
+        return handleApiForceSignout(request, env.AUDIT_DB);
       }
       return new Response("not found", {
         status: 404,

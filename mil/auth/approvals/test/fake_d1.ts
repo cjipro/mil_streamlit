@@ -37,6 +37,7 @@ interface SessionRow {
   sub: string;
   email: string;
   created_at: string;
+  last_active_at: string | null;
 }
 
 export class FakeD1 {
@@ -137,10 +138,27 @@ export class FakeStatement {
         }));
       return { results: rows as T[] };
     }
+    if (s.includes("approved_users au") && s.includes("LEFT JOIN sessions s")) {
+      const [limit] = this.args as [number];
+      const rows = [...this.db.users]
+        .sort((a, b) => b.approved_at.localeCompare(a.approved_at))
+        .slice(0, limit)
+        .map((u) => {
+          const sess = this.db.sessions.find((s) => s.email === u.email);
+          return {
+            email: u.email,
+            approved_at: u.approved_at,
+            approved_by: u.approved_by,
+            note: u.note,
+            last_active_at: sess?.last_active_at ?? null,
+          };
+        });
+      return { results: rows as T[] };
+    }
     throw new Error(`FakeD1.all: unhandled SQL: ${this.sql}`);
   }
 
-  async run(): Promise<{ meta?: { last_row_id?: number } }> {
+  async run(): Promise<{ meta?: { last_row_id?: number; changes?: number } }> {
     const s = this.sql.trim().replace(/\s+/g, " ");
     if (s.startsWith("INSERT INTO pending_signups")) {
       const id = this.db.nextSignupId++;
@@ -189,10 +207,28 @@ export class FakeStatement {
       if (existing) {
         existing.email = email;
         existing.created_at = created_at;
+        existing.last_active_at = null;
       } else {
-        this.db.sessions.push({ sub, email, created_at });
+        this.db.sessions.push({
+          sub,
+          email,
+          created_at,
+          last_active_at: null,
+        });
       }
       return {};
+    }
+    if (s.startsWith("UPDATE sessions SET last_active_at")) {
+      const [last_active_at, sub] = this.args as [string, string];
+      const hit = this.db.sessions.find((r) => r.sub === sub);
+      if (hit) hit.last_active_at = last_active_at;
+      return {};
+    }
+    if (s.startsWith("DELETE FROM sessions")) {
+      const email = this.args[0] as string;
+      const before = this.db.sessions.length;
+      this.db.sessions = this.db.sessions.filter((r) => r.email !== email);
+      return { meta: { changes: before - this.db.sessions.length } };
     }
     if (s.startsWith("INSERT OR IGNORE INTO signup_rate_limit")) {
       const [ipHash, window] = this.args as [string, string, number];

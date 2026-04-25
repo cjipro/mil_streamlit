@@ -9,10 +9,13 @@ import type { AdminGateConfig, AdminCheck } from "./admin_gate";
 import {
   approvePending,
   denyPending,
-  listApproved,
   listByStatus,
   revokeApproval,
 } from "../../approvals/src/signups";
+import {
+  forceSignout,
+  listApprovedWithSessions,
+} from "../../approvals/src/sessions";
 
 const STYLES = `
   :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --line:#e0e4e7; }
@@ -102,19 +105,35 @@ function renderPending(rows) {
   $("pending").innerHTML = html;
 }
 
+function relTime(iso) {
+  if (!iso) return '<span style="color:var(--muted)">never</span>';
+  const then = new Date(iso).getTime();
+  if (isNaN(then)) return '<span style="color:var(--muted)">—</span>';
+  const diff = Math.max(0, Date.now() - then);
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24);
+  return d + 'd ago';
+}
+
 function renderApproved(rows) {
   if (rows.length === 0) {
     $("approved").innerHTML = '<p class="empty">No approved users yet.</p>';
     return;
   }
-  let html = '<table><thead><tr><th>Email</th><th>Approved</th><th>By</th><th>Note</th><th></th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Email</th><th>Approved</th><th>By</th><th>Last seen</th><th>Note</th><th></th></tr></thead><tbody>';
   for (const r of rows) {
     html += '<tr>'
       + '<td>' + esc(r.email) + '</td>'
       + '<td>' + esc(r.approved_at).slice(0,16).replace("T"," ") + '</td>'
       + '<td>' + esc(r.approved_by) + '</td>'
+      + '<td>' + relTime(r.last_active_at) + '</td>'
       + '<td>' + esc(r.note || "") + '</td>'
       + '<td class="actions">'
+      +   '<button onclick="signout(\\'' + esc(r.email) + '\\')">Sign out</button>'
       +   '<button class="danger" onclick="revoke(\\'' + esc(r.email) + '\\')">Revoke</button>'
       + '</td></tr>';
   }
@@ -137,6 +156,17 @@ async function act(kind, id) {
 async function revoke(email) {
   if (!confirm("Revoke access for " + email + "? They will get a 403 on next request.")) return;
   const r = await fetch("/admin/api/revoke", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+  if (!r.ok) alert("Failed: " + r.status);
+  await load();
+}
+
+async function signout(email) {
+  if (!confirm("Force sign-out for " + email + "? Their cached session is killed; they remain on the approved list and can sign back in.")) return;
+  const r = await fetch("/admin/api/force_signout", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email })
@@ -195,7 +225,7 @@ export async function handleApiSignups(
 ): Promise<Response> {
   const [pending, approved] = await Promise.all([
     listByStatus(db, "pending"),
-    listApproved(db),
+    listApprovedWithSessions(db),
   ]);
   return json({ pending, approved });
 }
@@ -247,6 +277,22 @@ export async function handleApiRevoke(
   const out = await revokeApproval(db, body.email);
   if (out.kind !== "ok") return json({ ok: false, error: out.kind }, 400);
   return json({ ok: true });
+}
+
+// MIL-68 — boot any active session for this user without removing
+// them from approved_users. They can sign back in but the cached
+// JWT they currently hold is dead on next request.
+export async function handleApiForceSignout(
+  request: Request,
+  db: D1Database,
+): Promise<Response> {
+  const body = await readJson<{ email?: string }>(request);
+  if (!body || typeof body.email !== "string") {
+    return json({ ok: false, error: "missing email" }, 400);
+  }
+  const out = await forceSignout(db, body.email);
+  if (out.kind !== "ok") return json({ ok: false, error: out.kind }, 400);
+  return json({ ok: true, affected: out.affected });
 }
 
 function json(body: unknown, status = 200): Response {
