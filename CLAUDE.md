@@ -9,12 +9,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Mission:** Daily customer journey intelligence (CJI Pulse) + sovereign market intelligence (MIL)
 - **Day 90 vision:** "Customers experiencing difficulties on Step 3 of Loans journey, abandoning — likely 45+, likely vulnerable. In last 3 days 5 customers said App journey sucks."
 
+## CJI Brand Spine (LOCKED 2026-04-25 — canonical)
+
+**Brand: CJI** (NOT "CJI Pro" — Pro dropped). Operational domain: cjipro.com.
+
+**Four products** (anti-dashboard, decision-intelligence, NOT BI/analytics):
+
+| Product | Job | URL pattern | Commercial |
+|---|---|---|---|
+| **CJI Reckoner** | Industry intelligence (AI-surfaced cohort patterns) | `app.cjipro.com/reckoner` cohort-agnostic | Trial-available, per-seat |
+| **CJI Sonar** | Daily firm briefing (client-specific) | `app.cjipro.com/sonar/{client_slug}/{date}/` | Per-firm, contact-sales |
+| **CJI Pulse** | Live insight (almost-real-time, observation NOT intervention) | `app.cjipro.com/pulse` | Enterprise, contact-sales |
+| **CJI Lever** | Tailored decision framework (3 modes: Autonomous / Guided / Customer-led) | `app.cjipro.com/lever` engagement-class | Bespoke, design-partners only |
+
+Underlying asset: **CJI Chronicle** — public failure ledger (CHR-001..019, expanding).
+
+**Brand spine:** *Sonar listens. Reckoner reckons. Pulse senses. Lever moves.*
+**Chain phrase:** *Anecdote → Aggregate → Awareness → Action.*
+**Anti-positioning:** *Decisions, not dashboards.*
+
+**Style guide:** First-mention compound (e.g. "CJI Reckoner") then shorthand. Always uppercase CJI. Slugs lowercase. No `-v3`/`-v4` in URLs. Closest market analogues: AlphaSense / YipitData / M Science / Bloomberg Terminal — alt-data intelligence, not BI tools.
+
+**Subdomain split:** cjipro.com (marketing) / app.cjipro.com (products) / admin.cjipro.com (admin) / login.cjipro.com (auth) / status.cjipro.com (reserved) / docs.cjipro.com (reserved). sonar.cjipro.com retires after MIL-95.
+
+**Ask CJI Pro collapsed into Reckoner** — three products, not four. Chat is one of three Reckoner modes.
+
+Full canonical reference: memory `project_brand_spine.md`. Website rebuild ticket map: memory `project_website_rebuild_plan.md` (MIL-75..108). Workflow rule: memory `feedback_no_phases_jira_tickets.md` (no phases, no timelines).
+
 ## Environment Rules
 
 - Windows machine — always use `py` not `python`
 - Git Bash for git commands
 - Claude Code for all development tasks
 - Repo: `C:\Users\hussa\while-sleeping`
+- Cloudflare API token: lives in `.env` as `CLOUDFLARE_API_TOKEN`, named `cjipro-mil-cli` / "final token" in CF dashboard. CLI wrapper at `ops/cloudflare/cf.py` covers DNS / Email Routing / Workers Routes / cache purge. **When new scope or rotation is needed, ask Hussain to update the existing token in place — never ask him to create a new one.** See `feedback_cloudflare_token_rotate.md` in memory.
 
 ## JIRA PROJECTS — TWO SEPARATE SYSTEMS
 
@@ -32,8 +60,8 @@ Key: MIL
 Board: Kanban
 URL: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 Cloud ID: d9b829b8-66af-42de-bc53-a79515365742
-Tickets: MIL-1 through MIL-74 created in Jira. MIL-1 through MIL-33 BUILT; MIL-34–MIL-38 BUILT pending Jira closure; MIL-39–MIL-48 BUILT 2026-04-22 (Ask CJI Pro v1); MIL-49 BUILT 2026-04-22 (PDB email, hardened 2026-04-23 twice). MIL-50 BUILT 2026-04-23 (public landing + domain unblock). MIL-51 IN_PROGRESS (vendor categorisation). MIL-52 BACKLOG. MIL-53 BUILT 2026-04-23. MIL-54 narrowed 2026-04-23 (Cloudflare Access retirement once MIL-61 ships). MIL-55 BACKLOG (Phase B kickoff — gated earliest 2026-05-05). MIL-56 BUILT 2026-04-23. MIL-57/58 BACKLOG (gated on MIL-56 data review 2026-04-30). MIL-59 BUILT 2026-04-23. MIL-60 BUILT 2026-04-24. MIL-61 SHADOW-MODE LIVE 2026-04-24 (`ENFORCE=false`, awaiting Sun 2026-04-26 review agent then flip). MIL-62 runbook drafted 2026-04-24 (HARD gate to alpha invites). MIL-63 FULLY LIVE 2026-04-24 at login.cjipro.com. **MIL-64..MIL-72 ALL FULLY LIVE 2026-04-25 (auth-stack marathon session): cookie spec, immutable audit log + verifier, approved-user gate, self-service signup + admin dashboard, sub→email sessions table, WorkOS webhook ingestion, session activity tracking + force-signout, WAF runbook + rate_limited audit, SAML self-config via Admin Portal, SCIM auto-deprovision + opt-in auto-approve, per-tenant audit log export.** MIL-73 BACKLOG (repo collapse + cji-pro rename, hard-gated to ≥2026-05-01 — 3 days post-ENFORCE-flip soak). MIL-74 BACKLOG (refresh-token rotation, same hard gate — would invisibly mis-grant access if landed in same change window as ENFORCE rollout).
-Next ticket: MIL-75
+Tickets: MIL-1 through MIL-108 created in Jira. MIL-1 through MIL-33 BUILT; MIL-34–MIL-38 BUILT pending Jira closure; MIL-39–MIL-48 BUILT 2026-04-22 (Ask CJI Pro v1); MIL-49 BUILT 2026-04-22 (PDB email, hardened 2026-04-23 twice). MIL-50 BUILT 2026-04-23 (public landing + domain unblock). MIL-51 IN_PROGRESS (vendor categorisation). MIL-52 BACKLOG. MIL-53 BUILT 2026-04-23. MIL-54 narrowed 2026-04-23 (Cloudflare Access retirement once MIL-61 ships). MIL-55 BACKLOG (Phase B kickoff — gated earliest 2026-05-05). MIL-56 BUILT 2026-04-23. MIL-57/58 BACKLOG (gated on MIL-56 data review 2026-04-30). MIL-59 BUILT 2026-04-23. MIL-60 BUILT 2026-04-24. MIL-61 SHADOW-MODE LIVE 2026-04-24 (`ENFORCE=false`, awaiting Sun 2026-04-26 review agent then flip). MIL-62 runbook drafted 2026-04-24 (HARD gate to alpha invites). MIL-63 FULLY LIVE 2026-04-24 at login.cjipro.com. **MIL-64..MIL-72 ALL FULLY LIVE 2026-04-25 (auth-stack marathon session): cookie spec, immutable audit log + verifier, approved-user gate, self-service signup + admin dashboard, sub→email sessions table, WorkOS webhook ingestion, session activity tracking + force-signout, WAF runbook + rate_limited audit, SAML self-config via Admin Portal, SCIM auto-deprovision + opt-in auto-approve, per-tenant audit log export.** MIL-73 BACKLOG (repo collapse + cji-pro rename, hard-gated to ≥2026-05-01 — 3 days post-ENFORCE-flip soak). MIL-74 BACKLOG (refresh-token rotation, same hard gate — would invisibly mis-grant access if landed in same change window as ENFORCE rollout). **MIL-75..MIL-108 created 2026-04-25 evening (brand-architecture session) — website rebuild around locked CJI four-product family + 34-ticket slate (21 active MIL-75..95 free; 13 BACKLOG MIL-96..108 budget/content/demand-gated). Natural first ticket: MIL-75 Public site IA chrome.**
+Next ticket: MIL-109
 Scope: Public market intelligence only. No PII. Open governance.
 Repo host: **GitHub** (`cjipro/mil_streamlit`) — public artefacts push via GitHub Pages. CJI Pulse uses GitLab.
 
@@ -449,7 +477,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-75**
+**Next ticket: MIL-109** (MIL-75..108 created 2026-04-25 evening for website rebuild — see memory `project_website_rebuild_plan.md`)
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
@@ -732,6 +760,7 @@ Files: `mil/publish/site/{home,privacy,robots,sitemap,security}.html|txt|xml` (t
 - Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
+- **Website rebuild — natural first ticket: MIL-75** (Public site IA chrome). Foundation, free, code-only work in `mil/publish/site/`, no external dependencies, unblocks 8+ downstream tickets. Full ticket map at memory `project_website_rebuild_plan.md`. **Workflow rule (locked 2026-04-25): no phases, no timelines — work moves ticket-to-ticket based on dependency-readiness.**
 - **Apr 25 close in Jira UI**: MIL-11..31 (long-pending), MIL-53, MIL-56, MIL-60, MIL-61 (shadow-mode), MIL-63, MIL-64, **MIL-65, MIL-66, MIL-67 (Phase A only — Phase B mapping pending), MIL-68, MIL-69, MIL-70, MIL-71, MIL-72** (the auth-stack marathon — 8 tickets all LIVE in production, see ticket descriptions above for commit hashes + worker version IDs).
 - **Apr 25 — auth-stack admin steps (do these to fully activate the work that shipped 2026-04-25, none are blocking core auth)**:
   - **MIL-67 webhook activation** — WorkOS dashboard → Authentication methods → toggle Passkey on; Webhooks → add endpoint `https://login.cjipro.com/webhooks/workos`, subscribe to all events; copy signing secret; `cd mil/auth/magic_link && npx wrangler secret put WORKOS_WEBHOOK_SECRET`. Endpoint returns 503 until done. Full runbook: `mil/auth/MIL67_PASSKEYS.md`.
