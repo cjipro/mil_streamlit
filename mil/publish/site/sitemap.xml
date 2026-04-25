@@ -41,13 +41,9 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Reckoner trial flow (MIL-94) -->
-  <url>
-    <loc>https://cjipro.com/products/reckoner/trial/</loc>
-    <lastmod>2026-04-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- /products/reckoner/trial/ — DELIBERATELY NOT in sitemap during    -->
+  <!-- alpha (noindex meta tag set on the page itself; MIL-97 IP counsel  -->
+  <!-- review pending). Add back here once formal trial terms are signed. -->
 
   <!-- Insights (ship in MIL-77/78) -->
   <url>
