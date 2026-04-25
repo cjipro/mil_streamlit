@@ -158,14 +158,19 @@ routes:
 
   # ── Enrichment ────────────────────────────────────────────────
   enrichment:
-    model: "qwen3:14b"
-    provider: ollama
+    model: "claude-sonnet-4-6"
+    provider: anthropic
     max_tokens: 4096
     note: >
-      ARCH-004. Switched from Haiku (API cost) to local qwen3:14b.
-      Severity gate in _normalise() + monthly spot-check guard P0 accuracy.
-      qwen3-mil-v1-4b Gate 5 ACTIVE (P0=90% P1=100%) confirms severity
-      calibration baseline. Monitor via enrichment_spot_check.py.
+      ARCH-006 (2026-04-25). Switched from qwen3:14b (Ollama local) to
+      Sonnet 4.6 (Anthropic API). Reverses ARCH-004's cost-driven flip;
+      reverses ARCH-002's Haiku-only-for-P0 stance by going one tier higher.
+      Severity gate in _normalise() retained as belt-and-braces. Provider
+      switch handled by enrich_sonnet.py's existing _PROVIDER branch — no
+      code change required. Monthly enrichment_spot_check.py still applies.
+      Cost: ~$0.04 per 10-record batch (estimate); daily new-record volume
+      0–200 → ~$0.80/day ceiling. v3 skip logic prevents re-enrichment of
+      the existing 7,681-record corpus on each run.
 
   # ── MIL Inference (CAC + RAG) ─────────────────────────────────
   inference:
