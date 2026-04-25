@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CJI Pro — Customer Journey Intelligence</title>
+<title>CJI — Customer Journey Intelligence</title>
 
 <!-- Security / trust headers (meta-equivalent) -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
@@ -15,22 +15,22 @@
 <meta name="description" content="Customer journey intelligence platform for regulated consumer-service brands. Daily market-research briefing and internal journey analytics with verbatim voice-of-customer evidence. Starting with UK banking.">
 <meta name="keywords" content="customer journey intelligence, voice of the customer, market research, consumer research, customer experience analytics, journey analytics, regulated consumer services, banking insight">
 <meta name="robots" content="index, follow">
-<meta name="author" content="CJI Pro">
+<meta name="author" content="CJI">
 <link rel="canonical" href="https://cjipro.com/">
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 <link rel="privacy-policy" href="/privacy/">
 
 <!-- Open Graph (social + classifier hints) -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="CJI Pro">
-<meta property="og:title" content="CJI Pro — Customer Journey Intelligence">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="CJI — Customer Journey Intelligence">
 <meta property="og:description" content="Customer journey intelligence for regulated consumer-service brands. What your customers do, and what they say.">
 <meta property="og:url" content="https://cjipro.com/">
 <meta property="og:locale" content="en_GB">
 
 <!-- Twitter card -->
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CJI Pro — Customer Journey Intelligence">
+<meta name="twitter:title" content="CJI — Customer Journey Intelligence">
 <meta name="twitter:description" content="Customer journey intelligence for regulated consumer-service brands.">
 
 <!-- Schema.org structured data (strong classifier signal) -->
@@ -38,7 +38,7 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "CJI Pro",
+  "name": "CJI",
   "alternateName": "Customer Journey Intelligence",
   "url": "https://cjipro.com",
   "description": "Customer journey intelligence platform for regulated consumer-service brands. Combines public-signal market research with internal journey analytics to produce a daily intelligence briefing for insight and product teams.",
@@ -80,12 +80,12 @@
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "CJI Pro",
+  "name": "CJI",
   "url": "https://cjipro.com",
   "inLanguage": "en-GB",
   "publisher": {
     "@type": "Organization",
-    "name": "CJI Pro"
+    "name": "CJI"
   },
   "about": [
     "Customer journey intelligence",
@@ -376,15 +376,62 @@
   /* ── Footer ───────────────────────────────────────────────── */
   footer {
     border-top: 1px solid var(--hairline);
-    padding: 36px 0 48px 0;
+    padding: 48px 0 36px 0;
     margin-top: 48px;
     font-size: 13px;
     color: var(--muted);
   }
-  .footer-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-  footer a { color: var(--muted); margin-left: 18px; }
-  footer a:first-child { margin-left: 0; }
-  footer a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
   /* ── Responsive ───────────────────────────────────────────── */
   @media (max-width: 720px) {
@@ -400,6 +447,8 @@
     .brand-sub { display: none; }
     h2 { font-size: 24px; }
     section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
   }
 </style>
 </head>
@@ -409,13 +458,13 @@
 <header class="topbar">
   <div class="wrap topbar-inner">
     <div>
-      <span class="brand">CJI Pro</span>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
       <span class="brand-sub">Customer Journey Intelligence</span>
     </div>
     <nav class="nav">
       <a href="#products">Products</a>
-      <a href="#principles">Principles</a>
-      <a href="#access">Access</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
     </nav>
   </div>
 </header>
@@ -591,14 +640,55 @@
 </main>
 
 <footer>
-  <div class="wrap footer-inner">
-    <div>&copy; 2026 CJI Pro · Independent market research</div>
-    <div>
-      <a href="#products">Products</a>
-      <a href="#principles">Principles</a>
-      <a href="#access">Access</a>
-      <a href="mailto:hello@cjipro.com">Contact</a>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
     </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI · Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
   </div>
 </footer>
 

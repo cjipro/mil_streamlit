@@ -14,12 +14,31 @@ Run:
     py -m mil.publish.publish_site --dry-run  # print what would deploy
 
 Source files:
-    mil/publish/site/home.html        -> /index.html
-    mil/publish/site/privacy.html     -> /privacy/index.html
-    mil/publish/site/robots.txt       -> /robots.txt
-    mil/publish/site/sitemap.xml      -> /sitemap.xml
-    mil/publish/site/security.txt     -> /.well-known/security.txt
-    (empty)                           -> /.nojekyll
+    mil/publish/site/home.html                       -> /index.html
+    mil/publish/site/privacy.html                    -> /privacy/index.html
+    mil/publish/site/robots.txt                      -> /robots.txt
+    mil/publish/site/sitemap.xml                     -> /sitemap.xml
+    mil/publish/site/security.txt                    -> /.well-known/security.txt
+    mil/publish/site/research_index.html             -> /research/index.html
+    mil/publish/site/research_methodology.html       -> /research/methodology/index.html
+    mil/publish/site/research_sample_briefing.html   -> /research/sample-briefing/index.html
+    mil/publish/site/press_index.html                -> /press/index.html
+    mil/publish/site/trust_index.html                -> /trust/index.html
+    mil/publish/site/solutions_index.html            -> /solutions/index.html
+    mil/publish/site/thank_you.html                  -> /thank-you/index.html
+    (empty)                                          -> /.nojekyll
+
+The /research/* stubs are MIL-75 redirect-map artefacts. They meta-refresh
+to /insights/* equivalents (live once MIL-77/78 ship). Stubs carry
+robots noindex so they never appear in search results.
+
+The /press/, /trust/, /solutions/ stubs are MIL-80 retired-IA redirects.
+/press relocates to /insights/, /trust retires to /security/, /solutions
+retires to the four-product strip on the homepage. Same noindex pattern.
+
+/thank-you/ is the MIL-81 confirmation stub for future form submissions
+(Reckoner trial signup MIL-94, contact mailto fallbacks). Carries
+robots noindex,nofollow.
 """
 from __future__ import annotations
 
@@ -37,12 +56,19 @@ _SITE_DIR = Path(__file__).parent / "site"
 # (source_filename, destination_relative_path)
 # An empty source_filename means "publish an empty file at destination".
 _FILES: list[tuple[str, str]] = [
-    ("home.html",    "index.html"),
-    ("privacy.html", "privacy/index.html"),
-    ("robots.txt",   "robots.txt"),
-    ("sitemap.xml",  "sitemap.xml"),
-    ("security.txt", ".well-known/security.txt"),
-    ("",             ".nojekyll"),
+    ("home.html",                     "index.html"),
+    ("privacy.html",                  "privacy/index.html"),
+    ("robots.txt",                    "robots.txt"),
+    ("sitemap.xml",                   "sitemap.xml"),
+    ("security.txt",                  ".well-known/security.txt"),
+    ("research_index.html",           "research/index.html"),
+    ("research_methodology.html",     "research/methodology/index.html"),
+    ("research_sample_briefing.html", "research/sample-briefing/index.html"),
+    ("press_index.html",              "press/index.html"),
+    ("trust_index.html",              "trust/index.html"),
+    ("solutions_index.html",          "solutions/index.html"),
+    ("thank_you.html",                "thank-you/index.html"),
+    ("",                              ".nojekyll"),
 ]
 
 
