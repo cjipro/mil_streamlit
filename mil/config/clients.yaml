@@ -1,0 +1,98 @@
+# mil/config/clients.yaml — canonical client registry for CJI Sonar (MIL-85).
+#
+# Single source of truth for the (org_id, client_slug, display_name)
+# tuple. Replaces the Barclays-as-subject hardcode in briefing_data.py
+# and underwrites the URL migration from /briefing-v4 to
+# /sonar/{client_slug}/{date}/ that lands in MIL-86.
+#
+# Schema:
+#   clients[]:
+#     client_slug:    str (required, lowercase, hyphen-separated, URL-safe).
+#                     Becomes the {client_slug} segment in the briefing URL.
+#                     Once published, NEVER renamed — bookmarks + the PDB
+#                     email's deep links are forever after.
+#     display_name:   str (required, human-readable). Used in the email
+#                     subject line ("Voice of the Customer: {display_name}
+#                     App Experience (Open Sources)") and Box 1 brand line.
+#                     This is the only place the display name lives —
+#                     do not duplicate the value into prompt code.
+#     market_tier:    "incumbent" | "neobank" (required, drives benchmark
+#                     denominators in benchmark_engine.py via
+#                     INCUMBENT_PEERS / NEOBANK_PEERS lookup).
+#     workos_org_id:  str (optional today, required at MIL-86 cutover).
+#                     The WorkOS organization id whose members may view
+#                     the briefing at /sonar/{client_slug}/. Pull from
+#                     WorkOS Admin Portal once a partner org is provisioned.
+#                     Format: org_<26-char-base32-ulid>.
+#     status:         "subject" | "monitored" | "retired" (required).
+#                       subject    — the briefing is generated FOR this
+#                                    client (today: barclays only)
+#                       monitored  — present in the corpus as a peer/
+#                                    competitor (e.g. natwest, hsbc)
+#                       retired    — no longer active; kept for slug
+#                                    history and 410 routing
+#     onboarded:      str (ISO-8601 date, optional). Tracks when the
+#                     client became a paying partner. Empty until the
+#                     first contracted engagement.
+#
+# Loader: mil/config/clients_loader.py — typed accessors with @lru_cache,
+# validates required fields at import time and raises with a clear path-
+# pointer if the YAML drifts from schema.
+#
+# Update procedure:
+#   - Adding a new monitored peer: append entry, no other code change.
+#   - Promoting a peer to subject: change status, set workos_org_id,
+#     set onboarded date, then run MIL-86 cutover for that slug.
+#   - Renaming a slug: forbidden once briefings are published under it.
+#     Mark old slug retired, create a new entry, add a 301 in
+#     publish_v4 routing for the old path.
+#
+# Public-data exception: MIL is exempt from the P5 client-name-masking
+# rule. Real bank names appear here unmasked. See CLAUDE.md "MIL Public
+# Data Exception" for the load-bearing argument.
+
+schema_version: 1
+
+clients:
+
+  - client_slug: barclays
+    display_name: Barclays
+    market_tier: incumbent
+    workos_org_id: ""           # populate at MIL-86 cutover
+    status: subject
+    onboarded: ""               # populate when first paid engagement signs
+
+  - client_slug: natwest
+    display_name: NatWest
+    market_tier: incumbent
+    workos_org_id: ""
+    status: monitored
+    onboarded: ""
+
+  - client_slug: lloyds
+    display_name: Lloyds
+    market_tier: incumbent
+    workos_org_id: ""
+    status: monitored
+    onboarded: ""
+
+  - client_slug: hsbc
+    display_name: HSBC
+    market_tier: incumbent
+    workos_org_id: ""
+    status: monitored
+    onboarded: ""
+
+  - client_slug: monzo
+    display_name: Monzo
+    market_tier: neobank
+    workos_org_id: ""
+    status: monitored
+    onboarded: ""
+
+  - client_slug: revolut
+    display_name: Revolut
+    market_tier: neobank
+    workos_org_id: ""
+    status: monitored
+    onboarded: ""
