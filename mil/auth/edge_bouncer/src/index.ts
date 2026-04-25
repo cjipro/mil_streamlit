@@ -255,6 +255,32 @@ export default {
       }
     }
 
+    // MIL-69 — log when Cloudflare WAF passed through a request
+    // that had to solve a challenge (rate-limited but recovered).
+    // Pre-challenge blocks never reach the Worker; this captures the
+    // post-solve case for unified-timeline visibility.
+    if (env.AUDIT_DB) {
+      const challenged = request.headers.get("cf-challenge-status");
+      if (challenged) {
+        const db = env.AUDIT_DB;
+        const url = new URL(request.url);
+        const cf = (request as Request & { cf?: IncomingRequestCfProperties }).cf;
+        ctx.waitUntil(
+          logAuthEvent(db, {
+            worker: "edge-bouncer",
+            event_type: "bouncer.rate_limited",
+            method: request.method,
+            host: url.host,
+            path: url.pathname,
+            ip: request.headers.get("cf-connecting-ip") ?? undefined,
+            user_agent: request.headers.get("user-agent") ?? undefined,
+            country: cf?.country ?? undefined,
+            reason: challenged,
+          }).catch(() => {}),
+        );
+      }
+    }
+
     if (decision.action === "redirect" && enforce) {
       return buildRedirect(request, env);
     }

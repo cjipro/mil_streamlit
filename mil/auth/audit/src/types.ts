@@ -23,6 +23,10 @@ export type AuthEventType =
   | "admin.revoke"
   // MIL-68 — boot active session for a user without removing approval
   | "admin.force_signout"
+  // MIL-69 — Cloudflare WAF challenge/block reached the Worker
+  // (only fires when Cloudflare passes through challenged traffic
+  // post-solve; pre-challenge blocks never invoke the Worker)
+  | "bouncer.rate_limited"
   // MIL-67a — WorkOS webhook ingestion. Generic catch-all for now;
   // Phase B will split out specific passkey events
   // (passkey.registered, passkey.used, etc.) once we observe what
