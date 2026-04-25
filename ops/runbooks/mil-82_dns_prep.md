@@ -15,8 +15,8 @@ classified `cjipro.com` extend that classification cleanly.
 | `cjipro.com`             | (GitHub Pages)          | LIVE — public marketing site       |
 | `login.cjipro.com`       | `magic-link`            | LIVE — magic-link auth             |
 | `sonar.cjipro.com`       | (cloudflared tunnel)    | LIVE — Ask CJI Pro chat (alpha)    |
-| **`app.cjipro.com`**     | `app-cjipro` (MIL-84)   | **TODO** — needs DNS              |
-| **`admin.cjipro.com`**   | `magic-link` /admin     | **TODO** — needs DNS              |
+| **`app.cjipro.com`**     | `app-cjipro` (MIL-84)   | **DNS RESERVED 2026-04-25** — Mode B CNAME placeholder; MIL-84 deploy will replace |
+| **`admin.cjipro.com`**   | `magic-link` /admin     | **DNS RESERVED 2026-04-25** — Mode B CNAME placeholder; MIL-83 deploy will replace |
 
 ## What "prep" means
 

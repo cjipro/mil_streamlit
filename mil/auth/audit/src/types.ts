@@ -59,7 +59,7 @@ export type AuthEventType =
 // before insertion. Callers MUST NOT pre-hash these fields — passing
 // a hex string would re-hash it and break user linkage across events.
 export interface AuthEventInput {
-  worker: "magic-link" | "edge-bouncer";
+  worker: "magic-link" | "edge-bouncer" | "app-cjipro";
   event_type: AuthEventType;
   method?: string;
   host?: string;

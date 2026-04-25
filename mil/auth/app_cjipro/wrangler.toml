@@ -1,0 +1,56 @@
+# MIL-84 — app.cjipro.com Worker
+#
+# Deployment pattern: this Worker hosts the authenticated product
+# surface for all four CJI products (Reckoner / Sonar / Pulse /
+# Lever workspace). Same JWT + approval gating as the edge-bouncer,
+# but instead of passing through to a GitHub Pages origin, this
+# Worker renders the product surfaces itself.
+#
+# Safe-deploy story (MIRRORS edge-bouncer): ENFORCE=false by default.
+# In shadow mode the Worker decides + logs but always passes through
+# (returns the Reckoner page even to non-approved users) so we get
+# real traffic shape before flipping enforce.
+#
+# Custom domain binding via [[routes]] block — Cloudflare auto-
+# creates the DNS for app.cjipro.com when the Worker deploys, which
+# replaces the MIL-82 placeholder CNAME (Mode B reservation).
+
+name = "app-cjipro"
+main = "src/index.ts"
+compatibility_date = "2025-10-15"
+compatibility_flags = ["nodejs_compat"]
+
+# MIL-82 Mode B reserved app.cjipro.com via CNAME → login.cjipro.com.
+# Deploying this Worker with custom_domain=true replaces that record
+# with a Worker-bound DNS entry. No dashboard click needed at deploy.
+[[routes]]
+pattern       = "app.cjipro.com"
+custom_domain = true
+
+[vars]
+ENFORCE                = "false"
+SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
+# Same JWKS / iss / aud as edge-bouncer + magic-link. Single source
+# of truth: the AuthKit domain's /.well-known/openid-configuration.
+JWKS_URL               = "https://ideal-log-65-staging.authkit.app/oauth2/jwks"
+EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+EXPECTED_ISS           = "https://api.workos.com/user_management/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
+LOGIN_URL              = "https://login.cjipro.com/"
+RETURN_TO_PARAM        = "return_to"
+JWKS_CACHE_TTL_SECONDS = "3600"
+
+# Public allowlist — only liveness + favicon + .nojekyll. Everything
+# else under app.cjipro.com is gated by JWT + approval. The product
+# surface is alpha-cohort-only.
+PUBLIC_PATHS = "=/healthz,=/favicon.ico,=/.nojekyll,=/robots.txt"
+
+[observability]
+enabled = true
+
+# MIL-65 — same audit DB as edge-bouncer + magic-link. Single writer
+# target keeps the chain coherent; per-Worker rows land in
+# auth_events with worker='app-cjipro' so SIEMs can filter.
+[[d1_databases]]
+binding       = "AUDIT_DB"
+database_name = "mil-auth-audit"
+database_id   = "84acbc8b-6169-4668-ae0e-15ccfbfdf1ca"
