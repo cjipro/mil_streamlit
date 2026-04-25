@@ -29,6 +29,9 @@ Source files:
     mil/publish/site/insights_methodology.html       -> /insights/methodology/index.html
     mil/publish/site/insights_sample_briefing.html   -> /insights/sample-briefing/index.html
     mil/publish/site/thank_you.html                  -> /thank-you/index.html
+    mil/publish/site/security_index.html             -> /security/index.html
+    mil/publish/site/security_standards.html         -> /security/standards/index.html
+    mil/publish/site/security_architecture.html      -> /security/architecture/index.html
     (empty)                                          -> /.nojekyll
 
 The /research/* stubs are MIL-75 redirect-map artefacts. They meta-refresh
@@ -49,6 +52,14 @@ sanitised throughout with [Illustrative] markers and persistent banner.
 /thank-you/ is the MIL-81 confirmation stub for future form submissions
 (Reckoner trial signup MIL-94, contact mailto fallbacks). Carries
 robots noindex,nofollow.
+
+/security/index.html is the MIL-79 security hub — live capabilities, honest
+not-yet list, contact details for security@cjipro.com and hello@cjipro.com.
+/security/standards/index.html is the MIL-79 standards page — UK GDPR alignment,
+RFC 9116 disclosure, authentication controls, audit design, roadmap, anti-patterns.
+/security/architecture/index.html is the MIL-79 architecture page — three surfaces,
+Zero Entanglement rule, data flow, hash-chained audit log, production defaults.
+These three pages fix the /security/ 404 from the topbar nav link (MIL-75).
 """
 from __future__ import annotations
 
@@ -81,6 +92,10 @@ _FILES: list[tuple[str, str]] = [
     ("insights_methodology.html",     "insights/methodology/index.html"),
     ("insights_sample_briefing.html", "insights/sample-briefing/index.html"),
     ("thank_you.html",                "thank-you/index.html"),
+    # Security section — MIL-79
+    ("security_index.html",           "security/index.html"),
+    ("security_standards.html",       "security/standards/index.html"),
+    ("security_architecture.html",    "security/architecture/index.html"),
     ("",                              ".nojekyll"),
 ]
 

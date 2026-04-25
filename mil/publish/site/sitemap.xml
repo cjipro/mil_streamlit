@@ -67,9 +67,21 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Security (ship in MIL-79) -->
+  <!-- Security (MIL-79) -->
   <url>
     <loc>https://cjipro.com/security/</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cjipro.com/security/standards/</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cjipro.com/security/architecture/</loc>
     <lastmod>2026-04-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

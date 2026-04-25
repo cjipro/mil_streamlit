@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standards — Security — CJI</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="Security standards at CJI — privacy alignment, disclosure policy, authentication controls, hosting, audit, and what we do not yet hold.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/security/standards/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="Standards — Security — CJI">
+<meta property="og:description" content="Security standards at CJI — what we align with, what we do not yet hold, and where we are heading.">
+<meta property="og:url" content="https://cjipro.com/security/standards/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Standards — Security — CJI">
+<meta name="twitter:description" content="Security standards at CJI — what we align with, what we do not yet hold, and where we are heading.">
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 88px 0 56px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Standard block ───────────────────────────────────────── */
+  .standard-block {
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .standard-block + .standard-block { margin-top: 20px; }
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 14px 0;
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+  }
+  .standard-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 12px 0;
+  }
+  .standard-body:last-child { margin-bottom: 0; }
+
+  /* ── Bullet list in standard blocks ──────────────────────── */
+  .standard-ul {
+    margin: 12px 0 0 0;
+    padding-left: 18px;
+    color: var(--ink-soft);
+  }
+  .standard-ul li {
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 3px 0;
+  }
+
+  /* ── Roadmap block (not-yet) ──────────────────────────────── */
+  .roadmap-block {
+    border: 1px solid var(--hairline);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .roadmap-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .roadmap-list li {
+    padding: 13px 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .roadmap-list li:first-child { border-top: 1px solid var(--hairline); }
+  .roadmap-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .roadmap-label.planned { color: var(--coming); }
+  .roadmap-label.oos     { color: var(--muted); }
+  .roadmap-label.pending { color: var(--accent); }
+
+  .roadmap-note {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 22px 0 0 0;
+    font-style: italic;
+  }
+
+  /* ── Anti-pattern block ───────────────────────────────────── */
+  .anti-block {
+    border: 1px solid var(--hairline);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .anti-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .anti-list li {
+    padding: 11px 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .anti-list li:first-child { border-top: 1px solid var(--hairline); }
+  .anti-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  /* ── Breadcrumb ───────────────────────────────────────────── */
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .breadcrumb a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .breadcrumb span { margin: 0 6px; }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .lede { font-size: 17px; }
+    .hero { padding: 56px 0 32px 0; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; }
+    section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .standard-block { padding: 22px 20px; }
+    .roadmap-block { padding: 22px 20px; }
+    .anti-block { padding: 22px 20px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="breadcrumb">
+        <a href="/security/">Security</a>
+        <span>&rsaquo;</span>
+        Standards
+      </div>
+      <div class="eyebrow">Security &middot; Standards</div>
+      <h1>Standards.</h1>
+      <p class="lede">
+        This page is the honest list of what CJI aligns with, what we do not yet
+        hold, and what we will not do. It is written for bank IT reviewers,
+        URL-filter analysts, and security-conscious partners evaluating the
+        service before granting network access.
+      </p>
+    </div>
+  </section>
+
+  <!-- Privacy & data protection -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Privacy &amp; data protection</div>
+      <h2>UK GDPR and the Data Protection Act 2018.</h2>
+
+      <div class="standard-block">
+        <h3>Data controller</h3>
+        <p class="standard-body">
+          CJI is an independent market-research publication operating from the
+          United Kingdom. For the purpose of UK GDPR, the data controller is the
+          publisher of cjipro.com, contactable at
+          <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.
+          The full privacy notice — including lawful bases, retention periods, and
+          your data-subject rights — is at <a href="/privacy/">/privacy/</a>.
+        </p>
+      </div>
+
+      <div class="standard-block" style="margin-top:20px;">
+        <h3>What we collect and what we do not</h3>
+        <ul class="standard-ul">
+          <li>The public surface at cjipro.com collects no personal data. No analytics, no cookies, no tracking pixels.</li>
+          <li>The alpha briefing surface processes a named email address for the sole purpose of authorisation. No other personal data is collected from partners.</li>
+          <li>Authentication events are recorded in an append-only audit log. PII fields (IP address, user agent, JWT subject) are hashed with daily-rotating salts — not stored in plaintext — so the log cannot be used to re-identify individuals.</li>
+          <li>Public-signal briefings quote verbatim customer feedback from public platforms (app stores, forums, press). Attribution is platform and date only. We do not attempt to identify the individuals who wrote them.</li>
+          <li>CJI Pulse — the product that would process internal firm telemetry — does not currently process any real customer data. A DPIA is a prerequisite for that activation.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclosure -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Vulnerability disclosure</div>
+      <h2>RFC 9116.</h2>
+
+      <div class="standard-block">
+        <h3>Contact and process</h3>
+        <p class="standard-body">
+          Our machine-readable disclosure file is at
+          <a href="/.well-known/security.txt">/.well-known/security.txt</a>,
+          conforming to RFC 9116. The preferred contact is
+          <a href="mailto:security@cjipro.com">security@cjipro.com</a>.
+        </p>
+        <p class="standard-body">
+          We acknowledge vulnerability reports within 5 business days. Coordinated
+          disclosure is preferred: we ask researchers to give us a reasonable window
+          to investigate and remediate before publishing. We will not pursue legal
+          action against researchers who follow responsible disclosure practice and
+          do not exfiltrate data or disrupt service.
+        </p>
+        <p class="standard-body">
+          We have no bug-bounty programme at this stage. We will credit researchers
+          publicly if they wish.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Authentication & access control -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Authentication &amp; access control</div>
+      <h2>How access to the briefing surface works.</h2>
+
+      <div class="standard-block">
+        <h3>Magic-link email authentication</h3>
+        <p class="standard-body">
+          The alpha briefing surface uses WorkOS AuthKit to issue magic-link
+          authentication emails. A partner requests access, receives a one-time link
+          by email, and exchanges it for a short-lived session. There are no passwords
+          on record anywhere in the system.
+        </p>
+        <p class="standard-body">
+          SMS multi-factor authentication is explicitly excluded from the design.
+          SIM-swap is a well-documented attack class in regulated-firm environments;
+          email-only authentication eliminates that surface. Passkeys (TouchID /
+          FaceID via WebAuthn) are preferred as an additional factor and are managed
+          through the WorkOS-backed flow.
+        </p>
+      </div>
+
+      <div class="standard-block" style="margin-top:20px;">
+        <h3>Allowlist gate and principle of least privilege</h3>
+        <p class="standard-body">
+          Every partner email address must be explicitly approved by an administrator
+          before it can access any authenticated surface. Self-service signup requests
+          enter a pending queue; approval is a manual per-account decision. Accounts
+          can be revoked individually at any time, which immediately invalidates any
+          active session for that account.
+        </p>
+        <p class="standard-body">
+          All administrative actions — approval, denial, revocation, force sign-out —
+          are recorded in the immutable audit log with the acting administrator's
+          account and timestamp.
+        </p>
+      </div>
+
+      <div class="standard-block" style="margin-top:20px;">
+        <h3>Session and token design</h3>
+        <p class="standard-body">
+          Sessions are tracked in a server-side table. The session cookie is named
+          <code>__Secure-cjipro-session</code>, scoped to <code>.cjipro.com</code>,
+          SameSite=Lax, Secure flag set. JWTs carry a short expiry; the edge bouncer
+          validates them on every request before passing traffic to the origin.
+          Session activity is recorded so administrators can see when each account
+          was last active and force sign-out remotely.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hosting & transport -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Hosting &amp; transport</div>
+      <h2>Infrastructure and headers.</h2>
+
+      <div class="standard-block">
+        <h3>Cloudflare-fronted hosting</h3>
+        <p class="standard-body">
+          All traffic to cjipro.com and login.cjipro.com is routed through
+          Cloudflare. TLS termination, DDoS mitigation, and WAF rate-limiting
+          rules run at the Cloudflare edge before any request reaches the origin.
+          The public site is served from GitHub Pages; the authenticated surface
+          runs on Cloudflare Workers.
+        </p>
+        <p class="standard-body">
+          Inbound email for security@cjipro.com and hello@cjipro.com is handled
+          by Cloudflare Email Routing. SPF, DKIM, and MX records are configured
+          and maintained by Cloudflare.
+        </p>
+      </div>
+
+      <div class="standard-block" style="margin-top:20px;">
+        <h3>Security headers on every page</h3>
+        <p class="standard-body">
+          Every page on the public surface carries the following meta-equivalent
+          security headers:
+        </p>
+        <ul class="standard-ul">
+          <li><strong>Content-Security-Policy</strong> — restricts resource loading to self + inline styles. No external scripts loaded from the public surface.</li>
+          <li><strong>X-Content-Type-Options: nosniff</strong> — prevents MIME-type sniffing.</li>
+          <li><strong>Referrer-Policy: strict-origin-when-cross-origin</strong> — limits referrer leakage.</li>
+          <li><strong>Permissions-Policy</strong> — camera, microphone, geolocation, payment, and USB access all denied.</li>
+          <li>Session cookie: <strong>SameSite=Lax</strong> + <strong>Secure</strong> + <strong>HttpOnly</strong> + <code>__Secure-</code> prefix.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audit & retention -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Audit &amp; retention</div>
+      <h2>The audit log.</h2>
+
+      <div class="standard-block">
+        <h3>Hash-chained immutable audit log</h3>
+        <p class="standard-body">
+          All authentication events — login, approval, denial, revocation, force
+          sign-out, webhook receipt, admin action — are recorded in an append-only
+          D1 table. Each row carries a <code>prev_hash</code> field that references
+          the SHA-256 hash of the previous row. Tampering with any row invalidates
+          all subsequent rows; the chain can be verified programmatically using the
+          verifier CLI that ships with the audit package.
+        </p>
+        <p class="standard-body">
+          PII fields — IP address, user agent, JWT subject — are not stored in
+          plaintext. Each is hashed as SHA-256(value &Vert; daily_salt), where the
+          daily salt rotates at midnight UTC and is stored separately. If the audit
+          log rows are obtained without the salt table, PII is not recoverable.
+        </p>
+      </div>
+
+      <div class="standard-block" style="margin-top:20px;">
+        <h3>Per-tenant audit export</h3>
+        <p class="standard-body">
+          Partners can request a download of their own authentication events via
+          the admin interface. Exports are available as JSONL (one event per line,
+          suitable for SIEM ingest) or CSV. Internal hash columns are excluded from
+          all exports — the chain-integrity fields are for our internal verification,
+          not for onward processing.
+        </p>
+        <p class="standard-body">
+          The export endpoint requires admin authentication and records the export
+          action itself in the audit log.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap (not yet held) -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Roadmap</div>
+      <h2>What we do not yet hold.</h2>
+      <p class="section-lede">
+        These certifications and assessments are on the roadmap. We are pursuing them
+        concurrently with the alpha cohort, not as a precondition for it. This section
+        exists because we believe the absence of a certification is at least as
+        important to disclose as its presence.
+      </p>
+
+      <div class="roadmap-block">
+        <ul class="roadmap-list">
+          <li>
+            <span class="roadmap-label planned">Planned</span>
+            <span><strong>SOC 2 Type 1</strong> — planned alongside first paid engagements. We will not claim SOC 2 compliance until an independent auditor issues the report. The controls described on these pages are designed with SOC 2 Trust Service Criteria in mind but have not been independently verified against them.</span>
+          </li>
+          <li>
+            <span class="roadmap-label planned">Planned</span>
+            <span><strong>ISO 27001</strong> — information-security management system certification. Planned; not yet initiated. We operate an ISMS consistent with ISO 27001 intent but it has not been submitted for accredited certification.</span>
+          </li>
+          <li>
+            <span class="roadmap-label planned">Planned</span>
+            <span><strong>Formal penetration test</strong> — by a named third-party security firm. Planned before the first enterprise contract. We are not aware of any open vulnerabilities in the current production stack but we have not commissioned an independent assessment.</span>
+          </li>
+          <li>
+            <span class="roadmap-label oos">Out of scope</span>
+            <span><strong>HIPAA</strong> — not applicable. CJI processes no health data.</span>
+          </li>
+          <li>
+            <span class="roadmap-label oos">Out of scope</span>
+            <span><strong>PCI DSS</strong> — not applicable. CJI handles no payment card data.</span>
+          </li>
+          <li>
+            <span class="roadmap-label pending">Pending</span>
+            <span><strong>DPIA</strong> — a Data Protection Impact Assessment is a prerequisite before any live internal customer data is processed. CJI Pulse does not currently process real customer data. The DPIA will be completed and documented before that capability activates.</span>
+          </li>
+        </ul>
+
+        <p class="roadmap-note">
+          If the absence of any of these items is a blocker for your organisation,
+          contact us at <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.
+          We will be direct about the timeline.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What we will not do -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Anti-patterns</div>
+      <h2>What we will not do.</h2>
+      <p class="section-lede">
+        These are explicit commitments, not aspirational goals. Where a technical
+        control enforces the commitment, we say so.
+      </p>
+
+      <div class="anti-block">
+        <ul class="anti-list">
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No SMS MFA.</strong> SIM-swap is a documented attack class in banking and regulated-firm environments. SMS multi-factor authentication is excluded from the design. Email-only authentication plus passkeys is the chosen model.</span>
+          </li>
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No third-party-cookie analytics on public pages.</strong> The public surface has no Google Analytics, Plausible, Fathom, or equivalent. Cloudflare may record request logs at the network layer for security purposes; those are not accessible to CJI.</span>
+          </li>
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No AI framing on the public surface.</strong> The intelligence product is alpha-only and not exposed on cjipro.com. The public site does not describe, link to, or imply the existence of an AI product. This is a URL-filter consideration: AI-category filters at regulated firms are common.</span>
+          </li>
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No cross-tenant data crossing.</strong> MIL (public market signal) and Pulse (private internal telemetry) never share infrastructure, code, or data. The boundary is enforced at build time by a static import validator; a violation breaks the build. This is called Zero Entanglement and is documented on the <a href="/security/architecture/">architecture page</a>.</span>
+          </li>
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No synthetic customer voice in real briefings.</strong> Verbatim customer quotes in all briefings are real, unedited, attributed to source and date. Synthetic content appears only on the clearly labelled sample briefing at <a href="/insights/sample-briefing/">/insights/sample-briefing/</a>, which carries a persistent [Illustrative] banner throughout.</span>
+          </li>
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No live customer data without a DPIA.</strong> CJI Pulse does not activate on any firm's live telemetry until a Data Protection Impact Assessment has been completed, documented, and agreed with the data controller. This is a hard prerequisite, not a best-efforts step.</span>
+          </li>
+          <li>
+            <span class="anti-label">Never</span>
+            <span><strong>No Cloudflare Access on paths alpha partners need to reach from corporate networks.</strong> Cloudflare Access redirects to <code>*.cloudflareaccess.com</code>, a domain that matches phishing-pattern signatures at major bank proxies and is auto-blocked. Public content on cjipro.com is served without Access gating. This is a documented architectural constraint, not a convenience decision.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI &middot; Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>

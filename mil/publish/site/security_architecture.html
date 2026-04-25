@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — Security — CJI</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="Security architecture at CJI — three surfaces, Zero Entanglement, data flow, audit log design, and the defaults that matter.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/security/architecture/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="Architecture — Security — CJI">
+<meta property="og:description" content="Security architecture at CJI — three surfaces, Zero Entanglement, the audit log, and the defaults that matter.">
+<meta property="og:url" content="https://cjipro.com/security/architecture/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Architecture — Security — CJI">
+<meta name="twitter:description" content="Security architecture at CJI — three surfaces, Zero Entanglement, and the audit log design.">
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 88px 0 56px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Surface grid ─────────────────────────────────────────── */
+  .surface-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 12px;
+  }
+  .surface-card {
+    border: 1px solid var(--hairline);
+    background: var(--cream);
+    padding: 28px 24px;
+  }
+  .surface-number {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    color: var(--hairline);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .surface-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+  }
+  .surface-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 14px 0;
+  }
+  .surface-facts {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--muted);
+    border-top: 1px solid var(--hairline);
+    padding-top: 10px;
+    line-height: 1.8;
+  }
+  .surface-live { color: var(--live); }
+
+  /* ── Prose block ──────────────────────────────────────────── */
+  .prose-block {
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .prose-body {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 18px 0;
+  }
+  .prose-body:last-child { margin-bottom: 0; }
+
+  /* ── Rule block (Zero Entanglement) ──────────────────────── */
+  .rule-block {
+    border: 1px solid var(--accent);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .rule-headline {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 16px 0;
+    letter-spacing: -0.1px;
+    font-style: italic;
+  }
+  .rule-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 12px 0;
+  }
+  .rule-body:last-child { margin-bottom: 0; }
+  .rule-code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    padding: 4px 8px;
+    color: var(--ink);
+    display: inline-block;
+    margin: 0 2px;
+  }
+
+  /* ── Data flow list ───────────────────────────────────────── */
+  .flow-list {
+    margin: 16px 0 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .flow-item {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+  }
+  .flow-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+  }
+  .flow-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .flow-line {
+    width: 1px;
+    background: var(--hairline);
+    flex: 1;
+    margin-top: 4px;
+  }
+  .flow-item:last-child .flow-line { display: none; }
+  .flow-content {
+    padding: 0 0 22px 12px;
+  }
+  .flow-stage {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .flow-desc {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .flow-desc strong { color: var(--ink); }
+
+  /* ── Defaults list ────────────────────────────────────────── */
+  .defaults-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .defaults-list li {
+    padding: 13px 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .defaults-list li:first-child { border-top: 1px solid var(--hairline); }
+  .def-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--accent);
+    flex-shrink: 0;
+    padding-top: 2px;
+    min-width: 60px;
+  }
+
+  /* ── Breadcrumb ───────────────────────────────────────────── */
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .breadcrumb a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .breadcrumb span { margin: 0 6px; }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .lede { font-size: 17px; }
+    .hero { padding: 56px 0 32px 0; }
+    .surface-grid { grid-template-columns: 1fr; gap: 14px; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 17px; }
+    section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .prose-block { padding: 22px 20px; }
+    .rule-block { padding: 22px 20px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="breadcrumb">
+        <a href="/security/">Security</a>
+        <span>&rsaquo;</span>
+        Architecture
+      </div>
+      <div class="eyebrow">Security &middot; Architecture</div>
+      <h1>Architecture.</h1>
+      <p class="lede">
+        This page describes the technical boundaries of the CJI system, in plain
+        language. Three independent surfaces, one documented crossing point between
+        them, and the rule that enforces it at every build. Written for CISO and
+        security-architecture audiences evaluating the service.
+      </p>
+    </div>
+  </section>
+
+  <!-- Three surfaces -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">System boundaries</div>
+      <h2>The three surfaces.</h2>
+      <p class="section-lede">
+        CJI operates three independent surfaces. They do not share infrastructure,
+        databases, or import paths. The only permitted data crossing between the
+        first two is a single JSON file, documented below.
+      </p>
+
+      <div class="surface-grid">
+
+        <div class="surface-card">
+          <div class="surface-number">01</div>
+          <div class="surface-label">Public</div>
+          <h3>cjipro.com</h3>
+          <p class="surface-body">
+            GitHub Pages behind Cloudflare. No authentication. No customer data.
+            Static HTML only. The methodology, CJI Chronicle, and the Kestrel Cover
+            sample briefing live here. No server-side code executes on this surface.
+            A visitor who never authenticates sees only this.
+          </p>
+          <div class="surface-facts">
+            Hosting: GitHub Pages + Cloudflare CDN<br>
+            Auth: None<br>
+            Customer data: None<br>
+            <span class="surface-live">Status: Live</span>
+          </div>
+        </div>
+
+        <div class="surface-card">
+          <div class="surface-number">02</div>
+          <div class="surface-label">Authenticated</div>
+          <h3>login.cjipro.com<br>+ briefing surface</h3>
+          <p class="surface-body">
+            WorkOS-backed authentication via magic-link. Partners sign in through
+            <code>login.cjipro.com</code>, which issues a short-lived JWT. Every
+            request to the briefing pages passes through a Cloudflare Worker edge
+            bouncer that validates the JWT before passing the request to the origin.
+            Invalid or missing tokens are redirected to login. Allowlist-gated:
+            access requires explicit administrator approval. Audit-logged: every
+            auth event is recorded in the hash-chained D1 table.
+          </p>
+          <div class="surface-facts">
+            Hosting: Cloudflare Workers + D1<br>
+            Auth: WorkOS AuthKit, magic-link, JWT<br>
+            Customer data: Named email address only<br>
+            <span class="surface-live">Status: Live (alpha)</span>
+          </div>
+        </div>
+
+        <div class="surface-card">
+          <div class="surface-number">03</div>
+          <div class="surface-label">Private</div>
+          <h3>CJI Pulse</h3>
+          <p class="surface-body">
+            Runs inside a partner firm's environment, on that firm's telemetry
+            only. Never crosses into the MIL pipeline that powers the public
+            briefing. The two systems share no infrastructure, no import paths,
+            and no data stores. CJI Pulse does not currently operate on any
+            firm's live customer data; a DPIA is a prerequisite for activation.
+          </p>
+          <div class="surface-facts">
+            Hosting: Partner environment<br>
+            Auth: Partner-governed<br>
+            Customer data: Partner telemetry (DPIA required)<br>
+            Status: Not yet live on real data
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Zero Entanglement -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">The boundary rule</div>
+      <h2>Zero Entanglement.</h2>
+      <p class="section-lede">
+        The separation between the public-signal pipeline and the private-telemetry
+        product is a load-bearing architectural rule, not a convention.
+      </p>
+
+      <div class="rule-block">
+        <div class="rule-headline">"Zero Entanglement"</div>
+        <p class="rule-body">
+          No file inside the MIL pipeline may import from any internal-data path.
+          No file inside the Pulse codebase may import from MIL directly.
+          The only permitted data crossing in either direction is a single JSON
+          file: <span class="rule-code">mil/outputs/mil_findings.json</span>.
+          That file is the exit point from MIL; it is read-only from the Pulse side.
+          Nothing flows in the other direction.
+        </p>
+        <p class="rule-body">
+          This rule is enforced at build time by a dedicated static import
+          validator: <span class="rule-code">scripts/validate_mil_import_rule.py</span>.
+          A violation is a hard build failure, not a warning. The CI pipeline
+          cannot produce a deployable artefact if the boundary is crossed.
+        </p>
+        <p class="rule-body">
+          The practical consequence for security reviewers: it is architecturally
+          impossible for public market signal (app-store reviews, public press,
+          DownDetector data) and private customer telemetry (session data, PII,
+          internal identifiers) to occupy the same process, the same file, or
+          the same database. The validator enforces this at every commit.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data flow -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Signal path</div>
+      <h2>Data flow at a glance.</h2>
+      <p class="section-lede">
+        Public signal enters through a documented ingest layer and exits through
+        a single publish step. Nothing flows backward. Each stage transition is
+        a documented contract.
+      </p>
+
+      <ul class="flow-list">
+
+        <li class="flow-item">
+          <div class="flow-connector">
+            <div class="flow-dot"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-stage">Stage 1 &mdash; Ingest</div>
+            <p class="flow-desc">
+              <strong>Public signal sources</strong> — app store reviews (Apple App Store,
+              Google Play), DownDetector outage reports, City A.M. and FT RSS feeds,
+              Reddit community posts, YouTube comments. All sources are publicly
+              accessible with no authentication. Trust weights are configured per
+              source; no source exceeds 0.95.
+            </p>
+          </div>
+        </li>
+
+        <li class="flow-item">
+          <div class="flow-connector">
+            <div class="flow-dot"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-stage">Stage 2 &mdash; Enrich</div>
+            <p class="flow-desc">
+              <strong>Enrichment pipeline</strong> — each ingested record is classified
+              by issue type, customer journey, sentiment score, and severity class. The
+              classifier runs locally or via the Claude API (Haiku model). Records are
+              deduplicated by SHA-256 hash of full content before enrichment. Already-
+              enriched records are skipped; no record is re-classified once complete.
+            </p>
+          </div>
+        </li>
+
+        <li class="flow-item">
+          <div class="flow-connector">
+            <div class="flow-dot"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-stage">Stage 3 &mdash; Inference</div>
+            <p class="flow-desc">
+              <strong>CAC inference and Chronicle anchoring</strong> — the inference
+              engine groups enriched records into findings using a Confidence-Adjusted
+              Concern formula. Every finding must be anchored to an entry in the CJI
+              Chronicle (CHR-001 through CHR-019+) before it enters the production
+              findings set. Findings that cannot be anchored enter a research queue for
+              human review; they do not appear in briefings.
+            </p>
+          </div>
+        </li>
+
+        <li class="flow-item">
+          <div class="flow-connector">
+            <div class="flow-dot"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-stage">Stage 4 &mdash; Publish</div>
+            <p class="flow-desc">
+              <strong>Sonar briefing publish</strong> — the findings set is rendered
+              into an HTML briefing and pushed to GitHub Pages via the PublishAdapter
+              abstraction. All published content is static HTML. No database query
+              executes at request time on the public surface. Briefings on the
+              authenticated surface are served from the same static files, with the
+              edge bouncer enforcing access control before the origin receives any request.
+            </p>
+          </div>
+        </li>
+
+        <li class="flow-item">
+          <div class="flow-connector">
+            <div class="flow-dot"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-stage">Stage 5 &mdash; Audit</div>
+            <p class="flow-desc">
+              <strong>Audit log and per-tenant export</strong> — authentication events
+              generated during briefing access are written to the hash-chained D1 audit
+              table. Per-tenant exports are available on request. No data from the
+              briefing content itself is written back to any pipeline stage. The flow
+              is strictly one-way: ingest &rarr; enrich &rarr; infer &rarr; publish &rarr; audit.
+              Nothing re-enters the pipeline from the audit layer.
+            </p>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </section>
+
+  <!-- Audit log design -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Audit log</div>
+      <h2>Hash-chained integrity.</h2>
+
+      <div class="prose-block">
+        <p class="prose-body">
+          Every authentication event — sign-in, approval, denial, revocation,
+          admin action, force sign-out, webhook receipt — is appended to an
+          immutable D1 table. Each row carries a <code>row_hash</code> computed
+          from the row's own content and a <code>prev_hash</code> referencing
+          the preceding row's hash. This forms a hash chain: tampering with row
+          N changes its hash, which invalidates the <code>prev_hash</code> of
+          row N+1, which invalidates N+2, and so on to the current row. The
+          entire chain can be verified from any point using the verifier CLI
+          that ships with the audit package.
+        </p>
+        <p class="prose-body">
+          PII fields — IP address, user agent, and JWT subject — are not stored
+          in plaintext. Each is stored as
+          SHA-256(value &Vert; daily_salt), where the daily salt rotates at
+          midnight UTC and is stored in a separate <code>audit_salts</code> table.
+          If the event rows are extracted without the salts, the hashed values
+          cannot be reversed to recover IP addresses, user agents, or account
+          identifiers. Salts and event rows are kept in the same D1 database but
+          are queried independently.
+        </p>
+        <p class="prose-body">
+          Per-tenant audit exports (available via the admin interface) exclude
+          the internal hash columns. Partners receive event-type, timestamp, and
+          outcome fields — the information needed for their own compliance
+          logging — without the chain-integrity fields that are only meaningful
+          for internal verification.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The defaults that matter -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Configuration defaults</div>
+      <h2>The defaults that matter.</h2>
+      <p class="section-lede">
+        These are not aspirations. They are the production configuration as of
+        April 2026. Each item can be verified from the codebase or from inspection
+        of the running service.
+      </p>
+
+      <ul class="defaults-list">
+        <li>
+          <span class="def-label">TLS</span>
+          <span>TLS 1.3 enforced at the Cloudflare edge. Older protocol versions are not accepted. No mixed-content warnings on any page.</span>
+        </li>
+        <li>
+          <span class="def-label">Cookies</span>
+          <span>Session cookie name: <code>__Secure-cjipro-session</code>. Attributes: <code>Secure</code>, <code>HttpOnly</code>, <code>SameSite=Lax</code>, domain-scoped to <code>.cjipro.com</code>. The <code>__Secure-</code> prefix requires a secure context and cannot be set over HTTP. Cookie spec is codified in a TypeScript invariants module with 14 enforcement tests.</span>
+        </li>
+        <li>
+          <span class="def-label">JWT</span>
+          <span>WorkOS-issued JWTs carry a short expiry (~10 minutes in the current configuration). The edge bouncer validates the JWT signature against the WorkOS JWKS endpoint on every request. Expired tokens are redirected to login, not passed through.</span>
+        </li>
+        <li>
+          <span class="def-label">State token</span>
+          <span>The magic-link OAuth state token is HMAC-SHA256 signed with a randomly generated key and carries a 10-minute TTL. An expired or invalid state token causes the login flow to restart with a clear error. Open-redirect guard: the <code>return_to</code> parameter is validated against an allowlist of permitted destinations before use.</span>
+        </li>
+        <li>
+          <span class="def-label">Admin</span>
+          <span>All administrative actions — approval, denial, revocation, audit export, force sign-out — require a valid session for an account in the <code>admin_users</code> table. Every action is recorded in the audit log with the acting account's identifier and timestamp.</span>
+        </li>
+        <li>
+          <span class="def-label">No passwords</span>
+          <span>No password is stored anywhere in the system. Authentication is magic-link only. There is no password-reset flow because there are no passwords to reset.</span>
+        </li>
+        <li>
+          <span class="def-label">Rate limits</span>
+          <span>WAF rate-limiting rules at the Cloudflare edge: signup form (10 requests per IP per hour), admin API (60 per minute), authorisation entry point (30 per minute), and a global ceiling. An in-Worker rate limiter provides a user-facing first layer; the WAF rules are the harder backstop.</span>
+        </li>
+        <li>
+          <span class="def-label">No tracking</span>
+          <span>No third-party scripts are loaded from the public surface. No analytics service receives visitor data. Content-Security-Policy restricts resource loading to same-origin only (plus <code>'unsafe-inline'</code> for style — no external style sheets).</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Security section links -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Read more</div>
+      <h2>Other security pages.</h2>
+      <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">
+        <a href="/security/" style="font-family:var(--serif); font-size:16px; font-weight:700; color:var(--accent); padding:10px 18px; border:1px solid var(--hairline); background:var(--cream); display:inline-block;">Security hub &rarr;</a>
+        <a href="/security/standards/" style="font-family:var(--serif); font-size:16px; font-weight:700; color:var(--accent); padding:10px 18px; border:1px solid var(--hairline); background:var(--cream); display:inline-block;">Standards &rarr;</a>
+        <a href="/.well-known/security.txt" style="font-family:var(--serif); font-size:16px; font-weight:700; color:var(--accent); padding:10px 18px; border:1px solid var(--hairline); background:var(--cream); display:inline-block;">security.txt &rarr;</a>
+        <a href="/privacy/" style="font-family:var(--serif); font-size:16px; font-weight:700; color:var(--accent); padding:10px 18px; border:1px solid var(--hairline); background:var(--cream); display:inline-block;">Privacy notice &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI &middot; Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>
