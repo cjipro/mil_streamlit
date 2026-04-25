@@ -15,6 +15,10 @@ from .base import SignalSource, RawSignal
 logger = logging.getLogger(__name__)
 
 TRUST_WEIGHT = 0.90
+# 100 reviews per page × 5 pages = 500 reviews. Same rationale as AppStoreSource:
+# covers ~6 days of observed review velocity with margin against cron drift.
+MAX_PAGES = 5
+PAGE_SIZE = 100
 
 
 class GooglePlaySource(SignalSource):
@@ -25,6 +29,7 @@ class GooglePlaySource(SignalSource):
     def __init__(self, competitor: str, competitor_config: dict):
         super().__init__(competitor, competitor_config)
         self.package_id = competitor_config.get("google_play_id", "")
+        self.max_pages = int(competitor_config.get("google_play_max_pages", MAX_PAGES))
 
     def fetch(self) -> list:
         try:
@@ -32,14 +37,34 @@ class GooglePlaySource(SignalSource):
         except ImportError:
             raise ImportError("google-play-scraper not installed. Run: pip install google-play-scraper")
 
-        result, _ = reviews(
-            self.package_id,
-            lang="en",
-            country="gb",
-            sort=Sort.NEWEST,
-            count=100,
-        )
-        return result
+        all_results: list = []
+        token = None
+        page = 0
+        for page in range(1, self.max_pages + 1):
+            kwargs: dict = {
+                "lang": "en",
+                "country": "gb",
+                "sort": Sort.NEWEST,
+                "count": PAGE_SIZE,
+            }
+            if token is not None:
+                kwargs["continuation_token"] = token
+            try:
+                result, token = reviews(self.package_id, **kwargs)
+            except Exception as exc:
+                logger.warning("[google_play] %s page=%d fetch failed: %s — stopping pagination",
+                               self.competitor, page, exc)
+                break
+            if not result:
+                break
+            all_results.extend(result)
+            # google-play-scraper returns a _ContinuationToken object; .token is None
+            # when no more pages remain.
+            if token is None or getattr(token, "token", None) is None:
+                break
+        logger.info("[google_play] %s — paginated %d pages → %d reviews",
+                    self.competitor, page, len(all_results))
+        return all_results
 
     def parse(self, raw: list) -> list[dict]:
         results = []

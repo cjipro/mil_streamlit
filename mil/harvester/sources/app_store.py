@@ -18,7 +18,15 @@ from .base import SignalSource, RawSignal
 logger = logging.getLogger(__name__)
 
 TRUST_WEIGHT = 0.90
-BASE_URL = "https://itunes.apple.com/gb/rss/customerreviews/id={APP_ID}/sortBy=mostRecent/json"
+# iTunes RSS supports page=1..10 with 50 reviews per page (500 max). Default 5
+# (=250 reviews) covers ~6 days of observed velocity (~37 reviews/h × 6 banks
+# = ~50 banks-reviews/h app-side) with safety margin against cron drift, and
+# stops short of the 10-page hard cap so a single bad page won't kill the run.
+MAX_PAGES = 5
+BASE_URL = (
+    "https://itunes.apple.com/gb/rss/customerreviews/page={PAGE}/"
+    "id={APP_ID}/sortBy=mostRecent/json"
+)
 
 
 class AppStoreSource(SignalSource):
@@ -29,12 +37,32 @@ class AppStoreSource(SignalSource):
     def __init__(self, competitor: str, competitor_config: dict):
         super().__init__(competitor, competitor_config)
         self.app_id = competitor_config.get("app_store_id", "")
-        self.url = BASE_URL.format(APP_ID=self.app_id)
+        self.max_pages = int(competitor_config.get("app_store_max_pages", MAX_PAGES))
 
     def fetch(self) -> dict:
-        resp = requests.get(self.url, timeout=15)
-        resp.raise_for_status()
-        return resp.json()
+        all_entries: list = []
+        feed_meta = None
+        for page in range(1, self.max_pages + 1):
+            url = BASE_URL.format(PAGE=page, APP_ID=self.app_id)
+            try:
+                resp = requests.get(url, timeout=15)
+                resp.raise_for_status()
+            except requests.RequestException as exc:
+                logger.warning("[app_store] %s page=%d fetch failed: %s — stopping pagination",
+                               self.competitor, page, exc)
+                break
+            data = resp.json()
+            entries = data.get("feed", {}).get("entry", [])
+            # iTunes RSS prefixes the entry list with app metadata only on page 1
+            if page == 1 and entries and "im:name" in entries[0]:
+                feed_meta = entries[0]
+                entries = entries[1:]
+            if not entries:
+                break
+            all_entries.extend(entries)
+        logger.info("[app_store] %s — paginated %d pages → %d entries",
+                    self.competitor, page, len(all_entries))
+        return {"feed": {"entry": ([feed_meta] if feed_meta else []) + all_entries}}
 
     def parse(self, raw: dict) -> list[dict]:
         entries = raw.get("feed", {}).get("entry", [])
