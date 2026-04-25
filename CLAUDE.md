@@ -180,10 +180,11 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 - **ARCH-001**: Qwen-14B decommissioned from MIL enrichment. Claude Haiku is now primary enrichment model.
 - **ARCH-002**: qwen3:14b evaluated for enrichment (2026-04-03). 20-record blind test vs Haiku baseline: schema compliance 100%, issue_type agreement 90%, severity agreement 95%. DISQUALIFIED for enrichment — downgraded a P0 blocking issue to P2. P0 accuracy is non-negotiable for MIL. Haiku retained for enrichment. qwen3 approved for exec alert synthesis (Box 3) — **IMPLEMENTED 2026-04-05** in briefing_data.py via `_exec_alert_description()` using OpenAI-compat Ollama call + `get_model("exec_alert")`.
 - **ARCH-003**: Four-tier model routing formalised (MIL-26, 2026-04-12). Tier 1 Opus: governs — CHR proposals, teacher autopsies, CLARK-3 synthesis. Tier 2 Sonnet: drives daily intelligence — commentary, exec alert V3, churn narrative. Tier 3 Haiku/Refuel-8B: classifies at scale. Tier 4 Qwen3: labour — YAML, Markdown, scripts. model_routing.yaml schema v1.1.
+- **ARCH-006**: Enrichment route flipped qwen3:14b (Ollama) → claude-sonnet-4-6 (Anthropic) on 2026-04-25 (commit `e442152`). Reverses ARCH-004's cost-driven flip and goes one tier above ARCH-002's Haiku baseline. Provider switch handled by existing `_PROVIDER` branch in `enrich_sonnet.py` — zero code change. Severity gate retained as belt-and-braces. First production run: 1,287 records enriched, **zero ENRICHMENT_FAILED, zero subdivide retries, zero JSON parse failures** (qwen3 had needed `dc4111a` + `9602308` to stabilise). Cost ceiling ~$0.80/day at 200 records/day.
 
 ### Enrichment Pipeline (enrich_sonnet.py — schema v3) ← ACTIVE
 File: `mil/harvester/enrich_sonnet.py`
-- Model: **qwen3:14b via Ollama** (switched from Haiku — ARCH-004 2026-04-19, cost saving)
+- Model: **claude-sonnet-4-6 via Anthropic API** (ARCH-006 2026-04-25, flipped back from qwen3:14b). Provider switch is a one-line YAML edit in `mil/config/model_routing.yaml` — `enrich_sonnet.py` is provider-aware via `_PROVIDER` branch. First production run (1,287 records on 2026-04-25): zero ENRICHMENT_FAILED, zero subdivide retries, zero JSON parse failures.
 - Batch size: 10 records per API call
 - Schema v3 fields per record:
   - issue_type: 16 categories — loaded from `mil/config/domain_taxonomy.yaml` (MIL-32)
@@ -285,9 +286,11 @@ File: `mil/briefing_data.py`
   - Barclays sentiment: P0=8+, P1=3+, chronicle_id=CHR-004, both Box 1 quotes populated
   - Competitor ticker: NatWest worst, Barclays stable, HSBC now tracked
 
-### Sonar Briefing — publish.py (V1, ACTIVELY MAINTAINED)
+### Sonar Briefing — publish.py (V1, ACTIVELY MAINTAINED + LOAD-BEARING)
 File: `mil/publish/publish.py`
 - **V1 is live at cjipro.com/briefing** — actively maintained (not frozen)
+- **LOAD-BEARING for V2/V3/V4** (memory `feedback_v1_publisher_load_bearing.md`). V2/V3/V4 publishers all read V1's `output/index.html` and patch sections on top — Box 1 is owned by V1. When V1 publish fails, all four briefings silently render with stale Box 1 even with fresh data in `briefing_data.py`. Do NOT retire V1 (MIL-125) without first migrating V2/V3/V4 to render Box 1 directly from `briefing_data` instead of patching V1 HTML.
+- **Import fix 2026-04-25 (commit `20c1dac`)**: `from publish.adapters` → `from adapters` (bare). Old form failed because `mil/publish/__init__.py` is missing — V1 publish had been failing silently every cron run since the 2026-04-24 LF refactor. Symptom user caught: only Google Play in Box 1 on live briefing, App Store quote missing. Post-fix: live cjipro.com/briefing + briefing-v4 show all three Box 1 quote slots fresh.
 - Box 1: Barclays sentiment + dual quote boxes (App Store/Google Play) + brand lines + version pills
 - Box 2: Issues Status — Barclays issue_type counts, trend, P0/P1, direct quote
 - Box 3: **Barclays Alert** — 4-section layout: THE SITUATION / THE LESSON / SEVERITY / NEXT STEPS. Teacher-student framing. Dynamic teacher from sim_hist_score.
@@ -365,7 +368,7 @@ File: `mil/publish/publish_v4.py` + `mil/publish/templates/briefing_v4.html.j2` 
 py run_daily.py
 ```
 Steps (zero human intervention required):
-  1. Fetch — App Store + Google Play, all active competitors, dedup against existing
+  1. Fetch — App Store + Google Play, all active competitors, dedup against existing. **Pagination LIVE 2026-04-25 (commit `09a3217`, MIL-134)**: each fetcher walks 5 pages by default (App Store iTunes RSS `&page=N` 1..10 / 50-per-page = up to 250 reviews/source; Google Play `continuation_token` loop / 100-per-page = up to 500 reviews/source). Per-source override via `apps_config.yaml` `app_store_max_pages` / `google_play_max_pages`. Recovers reviews that page-1-only fetch was silently dropping when cron gaps opened — initial backlog refetch captured 1,420 records in 24s.
   2. Enrich — Claude Haiku schema v3, skip already-enriched v3 records (< 1 second if nothing new)
   3. Inference — mil_agent.py CAC + RAG, Chronicle matching, Designed Ceiling
   4a. Research Trigger — flags P0/P1 weak-anchor findings → mil/data/research_queue.jsonl
@@ -383,6 +386,7 @@ Steps (zero human intervention required):
 Flags:
   `--dry-run`    fetch + enrich only, skip inference + publish
   `--skip-fetch` skip fetch + enrich, re-run inference + publish only
+  `--step ID[,ID...]` MIL-124 (commit `1505041`): run isolated step(s) only — skips heartbeat / run-log / summary / partner email. Mutually exclusive with `--dry-run` and `--skip-fetch`. Valid IDs: 1, 2, 4, 4a, 4b, 4c, 4d, 4e, 4f, 5, 5b, 5c, 5d. Examples: `--step 5d` (re-publish V4 only), `--step 4,4d,5d` (rerun inference + benchmark + V4).
 
 Human is ONLY required for: governance review (CHR entries), M2 countersign, Jira ticket closure.
 
@@ -477,7 +481,7 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-109** (MIL-75..108 created 2026-04-25 evening for website rebuild — see memory `project_website_rebuild_plan.md`)
+**Next ticket: MIL-135** (MIL-109..132 created 2026-04-25 as the clonability/hygiene slate; MIL-113/118/124 BUILT 2026-04-25 late evening; MIL-133 filed 2026-04-25 for Box 1 third quote slot; MIL-134 filed retroactively 2026-04-25 for App Store + Google Play pagination — see memory `project_session_2026_04_25_late_clonability.md`)
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
@@ -760,6 +764,7 @@ Files: `mil/publish/site/{home,privacy,robots,sitemap,security}.html|txt|xml` (t
 - Log: mil/data/clark_log.jsonl
 
 ### Pending Human Actions (Hussain)
+- **2026-04-25 late-evening clonability session — close in Jira UI**: MIL-113 (.env hygiene), MIL-118 (chronicle_loader graceful degradation, commit `e6ab52a`), MIL-124 (run_daily.py `--step` flag, commit `1505041`), MIL-134 (App Store + Google Play pagination, commit `09a3217`, BUILT). MIL-116 description tightened with safeguards (still To Do — work itself awaits MIL-115). MIL-133 filed (Box 1 third quote slot). 6 commits `e6ab52a..aedd581` pushed to both remotes. Full session memory: `project_session_2026_04_25_late_clonability.md`.
 - **Website rebuild — natural first ticket: MIL-75** (Public site IA chrome). Foundation, free, code-only work in `mil/publish/site/`, no external dependencies, unblocks 8+ downstream tickets. Full ticket map at memory `project_website_rebuild_plan.md`. **Workflow rule (locked 2026-04-25): no phases, no timelines — work moves ticket-to-ticket based on dependency-readiness.**
 - **Apr 25 close in Jira UI**: MIL-11..31 (long-pending), MIL-53, MIL-56, MIL-60, MIL-61 (shadow-mode), MIL-63, MIL-64, **MIL-65, MIL-66, MIL-67 (Phase A only — Phase B mapping pending), MIL-68, MIL-69, MIL-70, MIL-71, MIL-72** (the auth-stack marathon — 8 tickets all LIVE in production, see ticket descriptions above for commit hashes + worker version IDs). **Plus from the 2026-04-25 afternoon website-chain session (memory `project_session_2026_04_25_website_chain.md`)**: MIL-75 / 76 / 77 / 78 / 79 / 80 / 81 (LIVE on cjipro.com — chain `3f80d7d → 8bb32ca`), MIL-51 / 52 (runbooks), MIL-85 (clients.yaml + loader BUILT). **Plus from the 2026-04-25 evening app.cjipro.com session (memory `project_session_2026_04_25_evening_app_cjipro.md`)**: MIL-82 (DNS done — Mode B), MIL-84 (Worker LIVE at app.cjipro.com), MIL-88 / 89 / 90 / 91 (four /products/{lever,pulse,reckoner,sonar}/ pages LIVE), MIL-92 (Reckoner default surface LIVE at /reckoner), MIL-93 Phase A (Reckoner ask-mode UI shell LIVE at /reckoner?mode=ask — leave open if you want Phase B as a separate close), MIL-94 (Reckoner trial form LIVE at /products/reckoner/trial/, **noindex** during alpha pending MIL-97). Chain: `8a4ff6a → cca7fad`.
 - **Apr 25 — website-chain admin steps (none blocking ship)**:
@@ -816,7 +821,7 @@ Files: `mil/publish/site/{home,privacy,robots,sitemap,security}.html|txt|xml` (t
 ### What MIL Is
 
 Sovereign Early Warning System built on 100% public market signals. Air-gapped from internal systems. Monitors 6 competitor apps (NatWest, Lloyds, HSBC, Monzo, Revolut, Barclays) across 6 signal sources: App Store (live), Google Play (live), DownDetector (MIL-17), City A.M. (MIL-18), Reddit (MIL-19), YouTube (MIL-22). Three sources evaluated and excluded: Facebook (poor ROI), Twitter/X (cost prohibitive), Glassdoor (wrong domain). One deferred: Trustpilot (legal risk). One deferred: FT (paywall).
-**Current corpus: 7,681+ enriched records. 142 findings | 100% anchored | 7 Designed Ceiling | 0 ENRICHMENT_FAILED. All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 50.8 WORSENING (Run #53, 2026-04-21). Streak 21/5. QLoRA specialist SHELVED 2026-04-20 — 4B trained model loses to qwen3:14b baseline (83.3% vs 93.3% on held-out eval), severity classification stays on the enrichment route. **Task Scheduler autonomy LIVE 2026-04-20; first unattended auto-fire 2026-04-28T06:30Z.**
+**Current corpus: 10,143+ enriched records (Run #62, 2026-04-25). 168 findings | 72 P0 | 2 P1 | 100% anchored | 7 Designed Ceiling | 0 ENRICHMENT_FAILED. 1,287 records newly enriched on Sonnet 4.6 (ARCH-006) on 2026-04-25; remaining ~7,800 historical on qwen3:14b. Pagination live (MIL-134). V1 publisher import fix landed (post-fix Box 1 fresh on all four briefings). All Day 30 metrics achieved 2026-04-05. CHRONICLE CHR-001 to CHR-019 auto-loaded via chronicle_loader.py. Embedding RAG live (all-MiniLM-L6-v2). CAC formula in cac.py, RAG layer in rag.py (both independently tested). Benchmark on 90-day rolling window. Churn score 50.8 WORSENING (Run #53, 2026-04-21). Streak 21/5. QLoRA specialist SHELVED 2026-04-20 — 4B trained model loses to qwen3:14b baseline (83.3% vs 93.3% on held-out eval), severity classification stays on the enrichment route. **Task Scheduler autonomy LIVE 2026-04-20; first unattended auto-fire 2026-04-28T06:30Z.**
 
 **Box 3 readability arc — 2026-04-20 foundation + 2026-04-21 overhaul:**
 - *Apr 20 (commits 1eaac82 → f5f28ab)* — Sonnet commentary prompt overhauled with 22-word sentence cap + banned-phrase list + strongest-risk-first ordering; Clark issue-level tier override; volume stat strip with surface-signal qualifier; quote selector rejects trailing fragments; Peer Comparison rank-based; internal CHR-XXX codes stripped from exec prose.
