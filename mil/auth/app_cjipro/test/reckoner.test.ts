@@ -94,10 +94,35 @@ describe("renderReckonerHtml", () => {
     expect(empty).toContain("No patterns escalated");
   });
 
-  test("disabled tabs render with aria-disabled", () => {
+  test("Drag-drop canvas tab still renders disabled", () => {
     const html = renderReckonerHtml(mvpSnapshot());
-    expect(html).toMatch(/aria-disabled="true"[^>]*>Conversational/);
     expect(html).toMatch(/aria-disabled="true"[^>]*>Drag-drop/);
+  });
+
+  test("Conversational drill-in tab is now an active link to ?mode=ask", () => {
+    const html = renderReckonerHtml(mvpSnapshot());
+    expect(html).toMatch(/href="\/reckoner\?mode=ask"[^>]*>Conversational/);
+    // No longer marked aria-disabled
+    expect(html).not.toMatch(/aria-disabled="true"[^>]*>Conversational/);
+  });
+
+  test("renderReckonerHtml(mvp, 'ask') renders the ask-mode body", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "ask");
+    expect(html).toContain("Ask Reckoner");
+    expect(html).toContain("Conversational drill-in is alpha");
+    expect(html).toMatch(/<textarea[^>]*name="query"/);
+    // Title reflects the mode
+    expect(html).toContain("CJI Reckoner — Conversational drill-in");
+  });
+
+  test("ask-mode footer label says drill-in (alpha)", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "ask");
+    expect(html).toContain("Reckoner conversational drill-in (alpha)");
+  });
+
+  test("default-mode title is the industry intelligence label", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "default");
+    expect(html).toContain("CJI Reckoner — Industry intelligence");
   });
 
   test("footer cross-links to public marketing surfaces", () => {

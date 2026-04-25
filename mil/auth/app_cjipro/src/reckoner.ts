@@ -1,7 +1,11 @@
-// MIL-92 — Reckoner default surface
+// MIL-92 + MIL-93 Phase A — Reckoner surfaces
 //
-// The cohort-agnostic landing view of CJI Reckoner. Three sections:
+// Reckoner has three interface modes per the locked brand spine:
+//   - Default surfacing (MIL-92, here as renderReckonerDefault)
+//   - Conversational drill-in (MIL-93, here as renderReckonerAsk)
+//   - Drag-drop canvas (post-MIL-93, still disabled tab)
 //
+// Default surface — three sections:
 //   1. INDUSTRY PULSE — top patterns surfaced this week, ranked by
 //      severity-weighted volume across the regulated-consumer cohort.
 //   2. ANOMALIES — patterns that diverged from baseline on this run,
@@ -9,16 +13,16 @@
 //   3. DECISIONS SURFACED — patterns escalated to a Clark tier and
 //      ready to be addressed (CLARK-2 ESCALATE, CLARK-3 ACT NOW).
 //
-// MVP behaviour: the page renders from a typed ReckonerSnapshot
-// argument. The Worker passes a baked-in MVP snapshot today; a
-// follow-up ticket wires the snapshot from mil/outputs/mil_findings
-// and benchmark_history via a daily build step or D1 sync.
+// Ask mode — alpha-state chat shell. The UI renders today; the
+// retrieval/synthesis backend (the existing mil/chat pipeline today
+// served from sonar.cjipro.com) wires up in MIL-93 Phase B once the
+// tunnel migrates off sonar (post-MIL-95).
 //
-// Not yet implemented (deliberate — Reckoner has three interface
-// modes per the brand spine; this is "default surfacing" only):
-//   - Conversational drill-in (MIL-93)
-//   - Drag-drop canvas (post-MIL-93)
-// Tabs render but the non-default modes are disabled in MVP.
+// MVP behaviour: the default surface renders from a typed
+// ReckonerSnapshot argument. The Worker passes a baked-in MVP
+// snapshot today; a follow-up ticket wires the snapshot from
+// mil/outputs/mil_findings and benchmark_history via a daily build
+// step or D1 sync.
 
 export type ClarkTier = "CLARK-0" | "CLARK-1" | "CLARK-2" | "CLARK-3";
 export type Trend = "WORSENING" | "STABLE" | "IMPROVING";
@@ -112,10 +116,61 @@ const CSS = `
     font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px;
     padding: 10px 14px 12px; border: 0; border-bottom: 2px solid transparent;
     background: transparent; color: var(--muted); cursor: pointer;
+    text-decoration: none; display: inline-block;
   }
+  a.tab { border-bottom: 2px solid transparent; }
+  a.tab:hover { color: var(--ink); border-bottom-color: var(--hairline); }
   .tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab.active:hover { border-bottom-color: var(--accent); }
   .tab.disabled { color: var(--hairline); cursor: not-allowed; }
   .tab-coming { display: inline-block; margin-left: 6px; font-size: 9px; color: var(--coming, #B07A1F); letter-spacing: 1.2px; }
+
+  /* ── Ask mode (MIL-93 Phase A) ────────────────────────── */
+  .ask-pane { padding: 36px 0; }
+  .ask-grid {
+    display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start;
+  }
+  .ask-form { display: flex; flex-direction: column; gap: 12px; }
+  .ask-textarea {
+    width: 100%; min-height: 96px; padding: 14px 16px;
+    font-family: var(--serif); font-size: 16px; line-height: 1.5;
+    color: var(--ink); background: var(--paper);
+    border: 1px solid var(--hairline); border-radius: 0;
+    resize: vertical;
+  }
+  .ask-textarea:focus { outline: 0; border-color: var(--accent); }
+  .ask-row { display: flex; align-items: center; gap: 14px; }
+  .ask-submit {
+    font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px;
+    padding: 10px 18px; border: 0; background: var(--navy); color: #fff;
+    cursor: pointer; font-weight: 600;
+  }
+  .ask-submit:hover { background: var(--accent); }
+  .ask-submit:disabled { background: var(--hairline); color: var(--muted); cursor: not-allowed; }
+  .ask-hint { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.4px; }
+  .ask-stub {
+    margin-top: 28px; padding: 22px 26px;
+    background: var(--cream); border-left: 3px solid var(--coming, #B07A1F);
+    font-family: var(--serif); font-size: 15px; line-height: 1.55; color: var(--ink-soft);
+  }
+  .ask-stub strong { color: var(--ink); }
+  .ask-side { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+  .ask-side h3 {
+    font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.6px;
+    color: var(--muted); font-weight: 600; margin: 0 0 12px 0;
+  }
+  .ask-side ul { margin: 0 0 22px 0; padding: 0; list-style: none; }
+  .ask-side li {
+    font-family: var(--serif); font-size: 14px; padding: 6px 0;
+    border-bottom: 1px solid var(--hairline); color: var(--ink);
+  }
+  .ask-side li:last-child { border-bottom: 0; }
+  .ask-side .out-of-scope {
+    font-size: 12px; color: var(--muted); padding-left: 0;
+  }
+  @media (max-width: 720px) {
+    .ask-grid { grid-template-columns: 1fr; gap: 20px; }
+  }
 
   /* ── Section heading + scaffolding ────────────────────── */
   section { padding: 36px 0; }
@@ -305,53 +360,28 @@ function renderDecisions(rows: DecisionRow[]): string {
     </table>`;
 }
 
-export function renderReckonerHtml(snap: ReckonerSnapshot): string {
+export type ReckonerMode = "default" | "ask";
+
+function renderTabs(active: ReckonerMode): string {
+  const defCls = active === "default" ? "tab active" : "tab";
+  const askCls = active === "ask" ? "tab active" : "tab";
+  const defAttr = active === "default" ? ' aria-current="page"' : "";
+  const askAttr = active === "ask" ? ' aria-current="page"' : "";
+  return `
+<nav class="tabs">
+  <div class="wrap tabs-inner">
+    <a class="${defCls}" href="/reckoner"${defAttr}>Default surface</a>
+    <a class="${askCls}" href="/reckoner?mode=ask"${askAttr}>Conversational drill-in <span class="tab-coming">Alpha</span></a>
+    <span class="tab disabled" aria-disabled="true">Drag-drop canvas <span class="tab-coming">Coming</span></span>
+  </div>
+</nav>`;
+}
+
+function renderDefaultBody(snap: ReckonerSnapshot): string {
   const totalP0 = snap.industry_pulse.filter((r) => r.severity === "P0").length;
   const worsening = snap.industry_pulse.filter((r) => r.trend === "WORSENING").length;
   const anchored = snap.anomalies.length;
-  const banner = snap.is_alpha_preview
-    ? `<div class="alpha-banner"><div class="wrap">Alpha preview · illustrative content · live data wiring follow-up</div></div>`
-    : "";
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CJI Reckoner — Industry intelligence</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'none'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
-<meta name="robots" content="noindex,nofollow">
-<style>${CSS}</style>
-</head>
-<body>
-
-<header class="topbar">
-  <div class="wrap topbar-inner">
-    <div class="brand-mark">
-      <span class="brand">CJI</span>
-      <span class="product-name">Reckoner</span>
-    </div>
-    <div class="meta-strip">
-      <span>${escapeHtml(snap.cohort_label)}</span>
-      <span>Run #${snap.run_number}</span>
-      <span>${escapeHtml(snap.generated_at)}</span>
-      <span>${snap.corpus_size.toLocaleString("en-GB")} signals</span>
-    </div>
-  </div>
-</header>
-
-${banner}
-
-<nav class="tabs">
-  <div class="wrap tabs-inner">
-    <button class="tab active" type="button" aria-current="page">Default surface</button>
-    <button class="tab disabled" type="button" disabled aria-disabled="true">Conversational drill-in <span class="tab-coming">Coming</span></button>
-    <button class="tab disabled" type="button" disabled aria-disabled="true">Drag-drop canvas <span class="tab-coming">Coming</span></button>
-  </div>
-</nav>
-
+  return `
 <main>
 
   <section>
@@ -427,11 +457,136 @@ ${banner}
     </div>
   </section>
 
-</main>
+</main>`;
+}
+
+function renderAskBody(): string {
+  // MIL-93 Phase A: UI shell only. The form posts to /reckoner/ask
+  // (a route that returns the same page with a stub response inline).
+  // Phase B wires the form to the live retrieval pipeline once the
+  // tunnel migrates off sonar.cjipro.com (post-MIL-95).
+  return `
+<main>
+  <section class="ask-pane">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="section-eyebrow">Section · Drill-in</div>
+          <h2>Ask Reckoner.</h2>
+        </div>
+      </div>
+      <p class="section-lede">
+        Ask a question about a cohort pattern, a Chronicle entry, or
+        a journey shape across the regulated-consumer landscape.
+        Reckoner answers with verbatim public-signal evidence,
+        sector-precedent anchors, and confidence flags. Internal
+        firm telemetry is out of scope by design — that lives in
+        Sonar (per-firm) and Pulse (live).
+      </p>
+
+      <div class="ask-grid">
+        <div>
+          <form class="ask-form" action="/reckoner?mode=ask" method="post" autocomplete="off">
+            <textarea
+              class="ask-textarea"
+              name="query"
+              placeholder="e.g. What are the top three login-failure patterns across UK banking apps in the last 30 days, and which Chronicle entries do they rhyme with?"
+              maxlength="800"
+              aria-label="Ask Reckoner a question"
+            ></textarea>
+            <div class="ask-row">
+              <button class="ask-submit" type="submit" disabled aria-disabled="true">Send</button>
+              <span class="ask-hint">Backend integration follows MIL-95 — UI shell only in alpha.</span>
+            </div>
+          </form>
+
+          <div class="ask-stub">
+            <strong>Conversational drill-in is alpha.</strong> The retrieval
+            pipeline that powers this surface ships next, alongside the
+            retirement of <code>sonar.cjipro.com</code>. Today's
+            conversational chat is still served from that legacy host
+            (alpha cohort only); the move into Reckoner here is the
+            architectural target.
+          </div>
+        </div>
+
+        <aside class="ask-side">
+          <h3>In scope</h3>
+          <ul>
+            <li>Cross-firm cohort patterns (UK retail banking)</li>
+            <li>Chronicle precedents (CHR-001..019)</li>
+            <li>Severity, persistence, peer benchmarks</li>
+            <li>Verbatim public-signal evidence (App Store, Google Play, DownDetector, City A.M., Reddit, YouTube)</li>
+          </ul>
+          <h3>Out of scope</h3>
+          <ul>
+            <li class="out-of-scope">Internal firm telemetry — Sonar / Pulse</li>
+            <li class="out-of-scope">Specific customers — never named, never inferred</li>
+            <li class="out-of-scope">Forward speculation beyond evidence</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>`;
+}
+
+export function renderReckonerHtml(
+  snap: ReckonerSnapshot,
+  mode: ReckonerMode = "default",
+): string {
+  const banner = snap.is_alpha_preview
+    ? `<div class="alpha-banner"><div class="wrap">Alpha preview · illustrative content · live data wiring follow-up</div></div>`
+    : "";
+  const title =
+    mode === "ask"
+      ? "CJI Reckoner — Conversational drill-in"
+      : "CJI Reckoner — Industry intelligence";
+  const body = mode === "ask" ? renderAskBody() : renderDefaultBody(snap);
+  const footerLabel =
+    mode === "ask"
+      ? "Reckoner conversational drill-in (alpha)"
+      : "Reckoner default surface (alpha)";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(title)}</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'none'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+<meta name="robots" content="noindex,nofollow">
+<style>${CSS}</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand-mark">
+      <span class="brand">CJI</span>
+      <span class="product-name">Reckoner</span>
+    </div>
+    <div class="meta-strip">
+      <span>${escapeHtml(snap.cohort_label)}</span>
+      <span>Run #${snap.run_number}</span>
+      <span>${escapeHtml(snap.generated_at)}</span>
+      <span>${snap.corpus_size.toLocaleString("en-GB")} signals</span>
+    </div>
+  </div>
+</header>
+
+${banner}
+
+${renderTabs(mode)}
+
+${body}
 
 <footer>
   <div class="wrap" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
-    <div>&copy; 2026 CJI · Reckoner default surface (alpha)</div>
+    <div>&copy; 2026 CJI · ${escapeHtml(footerLabel)}</div>
     <div>
       <a href="https://cjipro.com/insights/methodology/">Methodology</a>
       <a href="https://cjipro.com/security/">Security</a>

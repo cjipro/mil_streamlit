@@ -41,14 +41,52 @@ describe("dispatch", () => {
     expect(body).toContain("Alpha preview");
   });
 
-  test("Reckoner page disables the two non-MVP tabs", async () => {
+  test("Reckoner page disables Drag-drop canvas tab (Conversational is alpha)", async () => {
     const res = dispatch(req("/reckoner"));
     const body = await res!.text();
     expect(body).toContain("Conversational drill-in");
     expect(body).toContain("Drag-drop canvas");
-    // Both should be marked disabled in the HTML
-    expect(body).toMatch(/class="tab disabled"[^>]*>Conversational/);
+    // Drag-drop is still the only fully-disabled tab
     expect(body).toMatch(/class="tab disabled"[^>]*>Drag-drop/);
+    // Conversational drill-in is now an active <a> link to ?mode=ask
+    expect(body).toMatch(/href="\/reckoner\?mode=ask"[^>]*>Conversational/);
+  });
+
+  test("/reckoner?mode=ask renders the ask-mode UI shell", async () => {
+    const res = dispatch(req("/reckoner?mode=ask"));
+    expect(res!.status).toBe(200);
+    const body = await res!.text();
+    expect(body).toContain("Ask Reckoner");
+    expect(body).toContain("Conversational drill-in is alpha");
+    expect(body).toContain("In scope");
+    expect(body).toContain("Out of scope");
+    // The ask-form textarea is present
+    expect(body).toMatch(/<textarea[^>]*name="query"/);
+    // Submit button is disabled in Phase A
+    expect(body).toMatch(/<button[^>]*class="ask-submit"[^>]*disabled/);
+  });
+
+  test("/reckoner?mode=ask shows Conversational tab as active", async () => {
+    const res = dispatch(req("/reckoner?mode=ask"));
+    const body = await res!.text();
+    expect(body).toMatch(/class="tab active"[^>]*aria-current="page"[^>]*>Conversational/);
+    // Default surface should NOT be active
+    expect(body).not.toMatch(/class="tab active"[^>]*>Default surface/);
+  });
+
+  test("/reckoner (no mode) shows Default surface tab as active", async () => {
+    const res = dispatch(req("/reckoner"));
+    const body = await res!.text();
+    expect(body).toMatch(/class="tab active"[^>]*aria-current="page"[^>]*>Default surface/);
+  });
+
+  test("/reckoner?mode=invalid falls back to default surface", async () => {
+    const res = dispatch(req("/reckoner?mode=invalid"));
+    expect(res!.status).toBe(200);
+    const body = await res!.text();
+    // Should render the default body (Industry Pulse), not ask-mode
+    expect(body).toContain("Industry Pulse");
+    expect(body).not.toContain("Ask Reckoner");
   });
 
   test("Reckoner page declares CSP + nosniff + noindex", async () => {

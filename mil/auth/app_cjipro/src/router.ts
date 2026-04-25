@@ -1,17 +1,19 @@
-// MIL-84 — pathname → handler dispatch for app.cjipro.com.
+// MIL-84 + MIL-93 Phase A — pathname → handler dispatch for app.cjipro.com.
 //
-// MVP routes (this Worker grows as MIL-86/93/etc land):
-//   /            → 302 to /reckoner (default landing)
-//   /reckoner    → MIL-92 Reckoner default surface
-//   /healthz     → liveness probe (public allowlist)
-//   /favicon.ico → empty 204
+// MVP routes:
+//   /                              → 302 to /reckoner
+//   /reckoner                      → MIL-92 Reckoner default surface
+//   /reckoner?mode=ask             → MIL-93 Reckoner ask-mode (UI shell)
+//   /healthz                       → liveness probe (public allowlist)
+//   /favicon.ico                   → empty 204
 //
 // Future:
-//   /sonar/{client_slug}/{date}/  → MIL-86 Sonar URL migration
-//   /pulse                        → Pulse workspace (post-MVP)
-//   /lever                        → Lever workspace (post-MVP)
+//   /sonar/{client_slug}/{date}/   → MIL-86 Sonar URL migration
+//   /pulse                         → Pulse workspace (post-MVP)
+//   /lever                         → Lever workspace (post-MVP)
+//   /reckoner POST (mode=ask)      → MIL-93 Phase B: live retrieval
 
-import { renderReckonerHtml, mvpSnapshot } from "./reckoner";
+import { renderReckonerHtml, mvpSnapshot, type ReckonerMode } from "./reckoner";
 
 export type RouteHandler = (request: Request) => Response;
 
@@ -41,8 +43,14 @@ p{color:#6B7A85}a{color:#003A5C}</style></head>
   return htmlResponse(html, 404);
 }
 
-function reckonerHandler(_request: Request): Response {
-  return htmlResponse(renderReckonerHtml(mvpSnapshot()));
+function parseMode(url: URL): ReckonerMode {
+  const raw = url.searchParams.get("mode");
+  return raw === "ask" ? "ask" : "default";
+}
+
+function reckonerHandler(request: Request): Response {
+  const url = new URL(request.url);
+  return htmlResponse(renderReckonerHtml(mvpSnapshot(), parseMode(url)));
 }
 
 function rootRedirect(request: Request): Response {
