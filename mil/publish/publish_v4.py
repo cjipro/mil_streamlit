@@ -35,6 +35,7 @@ from __future__ import annotations
 import difflib
 import sys
 from datetime import datetime, timezone
+from functools import partial
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -62,6 +63,17 @@ from mil.publish.box3_selector import (
 
 TEMPLATE_NAME = "briefing_v4.html.j2"
 
+# Canonical bank ordering — preserves the historical hardcoded order from
+# publish_v3 (natwest/lloyds/hsbc/monzo/revolut). When subject_slug is
+# filtered out, the remaining sequence is the canonical peer order. Don't
+# substitute legacy.COMP_LABELS.keys() here — its dict-insertion order
+# differs (hsbc is last) and the diff-gate flags it as a structural drift.
+_ALL_BANK_SLUGS = ["barclays", "natwest", "lloyds", "hsbc", "monzo", "revolut"]
+
+
+def _peer_slugs(subject_slug: str) -> list[str]:
+    return [s for s in _ALL_BANK_SLUGS if s != subject_slug]
+
 
 # ── Jinja environment ────────────────────────────────────────────────────────
 def _env() -> Environment:
@@ -83,7 +95,7 @@ def _render_block(block_name: str, ctx: dict) -> str:
 
 
 # ── Box 3 (Intelligence Brief) context builder ───────────────────────────────
-def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
+def _box3_context(benchmark_result: dict, boxes: list[dict], subject_slug: str = "barclays") -> dict:
     """
     Shape Box 3 inputs from benchmark + commentary results. Mirrors the
     data-prep in legacy._build_exec_summary_box so diffs isolate to HTML
@@ -136,16 +148,17 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
         top = selected
         issue_name = top["issue_type"]
         gap    = top["gap_pp"]
-        b_rate = top.get("barclays_rate", 0.0)
+        b_rate = top.get(f"{subject_slug}_rate", top.get("barclays_rate", 0.0))
         p_rate = top.get("peer_avg_rate", 0.0)
         days   = top.get("days_active", 0)
         cat    = top.get("category", "technical")
 
-        # Rank-of-6 prose (matches publish_v3.py style). Stat strip already carries the
+        # Rank-of-N prose (matches publish_v3.py style). Stat strip already carries the
         # absolute gap, so peer paragraph adds relative position + best-peer identity.
         benchmark_raw = benchmark_result.get("benchmark", {})
-        all_rates: dict[str, float] = {legacy.COMP_LABELS.get("barclays", "Barclays"): b_rate}
-        for comp in ["natwest", "lloyds", "hsbc", "monzo", "revolut"]:
+        subject_label = legacy.COMP_LABELS.get(subject_slug, subject_slug.title())
+        all_rates: dict[str, float] = {subject_label: b_rate}
+        for comp in _peer_slugs(subject_slug):
             comp_data = benchmark_raw.get("competitors", {}).get(comp, {})
             rate = comp_data.get(cat, {}).get(issue_name)
             if rate is not None:
@@ -155,7 +168,7 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
             ranked = sorted(all_rates.items(), key=lambda kv: kv[1])
             pos = next(
                 (i + 1 for i, (name, _) in enumerate(ranked)
-                 if name == legacy.COMP_LABELS.get("barclays", "Barclays")),
+                 if name == subject_label),
                 len(ranked),
             )
             if 10 <= pos % 100 <= 20:
@@ -174,17 +187,18 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
         if under:
             strength = under[0]
             peer_prose += (
-                f" On {strength['issue_type']}, Barclays leads the cohort — "
+                f" On {strength['issue_type']}, {subject_label} leads the cohort — "
                 f"{abs(strength['gap_pp']):.1f}pp below average."
             )
     else:
-        peer_prose = "Barclays complaint rates are broadly in line with the 5-bank peer cohort. No material over-indexed issues detected."
+        subject_label = legacy.COMP_LABELS.get(subject_slug, subject_slug.title())
+        peer_prose = f"{subject_label} complaint rates are broadly in line with the peer cohort. No material over-indexed issues detected."
 
     top_tier = selected.get("clark_tier", "CLARK-0") if selected else "CLARK-0"
     if top_tier == "CLARK-0":
         try:
             active_clark = [e for e in clark_summary.get("active", [])
-                            if e.get("competitor") == "barclays"]
+                            if e.get("competitor") == subject_slug]
             for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
                 if any(e.get("clark_tier") == t for e in active_clark):
                     top_tier = t
@@ -210,12 +224,12 @@ def _box3_context(benchmark_result: dict, boxes: list[dict]) -> dict:
     }
 
 
-def _build_exec_summary_box_jinja(benchmark_result: dict, boxes: list[dict]) -> str:
-    return _render_block("box3_intelligence_brief", _box3_context(benchmark_result, boxes))
+def _build_exec_summary_box_jinja(benchmark_result: dict, boxes: list[dict], subject_slug: str = "barclays") -> str:
+    return _render_block("box3_intelligence_brief", _box3_context(benchmark_result, boxes, subject_slug))
 
 
 # ── Commentary context builder ───────────────────────────────────────────────
-def _commentary_context(boxes: list[dict]) -> dict:
+def _commentary_context(boxes: list[dict], subject_slug: str = "barclays") -> dict:
     cards = []
     for box in boxes:
         btype   = box["type"]
@@ -229,7 +243,7 @@ def _commentary_context(boxes: list[dict]) -> dict:
             "cat_label": box["category"].upper(),
             "sev":       sev,
             "sev_cls":   f"sev-{sev.lower()}",
-            "b_rate":    box["barclays_rate"],
+            "b_rate":    box.get(f"{subject_slug}_rate", box.get("barclays_rate", 0.0)),
             "p_rate":    box["peer_avg_rate"],
             "gap_str":   f"+{gap:.1f}pp" if gap > 0 else f"{gap:.1f}pp",
             "gap_col":   "#CC3333" if gap > 0 else "#00AFA0",
@@ -249,10 +263,10 @@ def _commentary_context(boxes: list[dict]) -> dict:
     }
 
 
-def _build_commentary_section_jinja(boxes: list[dict]) -> str:
+def _build_commentary_section_jinja(boxes: list[dict], subject_slug: str = "barclays") -> str:
     if not boxes:
         return ""
-    return _render_block("analyst_commentary", _commentary_context(boxes))
+    return _render_block("analyst_commentary", _commentary_context(boxes, subject_slug))
 
 
 # ── Benchmark (technical + service) context builder ──────────────────────────
@@ -260,13 +274,14 @@ _BENCH_SEV_COL = {"P0": "#CC0000", "P1": "#F5A623", "P2": "#4A9BD4"}
 
 
 def _benchmark_context(category: str, category_label: str,
-                       benchmark: dict, persistence_map: dict) -> dict:
-    barcl_rates = benchmark.get("competitors", {}).get("barclays", {}).get(category, {})
-    peer_avg    = benchmark.get("peer_avg", {}).get(category, {})
+                       benchmark: dict, persistence_map: dict,
+                       subject_slug: str = "barclays") -> dict:
+    subj_rates = benchmark.get("competitors", {}).get(subject_slug, {}).get(category, {})
+    peer_avg   = benchmark.get("peer_avg", {}).get(category, {})
 
     rows = []
-    for issue in sorted(barcl_rates.keys()):
-        b_rate = barcl_rates.get(issue, 0.0)
+    for issue in sorted(subj_rates.keys()):
+        b_rate = subj_rates.get(issue, 0.0)
         p_rate = peer_avg.get(issue, 0.0)
         gap    = b_rate - p_rate
 
@@ -294,7 +309,7 @@ def _benchmark_context(category: str, category_label: str,
         })
 
     comp_pills = []
-    for comp in ["natwest", "lloyds", "hsbc", "monzo", "revolut"]:
+    for comp in _peer_slugs(subject_slug):
         rates = benchmark.get("competitors", {}).get(comp, {}).get(category, {})
         avg   = sum(rates.values()) / max(len(rates), 1)
         comp_pills.append({
@@ -313,8 +328,9 @@ def _benchmark_context(category: str, category_label: str,
 
 
 def _build_benchmark_section_jinja(category: str, category_label: str,
-                                   benchmark: dict, persistence_map: dict) -> str:
-    section_ctx = _benchmark_context(category, category_label, benchmark, persistence_map)
+                                   benchmark: dict, persistence_map: dict,
+                                   subject_slug: str = "barclays") -> str:
+    section_ctx = _benchmark_context(category, category_label, benchmark, persistence_map, subject_slug)
     if not section_ctx["rows"]:
         return ""
     if category == "technical":
@@ -378,16 +394,16 @@ def _findings_context(findings: list[dict], render_provenance: bool) -> dict:
     }
 
 
-def _render_findings_block(render_provenance: bool) -> str:
-    findings = legacy.load_findings(competitor="barclays", limit=8)
+def _render_findings_block(render_provenance: bool, subject_slug: str = "barclays") -> str:
+    findings = legacy.load_findings(competitor=subject_slug, limit=8)
     if not findings:
         return ""
     return _render_block("intelligence_findings", _findings_context(findings, render_provenance))
 
 
-def _build_findings_section_jinja() -> str:
+def _build_findings_section_jinja(subject_slug: str = "barclays") -> str:
     """Production renders always include the FCA four-field Provenance Chain."""
-    return _render_findings_block(render_provenance=True)
+    return _render_findings_block(render_provenance=True, subject_slug=subject_slug)
 
 
 # ── Clark Protocol context builder ───────────────────────────────────────────
@@ -395,9 +411,9 @@ _CLARK_TIER_STRIP = ["CLARK-3", "CLARK-2", "CLARK-1", "CLARK-0"]
 _CLARK_ROW_ORDER  = {"CLARK-3": 0, "CLARK-2": 1, "CLARK-1": 2}
 
 
-def _clark_context() -> dict:
+def _clark_context(subject_slug: str = "barclays") -> dict:
     summary = legacy.active_clark_summary()
-    active  = [e for e in summary.get("active", []) if e.get("competitor") == "barclays"]
+    active  = [e for e in summary.get("active", []) if e.get("competitor") == subject_slug]
 
     by_tier: dict[str, int] = {}
     for e in active:
@@ -427,29 +443,41 @@ def _clark_context() -> dict:
     return {"clark": {"tiles": tiles, "rows": rows}}
 
 
-def _build_clark_section_jinja() -> str:
-    return _render_block("clark_protocol", _clark_context())
+def _build_clark_section_jinja(subject_slug: str = "barclays") -> str:
+    return _render_block("clark_protocol", _clark_context(subject_slug))
 
 
 # ── Full-page generator — monkeypatches legacy builders to Jinja renderers ───
-_JINJA_OVERRIDES = {
-    "_build_exec_summary_box":   _build_exec_summary_box_jinja,
-    "_build_commentary_section": _build_commentary_section_jinja,
-    "_build_benchmark_section":  _build_benchmark_section_jinja,
-    "_build_findings_section":   _build_findings_section_jinja,
-    "_build_clark_section":      _build_clark_section_jinja,
-}
+def _jinja_overrides(subject_slug: str) -> dict:
+    """
+    Build the patch dict with subject_slug pre-bound. Legacy V3's call
+    sites use the original signatures (no subject arg) — partial() binds
+    the subject as a keyword default so legacy calls succeed unchanged.
+    """
+    return {
+        "_build_exec_summary_box":   partial(_build_exec_summary_box_jinja, subject_slug=subject_slug),
+        "_build_commentary_section": partial(_build_commentary_section_jinja, subject_slug=subject_slug),
+        "_build_benchmark_section":  partial(_build_benchmark_section_jinja, subject_slug=subject_slug),
+        "_build_findings_section":   partial(_build_findings_section_jinja, subject_slug=subject_slug),
+        "_build_clark_section":      partial(_build_clark_section_jinja, subject_slug=subject_slug),
+    }
 
 
-def generate_v4_html(v1_html: str) -> str:
+def generate_v4_html(v1_html: str, subject_slug: str = "barclays") -> str:
     """
     Build V4 HTML by monkeypatching legacy's six section builders to render
     via the Jinja2 template, then delegating to legacy.generate_v3_html for
     non-section orchestration (V3_STYLES injection, _replace_box3, etc.).
     Patches are restored on exit — legacy V3 output is unaffected.
+
+    `subject_slug` selects which client the briefing is generated FOR.
+    Default is "barclays" (today's only subject per clients.yaml). Note:
+    `v1_html` must be the V1 render for the same subject — V1 is the
+    Box 1 source of truth and is currently barclays-only.
     """
-    saved = {name: getattr(legacy, name) for name in _JINJA_OVERRIDES}
-    for name, fn in _JINJA_OVERRIDES.items():
+    overrides = _jinja_overrides(subject_slug)
+    saved = {name: getattr(legacy, name) for name in overrides}
+    for name, fn in overrides.items():
         setattr(legacy, name, fn)
     try:
         return legacy.generate_v3_html(v1_html)
@@ -596,14 +624,32 @@ def diff_gate() -> int:
 
 
 # ── Publish (MIL-35 PublishAdapter) ──────────────────────────────────────────
-def publish_v4(html_content: str) -> tuple[bool, str]:
+DEFAULT_TARGET_PATH = "briefing-v4/index.html"
+
+
+def publish_v4(html_content: str, target_path: str = DEFAULT_TARGET_PATH) -> tuple[bool, str]:
     """
-    Push briefing-v4/index.html via the configured PublishAdapter
+    Push the V4 HTML to `target_path` via the configured PublishAdapter
     (mil/config/publish_config.yaml). Clone operators swap targets there
     without touching this file.
+
+    `target_path` defaults to the legacy `briefing-v4/index.html`. MIL-86
+    soft launch uses `sonar/{client_slug}/{date}/index.html` for the
+    new gated URL, served through app.cjipro.com Worker.
     """
     from adapters import get_adapter
-    return get_adapter().publish("briefing-v4/index.html", html_content)
+    return get_adapter().publish(target_path, html_content)
+
+
+# ── CLI parsing ──────────────────────────────────────────────────────────────
+def _parse_cli_arg(args: list[str], flag: str, default: str) -> str:
+    """Tiny CLI-flag reader. Avoids argparse to keep the script portable
+    across the script-mode (sys.path tricks) entry from run_daily.py."""
+    if flag in args:
+        idx = args.index(flag)
+        if idx + 1 < len(args):
+            return args[idx + 1]
+    return default
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -613,6 +659,9 @@ def main() -> int:
     if "--diff-gate" in args:
         return diff_gate()
 
+    subject_slug = _parse_cli_arg(args, "--subject", "barclays")
+    target_path  = _parse_cli_arg(args, "--target-path", DEFAULT_TARGET_PATH)
+
     v1_path = OUTPUT_DIR / "index.html"
     if not v1_path.exists():
         print("  ERROR: V1 briefing not found at mil/publish/output/index.html")
@@ -620,10 +669,15 @@ def main() -> int:
         return 1
     v1_html = v1_path.read_text(encoding="utf-8")
     print("\n-- Sonar Briefing V4 Publisher --")
-    print(f"  V1 source: {v1_path} ({len(v1_html)//1024}KB)")
+    print(f"  Subject:        {subject_slug}")
+    print(f"  Target path:    {target_path}")
+    print(f"  V1 source:      {v1_path} ({len(v1_html)//1024}KB)")
+    if subject_slug != "barclays":
+        print(f"  [WARNING] V1 is currently barclays-only — Box 1 will reflect "
+              f"barclays even though subject={subject_slug}.")
 
     print("\n[1/3] Building V4 sections (Jinja2 + FCA Provenance Chain) ...")
-    v4_html = generate_v4_html(v1_html)
+    v4_html = generate_v4_html(v1_html, subject_slug=subject_slug)
     print(f"  V4 size: {len(v4_html)//1024}KB")
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -635,8 +689,8 @@ def main() -> int:
         print("\n[2/3] --render: skipping publish.")
         return 0
 
-    print("\n[2/3] Publishing to GitHub Pages ...")
-    ok, msg = publish_v4(v4_html)
+    print(f"\n[2/3] Publishing to '{target_path}' ...")
+    ok, msg = publish_v4(v4_html, target_path=target_path)
     print(f"  {'OK' if ok else 'FAIL'}: {msg}")
 
     print("\n[3/3] Report")
@@ -644,7 +698,7 @@ def main() -> int:
     print(f"  V1 (unchanged):  https://cjipro.com/briefing")
     print(f"  V2 (unchanged):  https://cjipro.com/briefing-v2")
     print(f"  V3 (unchanged):  https://cjipro.com/briefing-v3")
-    print(f"  V4 (FCA Jinja):  https://cjipro.com/briefing-v4")
+    print(f"  Target path:     {target_path}")
     print(f"  GitHub push:     {'SUCCESS' if ok else 'FAIL'}")
     print(f"  Local V4:        {local_v4}")
     print("-" * 56)

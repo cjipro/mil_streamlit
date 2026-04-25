@@ -310,6 +310,38 @@ def run_publish_v4_step() -> None:
         logger.info("[publish_v4] briefing-v4 updated.")
 
 
+def run_publish_sonar_step() -> None:
+    """
+    MIL-86 dual-publish: also push the V4 HTML to the new Sonar URL paths
+    served through app.cjipro.com.
+
+    Two writes per run:
+      sonar/barclays/index.html              → latest (rewritten daily)
+      sonar/barclays/{today_utc}/index.html  → historical snapshot (one per day)
+
+    Soft launch: legacy briefing-v4 still primary. Failure here doesn't
+    fail the run — old URL keeps serving until the cutover ticket flips
+    redirects + email links.
+    """
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    subject = "barclays"
+    targets = [
+        f"sonar/{subject}/index.html",
+        f"sonar/{subject}/{today}/index.html",
+    ]
+    for target in targets:
+        logger.info("[publish_sonar] running publish_v4.py --target-path %s ...", target)
+        result = subprocess.run(
+            [sys.executable, str(MIL_ROOT / "publish" / "publish_v4.py"),
+             "--subject", subject, "--target-path", target],
+            cwd=str(REPO_ROOT), capture_output=False,
+        )
+        if result.returncode != 0:
+            logger.warning("[publish_sonar] %s exited with code %d", target, result.returncode)
+        else:
+            logger.info("[publish_sonar] %s updated.", target)
+
+
 # ---------------------------------------------------------------------------
 # Run Summary
 # ---------------------------------------------------------------------------
@@ -327,6 +359,7 @@ _STEP_FIXES = {
     "publish_v2":       "Requires index.html from V1 publish. Run V1 first, then retry.",
     "publish_v3":       "Check publish_v3.py + commentary_engine.py (Sonnet API or Ollama down?).",
     "publish_v4":       "Check publish_v4.py — Jinja2 render or briefing_v4.html.j2 template. V3 unaffected.",
+    "publish_sonar":    "Non-fatal. MIL-86 dual-publish to /sonar/{slug}/{date}/. Briefing-v4 URL still primary; soft-launch failure shouldn't block the run.",
     "drift":            "Non-fatal. Check mil/monitoring/drift_monitor.py + mil/config/drift_thresholds.yaml. Alerts still land in mil/data/drift_log.jsonl even if Slack escalation failed.",
 }
 
@@ -543,7 +576,7 @@ def _vault_preflight() -> bool:
         return False
 
 
-_VALID_STEPS = {"1", "2", "4", "4a", "4b", "4c", "4d", "4e", "4f", "5", "5b", "5c", "5d"}
+_VALID_STEPS = {"1", "2", "4", "4a", "4b", "4c", "4d", "4e", "4f", "5", "5b", "5c", "5d", "5e"}
 
 
 def _run_isolated_steps(selected: set[str], enrich_model: str) -> None:
@@ -639,6 +672,7 @@ def _run_isolated_steps(selected: set[str], enrich_model: str) -> None:
         "5b": run_publish_v2_step,
         "5c": run_publish_v3_step,
         "5d": run_publish_v4_step,
+        "5e": run_publish_sonar_step,
     }
     for step_id, helper in publish_helpers.items():
         if step_id in selected:
@@ -897,6 +931,35 @@ def main() -> None:
     else:
         logger.info("[publish_v4] briefing-v4 updated.")
         _steps.append(("5d Publish V4", "DONE", "cjipro.com/briefing-v4 updated"))
+
+    # MIL-86 dual-publish: also push the V4 HTML to the new Sonar URL paths.
+    # Soft launch — non-critical. Briefing-v4 URL stays primary until cutover.
+    logger.info("--- Step 5e: Publish to /sonar/{slug}/{date}/ (MIL-86 dual-publish) ---")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    subject = "barclays"
+    sonar_targets = [
+        f"sonar/{subject}/index.html",
+        f"sonar/{subject}/{today}/index.html",
+    ]
+    sonar_failures = 0
+    for target in sonar_targets:
+        result = subprocess.run(
+            [sys.executable, str(MIL_ROOT / "publish" / "publish_v4.py"),
+             "--subject", subject, "--target-path", target],
+            cwd=str(REPO_ROOT), stderr=subprocess.PIPE,
+        )
+        if result.returncode != 0:
+            logger.warning("[publish_sonar] %s exited with code %d\n%s",
+                           target, result.returncode, result.stderr.decode(errors="replace"))
+            sonar_failures += 1
+        else:
+            logger.info("[publish_sonar] %s updated.", target)
+    if sonar_failures:
+        failed_steps.append("publish_sonar")
+        _steps.append(("5e Publish Sonar", "FAIL", f"{sonar_failures}/{len(sonar_targets)} target(s) failed"))
+    else:
+        _steps.append(("5e Publish Sonar", "DONE",
+                       f"app.cjipro.com/sonar/{subject}/ + /{today}/ updated"))
 
     logger.info("--- Step 6: Log Run ---")
     _run_entry = _log_run(fetch_counts, _benchmark_result, failed_steps)

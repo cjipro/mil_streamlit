@@ -268,7 +268,7 @@ export default {
     // router. Note that in shadow mode we render even for users who
     // would have been denied, so we get real traffic shape on the
     // surfaces themselves before flipping enforce.
-    const handlerResponse = dispatch(request);
+    const handlerResponse = await dispatch(request);
     return handlerResponse ?? new Response("internal error", { status: 500 });
   },
 };

@@ -307,40 +307,40 @@ _CHRONICLE_TEACHERS = {
 }
 
 
-def _chronicle_match_from_findings(findings: list) -> tuple:
+def _chronicle_match_from_findings(findings: list, subject_slug: str = "barclays") -> tuple:
     """
-    Returns (chronicle_id, sentence) driven by the top Barclays finding's
+    Returns (chronicle_id, sentence) driven by the top subject finding's
     actual chronicle_match from mil_findings.json — not a static keyword overlap.
 
-    Priority for Barclays: CHR-004 (their own friction pattern) is preferred
+    Priority for the subject: CHR-004 (their own friction pattern) is preferred
     over higher-CAC matches to other banks' incidents. Only falls back to the
     highest-CAC match if CHR-004 has no representation in the findings.
     """
-    barclays = [
+    subject_findings = [
         f for f in findings
-        if f.get("competitor", "").lower() == "barclays"
+        if f.get("competitor", "").lower() == subject_slug
         and f.get("chronicle_match", {}).get("chronicle_id")
     ]
-    if not barclays:
+    if not subject_findings:
         return "", ""
 
-    # Prefer CHR-004 for Barclays — it is their own sustained friction pattern
-    chr4 = [f for f in barclays if f["chronicle_match"]["chronicle_id"] == "CHR-004"]
+    # Prefer CHR-004 for subject — it is their own sustained friction pattern
+    chr4 = [f for f in subject_findings if f["chronicle_match"]["chronicle_id"] == "CHR-004"]
     if chr4:
         cid = "CHR-004"
     else:
-        top = max(barclays, key=lambda f: f.get("confidence_score", 0))
+        top = max(subject_findings, key=lambda f: f.get("confidence_score", 0))
         cid = top["chronicle_match"]["chronicle_id"]
 
     sentence = _CHRONICLE_SENTENCES.get(cid, "")
     return cid, sentence
 
 
-def _teacher_from_findings(findings: list) -> tuple:
+def _teacher_from_findings(findings: list, subject_slug: str = "barclays") -> tuple:
     """
     Returns (chr_id, bank, year, lesson) for the most relevant teacher CHR.
 
-    Selection: driven by the top over-indexed Barclays issue type from the
+    Selection: driven by the top over-indexed subject issue type from the
     persistence log. Issue type → CHR mapping is explicit — avoids keyword
     substring gaming that caused CHR-001 (TSB migration) to win for generic
     app crash/feature signals.
@@ -350,7 +350,7 @@ def _teacher_from_findings(findings: list) -> tuple:
       Login Failed, Account Locked               → CHR-001 (TSB 2018: auth/lockout)
       Incorrect Balance, Missing Transaction, Payment Failed → CHR-002 (Lloyds 2025: data defect)
 
-    Fallback: CHR frequency across Barclays findings (excluding CHR-004).
+    Fallback: CHR frequency across subject findings (excluding CHR-004).
     """
     _ISSUE_CHR_MAP = {
         "App Crashing":         "CHR-003",
@@ -395,23 +395,23 @@ def _teacher_from_findings(findings: list) -> tuple:
         except Exception:
             pass
 
-    # Step 2: if we have a preferred CHR, verify at least one Barclays finding anchors to it
+    # Step 2: if we have a preferred CHR, verify at least one subject finding anchors to it
     _TEACHER_IDS = {"CHR-001", "CHR-002", "CHR-003"}
-    barclays = [
+    subject_findings = [
         f for f in findings
-        if f.get("competitor", "").lower() == "barclays"
+        if f.get("competitor", "").lower() == subject_slug
         and f.get("chronicle_match", {}).get("chronicle_id") in _TEACHER_IDS
     ]
 
     cid = None
-    if preferred_cid and barclays:
+    if preferred_cid and subject_findings:
         cid = preferred_cid  # use issue-map CHR even if 0 findings anchor to it — map is authoritative
 
     # Step 3: fallback — frequency count across anchored findings
     if not cid:
-        if not barclays:
+        if not subject_findings:
             return "", "", "", ""
-        chr_counts = Counter(f["chronicle_match"]["chronicle_id"] for f in barclays)
+        chr_counts = Counter(f["chronicle_match"]["chronicle_id"] for f in subject_findings)
         cid = chr_counts.most_common(1)[0][0]
 
     t = _CHRONICLE_TEACHERS.get(cid, {})
@@ -517,12 +517,18 @@ def _verdict(journey: str, trend: str, p0: int, p1: int, p2: int) -> str:
 # MAIN
 # ============================================================
 
-def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
+def get_briefing_data(window_days: int = WINDOW_DAYS, subject_slug: str = "barclays") -> dict:
     """
     Compute and return the full MIL briefing data dictionary.
 
     Journeys are fully dynamic: grouped by raw journey_category strings
     from Refuel enrichment. No remapping, no hardcoded list.
+
+    `subject_slug` selects which client the briefing is generated FOR.
+    Default is "barclays" (today's only subject per clients.yaml). All
+    Box 1/2/3 filtering, executive alert, teacher CHR selection and
+    chronicle anchoring run against this slug. Peer/competitor data
+    (the ticker) still spans every monitored bank.
     """
     today    = _today()
     cutoff   = today - timedelta(days=window_days)
@@ -574,9 +580,9 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     # SECTION 2a: ISSUES — grouped by issue_type (what went wrong)
     # Barclays records only. Excludes Positive Feedback and Other unless P0/P1.
     # ----------------------------------------------------------
-    barclays_records = [r for r in records if r.get("_competitor", "").lower() == "barclays"]
+    subject_records = [r for r in records if r.get("_competitor", "").lower() == subject_slug]
     issue_groups: dict[str, list[dict]] = defaultdict(list)
-    for r in barclays_records:
+    for r in subject_records:
         cat = r.get("issue_type") or "Other"
         issue_groups[cat].append(r)
 
@@ -619,15 +625,15 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     JOURNEY_EXCLUDE = {"General App Use"}
 
     journey_groups: dict[str, list[dict]] = defaultdict(list)
-    for r in barclays_records:
+    for r in subject_records:
         cat = r.get("customer_journey") or "General App Use"
         journey_groups[cat].append(r)
 
     # 30-day records — streak window extends past the 7-day rendering
     # window so "Nd in priority" reflects true persistence, not just this week.
-    barclays_streak_records = [
+    subject_streak_records = [
         r for r in _load_enriched_records(window_days=30)
-        if r.get("_competitor", "").lower() == "barclays"
+        if r.get("_competitor", "").lower() == subject_slug
     ]
 
     journey_rows = []
@@ -646,7 +652,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         jid       = _CATEGORY_TO_JID.get(cat)
         chron_ids = jid_chronicles.get(jid, set()) if jid else set()
         i_score   = _issue_score(vol, p0, p1, p2, j_trend, chron_ids)
-        streak    = _journey_priority_streak(barclays_streak_records, cat, today)
+        streak    = _journey_priority_streak(subject_streak_records, cat, today)
 
         journey_rows.append({
             "journey":         cat,
@@ -784,14 +790,14 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             cat_sev[cat] += (8 if sev == "P0" else 3 if sev == "P1" else 0)
         top_journey = max(cat_sev, key=cat_sev.get) if cat_sev else ""
 
-        # Baseline: all-time avg from enriched files for this competitor (no date filter)
+        # Baseline: all-time avg from enriched files for the subject (no date filter)
         c_baseline = None
-        if comp.lower() == "barclays":
+        if comp.lower() == subject_slug:
             _all_ratings = []
             for _f in sorted(ENRICHED_DIR.glob("*.json")):
                 try:
                     _p = json.loads(_f.read_text(encoding="utf-8"))
-                    if _p.get("competitor", "").lower() == "barclays":
+                    if _p.get("competitor", "").lower() == subject_slug:
                         _all_ratings.extend(
                             r["rating"] for r in _p.get("records", [])
                             if r.get("rating") and r.get("severity_class") != "ENRICHMENT_FAILED"
@@ -843,9 +849,9 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
     # ----------------------------------------------------------
     all_cands = [f for f in anchored
                  if f["signal_counts"]["P0"] + f["signal_counts"]["P1"] > 0]
-    barclays_cands = [f for f in all_cands
-                      if f.get("competitor", "").lower() == "barclays"]
-    exec_cands = barclays_cands if barclays_cands else all_cands
+    subject_cands = [f for f in all_cands
+                     if f.get("competitor", "").lower() == subject_slug]
+    exec_cands = subject_cands if subject_cands else all_cands
 
     if exec_cands:
         top     = max(exec_cands, key=lambda f: (
@@ -857,29 +863,29 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         p1      = top["signal_counts"]["P1"]
         cac     = top.get("confidence_score") or 0.0
 
-        # Barclays P0/P1 records for Sonnet synthesis — P0 first
-        barclays_p01 = sorted(
+        # Subject P0/P1 records for Sonnet synthesis — P0 first
+        subject_p01 = sorted(
             [r for r in records
-             if r.get("_competitor", "").lower() == "barclays"
+             if r.get("_competitor", "").lower() == subject_slug
              and r.get("severity_class") in ("P0", "P1")],
             key=lambda r: 0 if r.get("severity_class") == "P0" else 1,
         )
 
-        # Barclays trend from competitor_ticker (built above)
-        _b_ticker = next(
-            (c for c in competitor_ticker if c["competitor"].lower() == "barclays"), {}
+        # Subject trend from competitor_ticker (built above)
+        _subj_ticker = next(
+            (c for c in competitor_ticker if c["competitor"].lower() == subject_slug), {}
         )
-        barclays_trend = _b_ticker.get("trend", "STABLE")
+        subject_trend = _subj_ticker.get("trend", "STABLE")
 
-        # Chronicle matching — driven by top Barclays finding's actual CHR anchor
-        chronicle_id, chronicle_sentence = _chronicle_match_from_findings(anchored)
+        # Chronicle matching — driven by top subject finding's actual CHR anchor
+        chronicle_id, chronicle_sentence = _chronicle_match_from_findings(anchored, subject_slug)
 
         # Top quote: most specific P0 review — prefer 60-150 chars, else shortest over 40
         top_quote = ""
         top_quote_rating = 0
         top_quote_source = ""
         _candidates = [
-            r for r in barclays_p01
+            r for r in subject_p01
             if r.get("severity_class") == "P0"
             and len((r.get("review") or r.get("content", "")).strip()) >= 40
             and r.get("issue_type") != "Positive Feedback"
@@ -924,16 +930,16 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             return _text, _rating, _date_str
 
         # App Store quote (Barclays P0, has 'review' field and 'date')
-        as_quote, as_quote_rating, as_quote_date = _pick_quote(barclays_p01, "review", "date")
+        as_quote, as_quote_rating, as_quote_date = _pick_quote(subject_p01, "review", "date")
         # Google Play quote (Barclays P0, has 'content' field and 'at')
-        gp_quote, gp_quote_rating, gp_quote_date = _pick_quote(barclays_p01, "content", "at")
+        gp_quote, gp_quote_rating, gp_quote_date = _pick_quote(subject_p01, "content", "at")
 
         # Description: Sonnet synthesis with template fallback
-        description = _exec_alert_description(barclays_p01, chronicle_sentence)
+        description = _exec_alert_description(subject_p01, chronicle_sentence)
         if not description:
             top_issues = [
                 i.lower() for i, _ in Counter(
-                    r.get("issue_type", "app issues") for r in barclays_p01
+                    r.get("issue_type", "app issues") for r in subject_p01
                 ).most_common(2)
                 if i and i != "Positive Feedback"
             ]
@@ -951,7 +957,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             clark_tier = "CLARK-0"
 
         # Teacher lesson — which competitor bank already walked this path
-        teacher_chr, teacher_bank, teacher_year, teacher_lesson = _teacher_from_findings(anchored)
+        teacher_chr, teacher_bank, teacher_year, teacher_lesson = _teacher_from_findings(anchored, subject_slug)
 
         # Top journey from the highest-ranked finding
         top_journey = top.get("journey_id", "")
@@ -980,7 +986,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
             "teacher_bank":       teacher_bank,
             "teacher_year":       teacher_year,
             "teacher_lesson":     teacher_lesson,
-            "next_steps":         _next_steps(p0, barclays_trend, clark_tier),
+            "next_steps":         _next_steps(p0, subject_trend, clark_tier),
             "clark_tier":         clark_tier,
         }
     else:
@@ -1017,7 +1023,7 @@ def get_briefing_data(window_days: int = WINDOW_DAYS) -> dict:
         _top_issues  = {e["journey"] for e in issues_performance[:5]}
         _issue_rank  = {e["journey"]: e["rank"] for e in issues_performance[:5]}
         _b2_pool = [
-            r for r in barclays_records
+            r for r in subject_records
             if r.get("issue_type") in _top_issues
             and r.get("severity_class") in ("P0", "P1", "P2")
             and len((r.get("review") or r.get("content", "")).strip()) >= 40
