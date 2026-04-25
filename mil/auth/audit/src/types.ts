@@ -20,7 +20,12 @@ export type AuthEventType =
   | "signup.request"
   | "admin.approve"
   | "admin.deny"
-  | "admin.revoke";
+  | "admin.revoke"
+  // MIL-67a — WorkOS webhook ingestion. Generic catch-all for now;
+  // Phase B will split out specific passkey events
+  // (passkey.registered, passkey.used, etc.) once we observe what
+  // event types WorkOS actually sends.
+  | "workos.webhook";
 
 // Input passed to logAuthEvent. The lib is responsible for turning
 // the raw `ip` / `user_agent` / `session_sub` into salted hashes

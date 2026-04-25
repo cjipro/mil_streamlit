@@ -29,4 +29,10 @@ export interface Env {
   EXPECTED_AUD?: string;
   EXPECTED_ISS?: string;
   JWKS_CACHE_TTL_SECONDS?: string;
+
+  // MIL-67a — WorkOS webhook signing secret. Optional; when absent
+  // the /webhooks/workos endpoint returns 503. Set via
+  //   wrangler secret put WORKOS_WEBHOOK_SECRET
+  // after creating the webhook in the WorkOS dashboard.
+  WORKOS_WEBHOOK_SECRET?: string;
 }

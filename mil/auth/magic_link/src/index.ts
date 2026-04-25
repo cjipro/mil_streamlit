@@ -35,6 +35,7 @@ import {
 } from "./admin_routes";
 import { d1SaltStore, utcDateString } from "../../audit/src/salt";
 import { writeSession } from "../../approvals/src/sessions";
+import { verifyWorkosWebhook, webhookAuditInput } from "./webhooks";
 
 function cookieConfigFromEnv(env: Env): CookieConfig {
   return {
@@ -197,14 +198,53 @@ export default {
     const path = url.pathname;
     const method = request.method;
 
-    // MIL-66b — routes that accept POST: /request-access and /admin/api/*.
-    // All other routes are GET-only.
+    // MIL-66b/67a — routes that accept POST: /request-access,
+    // /admin/api/*, /webhooks/workos. Others are GET-only.
     const isPostPath =
-      path === "/request-access" || path.startsWith("/admin/api/");
+      path === "/request-access" ||
+      path === "/webhooks/workos" ||
+      path.startsWith("/admin/api/");
     if (method !== "GET" && !(isPostPath && method === "POST")) {
       return new Response("method not allowed", {
         status: 405,
         headers: { allow: isPostPath ? "GET, POST" : "GET" },
+      });
+    }
+
+    // --- MIL-67a: WorkOS webhook ingestion ---
+    if (path === "/webhooks/workos" && method === "POST") {
+      const rawBody = await request.text();
+      const sig = request.headers.get("workos-signature");
+      const result = await verifyWorkosWebhook(rawBody, sig, {
+        secret: env.WORKOS_WEBHOOK_SECRET ?? "",
+      });
+      if (result.kind === "rejected") {
+        // Log the rejection so we can see attack attempts vs. genuine
+        // misconfiguration in the tail. Don't audit-log — these are
+        // unauthenticated requests; recording them in the chain would
+        // pollute the auth event timeline.
+        console.log(
+          JSON.stringify({
+            ts: new Date().toISOString(),
+            webhook_rejected: result.reason,
+            status: result.status,
+          }),
+        );
+        return new Response(result.reason, {
+          status: result.status,
+          headers: { "content-type": "text/plain" },
+        });
+      }
+      audit(
+        env,
+        ctx,
+        webhookAuditInput(result.event, baseAuditInput(request, path)),
+      );
+      // 200 = "we accepted the event". Don't echo the body — WorkOS
+      // expects a small ack; their retry policy backs off on 2xx.
+      return new Response(`ok ${result.rawId}`, {
+        status: 200,
+        headers: { "content-type": "text/plain" },
       });
     }
 
