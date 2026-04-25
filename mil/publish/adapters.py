@@ -20,11 +20,19 @@ Contract:
 Credentials are read from .env (not publish_config.yaml) — we don't want
 GITHUB_TOKEN in a committed config file. YAML holds adapter choice +
 non-secret settings only.
+
+MIL-110 — sensitive-content deny-list (defense-in-depth):
+The Pages repo is public. Adapter rejects any relative_path matching
+patterns that should never reach the public Pages repo. Caller bug or
+future regression that tries to publish auth code, runbooks, CLAUDE.md,
+or .env files fails fast with a clear error, instead of silently
+shipping secrets to a public surface.
 """
 from __future__ import annotations
 
 import logging
 import os
+import re
 import subprocess
 import tempfile
 from abc import ABC, abstractmethod
@@ -33,6 +41,56 @@ from functools import lru_cache
 from pathlib import Path
 
 import yaml
+
+
+# ── MIL-110 — sensitive-content patterns (deny-list) ─────────────────────────
+#
+# Policy: a relative_path that matches ANY of these patterns is refused by
+# the GitHubPagesAdapter. Patterns are matched against the FULL relative
+# path (case-insensitive) using a substring or regex check noted per row.
+#
+# Adding a pattern here is a one-line change and lands without breaking
+# legitimate publish paths (briefing/, briefing-v[2-4]/, sonar/{slug}/...,
+# products/, security/, etc.). Test before adding: there's a unit test
+# that exercises every legit path against this list.
+SENSITIVE_PATH_PATTERNS: tuple[re.Pattern, ...] = (
+    # Source code directories — never published to Pages.
+    re.compile(r"(^|/)mil/auth(/|$)",       re.IGNORECASE),
+    re.compile(r"(^|/)ops/runbooks(/|$)",   re.IGNORECASE),
+    re.compile(r"(^|/)scripts(/|$)",        re.IGNORECASE),
+    re.compile(r"(^|/)mil/chat(/|$)",       re.IGNORECASE),
+    re.compile(r"(^|/)mil/inference(/|$)",  re.IGNORECASE),
+    re.compile(r"(^|/)mil/harvester(/|$)",  re.IGNORECASE),
+    re.compile(r"(^|/)mil/specialist(/|$)", re.IGNORECASE),
+    re.compile(r"(^|/)mil/teacher(/|$)",    re.IGNORECASE),
+    # Documentation that lives in the code repo only.
+    re.compile(r"(^|/)CLAUDE\.md$",       re.IGNORECASE),
+    re.compile(r"(^|/)MEMORY\.md$",       re.IGNORECASE),
+    re.compile(r"(^|/)MIL\d{2,3}_[A-Z_]+\.md$"),    # runbooks like MIL67_PASSKEYS.md
+    # Secrets files.
+    re.compile(r"(^|/)\.env(\.|$)"),
+    re.compile(r"(^|/)secrets?\.(yaml|yml|json|toml)$", re.IGNORECASE),
+    # Source-code extensions (output is .html / .json / .xml / .txt only).
+    re.compile(r"\.py$",                  re.IGNORECASE),
+    re.compile(r"\.ts$",                  re.IGNORECASE),
+    re.compile(r"\.tsx$",                 re.IGNORECASE),
+)
+
+
+def assert_publishable(relative_path: str) -> None:
+    """Raise ValueError if relative_path matches any sensitive pattern.
+
+    Public so callers can pre-validate before constructing content.
+    Adapter calls this on every publish.
+    """
+    for pat in SENSITIVE_PATH_PATTERNS:
+        if pat.search(relative_path):
+            raise ValueError(
+                f"refusing to publish sensitive path '{relative_path}' "
+                f"(matched pattern {pat.pattern!r}). "
+                f"See SENSITIVE_PATH_PATTERNS in mil/publish/adapters.py "
+                f"— Pages repo is public and must contain only rendered output."
+            )
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +184,9 @@ class GitHubPagesAdapter(PublishAdapter):
         return text.replace(self._token, "***") if text else text
 
     def publish(self, relative_path: str, content: str) -> tuple[bool, str]:
+        # MIL-110 — fail closed on sensitive paths. Pages repo is public.
+        assert_publishable(relative_path)
+
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         commit_msg = self._msg_fmt.format(path=relative_path, ts=ts)
 
