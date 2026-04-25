@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methodology — How CJI Works — CJI</title>
+
+<!-- Security / trust headers (meta-equivalent) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<!-- Primary meta -->
+<meta name="description" content="How CJI's intelligence chain works — from public signal to firm decision. The four-product chain, Chronicle anchor, and evidence standards behind every CJI finding.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="CJI">
+<link rel="canonical" href="https://cjipro.com/insights/methodology/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="privacy-policy" href="/privacy/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CJI">
+<meta property="og:title" content="Methodology — How CJI Works">
+<meta property="og:description" content="How CJI's intelligence chain works — from public signal to firm decision. Four products, one continuous chain: Anecdote, Aggregate, Awareness, Action.">
+<meta property="og:url" content="https://cjipro.com/insights/methodology/">
+<meta property="og:locale" content="en_GB">
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Methodology — How CJI Works">
+<meta name="twitter:description" content="How CJI's intelligence chain works — from public signal to firm decision.">
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --live:      #1F7A4C;
+    --coming:    #B07A1F;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms ease; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Topbar ───────────────────────────────────────────────── */
+  .topbar {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 0;
+    background: var(--paper);
+  }
+  .topbar-inner { display: flex; align-items: baseline; justify-content: space-between; }
+  .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 10px;
+    letter-spacing: 0.3px;
+  }
+  .nav { font-size: 14px; color: var(--muted); }
+  .nav a { color: var(--muted); margin-left: 22px; }
+  .nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .hero { padding: 88px 0 56px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── Section scaffolding ──────────────────────────────────── */
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--hairline); }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .section-lede {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 32px 0;
+  }
+
+  /* ── SVG diagram container ────────────────────────────────── */
+  .diagram-wrap {
+    background: var(--cream);
+    border: 1px solid var(--hairline);
+    padding: 36px 28px 28px 28px;
+    margin: 40px 0 0 0;
+  }
+  .diagram-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .diagram-caption {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 18px;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* ── Four-stage product deep-dive ─────────────────────────── */
+  .stage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 56px;
+    margin-top: 40px;
+  }
+  .stage-block { }
+  .stage-sub-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 14px 0;
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+  }
+  .stage-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 18px 0;
+  }
+  .stage-facts {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    border-top: 1px solid var(--hairline);
+    padding-top: 12px;
+    line-height: 1.8;
+  }
+  .stage-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    color: var(--hairline);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  /* ── Chronicle anchor section ─────────────────────────────── */
+  .chronicle-block {
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .chronicle-body {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 18px 0;
+  }
+  .chronicle-body:last-child { margin-bottom: 0; }
+
+  /* ── Anti-positioning call-out ────────────────────────────── */
+  .antipos-block {
+    border: 1px solid var(--accent);
+    padding: 32px 36px;
+    margin-top: 16px;
+  }
+  .antipos-headline {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 16px 0;
+    letter-spacing: -0.1px;
+    font-style: italic;
+  }
+  .antipos-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 12px 0;
+  }
+  .antipos-body:last-child { margin-bottom: 0; }
+  .antipos-comps {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-top: 18px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 14px;
+  }
+
+  /* ── Closing product links ────────────────────────────────── */
+  .product-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .product-link-item {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom: 1px solid transparent;
+    transition: border-color 120ms ease;
+    padding: 10px 18px;
+    border: 1px solid var(--hairline);
+    background: var(--cream);
+    display: inline-block;
+  }
+  .product-link-item:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 48px 0 36px 0;
+    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 36px;
+  }
+  .footer-mark .brand {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .footer-mark p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 280px;
+  }
+  .footer-col-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .footer-col ul { margin: 0; padding: 0; list-style: none; }
+  .footer-col li { padding: 4px 0; }
+  .footer-col a {
+    color: var(--muted);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+  }
+  .footer-bottom a { color: var(--muted); margin-left: 18px; }
+  .footer-bottom a:first-child { margin-left: 0; }
+  .footer-bottom a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .lede { font-size: 17px; }
+    .hero { padding: 56px 0 32px 0; }
+    .stage-grid { grid-template-columns: 1fr; gap: 32px; }
+    .nav a { margin-left: 14px; font-size: 13px; }
+    .brand-sub { display: none; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; }
+    section { padding: 40px 0; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .footer-mark { grid-column: 1 / -1; }
+    .chronicle-block { padding: 22px 20px; }
+    .antipos-block { padding: 22px 20px; }
+    .diagram-wrap { padding: 22px 14px 18px 14px; }
+    .product-links { flex-direction: column; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <a href="/" style="border:0;"><span class="brand">CJI</span></a>
+      <span class="brand-sub">Customer Journey Intelligence</span>
+    </div>
+    <nav class="nav">
+      <a href="/#products">Products</a>
+      <a href="/insights/">Insights</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- 2a. Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Methodology</div>
+      <h1>How CJI works.</h1>
+      <p class="lede">
+        CJI is a four-product intelligence chain that converts public customer signal
+        into firm decision, anchored at every stage to a public ledger of sector
+        precedent. Each product operates independently and compounds when used
+        together. The diagram below maps the chain.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2b. The chain — SVG diagram -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">The intelligence chain</div>
+      <h2>Anecdote &rarr; Aggregate &rarr; Awareness &rarr; Action.</h2>
+      <p class="section-lede">
+        Four stages. Four products. One continuous chain from raw market signal
+        to the decision that matters.
+      </p>
+
+      <div class="diagram-wrap">
+        <!--
+          SVG: four rounded-rect nodes in a horizontal chain.
+          viewBox 0 0 880 280 — scales cleanly at any width.
+          Node positions (cx of rect):
+            Node 1 (Anecdote / Sonar):    x=20,  w=175
+            Node 2 (Aggregate / Reckoner): x=240, w=175
+            Node 3 (Awareness / Pulse):    x=460, w=175
+            Node 4 (Action / Lever):       x=680, w=175
+          Arrows connect node right-edge to next node left-edge.
+          Colours: fill #FAFAF7 (cream), stroke #003A5C (accent), text #0A1E2A (ink).
+        -->
+        <svg
+          class="diagram-svg"
+          viewBox="0 0 880 280"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="CJI intelligence chain: Anecdote (CJI Sonar) to Aggregate (CJI Reckoner) to Awareness (CJI Pulse) to Action (CJI Lever)"
+        >
+          <defs>
+            <!-- Arrowhead marker -->
+            <marker
+              id="arrowhead"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1 L 9 5 L 0 9 Z" fill="#003A5C" />
+            </marker>
+          </defs>
+
+          <!-- ── Node 1: Anecdote / CJI Sonar ──────────────────── -->
+          <rect x="20" y="60" width="175" height="160" rx="6" ry="6"
+                fill="#FAFAF7" stroke="#003A5C" stroke-width="1.5" />
+          <!-- Stage number -->
+          <text x="32" y="88"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="10" fill="#6B7A85" letter-spacing="1.4">01</text>
+          <!-- Stage name -->
+          <text x="107.5" y="120"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="13" fill="#003A5C" font-weight="600"
+                letter-spacing="1.2" text-anchor="middle" text-transform="uppercase">ANECDOTE</text>
+          <!-- Divider -->
+          <line x1="38" y1="132" x2="177" y2="132" stroke="#D8DFE5" stroke-width="1" />
+          <!-- Product name -->
+          <text x="107.5" y="158"
+                font-family="Georgia, 'Times New Roman', serif"
+                font-size="16" fill="#0A1E2A" font-weight="700"
+                text-anchor="middle">CJI Sonar</text>
+          <!-- Product framing -->
+          <text x="107.5" y="180"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Daily firm briefing</text>
+          <text x="107.5" y="198"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Industry signal</text>
+
+          <!-- ── Arrow 1 → 2 ─────────────────────────────────── -->
+          <path d="M 196 140 L 237 140"
+                stroke="#003A5C" stroke-width="1.5" fill="none"
+                marker-end="url(#arrowhead)" />
+
+          <!-- ── Node 2: Aggregate / CJI Reckoner ──────────────── -->
+          <rect x="240" y="60" width="175" height="160" rx="6" ry="6"
+                fill="#FAFAF7" stroke="#003A5C" stroke-width="1.5" />
+          <text x="252" y="88"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="10" fill="#6B7A85" letter-spacing="1.4">02</text>
+          <text x="327.5" y="120"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="13" fill="#003A5C" font-weight="600"
+                letter-spacing="1.2" text-anchor="middle">AGGREGATE</text>
+          <line x1="258" y1="132" x2="397" y2="132" stroke="#D8DFE5" stroke-width="1" />
+          <text x="327.5" y="158"
+                font-family="Georgia, 'Times New Roman', serif"
+                font-size="16" fill="#0A1E2A" font-weight="700"
+                text-anchor="middle">CJI Reckoner</text>
+          <text x="327.5" y="180"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Industry intelligence</text>
+          <text x="327.5" y="198"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Cohort patterns</text>
+
+          <!-- ── Arrow 2 → 3 ─────────────────────────────────── -->
+          <path d="M 416 140 L 457 140"
+                stroke="#003A5C" stroke-width="1.5" fill="none"
+                marker-end="url(#arrowhead)" />
+
+          <!-- ── Node 3: Awareness / CJI Pulse ─────────────────── -->
+          <rect x="460" y="60" width="175" height="160" rx="6" ry="6"
+                fill="#FAFAF7" stroke="#003A5C" stroke-width="1.5" />
+          <text x="472" y="88"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="10" fill="#6B7A85" letter-spacing="1.4">03</text>
+          <text x="547.5" y="120"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="13" fill="#003A5C" font-weight="600"
+                letter-spacing="1.2" text-anchor="middle">AWARENESS</text>
+          <line x1="478" y1="132" x2="617" y2="132" stroke="#D8DFE5" stroke-width="1" />
+          <text x="547.5" y="158"
+                font-family="Georgia, 'Times New Roman', serif"
+                font-size="16" fill="#0A1E2A" font-weight="700"
+                text-anchor="middle">CJI Pulse</text>
+          <text x="547.5" y="180"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Live insight</text>
+          <text x="547.5" y="198"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Observation only</text>
+
+          <!-- ── Arrow 3 → 4 ─────────────────────────────────── -->
+          <path d="M 636 140 L 677 140"
+                stroke="#003A5C" stroke-width="1.5" fill="none"
+                marker-end="url(#arrowhead)" />
+
+          <!-- ── Node 4: Action / CJI Lever ────────────────────── -->
+          <rect x="680" y="60" width="175" height="160" rx="6" ry="6"
+                fill="#FAFAF7" stroke="#003A5C" stroke-width="1.5" />
+          <text x="692" y="88"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="10" fill="#6B7A85" letter-spacing="1.4">04</text>
+          <text x="767.5" y="120"
+                font-family="'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+                font-size="13" fill="#003A5C" font-weight="600"
+                letter-spacing="1.2" text-anchor="middle">ACTION</text>
+          <line x1="698" y1="132" x2="837" y2="132" stroke="#D8DFE5" stroke-width="1" />
+          <text x="767.5" y="158"
+                font-family="Georgia, 'Times New Roman', serif"
+                font-size="16" fill="#0A1E2A" font-weight="700"
+                text-anchor="middle">CJI Lever</text>
+          <text x="767.5" y="180"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Decision framework</text>
+          <text x="767.5" y="198"
+                font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                font-size="11" fill="#6B7A85"
+                text-anchor="middle">Engagement class</text>
+        </svg>
+
+        <p class="diagram-caption">
+          Each stage is a product. Each product is independently useful.
+          Together they form the chain.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2c. The four stages — prose deep-dive -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">The four stages</div>
+      <h2>Each stage, in depth.</h2>
+      <p class="section-lede">
+        The chain follows the natural arc of a regulated firm's decision process:
+        the sector speaks first, then the firm, then the live session, then the
+        decision itself. Products are sequenced by latency and risk, not by importance.
+      </p>
+
+      <div class="stage-grid">
+
+        <!-- Stage 1: Anecdote / CJI Sonar -->
+        <div class="stage-block">
+          <div class="stage-number">01 — Anecdote</div>
+          <div class="stage-sub-eyebrow">CJI Sonar · Daily firm briefing</div>
+          <h3>What is the customer saying about this firm?</h3>
+          <p class="stage-body">
+            CJI Sonar converts public customer voice into a daily, regulator-readable
+            briefing tailored to a specific firm. It draws on app reviews, public ratings
+            platforms, and open-source news feeds — verbatim customer language, labelled
+            with source and date, never paraphrased. Each briefing is peer-benchmarked
+            against the sector cohort and anchored to the CJI Chronicle, so every
+            finding can be traced to a researched sector precedent. Sonar runs once daily
+            and is delivered to insight and product leadership before the working day
+            begins. The intelligence it produces is anecdotal in the best sense: close to
+            the ground, specific to your firm, and grounded in what customers actually
+            wrote.
+          </p>
+          <div class="stage-facts">
+            Latency: daily &nbsp;·&nbsp; Risk: low–medium &nbsp;·&nbsp; Commercial: per-firm subscription, contact-sales
+          </div>
+        </div>
+
+        <!-- Stage 2: Aggregate / CJI Reckoner -->
+        <div class="stage-block">
+          <div class="stage-number">02 — Aggregate</div>
+          <div class="stage-sub-eyebrow">CJI Reckoner · Industry intelligence</div>
+          <h3>What pattern is the cohort showing?</h3>
+          <p class="stage-body">
+            CJI Reckoner surfaces AI-powered cohort patterns across the regulated
+            consumer-services landscape. Where Sonar watches one firm, Reckoner watches
+            the sector — detecting structural failure patterns, benchmarking issue rates
+            across the competitive set, and surfacing the intelligence that no single
+            firm's internal data can provide. Reckoner is cohort-agnostic: it holds no
+            client slug and makes no claim about a specific firm's internal state. Its
+            output is industry signal — the kind that AlphaSense, YipitData, or M Science
+            produce for equity analysts, applied instead to the insight and product teams
+            inside regulated firms. Reckoner is the only CJI product with a self-serve
+            trial motion; all others are contact-sales.
+          </p>
+          <div class="stage-facts">
+            Latency: days &nbsp;·&nbsp; Risk: low &nbsp;·&nbsp; Commercial: trial-available, per-seat
+          </div>
+        </div>
+
+        <!-- Stage 3: Awareness / CJI Pulse -->
+        <div class="stage-block">
+          <div class="stage-number">03 — Awareness</div>
+          <div class="stage-sub-eyebrow">CJI Pulse · Live insight</div>
+          <h3>What is happening in the live session, right now?</h3>
+          <p class="stage-body">
+            CJI Pulse operates at session granularity, surfacing almost-real-time
+            insight from customer journey telemetry inside the firm's own environment.
+            Pulse senses — it does not intervene. This distinction is load-bearing: most
+            regulated firms are not yet operationally or regulatorily ready to act on
+            live journey intelligence in real time, and building intervention into the
+            product would conflate observation with action in ways that carry significant
+            governance risk. Pulse is an enterprise-integration product, running on the
+            firm's own telemetry without crossing signals with the public-data layer that
+            Sonar and Reckoner use. It is the third stage in the chain because awareness
+            of the live session is only useful once the firm has sector context
+            (Reckoner) and firm-level briefing (Sonar) to interpret it against.
+          </p>
+          <div class="stage-facts">
+            Latency: seconds &nbsp;·&nbsp; Risk: medium &nbsp;·&nbsp; Commercial: enterprise integration, contact-sales
+          </div>
+        </div>
+
+        <!-- Stage 4: Action / CJI Lever -->
+        <div class="stage-block">
+          <div class="stage-number">04 — Action</div>
+          <div class="stage-sub-eyebrow">CJI Lever · Decision framework</div>
+          <h3>What is the right decision, given everything we now know?</h3>
+          <p class="stage-body">
+            CJI Lever is the action layer — a tailored decision framework that
+            translates accumulated intelligence into the firm's next move. Lever
+            operates in three modes: Autonomous (the framework decides within a defined
+            envelope), Guided (the framework recommends; a human decides), and
+            Customer-led (the framework adapts to real-time customer signal). The mode
+            chosen reflects the firm's regulatory readiness and risk appetite. Lever is
+            not a SaaS product: it is an engagement-class bespoke design and
+            deployment, available only to design partners willing to build the framework
+            collaboratively. The decision it supports is the terminal point of the chain
+            — the moment where Anecdote, Aggregate, and Awareness resolve into a
+            specific, accountable action.
+          </p>
+          <div class="stage-facts">
+            Latency: live &nbsp;·&nbsp; Risk: high &nbsp;·&nbsp; Commercial: engagement-class, design-partners only, contact-sales
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 2d. CJI Chronicle anchor -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">The underlying asset</div>
+      <h2>CJI Chronicle.</h2>
+      <p class="section-lede">
+        Every Sonar and Reckoner finding is anchored to a researched sector precedent.
+        The Chronicle is what makes that possible.
+      </p>
+
+      <div class="chronicle-block">
+        <p class="chronicle-body">
+          The CJI Chronicle is a public ledger of significant sector failures,
+          researched in depth and maintained as the anchor for all CJI findings.
+          Each Chronicle entry — currently CHR-001 through CHR-019, expanding —
+          documents the failure mode, the observable signals that preceded it, the
+          customer journey stage it affected, and the business consequence that
+          followed. Chronicle entries are proposed by research analysis, reviewed
+          for governance compliance, and approved before entering the inference
+          pipeline.
+        </p>
+        <p class="chronicle-body">
+          The Chronicle exists to eliminate orphan claims. A CJI Sonar or Reckoner
+          finding that cannot be traced to a Chronicle precedent does not ship as
+          a production finding — it enters a research queue for investigation and
+          potential Chronicle expansion. This means every finding a firm receives
+          carries a receipt: a Chronicle ID, a sector precedent, and the research
+          that established the connection. For regulated firms operating under the
+          FCA Consumer Duty and similar frameworks, that traceability matters.
+        </p>
+        <p class="chronicle-body" style="margin-bottom: 0;">
+          The Chronicle is being made public in a dedicated section.
+          <a href="/insights/chronicle/">CJI Chronicle →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2e. Anti-positioning call-out -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">What CJI is not</div>
+      <h2>Decisions, not dashboards.</h2>
+
+      <div class="antipos-block">
+        <div class="antipos-headline">"Decisions, not dashboards."</div>
+        <p class="antipos-body">
+          CJI is not a business intelligence tool. It does not produce charts for
+          executives to review in a weekly meeting. It does not connect to a data
+          warehouse and render configured visualisations. The four CJI products
+          are decision-intelligence products — each one produces a specific,
+          actionable output anchored to real evidence, not a configurable dashboard
+          that requires interpretation.
+        </p>
+        <p class="antipos-body">
+          CJI Reckoner is not Tableau. CJI Sonar is not a Mixpanel report. CJI Pulse
+          is not a session-replay or analytics product. CJI Lever is not a SaaS
+          subscription. The products in this category — Looker, Power BI, Google
+          Analytics, Amplitude — produce insight by putting data in front of a
+          human analyst and asking them to draw conclusions. CJI draws the
+          conclusion and presents it with receipts. The analyst's job is to
+          evaluate the conclusion, not to produce it.
+        </p>
+        <p class="antipos-body" style="margin-bottom: 0;">
+          The closer mental models are alternative-data intelligence platforms:
+          research and signal products that synthesise data sources a firm cannot
+          easily access on its own and deliver a finding, not a view.
+        </p>
+        <div class="antipos-comps">
+          Closest mental models: AlphaSense &nbsp;·&nbsp; YipitData &nbsp;·&nbsp; M Science &nbsp;·&nbsp; Bloomberg Terminal
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2f. Closing product links -->
+  <section>
+    <div class="wrap">
+      <div class="section-eyebrow">Read more</div>
+      <h2>Each product, in depth.</h2>
+      <p class="section-lede">
+        The methodology pages for each product cover the evidence sources, the
+        inference approach, the commercial motion, and the governance model in
+        more detail.
+      </p>
+
+      <div class="product-links">
+        <a href="/products/sonar/" class="product-link-item">CJI Sonar &rarr;</a>
+        <a href="/products/reckoner/" class="product-link-item">CJI Reckoner &rarr;</a>
+        <a href="/products/pulse/" class="product-link-item">CJI Pulse &rarr;</a>
+        <a href="/products/lever/" class="product-link-item">CJI Lever &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+
+    <div class="footer-cols">
+      <div class="footer-mark">
+        <span class="brand">CJI</span>
+        <p>Customer journey intelligence for regulated consumer-service firms. Decisions, not dashboards.</p>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Products</div>
+        <ul>
+          <li><a href="/products/reckoner/">CJI Reckoner</a></li>
+          <li><a href="/products/sonar/">CJI Sonar</a></li>
+          <li><a href="/products/pulse/">CJI Pulse</a></li>
+          <li><a href="/products/lever/">CJI Lever</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Insights</div>
+        <ul>
+          <li><a href="/insights/methodology/">Methodology</a></li>
+          <li><a href="/insights/sample-briefing/">Sample briefing</a></li>
+          <li><a href="/insights/chronicle/">CJI Chronicle</a></li>
+          <li><a href="/security/">Security</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-head">Engagement</div>
+        <ul>
+          <li><a href="/products/lever/">Become a design partner</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Lever%20engagement">Talk to us about Lever</a></li>
+          <li><a href="mailto:hello@cjipro.com?subject=CJI%20Sonar%20briefing">Request a Sonar briefing</a></li>
+          <li><a href="mailto:hello@cjipro.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 CJI · Independent market intelligence</div>
+      <div>
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/.well-known/security.txt">security.txt</a>
+        <a href="mailto:hello@cjipro.com">Contact</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>
