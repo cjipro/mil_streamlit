@@ -13,6 +13,8 @@ Usage:
   py run_daily.py
   py run_daily.py --dry-run        # fetch + enrich only, skip publish
   py run_daily.py --skip-fetch     # skip fetch, re-run inference + publish only
+  py run_daily.py --step 5d        # MIL-124: isolated step (re-publish V4 only)
+  py run_daily.py --step 4,4d,5d   # MIL-124: isolated subset, no streak/email side-effects
 
 MIL Zero Entanglement: no imports from pulse/, poc/, app/, dags/
 """
@@ -295,6 +297,19 @@ def run_publish_v3_step() -> None:
         logger.info("[publish_v3] briefing-v3 updated.")
 
 
+def run_publish_v4_step() -> None:
+    logger.info("[publish_v4] running publish_v4.py...")
+    result = subprocess.run(
+        [sys.executable, str(MIL_ROOT / "publish" / "publish_v4.py")],
+        cwd=str(REPO_ROOT),
+        capture_output=False,
+    )
+    if result.returncode != 0:
+        logger.warning("[publish_v4] publish_v4.py exited with code %d", result.returncode)
+    else:
+        logger.info("[publish_v4] briefing-v4 updated.")
+
+
 # ---------------------------------------------------------------------------
 # Run Summary
 # ---------------------------------------------------------------------------
@@ -528,11 +543,136 @@ def _vault_preflight() -> bool:
         return False
 
 
+_VALID_STEPS = {"1", "2", "4", "4a", "4b", "4c", "4d", "4e", "4f", "5", "5b", "5c", "5d"}
+
+
+def _run_isolated_steps(selected: set[str], enrich_model: str) -> None:
+    """
+    MIL-124: --step isolated execution path.
+
+    Runs only the requested step IDs, in canonical order. Skips:
+      - STARTING / CRASHED / COMPLETE heartbeats (notifier)
+      - daily_run_log.jsonl append (would inflate streak counter)
+      - end-of-run summary print
+      - MIL-49 partner email distribution
+
+    Caller is responsible for prerequisites (e.g. --step 5d expects mil_findings.json
+    to already exist from a prior real run or from --step 4).
+    """
+    fetch_counts: dict = {}
+
+    if "1" in selected:
+        logger.info("--- Step 1: Fetch (isolated) ---")
+        fetch_counts = fetch_new_records()
+        logger.info("[step 1] %d new records", sum(fetch_counts.values()))
+
+    if "2" in selected:
+        logger.info("--- Step 2: Enrich (isolated) ---")
+        from mil.harvester.enrich_sonnet import run_enrichment as sonnet_enrich
+        summary = sonnet_enrich() or {}
+        n = sum(v.get("records_enriched", 0) for v in summary.values())
+        logger.info("[step 2] %d records enriched via %s", n, enrich_model)
+
+    if "4" in selected:
+        logger.info("--- Step 4: Inference (isolated) ---")
+        rc = subprocess.run(
+            [sys.executable, str(MIL_ROOT / "inference" / "mil_agent.py")],
+            cwd=str(REPO_ROOT),
+        ).returncode
+        logger.info("[step 4] inference exit=%d", rc)
+
+    if "4a" in selected:
+        logger.info("--- Step 4a: Research Trigger (isolated) ---")
+        from harvester.research_trigger import run as trigger_run
+        r = trigger_run()
+        logger.info("[step 4a] triggered=%d skipped=%d ignored=%d",
+                    r["triggered"], r["skipped"], r["ignored"])
+
+    if "4b" in selected:
+        logger.info("--- Step 4b: Vault (isolated) ---")
+        if _vault_preflight():
+            rc = subprocess.run(
+                [sys.executable, str(MIL_ROOT / "vault" / "vault_sync.py")],
+                cwd=str(REPO_ROOT),
+            ).returncode
+            logger.info("[step 4b] vault exit=%d", rc)
+        else:
+            logger.warning("[step 4b] preflight failed — skipped")
+
+    if "4c" in selected:
+        logger.info("--- Step 4c: Clark Escalation (isolated) ---")
+        from mil.command.components.clark_protocol import scan_and_escalate, scan_and_downgrade
+        new_esc = scan_and_escalate()
+        new_dg = scan_and_downgrade()
+        logger.info("[step 4c] escalated=%d downgraded=%d", len(new_esc), new_dg)
+
+    if "4d" in selected:
+        logger.info("--- Step 4d: Benchmark + Persistence (isolated) ---")
+        sys.path.insert(0, str(MIL_ROOT / "data"))
+        from benchmark_engine import run as benchmark_run
+        result = benchmark_run(mode="daily")
+        logger.info("[step 4d] churn=%.2f trend=%s",
+                    result.get("churn_risk_score", 0), result.get("churn_risk_trend", "?"))
+
+    if "4e" in selected:
+        logger.info("--- Step 4e: Analytics DB (isolated) ---")
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "build_analytics_db",
+            Path(__file__).parent / "mil" / "analytics" / "build_analytics_db.py",
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        mod.main()
+        logger.info("[step 4e] mil_analytics.db rebuilt")
+
+    if "4f" in selected:
+        logger.info("--- Step 4f: Drift Monitor (isolated) ---")
+        from mil.monitoring.drift_monitor import run_drift_checks
+        # Slack escalation off in isolated mode — avoids re-paging on a re-run
+        # of a previously-alerted detector.
+        alerts = run_drift_checks(escalate_to_slack=False)
+        logger.info("[step 4f] %d alert(s)", len(alerts))
+
+    publish_helpers = {
+        "5":  run_publish_step,
+        "5b": run_publish_v2_step,
+        "5c": run_publish_v3_step,
+        "5d": run_publish_v4_step,
+    }
+    for step_id, helper in publish_helpers.items():
+        if step_id in selected:
+            logger.info("--- Step %s: Publish (isolated) ---", step_id)
+            helper()
+
+    logger.info("=== Isolated step run complete: %s ===", sorted(selected))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="MIL daily refresh pipeline")
     parser.add_argument("--dry-run",    action="store_true", help="Fetch + enrich only; skip inference and publish")
     parser.add_argument("--skip-fetch", action="store_true", help="Skip fetch; re-run inference + publish only")
+    parser.add_argument(
+        "--step",
+        metavar="ID[,ID...]",
+        help=(
+            "MIL-124: run isolated step(s) only. Skips heartbeat, run-log, summary, partner email. "
+            f"Valid IDs: {','.join(sorted(_VALID_STEPS))}. "
+            "Mutually exclusive with --dry-run and --skip-fetch. "
+            "Examples: --step 5d  |  --step 4,4d,5d"
+        ),
+    )
     args = parser.parse_args()
+
+    selected: set[str] | None = None
+    if args.step:
+        if args.dry_run or args.skip_fetch:
+            parser.error("--step is mutually exclusive with --dry-run and --skip-fetch")
+        requested = {s.strip() for s in args.step.split(",") if s.strip()}
+        bad = requested - _VALID_STEPS
+        if bad:
+            parser.error(f"Unknown step IDs: {sorted(bad)}. Valid: {sorted(_VALID_STEPS)}")
+        selected = requested
 
     logger.info("=== MIL Daily Refresh — %s ===", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
@@ -546,6 +686,11 @@ def main() -> None:
         _enrich_model = _gm("enrichment")["model"]
     except Exception:
         _enrich_model = "unknown"
+
+    # MIL-124: --step isolated path bypasses heartbeats / run-log / summary / email.
+    if selected is not None:
+        _run_isolated_steps(selected, _enrich_model)
+        return
 
     # MIL-38 Autonomous Heartbeat: STARTING ping before any step can fail.
     # Pairs with the CLEAN/PARTIAL/FAILED ping at end of main(). Absence of a
