@@ -34,6 +34,7 @@ import {
   renderDenied,
 } from "./admin_routes";
 import { d1SaltStore, utcDateString } from "../../audit/src/salt";
+import { writeSession } from "../../approvals/src/sessions";
 
 function cookieConfigFromEnv(env: Env): CookieConfig {
   return {
@@ -283,10 +284,30 @@ export default {
         callbackConfigFromEnv(env),
       );
       if (outcome.kind === "redirect") {
+        const sub = outcome.userId ?? extractJwtSub(outcome.accessToken);
+        // MIL-66c — record the sub→email mapping so the bouncer + admin
+        // gate can resolve email at request time. Fire-and-forget; a D1
+        // failure here doesn't block the user from being signed in (they
+        // get the cookie anyway), it only means the gate would deny on
+        // their next request — which is the correct fail-closed posture.
+        if (env.AUDIT_DB && sub && outcome.userEmail) {
+          const db = env.AUDIT_DB;
+          ctx.waitUntil(
+            writeSession(db, sub, outcome.userEmail).catch((err) => {
+              console.log(
+                JSON.stringify({
+                  ts: new Date().toISOString(),
+                  session_write_error:
+                    err instanceof Error ? err.message : String(err),
+                }),
+              );
+            }),
+          );
+        }
         audit(env, ctx, {
           ...baseAuditInput(request, path),
           event_type: "magic_link.callback.success",
-          session_sub: extractJwtSub(outcome.accessToken),
+          session_sub: sub,
         });
         return new Response(null, {
           status: 302,

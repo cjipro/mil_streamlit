@@ -27,6 +27,11 @@ export type CallbackOutcome =
       // sub claim. The token itself is never persisted; callers
       // extract `sub` and discard.
       accessToken: string;
+      // MIL-66c — sub + email surfaced so the Worker can write a
+      // sessions row mapping sub→email. Access tokens have sub but
+      // no email; this is the only place we have both.
+      userId?: string;
+      userEmail?: string;
     }
   | { kind: "error"; status: number; reason: string; detail?: string };
 
@@ -87,5 +92,7 @@ export async function handleCallback(
     location: returnTo,
     setCookie,
     accessToken: exchange.accessToken,
+    userId: exchange.userId,
+    userEmail: exchange.userEmail,
   };
 }

@@ -23,6 +23,7 @@ import {
 import { logAuthEvent } from "../../audit/src/audit";
 import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
 import { isApproved } from "../../approvals/src/approvals";
+import { lookupSessionEmail } from "../../approvals/src/sessions";
 
 export interface Env {
   ENFORCE: string;
@@ -85,15 +86,15 @@ async function decide(request: Request, env: Env): Promise<Decision> {
     return { action: "redirect", reason: "invalid", detail: result.reason };
   }
 
-  // Valid JWT. MIL-66a — additionally check the email claim against
-  // the approved_users allowlist. No AUDIT_DB means the allowlist
-  // can't be queried; fail CLOSED in that case (deny), since the
-  // alternative (implicit allow) turns the gate off silently.
+  // Valid JWT. MIL-66a/c — check the user's email against the
+  // approved_users allowlist. WorkOS access tokens carry sub but no
+  // email; MIL-66c writes a sub→email row at /callback time so we
+  // can look it up here. No AUDIT_DB or no session row → fail CLOSED.
   const sub = typeof result.payload.sub === "string" ? result.payload.sub : undefined;
-  const email = typeof result.payload.email === "string" ? result.payload.email : undefined;
-  if (!env.AUDIT_DB) {
-    return { action: "deny", reason: "not-approved", sub, email, };
+  if (!env.AUDIT_DB || !sub) {
+    return { action: "deny", reason: "not-approved", sub };
   }
+  const email = await lookupSessionEmail(env.AUDIT_DB, sub);
   const approved = await isApproved(env.AUDIT_DB, email);
   if (!approved) {
     return { action: "deny", reason: "not-approved", sub, email };

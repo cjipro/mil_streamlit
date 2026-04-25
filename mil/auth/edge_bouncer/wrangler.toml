@@ -61,9 +61,15 @@ SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
 #   and     "jwks_uri": "https://ideal-log-65-staging.authkit.app/oauth2/jwks".
 # The earlier api.workos.com/sso/* values were SSO-product endpoints
 # and rejected AuthKit-issued tokens with invalid-iss / JWKS mismatch.
+# JWKS_URL stays on the AuthKit domain (signing keys live there).
+# EXPECTED_ISS matches the iss that WorkOS User Management stamps on
+# access_tokens — see `wrangler tail` 2026-04-24 confirming the
+# actual value. The AuthKit domain (ideal-log-65-staging.authkit.app)
+# is the iss of ID tokens, not access tokens — misleadingly reported
+# by /.well-known/openid-configuration.
 JWKS_URL               = "https://ideal-log-65-staging.authkit.app/oauth2/jwks"
 EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
-EXPECTED_ISS           = "https://ideal-log-65-staging.authkit.app"
+EXPECTED_ISS           = "https://api.workos.com/user_management/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
 LOGIN_URL              = "https://login.cjipro.com/"
 RETURN_TO_PARAM        = "return_to"
 JWKS_CACHE_TTL_SECONDS = "3600"

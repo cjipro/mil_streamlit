@@ -33,11 +33,18 @@ interface RateLimitRow {
   count: number;
 }
 
+interface SessionRow {
+  sub: string;
+  email: string;
+  created_at: string;
+}
+
 export class FakeD1 {
   public users: ApprovedUserRow[] = [];
   public signups: PendingSignupRow[] = [];
   public admins: AdminUserRow[] = [];
   public rateLimits: RateLimitRow[] = [];
+  public sessions: SessionRow[] = [];
   public nextSignupId = 1;
 
   prepare(sql: string): FakeStatement {
@@ -89,6 +96,12 @@ export class FakeStatement {
       const id = this.args[0] as number;
       const hit = this.db.signups.find((r) => r.id === id);
       return hit ? ({ status: hit.status } as T) : null;
+    }
+    // sessions
+    if (s.startsWith("SELECT email FROM sessions WHERE sub")) {
+      const sub = this.args[0] as string;
+      const hit = this.db.sessions.find((r) => r.sub === sub);
+      return hit ? ({ email: hit.email } as T) : null;
     }
     // rate limit
     if (s.startsWith("SELECT count FROM signup_rate_limit")) {
@@ -168,6 +181,17 @@ export class FakeStatement {
     if (s.startsWith("DELETE FROM approved_users")) {
       const email = this.args[0] as string;
       this.db.users = this.db.users.filter((u) => u.email !== email);
+      return {};
+    }
+    if (s.startsWith("INSERT OR REPLACE INTO sessions")) {
+      const [sub, email, created_at] = this.args as [string, string, string];
+      const existing = this.db.sessions.find((r) => r.sub === sub);
+      if (existing) {
+        existing.email = email;
+        existing.created_at = created_at;
+      } else {
+        this.db.sessions.push({ sub, email, created_at });
+      }
       return {};
     }
     if (s.startsWith("INSERT OR IGNORE INTO signup_rate_limit")) {

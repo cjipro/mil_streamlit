@@ -24,9 +24,14 @@ import { verifySession } from "../src/session";
 interface FakeUserRow {
   email: string;
 }
+interface FakeSessionRow {
+  sub: string;
+  email: string;
+}
 
 class FakeApprovalsDb {
   public approved: FakeUserRow[] = [];
+  public sessions: FakeSessionRow[] = [];
   prepare(sql: string) {
     return new FakeStmt(this, sql, []);
   }
@@ -48,6 +53,11 @@ class FakeStmt {
       return this.db.approved.find((u) => u.email === email)
         ? ({ present: 1 } as T)
         : null;
+    }
+    if (s.startsWith("SELECT email FROM sessions WHERE sub")) {
+      const sub = this.args[0] as string;
+      const hit = this.db.sessions.find((r) => r.sub === sub);
+      return hit ? ({ email: hit.email } as T) : null;
     }
     // Any SELECT / INSERT on auth_events is an audit-path call —
     // return the shape logAuthEvent expects so it doesn't blow up.
@@ -114,9 +124,10 @@ describe("approval gate — enforce=true", () => {
   test("approved email → pass through to origin", async () => {
     const db = new FakeApprovalsDb();
     db.approved.push({ email: "alpha@example.com" });
+    db.sessions.push({ sub: "u_alpha", email: "alpha@example.com" });
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_alpha", email: "alpha@example.com" },
+      payload: { sub: "u_alpha" },
     });
     // Stub global fetch so the "pass" path doesn't hit real origin.
     const origFetch = globalThis.fetch;
@@ -137,10 +148,11 @@ describe("approval gate — enforce=true", () => {
 
   test("non-approved email → 403 deny page", async () => {
     const db = new FakeApprovalsDb();
-    // allowlist is empty — nobody is approved
+    db.sessions.push({ sub: "u_bravo", email: "bravo@example.com" });
+    // approved is empty — bravo is signed in but not approved
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_bravo", email: "bravo@example.com" },
+      payload: { sub: "u_bravo" },
     });
     const res = await worker.fetch(
       req("/briefing-v4/", COOKIE_WITH_TOKEN),
@@ -156,9 +168,12 @@ describe("approval gate — enforce=true", () => {
   test("case-insensitive email match", async () => {
     const db = new FakeApprovalsDb();
     db.approved.push({ email: "alpha@example.com" });
+    // session row stores canonical lowercase (writeSession does this);
+    // the lookup itself is exact-match by sub.
+    db.sessions.push({ sub: "u_alpha", email: "alpha@example.com" });
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_alpha", email: "Alpha@Example.COM" },
+      payload: { sub: "u_alpha" },
     });
     const origFetch = globalThis.fetch;
     globalThis.fetch = (async () =>
@@ -175,12 +190,15 @@ describe("approval gate — enforce=true", () => {
     }
   });
 
-  test("missing email claim → deny (fail closed)", async () => {
+  test("no session row → deny (fail closed)", async () => {
     const db = new FakeApprovalsDb();
     db.approved.push({ email: "alpha@example.com" });
+    // No db.sessions entry — simulates a JWT issued before MIL-66c
+    // shipped, or a session table wipe. lookupSessionEmail returns
+    // undefined, isApproved fails closed.
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_alpha" }, // no email claim
+      payload: { sub: "u_alpha" },
     });
     const res = await worker.fetch(
       req("/briefing-v4/", COOKIE_WITH_TOKEN),
@@ -195,7 +213,7 @@ describe("approval gate — enforce=true", () => {
     // Doesn't matter — approval check never runs on public paths.
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_nobody", email: "nobody@example.com" },
+      payload: { sub: "u_nobody" },
     });
     const origFetch = globalThis.fetch;
     globalThis.fetch = (async () =>
@@ -227,7 +245,7 @@ describe("approval gate — enforce=true", () => {
   test("AUDIT_DB absent → deny (fail closed)", async () => {
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_alpha", email: "alpha@example.com" },
+      payload: { sub: "u_alpha" },
     });
     const env: Env = { ...envWith(new FakeApprovalsDb(), true) };
     delete env.AUDIT_DB;
@@ -243,9 +261,10 @@ describe("approval gate — enforce=true", () => {
 describe("approval gate — enforce=false (shadow mode)", () => {
   test("non-approved email still passes through in shadow", async () => {
     const db = new FakeApprovalsDb(); // empty allowlist
+    db.sessions.push({ sub: "u_bravo", email: "bravo@example.com" });
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
-      payload: { sub: "u_bravo", email: "bravo@example.com" },
+      payload: { sub: "u_bravo" },
     });
     const origFetch = globalThis.fetch;
     globalThis.fetch = (async () =>

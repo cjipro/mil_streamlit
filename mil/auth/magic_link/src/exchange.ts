@@ -28,6 +28,11 @@ export type ExchangeSuccess = {
   accessToken: string;
   refreshToken?: string;
   userId?: string;
+  // MIL-66c — email from the WorkOS response body. Access tokens
+  // don't carry an email claim, so this is our only chance to capture
+  // it. Stored by the Worker into the sessions table for sub→email
+  // lookups at the gate.
+  userEmail?: string;
   rawBody: Record<string, unknown>;
 };
 
@@ -106,6 +111,13 @@ export async function exchangeCode(
     body.user && typeof body.user === "object" && "id" in body.user
       ? String((body.user as { id: unknown }).id)
       : undefined;
+  const userEmail =
+    body.user &&
+    typeof body.user === "object" &&
+    "email" in body.user &&
+    typeof (body.user as { email: unknown }).email === "string"
+      ? ((body.user as { email: string }).email)
+      : undefined;
 
-  return { ok: true, accessToken, refreshToken, userId, rawBody: body };
+  return { ok: true, accessToken, refreshToken, userId, userEmail, rawBody: body };
 }

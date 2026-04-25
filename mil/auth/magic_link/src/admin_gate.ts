@@ -11,6 +11,7 @@
 
 import { createRemoteJWKSet, jwtVerify, type JWTVerifyGetKey } from "jose";
 import { isAdmin } from "../../approvals/src/admin";
+import { lookupSessionEmail } from "../../approvals/src/sessions";
 
 export interface AdminGateConfig {
   jwksUrl: string;
@@ -66,7 +67,7 @@ export async function checkAdmin(
   const token = extractCookie(request.headers.get("cookie"), cfg.cookieName);
   if (!token) return { kind: "no-session" };
 
-  let email: string | undefined;
+  let sub: string | undefined;
   try {
     // MIL-66b — WorkOS User Management access tokens don't carry an
     // `aud` claim, so we verify issuer + signature only. The aud the
@@ -75,16 +76,23 @@ export async function checkAdmin(
     const { payload } = await jwtVerify(token, getJwks(cfg), {
       issuer: cfg.expectedIss,
     });
-    void cfg.expectedAud; // retained in the config shape for future swap
-    if (typeof payload.email === "string") email = payload.email;
+    void cfg.expectedAud;
+    if (typeof payload.sub === "string") sub = payload.sub;
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
     return { kind: "invalid-session", reason };
   }
 
-  if (!email) {
-    return { kind: "invalid-session", reason: "no-email-claim" };
+  // MIL-66c — WorkOS access_tokens carry sub but no email. /callback
+  // wrote a sub→email row at sign-in time; look it up here.
+  if (!sub) {
+    return { kind: "invalid-session", reason: "no-sub-claim" };
   }
+  const email = await lookupSessionEmail(db, sub);
+  if (!email) {
+    return { kind: "invalid-session", reason: "no-session-row" };
+  }
+
   const ok = await isAdmin(db, email);
   return ok ? { kind: "ok", email } : { kind: "not-admin", email };
 }
