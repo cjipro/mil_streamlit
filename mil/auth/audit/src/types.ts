@@ -27,6 +27,13 @@ export type AuthEventType =
   // (only fires when Cloudflare passes through challenged traffic
   // post-solve; pre-challenge blocks never invoke the Worker)
   | "bouncer.rate_limited"
+  // MIL-70 — SAML / SSO connection lifecycle (populated from WorkOS
+  // webhook events once Phase B narrows workos.webhook). Reserved
+  // typed slots so the runbook + dashboard can reference them today.
+  | "connection.activated"
+  | "connection.deactivated"
+  | "connection.deleted"
+  | "admin.portal_link_generated"
   // MIL-67a — WorkOS webhook ingestion. Generic catch-all for now;
   // Phase B will split out specific passkey events
   // (passkey.registered, passkey.used, etc.) once we observe what

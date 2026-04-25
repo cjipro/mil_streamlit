@@ -16,6 +16,10 @@ import {
   forceSignout,
   listApprovedWithSessions,
 } from "../../approvals/src/sessions";
+import {
+  generatePortalLink,
+  type PortalIntent,
+} from "../../approvals/src/admin_portal";
 
 const STYLES = `
   :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --line:#e0e4e7; }
@@ -62,6 +66,23 @@ export function renderDashboard(adminEmail: string): Response {
 
 <h2>Approved users</h2>
 <div id="approved"><p class="empty">Loading…</p></div>
+
+<h2>Partner SSO setup link</h2>
+<p class="sub">Generate a one-shot WorkOS Admin Portal link for a partner
+ organization. Share with their IT — they configure SAML / SCIM /
+ domain verification inside WorkOS's hosted UI. Link expires in 5 min.</p>
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:0.5rem;">
+  <input id="org_id" type="text" placeholder="org_01HXYZ..." style="flex:1; min-width:18rem; padding:0.4rem 0.55rem; font:inherit; border:1px solid #b7c2ca; border-radius:3px;">
+  <select id="intent" style="padding:0.4rem 0.55rem; font:inherit; border:1px solid #b7c2ca; border-radius:3px;">
+    <option value="sso">sso</option>
+    <option value="domain_verification">domain_verification</option>
+    <option value="dsync">dsync</option>
+    <option value="audit_logs">audit_logs</option>
+    <option value="log_streams">log_streams</option>
+  </select>
+  <button class="primary" onclick="generateLink()">Generate</button>
+</div>
+<div id="portal_link_out"></div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -175,6 +196,30 @@ async function signout(email) {
   await load();
 }
 
+async function generateLink() {
+  const org_id = $("org_id").value.trim();
+  const intent = $("intent").value;
+  if (!org_id) { alert("Enter an organization id (e.g. org_01HXYZ…)"); return; }
+  const out = $("portal_link_out");
+  out.innerHTML = '<p class="sub">Requesting…</p>';
+  const r = await fetch("/admin/api/portal_link", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ organization_id: org_id, intent })
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.ok) {
+    out.innerHTML = '<p class="err">Failed: ' + esc(j.error || ("HTTP " + r.status)) + (j.detail ? ' — ' + esc(j.detail) : '') + '</p>';
+    return;
+  }
+  out.innerHTML =
+    '<p class="sub">Link valid for 5 min. Share with the partner\\'s IT contact:</p>'
+    + '<div style="display:flex; gap:0.5rem; align-items:center;">'
+    +   '<input readonly value="' + esc(j.link) + '" style="flex:1; padding:0.4rem 0.55rem; font:ui-monospace,monospace; font-size:0.82rem; border:1px solid #b7c2ca; border-radius:3px; background:#fff;">'
+    +   '<button onclick="navigator.clipboard.writeText(\\'' + esc(j.link) + '\\').then(() => alert(\\'Copied\\'))">Copy</button>'
+    + '</div>';
+}
+
 load();
 </script>
 </main>
@@ -277,6 +322,47 @@ export async function handleApiRevoke(
   const out = await revokeApproval(db, body.email);
   if (out.kind !== "ok") return json({ ok: false, error: out.kind }, 400);
   return json({ ok: true });
+}
+
+// MIL-70 — generate a short-lived (5min) WorkOS Admin Portal setup
+// link for a partner organization. Caller (admin) shares the link
+// with the partner's IT team; they configure SAML/SCIM/etc. inside
+// WorkOS's hosted UI; activation events flow back via webhooks.
+export async function handleApiPortalLink(
+  request: Request,
+  workosApiKey: string,
+): Promise<Response> {
+  const body = await readJson<{
+    organization_id?: string;
+    intent?: string;
+    return_url?: string;
+  }>(request);
+  if (!body || typeof body.organization_id !== "string") {
+    return json({ ok: false, error: "missing organization_id" }, 400);
+  }
+  const validIntents: PortalIntent[] = [
+    "sso",
+    "domain_verification",
+    "dsync",
+    "audit_logs",
+    "log_streams",
+  ];
+  const intent = (body.intent ?? "sso") as PortalIntent;
+  if (!validIntents.includes(intent)) {
+    return json({ ok: false, error: `invalid intent: ${body.intent}` }, 400);
+  }
+  const out = await generatePortalLink(workosApiKey, {
+    organizationId: body.organization_id,
+    intent,
+    returnUrl: body.return_url,
+  });
+  if (!out.ok) {
+    return json(
+      { ok: false, error: out.reason, detail: out.detail },
+      out.status,
+    );
+  }
+  return json({ ok: true, link: out.link });
 }
 
 // MIL-68 — boot any active session for this user without removing

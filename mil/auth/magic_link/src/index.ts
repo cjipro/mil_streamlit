@@ -29,6 +29,7 @@ import {
   handleApiApprove,
   handleApiDeny,
   handleApiForceSignout,
+  handleApiPortalLink,
   handleApiRevoke,
   handleApiSignups,
   renderDashboard,
@@ -309,6 +310,14 @@ export default {
           session_sub: adminEmail,
         });
         return handleApiForceSignout(request, env.AUDIT_DB);
+      }
+      if (path === "/admin/api/portal_link" && method === "POST") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.portal_link_generated",
+          session_sub: adminEmail,
+        });
+        return handleApiPortalLink(request, env.WORKOS_CLIENT_SECRET);
       }
       return new Response("not found", {
         status: 404,
