@@ -481,7 +481,34 @@ Human is ONLY required for: governance review (CHR entries), M2 countersign, Jir
 | Reddit | 0.85 | LIVE (MIL-19) |
 | YouTube | 0.75 | LIVE (MIL-22) |
 
-**Next ticket: MIL-135** (MIL-109..132 created 2026-04-25 as the clonability/hygiene slate; MIL-113/118/124 BUILT 2026-04-25 late evening; MIL-133 filed 2026-04-25 for Box 1 third quote slot; MIL-134 filed retroactively 2026-04-25 for App Store + Google Play pagination — see memory `project_session_2026_04_25_late_clonability.md`)
+**Next ticket: MIL-135** (MIL-109..132 created 2026-04-25 as the clonability/hygiene slate; MIL-113/118/124 BUILT 2026-04-25 late evening; MIL-133 filed 2026-04-25 for Box 1 third quote slot; MIL-134 filed retroactively 2026-04-25 for App Store + Google Play pagination — see memory `project_session_2026_04_25_late_clonability.md`. **MIL-86 BUILT + LIVE 2026-04-26 (commit `4d2ac90`, app-cjipro Worker version `f7244c6f`) — see "MIL-86 — Sonar URL migration" section below.**)
+
+### MIL-86 — Sonar URL migration (BUILT + LIVE 2026-04-26, soft launch)
+**Goal:** move CJI Sonar briefings off public `cjipro.com/briefing-v4` onto gated `app.cjipro.com/sonar/{client_slug}/{date}/`. Drops `-v4` from URLs forever, introduces multi-tenant URL schema. Soft launch — old URL kept primary until cutover ticket.
+
+**Code shipped (commit `4d2ac90`, 6 files):**
+- `mil/briefing_data.py` — `get_briefing_data(subject_slug="barclays")` parametric. `_chronicle_match_from_findings` and `_teacher_from_findings` also take `subject_slug`. 11 hardcoded `"barclays"` filter literals replaced with the param; 6 local var renames (`barclays_records → subject_records` etc.). Defaults preserve identical output. Verified: `subject_slug="hsbc"` produces HSBC findings (`MIL-F-20260425-014`).
+- `mil/publish/publish_v4.py` — `--subject SLUG` and `--target-path PATH` CLI flags. Four builder fns parametric (`_box3_context`, `_commentary_context`, `_benchmark_context`, `_render_findings_block`, `_clark_context`). `generate_v4_html(v1_html, subject_slug)` plumbs subject via `functools.partial` so legacy V3 monkeypatch call sites work unchanged. **New `_ALL_BANK_SLUGS` constant** preserves historical peer iteration order — caught by V4 diff-gate as a real regression vs `legacy.COMP_LABELS.keys()` dict-insertion order (where `hsbc` is last instead of position 3). Warning fires when `subject != "barclays"` since V1 (Box 1 source) is still barclays-only.
+- `mil/auth/app_cjipro/src/router.ts` — async `dispatch`, new `sonarHandler` with slug regex `^[a-z0-9-]+$` + date regex `^\d{4}-\d{2}-\d{2}$`. Read-through to `cjipro.com/sonar/{slug}[/{date}]/index.html` with 60s edge cache. Origin throws caught as 404. `/sonar` redirects to `/sonar/barclays/`.
+- `mil/auth/app_cjipro/src/index.ts` — single line: `await dispatch(request)`.
+- `mil/auth/app_cjipro/test/router.test.ts` — 9 new sonar tests; 51/51 pass; typecheck clean.
+- `run_daily.py` — Step 5e (`run_publish_sonar_step()`) + `--step 5e` dispatch. Two writes per run: `sonar/{subject}/index.html` (latest, rewritten daily) + `sonar/{subject}/{today_utc}/index.html` (historical snapshot). Non-critical: `publish_sonar` failure does not fail the run.
+
+**Production state:**
+- Worker `app-cjipro` deployed: version `f7244c6f-a5f2-4461-83b4-39a31ebea460` (was `049b6042`). ENFORCE=false preserved. Custom domain `app.cjipro.com` still bound. All bindings intact (AUDIT_DB, JWKS_URL, etc.).
+- 2 new files on `cjipro/mil-briefing` GitHub Pages, pushed via Step 5e isolated fire 2026-04-25 23:32 UTC: `sonar/barclays/index.html` (118 KB) and `sonar/barclays/2026-04-25/index.html` (118 KB).
+- End-to-end verified: `app.cjipro.com/sonar/barclays/` → 200 (118014B, byte-equal to origin). `app.cjipro.com/sonar/barclays/2026-04-25/` → 200. `app.cjipro.com/sonar/barclays/notadate/` → 404 (slug-validation correctly rejecting). Legacy `cjipro.com/briefing-v4`, `cjipro.com/briefing` (V1), and `app.cjipro.com/reckoner` all still 200 with original byte counts.
+
+**Daily cron pickup:** Step 5e runs automatically at next pipeline fire (06:30 UTC). Tomorrow it will publish `sonar/barclays/index.html` (overwrite) + `sonar/barclays/2026-04-26/index.html` (new historical snapshot) without any operator action.
+
+**Acceptance criteria — all met:**
+- New URL renders today's briefing identically to `/briefing-v4` ✓ (118 KB byte-equal)
+- Authenticated user lands on briefing ✓ (Worker passes through, auth flow inherited from `index.ts`)
+- Unauth → magic-link with `return_to` ✓ (inherited from `decide()`, would fire when ENFORCE flips)
+- Old URL still functional ✓
+- `briefing_data(subject="hsbc")` parametrically works ✓
+
+**Out of scope per ticket spec (separate cutover ticket):** email link flip (`briefing_email.py` still points at `/briefing-v4`), public 301 redirect from `/briefing-v4`, retiring V3/V4 origin paths. ENFORCE=true on the app-cjipro Worker is a separate decision aligned with the edge-bouncer ENFORCE flip.
 
 ### MIL-31 — Barclays CHRONICLE Depth (BUILT 2026-04-16)
 - CHR-017/018/019 approved — Barclays J_SERVICE_01 journey now fully anchored
