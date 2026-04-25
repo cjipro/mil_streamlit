@@ -38,6 +38,7 @@ import {
 import { d1SaltStore, utcDateString } from "../../audit/src/salt";
 import { writeSession } from "../../approvals/src/sessions";
 import { verifyWorkosWebhook, webhookAuditInput } from "./webhooks";
+import { routeDsyncEvent } from "./dsync_router";
 
 function cookieConfigFromEnv(env: Env): CookieConfig {
   return {
@@ -237,11 +238,40 @@ export default {
           headers: { "content-type": "text/plain" },
         });
       }
-      audit(
-        env,
-        ctx,
-        webhookAuditInput(result.event, baseAuditInput(request, path)),
-      );
+      // MIL-71 — route dsync.* events to typed handlers. Side
+      // effects (auto_approve / auto_revoke) run synchronously so
+      // the audit row reflects the outcome. Non-dsync events fall
+      // through to the generic workos.webhook bucket.
+      let dsyncOutcome = null;
+      if (env.AUDIT_DB) {
+        try {
+          dsyncOutcome = await routeDsyncEvent(env.AUDIT_DB, result.event);
+        } catch (err) {
+          console.log(
+            JSON.stringify({
+              ts: new Date().toISOString(),
+              dsync_route_error:
+                err instanceof Error ? err.message : String(err),
+              event_id: result.rawId,
+              event_type: result.rawType,
+            }),
+          );
+        }
+      }
+
+      const baseAudit = baseAuditInput(request, path);
+      const auditEvent =
+        dsyncOutcome?.eventType
+          ? {
+              ...baseAudit,
+              worker: "magic-link" as const,
+              event_type: dsyncOutcome.eventType,
+              reason: dsyncOutcome.email ?? result.rawType,
+              detail: dsyncOutcome.detail ?? result.rawId,
+            }
+          : webhookAuditInput(result.event, baseAudit);
+      audit(env, ctx, auditEvent);
+
       // 200 = "we accepted the event". Don't echo the body — WorkOS
       // expects a small ack; their retry policy backs off on 2xx.
       return new Response(`ok ${result.rawId}`, {

@@ -33,6 +33,13 @@ interface RateLimitRow {
   count: number;
 }
 
+interface AutoApproveRow {
+  organization_id: string;
+  added_at: string;
+  added_by: string;
+  note: string | null;
+}
+
 interface SessionRow {
   sub: string;
   email: string;
@@ -46,6 +53,7 @@ export class FakeD1 {
   public admins: AdminUserRow[] = [];
   public rateLimits: RateLimitRow[] = [];
   public sessions: SessionRow[] = [];
+  public autoApproveOrgs: AutoApproveRow[] = [];
   public nextSignupId = 1;
 
   prepare(sql: string): FakeStatement {
@@ -99,6 +107,12 @@ export class FakeStatement {
       return hit ? ({ status: hit.status } as T) : null;
     }
     // sessions
+    if (s.startsWith("SELECT 1 AS present FROM auto_approve_orgs")) {
+      const orgId = this.args[0] as string;
+      return this.db.autoApproveOrgs.find((o) => o.organization_id === orgId)
+        ? ({ present: 1 } as T)
+        : null;
+    }
     if (s.startsWith("SELECT email FROM sessions WHERE sub")) {
       const sub = this.args[0] as string;
       const hit = this.db.sessions.find((r) => r.sub === sub);
@@ -229,6 +243,31 @@ export class FakeStatement {
       const before = this.db.sessions.length;
       this.db.sessions = this.db.sessions.filter((r) => r.email !== email);
       return { meta: { changes: before - this.db.sessions.length } };
+    }
+    if (s.startsWith("INSERT OR IGNORE INTO auto_approve_orgs")) {
+      const [organization_id, added_at, added_by, note] = this.args as [
+        string,
+        string,
+        string,
+        string | null,
+      ];
+      if (!this.db.autoApproveOrgs.find((o) => o.organization_id === organization_id)) {
+        this.db.autoApproveOrgs.push({
+          organization_id,
+          added_at,
+          added_by,
+          note: note ?? null,
+        });
+      }
+      return {};
+    }
+    if (s.startsWith("DELETE FROM auto_approve_orgs")) {
+      const orgId = this.args[0] as string;
+      const before = this.db.autoApproveOrgs.length;
+      this.db.autoApproveOrgs = this.db.autoApproveOrgs.filter(
+        (o) => o.organization_id !== orgId,
+      );
+      return { meta: { changes: before - this.db.autoApproveOrgs.length } };
     }
     if (s.startsWith("INSERT OR IGNORE INTO signup_rate_limit")) {
       const [ipHash, window] = this.args as [string, string, number];

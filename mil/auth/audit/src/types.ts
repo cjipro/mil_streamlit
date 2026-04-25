@@ -34,6 +34,18 @@ export type AuthEventType =
   | "connection.deactivated"
   | "connection.deleted"
   | "admin.portal_link_generated"
+  // MIL-71 — SCIM (Directory Sync) lifecycle events. dsync.user.*
+  // and dsync.group.* fire when the partner's IdP provisions or
+  // deprovisions users. Routed in webhooks.ts: dsync.user.created
+  // optionally auto-approves; dsync.user.deleted always revokes +
+  // force-signs-out.
+  | "dsync.user.created"
+  | "dsync.user.updated"
+  | "dsync.user.deleted"
+  | "dsync.group.user_added"
+  | "dsync.group.user_removed"
+  | "dsync.user.auto_approved"
+  | "dsync.user.auto_revoked"
   // MIL-67a — WorkOS webhook ingestion. Generic catch-all for now;
   // Phase B will split out specific passkey events
   // (passkey.registered, passkey.used, etc.) once we observe what
