@@ -53,7 +53,7 @@ zone_name  = "cjipro.com"
 [vars]
 # Non-secret, public identifiers. Match mil/config/workos.yaml
 # (staging env).
-ENFORCE                = "false"
+ENFORCE                = "true"
 SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
 # JWKS and issuer sourced from the AuthKit domain's OpenID config:
 #   https://ideal-log-65-staging.authkit.app/.well-known/openid-configuration
