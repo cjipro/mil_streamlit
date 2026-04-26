@@ -199,8 +199,29 @@ export default {
     ctx: ExecutionContext,
   ): Promise<Response> {
     const url = new URL(request.url);
-    const path = url.pathname;
+    let path = url.pathname;
     const method = request.method;
+
+    // MIL-83 — admin.cjipro.com is bound to this Worker as a second
+    // custom domain. On that host the dashboard lives at root, so
+    // rewrite /  → /admin and /api/* → /admin/api/* before route
+    // matching. Auth endpoints (/, /callback, /logout, /webhooks/*,
+    // /healthz, /favicon.ico) are NOT exposed on the admin host —
+    // anything that doesn't match the admin path shape returns 404
+    // to keep the host scoped to admin UI only. login.cjipro.com is
+    // unaffected; /admin and /admin/api/* continue to work there.
+    if (url.host === "admin.cjipro.com") {
+      if (path === "/" || path === "") {
+        path = "/admin";
+      } else if (path.startsWith("/api/")) {
+        path = "/admin" + path;
+      } else if (!path.startsWith("/admin")) {
+        return new Response("not found", {
+          status: 404,
+          headers: { "content-type": "text/plain" },
+        });
+      }
+    }
 
     // MIL-66b/67a — routes that accept POST: /request-access,
     // /admin/api/*, /webhooks/workos. Others are GET-only.
@@ -300,10 +321,10 @@ export default {
     if (path === "/admin" || path.startsWith("/admin/api/")) {
       const cfg = adminGateConfigFromEnv(env);
       if (!cfg || !env.AUDIT_DB) {
-        return renderDenied({ kind: "misconfigured" });
+        return renderDenied({ kind: "misconfigured" }, request);
       }
       const check = await checkAdmin(request, env.AUDIT_DB, cfg);
-      if (check.kind !== "ok") return renderDenied(check);
+      if (check.kind !== "ok") return renderDenied(check, request);
       const adminEmail = check.email;
 
       if (path === "/admin") return renderDashboard(adminEmail);

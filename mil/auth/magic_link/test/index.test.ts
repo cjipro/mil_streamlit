@@ -152,3 +152,95 @@ describe("GET /callback", () => {
     expect(res.status).toBe(400);
   });
 });
+
+// MIL-83 — admin.cjipro.com host routing. The dashboard lives at
+// root on this host; auth endpoints and other paths are scoped out.
+// Admin gating still applies — without AUDIT_DB + JWKS env, the
+// admin route returns the misconfigured-denied page (200 HTML), not
+// a 404. That's the same behaviour login.cjipro.com/admin shows in
+// these tests, which proves the host rewrite plumbed through.
+describe("admin.cjipro.com host routing (MIL-83)", () => {
+  function adminGet(path: string): Request {
+    return new Request(`https://admin.cjipro.com${path}`);
+  }
+
+  test("GET / → routed to admin dashboard handler", async () => {
+    // No AUDIT_DB binding in test ENV → admin gate denies with 403.
+    // The status proves the request reached the gated handler (not
+    // 404, not 405, not the public authorize redirect at 302).
+    const res = await worker.fetch(adminGet("/"), ENV, testCtx());
+    expect(res.status).toBe(403);
+    expect(res.headers.get("content-type")).toContain("text/html");
+  });
+
+  test("GET /api/signups → routed to admin API handler", async () => {
+    const res = await worker.fetch(adminGet("/api/signups"), ENV, testCtx());
+    expect(res.status).toBe(403);
+  });
+
+  test("GET /admin still works on admin host (backwards-compat)", async () => {
+    const res = await worker.fetch(adminGet("/admin"), ENV, testCtx());
+    expect(res.status).toBe(403);
+  });
+
+  test("GET /healthz → 404 on admin host (auth endpoints scoped out)", async () => {
+    const res = await worker.fetch(adminGet("/healthz"), ENV, testCtx());
+    expect(res.status).toBe(404);
+  });
+
+  test("GET /callback → 404 on admin host", async () => {
+    const res = await worker.fetch(adminGet("/callback?code=x&state=y"), ENV, testCtx());
+    expect(res.status).toBe(404);
+  });
+
+  test("GET /logout → 404 on admin host", async () => {
+    const res = await worker.fetch(adminGet("/logout"), ENV, testCtx());
+    expect(res.status).toBe(404);
+  });
+
+  test("POST /webhooks/workos → 404 on admin host", async () => {
+    const req = new Request("https://admin.cjipro.com/webhooks/workos", {
+      method: "POST",
+      body: "{}",
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(404);
+  });
+
+  test("GET /unknown-path → 404 on admin host", async () => {
+    const res = await worker.fetch(adminGet("/totally-fake"), ENV, testCtx());
+    expect(res.status).toBe(404);
+  });
+
+  test("login.cjipro.com /healthz still 200 (no host bleed-through)", async () => {
+    const res = await worker.fetch(get("/healthz"), ENV, testCtx());
+    expect(res.status).toBe(200);
+  });
+
+  // MIL-83 — confirms the no-session denied path on admin host emits an
+  // ABSOLUTE Location to login.cjipro.com (not "/?return_to=/admin").
+  // A relative location would loop: /  → path-rewrite to /admin →
+  // no-session → 302 / → / rewrites to /admin → loop. This requires
+  // the in-test admin gate to actually reach the no-session branch,
+  // which means AUDIT_DB must be present in ENV. Without AUDIT_DB the
+  // gate short-circuits at the misconfigured branch (covered above).
+  // Skipped in this suite because stubbing AUDIT_DB requires plumbing
+  // a fake D1 client; the renderDenied unit logic is exercised below.
+  test("renderDenied no-session on admin host returns absolute login.cjipro.com URL", async () => {
+    const { renderDenied } = await import("../src/admin_routes");
+    const adminReq = new Request("https://admin.cjipro.com/anything");
+    const res = renderDenied({ kind: "no-session" }, adminReq);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(
+      "https://login.cjipro.com/?return_to=/admin",
+    );
+  });
+
+  test("renderDenied no-session on login host stays relative", async () => {
+    const { renderDenied } = await import("../src/admin_routes");
+    const loginReq = new Request("https://login.cjipro.com/admin");
+    const res = renderDenied({ kind: "no-session" }, loginReq);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe("/?return_to=/admin");
+  });
+});

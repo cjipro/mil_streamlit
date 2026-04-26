@@ -106,6 +106,12 @@ export function renderDashboard(adminEmail: string): Response {
 <script>
 const $ = (id) => document.getElementById(id);
 
+// MIL-83 — API base is host-aware. On admin.cjipro.com the
+// dashboard is mounted at root and APIs live at /api/*; on
+// login.cjipro.com (legacy) they live at /admin/api/*. The
+// Worker accepts both shapes.
+const A = location.host === "admin.cjipro.com" ? "" : "/admin";
+
 function esc(s) {
   if (s === null || s === undefined) return "";
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -113,7 +119,7 @@ function esc(s) {
 
 async function load() {
   try {
-    const r = await fetch("/admin/api/signups");
+    const r = await fetch(A + "/api/signups");
     if (!r.ok) throw new Error("fetch failed: " + r.status);
     const j = await r.json();
     renderPending(j.pending || []);
@@ -184,7 +190,7 @@ function renderApproved(rows) {
 async function act(kind, id) {
   const verb = kind === "approve" ? "Approve" : "Deny";
   if (!confirm(verb + " request #" + id + "?")) return;
-  const r = await fetch("/admin/api/" + kind, {
+  const r = await fetch(A + "/api/" + kind, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ id })
@@ -195,7 +201,7 @@ async function act(kind, id) {
 
 async function revoke(email) {
   if (!confirm("Revoke access for " + email + "? They will get a 403 on next request.")) return;
-  const r = await fetch("/admin/api/revoke", {
+  const r = await fetch(A + "/api/revoke", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email })
@@ -206,7 +212,7 @@ async function revoke(email) {
 
 async function signout(email) {
   if (!confirm("Force sign-out for " + email + "? Their cached session is killed; they remain on the approved list and can sign back in.")) return;
-  const r = await fetch("/admin/api/force_signout", {
+  const r = await fetch(A + "/api/force_signout", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email })
@@ -233,7 +239,7 @@ function exportAudit() {
   if (until) params.set("until", until);
   // Trigger a real download by navigating to the URL — Content-Disposition
   // headers on the response make the browser save it.
-  window.location.href = "/admin/api/audit_export?" + params.toString();
+  window.location.href = A + "/api/audit_export?" + params.toString();
 }
 
 async function generateLink() {
@@ -242,7 +248,7 @@ async function generateLink() {
   if (!org_id) { alert("Enter an organization id (e.g. org_01HXYZ…)"); return; }
   const out = $("portal_link_out");
   out.innerHTML = '<p class="sub">Requesting…</p>';
-  const r = await fetch("/admin/api/portal_link", {
+  const r = await fetch(A + "/api/portal_link", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ organization_id: org_id, intent })
@@ -274,14 +280,27 @@ load();
   });
 }
 
-export function renderDenied(check: AdminCheck): Response {
+export function renderDenied(check: AdminCheck, request?: Request): Response {
   // For no-session: bounce to /. For invalid/not-admin/misconfigured:
   // a static 403 page. We avoid looping to login for invalid-session
   // because the user might loop forever if their cookie is stuck bad.
   if (check.kind === "no-session") {
+    // MIL-83 — on admin.cjipro.com a relative location loops:
+    //   /  → path rewrite to /admin → no-session → 302 / → / rewrites
+    //   to /admin again. Send absolute Location to login.cjipro.com.
+    //   Cross-origin return_to back to admin host would require widening
+    //   isValidReturnTo to allow cjipro.com origins; deferred. After auth
+    //   the user lands on login.cjipro.com/admin via backwards-compat.
+    let location = "/?return_to=/admin";
+    if (request) {
+      const url = new URL(request.url);
+      if (url.host === "admin.cjipro.com") {
+        location = "https://login.cjipro.com/?return_to=/admin";
+      }
+    }
     return new Response(null, {
       status: 302,
-      headers: { location: "/?return_to=/admin" },
+      headers: { location },
     });
   }
   const detail =

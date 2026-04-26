@@ -64,6 +64,20 @@ custom_domain  = true
 # level and route all traffic — Cloudflare manages the DNS record
 # automatically.
 
+# MIL-83 — admin.cjipro.com binds to the same Worker. The fetch
+# handler sees url.host === "admin.cjipro.com" and rewrites paths
+# so the dashboard appears at root (/ → /admin, /api/* →
+# /admin/api/*) with non-admin paths blocked. login.cjipro.com/admin
+# continues to work unchanged for backwards compatibility.
+#
+# Pre-deploy: the `admin` CNAME placeholder at admin.cjipro.com
+# (created during MIL-82 DNS prep) MUST be deleted first or the
+# deploy errors with code 100117 — Cloudflare refuses custom_domain
+# over an existing CNAME. Same dance as MIL-84.
+[[routes]]
+pattern        = "admin.cjipro.com"
+custom_domain  = true
+
 [observability]
 enabled = true
 
