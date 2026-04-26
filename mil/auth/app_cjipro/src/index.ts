@@ -72,7 +72,12 @@ function sessionConfig(env: Env): SessionConfig {
 
 function buildRedirect(request: Request, env: Env): Response {
   const url = new URL(request.url);
-  const returnTo = url.pathname + url.search;
+  // Encode the FULL origin + path so the magic-link callback can
+  // redirect cross-host. Path-only return_to is wrong here because
+  // app.cjipro.com !== login.cjipro.com (the host return_to would
+  // resolve against post-callback). See magic-link/src/state.ts
+  // isValidReturnTo for the matching allowlist.
+  const returnTo = url.origin + url.pathname + url.search;
   const login = new URL(env.LOGIN_URL);
   login.searchParams.set(env.RETURN_TO_PARAM, returnTo);
   return Response.redirect(login.toString(), 302);

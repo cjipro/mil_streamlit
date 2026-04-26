@@ -112,18 +112,42 @@ export async function verifyState(
 // return_to validation — prevents open-redirect abuse of the login
 // flow ("malicious.example.com" as a return target).
 //
-// Rules:
-//   - Must be a path (starts with "/"), not an absolute URL
-//   - Must not start with "//" (protocol-relative URL)
-//   - Must not contain ".." (path traversal paranoia — not a real
-//     security bound, just a defensive signal that the input is
-//     being massaged)
+// Two accepted shapes:
+//   1. Relative path starting with "/" — resolves against
+//      login.cjipro.com on callback. Used for /admin which is
+//      hosted on the magic-link Worker itself.
+//   2. Absolute https URL on an allowlisted cjipro.com subdomain —
+//      required when the original request was on a different host
+//      (e.g., cjipro.com/briefing-v3 or app.cjipro.com/sonar/...).
+//      Without absolute-URL support, a relative-path return_to
+//      from those origins would resolve against login.cjipro.com
+//      after callback and produce a 404.
 //
 // If invalid, callers should fall back to DEFAULT_RETURN_TO.
+const ALLOWED_RETURN_HOSTS = new Set([
+  "cjipro.com",
+  "app.cjipro.com",
+  "admin.cjipro.com",
+  "login.cjipro.com",
+]);
+
 export function isValidReturnTo(returnTo: string): boolean {
   if (typeof returnTo !== "string" || returnTo.length === 0) return false;
-  if (!returnTo.startsWith("/")) return false;
-  if (returnTo.startsWith("//")) return false;
   if (returnTo.includes("..")) return false;
-  return true;
+
+  // Relative path
+  if (returnTo.startsWith("/")) {
+    if (returnTo.startsWith("//")) return false; // protocol-relative
+    return true;
+  }
+
+  // Absolute URL
+  try {
+    const u = new URL(returnTo);
+    if (u.protocol !== "https:") return false;
+    if (!ALLOWED_RETURN_HOSTS.has(u.host)) return false;
+    return true;
+  } catch {
+    return false;
+  }
 }

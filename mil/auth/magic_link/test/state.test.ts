@@ -113,9 +113,23 @@ describe("isValidReturnTo", () => {
     expect(isValidReturnTo("//evil.example.com/steal")).toBe(false);
   });
 
-  test("rejects absolute URLs", () => {
+  test("accepts absolute URLs on allowlisted cjipro hosts", () => {
+    expect(isValidReturnTo("https://cjipro.com/briefing/")).toBe(true);
+    expect(isValidReturnTo("https://app.cjipro.com/sonar/barclays/")).toBe(true);
+    expect(isValidReturnTo("https://admin.cjipro.com/admin")).toBe(true);
+    expect(isValidReturnTo("https://login.cjipro.com/admin")).toBe(true);
+  });
+
+  test("rejects absolute URLs on non-allowlisted hosts", () => {
     expect(isValidReturnTo("https://evil.example.com/")).toBe(false);
+    expect(isValidReturnTo("https://malicious-cjipro.com/")).toBe(false);
+    expect(isValidReturnTo("https://cjipro.com.evil.com/")).toBe(false);
+  });
+
+  test("rejects non-https schemes on otherwise allowlisted hosts", () => {
     expect(isValidReturnTo("http://cjipro.com/")).toBe(false);
+    expect(isValidReturnTo("javascript:alert(1)")).toBe(false);
+    expect(isValidReturnTo("data:text/html,evil")).toBe(false);
   });
 
   test("rejects path-traversal-looking paths", () => {
