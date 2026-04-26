@@ -50,7 +50,7 @@ _LEDE_CACHE        = _MIL_ROOT / "data" / "email_lede_log.jsonl"
 _COMMENTARY_LOG    = _MIL_ROOT / "data" / "commentary_log.jsonl"
 _BOX3_PRIORITY     = _MIL_ROOT / "data" / "box3_priority.json"
 _ENRICHED_DIR      = _MIL_ROOT / "data" / "historical" / "enriched"
-_BRIEFING_URL      = "https://cjipro.com/briefing-v4"
+_BRIEFING_URL      = "https://app.cjipro.com/sonar/barclays/"
 
 # Locked constant — Teams rules depend on byte-for-byte identity.
 _SUBJECT_LINE = "Voice of the Customer: Barclays App Experience (Open Sources)"
@@ -869,7 +869,7 @@ def _build_html(recipient: dict, headline: str, lede: str,
         footer_parts.append(f"No directly matching reports from: {', '.join(absent)}.")
     footer_parts.append(
         f'Full evidence trail: <a href="{_BRIEFING_URL}" '
-        f'style="color:{_ACCENT};text-decoration:underline;">cjipro.com/briefing-v4</a>'
+        f'style="color:{_ACCENT};text-decoration:underline;">app.cjipro.com/sonar/barclays</a>'
     )
     footer_html = (
         f'<p style="margin:28px 0 0 0;font-family:{_SANS};font-size:11px;'

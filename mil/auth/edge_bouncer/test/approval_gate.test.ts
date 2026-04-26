@@ -135,7 +135,7 @@ describe("approval gate — enforce=true", () => {
       new Response("origin", { status: 200 })) as typeof fetch;
     try {
       const res = await worker.fetch(
-        req("/briefing-v4/", COOKIE_WITH_TOKEN),
+        req("/briefing-v3/", COOKIE_WITH_TOKEN),
         envWith(db, true),
         testCtx(),
       );
@@ -155,7 +155,7 @@ describe("approval gate — enforce=true", () => {
       payload: { sub: "u_bravo" },
     });
     const res = await worker.fetch(
-      req("/briefing-v4/", COOKIE_WITH_TOKEN),
+      req("/briefing-v3/", COOKIE_WITH_TOKEN),
       envWith(db, true),
       testCtx(),
     );
@@ -180,7 +180,7 @@ describe("approval gate — enforce=true", () => {
       new Response("origin", { status: 200 })) as typeof fetch;
     try {
       const res = await worker.fetch(
-        req("/briefing-v4/", COOKIE_WITH_TOKEN),
+        req("/briefing-v3/", COOKIE_WITH_TOKEN),
         envWith(db, true),
         testCtx(),
       );
@@ -201,7 +201,7 @@ describe("approval gate — enforce=true", () => {
       payload: { sub: "u_alpha" },
     });
     const res = await worker.fetch(
-      req("/briefing-v4/", COOKIE_WITH_TOKEN),
+      req("/briefing-v3/", COOKIE_WITH_TOKEN),
       envWith(db, true),
       testCtx(),
     );
@@ -234,7 +234,7 @@ describe("approval gate — enforce=true", () => {
     const db = new FakeApprovalsDb();
     // verifySession returns `missing` when cookie is absent
     const res = await worker.fetch(
-      req("/briefing-v4/"),
+      req("/briefing-v3/"),
       envWith(db, true),
       testCtx(),
     );
@@ -250,7 +250,7 @@ describe("approval gate — enforce=true", () => {
     const env: Env = { ...envWith(new FakeApprovalsDb(), true) };
     delete env.AUDIT_DB;
     const res = await worker.fetch(
-      req("/briefing-v4/", COOKIE_WITH_TOKEN),
+      req("/briefing-v3/", COOKIE_WITH_TOKEN),
       env,
       testCtx(),
     );
@@ -271,7 +271,7 @@ describe("approval gate — enforce=false (shadow mode)", () => {
       new Response("origin", { status: 200 })) as typeof fetch;
     try {
       const res = await worker.fetch(
-        req("/briefing-v4/", COOKIE_WITH_TOKEN),
+        req("/briefing-v3/", COOKIE_WITH_TOKEN),
         envWith(db, false),
         testCtx(),
       );

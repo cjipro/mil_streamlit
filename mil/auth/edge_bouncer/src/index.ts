@@ -69,6 +69,22 @@ function buildRedirect(request: Request, env: Env): Response {
   return Response.redirect(login.toString(), 302);
 }
 
+// MIL-87 — legacy /briefing-v4 paths permanently moved. Authenticated
+// home for the real briefing migrated to app.cjipro.com/sonar/{slug}/
+// (see MIL-86); the public-facing replacement is the sanitised sample
+// at /insights/sample-briefing/. 301 (not 302) because the move is
+// permanent — browsers + search engines should drop the old URL from
+// caches and indexes. Fires before decide() so ENFORCE state and
+// session presence are irrelevant to the routing decision.
+const _LEGACY_BRIEFING_TARGET = "https://cjipro.com/insights/sample-briefing/";
+
+function legacyPathRedirect(url: URL): Response | null {
+  if (url.pathname === "/briefing-v4" || url.pathname.startsWith("/briefing-v4/")) {
+    return Response.redirect(_LEGACY_BRIEFING_TARGET, 301);
+  }
+  return null;
+}
+
 async function decide(request: Request, env: Env): Promise<Decision> {
   const url = new URL(request.url);
   if (isPublic(url.pathname, publicMatchers(env))) {
@@ -210,6 +226,13 @@ export default {
     env: Env,
     ctx: ExecutionContext,
   ): Promise<Response> {
+    // MIL-87 — legacy /briefing-v4 cutover. Returned BEFORE decide()
+    // so the redirect fires regardless of ENFORCE and regardless of
+    // session state. The path is gone; auth doesn't apply.
+    const url = new URL(request.url);
+    const legacy = legacyPathRedirect(url);
+    if (legacy) return legacy;
+
     const enforce = env.ENFORCE === "true";
     const decision = await decide(request, env);
     logDecision(request, decision, enforce);
