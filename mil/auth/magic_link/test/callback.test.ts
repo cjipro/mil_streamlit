@@ -90,7 +90,7 @@ describe("handleCallback — failure modes", () => {
     const out = await handleCallback(url, CFG);
     expect(out.kind).toBe("error");
     if (out.kind === "error") {
-      expect(out.reason).toBe("workos-error");
+      expect(out.reason).toBe("auth-error");
       expect(out.detail).toContain("access_denied");
     }
   });

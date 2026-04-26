@@ -51,12 +51,12 @@ const STYLES = `
 
 export function renderDashboard(adminEmail: string): Response {
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Access admin · CJI Pro</title>
+<title>Access admin · CJI</title>
 <style>${STYLES}</style>
 </head>
 <body>
@@ -310,7 +310,7 @@ export function renderDenied(check: AdminCheck, request?: Request): Response {
         ? `Admin features aren't configured on this deployment.`
         : `We couldn't verify your session.`;
   const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Not authorised · CJI Pro</title>
+<html><head><meta charset="utf-8"><title>Not authorised · CJI</title>
 <style>${STYLES}</style></head><body><main>
 <h1>Not authorised</h1>
 <p class="sub">${escapeHtml(detail)}</p>

@@ -96,16 +96,32 @@ function handleLogout(env: Env): Response {
   });
 }
 
-function renderErrorPage(status: number, reason: string): Response {
-  // Minimal, information-light error page. Reason is surfaced
-  // (it's already a short enum like "expired" / "bad-signature" /
-  // "workos-error") but detail is intentionally suppressed.
+// MIL-138 — friendly user-facing reason mapping. The internal `reason`
+// codes (used by audit logs + telemetry) are short enums like "expired"
+// / "bad-signature" / "auth-error". On the user's screen we render a
+// human-readable sentence rather than the raw code, so the UI carries
+// no third-party-product names and no internal jargon. Adding a new
+// reason without a mapping falls back to the generic message — the
+// internal code is still recorded in the audit log unchanged.
+export const REASON_MESSAGES: Record<string, string> = {
+  "expired": "Your sign-in link has expired.",
+  "bad-signature": "Your sign-in link couldn't be verified.",
+  "missing-params": "We couldn't read your sign-in link.",
+  "auth-error": "Your sign-in didn't complete.",
+  "http-error": "We couldn't reach the sign-in service.",
+  "network-error": "We couldn't reach the sign-in service.",
+  "missing-access-token": "We couldn't complete your sign-in.",
+};
+
+export function renderErrorPage(status: number, reason: string): Response {
+  const message =
+    REASON_MESSAGES[reason] ?? "We couldn't complete your sign-in.";
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sign-in error · CJI Pro</title>
+<title>Sign-in error · CJI</title>
 <style>
   :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; }
   html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
@@ -113,15 +129,13 @@ function renderErrorPage(status: number, reason: string): Response {
   main { max-width:32rem; margin:6rem auto; padding:2rem; }
   h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
   p { margin:0.5rem 0; color:var(--muted); }
-  code { font-family:ui-monospace,Menlo,monospace; font-size:0.85em;
-    background:#fff; padding:0.1em 0.35em; border-radius:3px; }
   a { color:#003A5C; }
 </style>
 </head>
 <body>
 <main>
 <h1>Sign-in error</h1>
-<p>We couldn't complete your sign-in. Reason: <code>${reason}</code>.</p>
+<p>${message}</p>
 <p>Your invitation link may have expired. <a href="/">Start over</a>
 or contact <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.</p>
 </main>

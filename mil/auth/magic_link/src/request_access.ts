@@ -37,18 +37,18 @@ export function renderRequestForm(opts: { error?: string; email?: string } = {})
     : "";
   const emailVal = opts.email ? escapeHtml(opts.email) : "";
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Request access · CJI Pro</title>
+<title>Request access · CJI</title>
 <style>${PAGE_STYLES}</style>
 </head>
 <body>
 <main>
 <h1>Request access</h1>
-<p>CJI Pro is in private alpha. Enter your work email and a short note
+<p>CJI is in private alpha. Enter your work email and a short note
 about why you'd like access — we'll review and get back to you.</p>
 <form method="post" action="/request-access">
   <label for="email">Work email</label>
@@ -83,12 +83,12 @@ function renderThanks(outcome: SubmitOutcome): Response {
 <p>Head to <a href="/">sign in</a>.</p>`;
   }
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Request received · CJI Pro</title>
+<title>Request received · CJI</title>
 <style>${PAGE_STYLES}</style>
 </head>
 <body>
@@ -106,7 +106,7 @@ ${body}
 
 function rateLimited(): Response {
   const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Slow down · CJI Pro</title>
+<html><head><meta charset="utf-8"><title>Slow down · CJI</title>
 <style>${PAGE_STYLES}</style></head>
 <body><main>
 <h1>Slow down</h1>

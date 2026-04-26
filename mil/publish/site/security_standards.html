@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -438,11 +438,13 @@
           <a href="mailto:security@cjipro.com">security@cjipro.com</a>.
         </p>
         <p class="standard-body">
-          We acknowledge vulnerability reports within 5 business days. Coordinated
-          disclosure is preferred: we ask researchers to give us a reasonable window
-          to investigate and remediate before publishing. We will not pursue legal
-          action against researchers who follow responsible disclosure practice and
-          do not exfiltrate data or disrupt service.
+          We acknowledge vulnerability reports within 5 business days. We operate
+          a 90-day responsible disclosure policy, with possible extension upon
+          written agreement: researchers are asked to give us a reasonable window
+          to investigate and remediate before publishing, and we hold ourselves
+          to the same window before any disclosed issue ages out. We will not
+          pursue legal action against researchers who follow responsible
+          disclosure practice and do not exfiltrate data or disrupt service.
         </p>
         <p class="standard-body">
           We have no bug-bounty programme at this stage. We will credit researchers
@@ -521,6 +523,13 @@
           runs on Cloudflare Workers.
         </p>
         <p class="standard-body">
+          TLS 1.3 is enforced at the Cloudflare edge. The current public-cert
+          chain targets SSL Labs grade A+; we monitor this on every deployment.
+          HTTP Strict Transport Security (HSTS) and full HTTP-header delivery
+          for the marketing surface are scheduled for Q2 2026 alongside the
+          migration described under <em>Security header delivery</em> below.
+        </p>
+        <p class="standard-body">
           Inbound email for security@cjipro.com and hello@cjipro.com is handled
           by Cloudflare Email Routing. SPF, DKIM, and MX records are configured
           and maintained by Cloudflare.
@@ -540,6 +549,28 @@
           <li><strong>Permissions-Policy</strong> — camera, microphone, geolocation, payment, and USB access all denied.</li>
           <li>Session cookie: <strong>SameSite=Lax</strong> + <strong>Secure</strong> + <strong>HttpOnly</strong> + <code>__Secure-</code> prefix.</li>
         </ul>
+      </div>
+
+      <div class="standard-block" style="margin-top:20px;">
+        <h3>Security header delivery — current state and roadmap</h3>
+        <p class="standard-body">
+          Security headers on the marketing surface (cjipro.com) are currently
+          delivered via <code>&lt;meta http-equiv&gt;</code> tags due to static
+          hosting constraints — the public surface is served from GitHub Pages
+          behind Cloudflare. All authenticated surfaces (app.cjipro.com and
+          login.cjipro.com) and API traffic are served through Cloudflare
+          Workers and use proper HTTP response headers. We are migrating
+          marketing pages to Worker delivery in Q2 2026 for full header
+          consistency.
+        </p>
+        <p class="standard-body">
+          The practical effect for an IT reviewer running <code>curl -I</code>
+          against cjipro.com today: the GitHub Pages headers appear in transit,
+          but the security policies are parsed by the browser from the
+          in-document meta tags. The <em>policies</em> are enforced; the
+          <em>delivery channel</em> for the marketing surface is on the roadmap.
+          Authenticated surfaces already serve real HTTP headers.
+        </p>
       </div>
     </div>
   </section>
@@ -600,12 +631,16 @@
       <div class="roadmap-block">
         <ul class="roadmap-list">
           <li>
-            <span class="roadmap-label planned">Planned</span>
-            <span><strong>SOC 2 Type 1</strong> — planned alongside first paid engagements. We will not claim SOC 2 compliance until an independent auditor issues the report. The controls described on these pages are designed with SOC 2 Trust Service Criteria in mind but have not been independently verified against them.</span>
+            <span class="roadmap-label planned">In progress</span>
+            <span><strong>SOC 2 Type 1</strong> — audit in progress, target completion Q3 2026. The controls described on these pages are designed with SOC 2 Trust Service Criteria in mind. We will not claim SOC 2 compliance until an independent auditor issues the report.</span>
           </li>
           <li>
-            <span class="roadmap-label planned">Planned</span>
-            <span><strong>ISO 27001</strong> — information-security management system certification. Planned; not yet initiated. We operate an ISMS consistent with ISO 27001 intent but it has not been submitted for accredited certification.</span>
+            <span class="roadmap-label planned">Evaluating</span>
+            <span><strong>ISO 27001</strong> — under evaluation. We operate an ISMS consistent with ISO 27001 intent and are currently assessing the path to accredited certification.</span>
+          </li>
+          <li>
+            <span class="roadmap-label planned">Evaluating</span>
+            <span><strong>Cyber Essentials Plus</strong> — under evaluation. UK-government-backed scheme; we are assessing scope and timing for assessment.</span>
           </li>
           <li>
             <span class="roadmap-label planned">Planned</span>
@@ -720,6 +755,11 @@
         </ul>
       </div>
     </div>
+
+    <!-- MIL-148: compliance-notices slot, populated per jurisdiction -->
+
+    <div class="compliance-notice"></div>
+
 
     <div class="footer-bottom">
       <div>&copy; 2026 CJI &middot; Independent market intelligence</div>

@@ -34,7 +34,7 @@ function htmlResponse(html: string, status = 200): Response {
 
 function notFoundResponse(pathname: string): Response {
   const html = `<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Not found · CJI</title>
+<html lang="en-GB"><head><meta charset="utf-8"><title>Not found · CJI</title>
 <meta name="robots" content="noindex,nofollow">
 <style>body{font:16px/1.55 Georgia,serif;color:#0A1E2A;background:#FAFAF7;
 margin:0;padding:0}main{max-width:32rem;margin:6rem auto;padding:2rem}

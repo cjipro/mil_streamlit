@@ -168,7 +168,7 @@ function buildDenyResponse(): Response {
   // caches + browsers treat it as authoritative. Page names the
   // contact address so the user has a next step.
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

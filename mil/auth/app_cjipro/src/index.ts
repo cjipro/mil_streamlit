@@ -87,7 +87,7 @@ function buildDenyResponse(): Response {
   // Same shape as edge-bouncer's deny page — consistent UX so a user
   // who hits either gate sees the same "access pending" affordance.
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

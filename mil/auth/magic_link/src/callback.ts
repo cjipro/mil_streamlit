@@ -45,15 +45,17 @@ export async function handleCallback(
 ): Promise<CallbackOutcome> {
   const url = new URL(requestUrl);
 
-  // WorkOS may redirect back with ?error=... on auth failure (user
-  // cancelled, rate limit, etc). Surface that before anything else.
-  const wosError = url.searchParams.get("error");
-  if (wosError) {
+  // The auth provider may redirect back with ?error=... on auth
+  // failure (user cancelled, rate limit, etc). Surface that before
+  // anything else. Reason code is "auth-error" (cjipro-namespaced) —
+  // the internal provider name never reaches user-visible HTML.
+  const providerError = url.searchParams.get("error");
+  if (providerError) {
     return {
       kind: "error",
       status: 400,
-      reason: "workos-error",
-      detail: `${wosError}: ${url.searchParams.get("error_description") ?? ""}`,
+      reason: "auth-error",
+      detail: `${providerError}: ${url.searchParams.get("error_description") ?? ""}`,
     };
   }
 
