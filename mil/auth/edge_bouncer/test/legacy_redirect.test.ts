@@ -1,7 +1,19 @@
-// MIL-87 — /briefing-v4 cutover. The legacy path 301-redirects to
-// the public sanitised sample at /insights/sample-briefing/. Fires
-// BEFORE decide() so ENFORCE state, session presence, and
-// approved_users state are all irrelevant — the path is gone.
+// MIL-87 + MIL-143 — /briefing-v4 cutover, cookie-aware.
+//
+// Cold visitors (no session cookie) → 302 to the sanitised public
+// sample at /insights/sample-briefing/. Warm partners (cookie present
+// — validity not checked at this layer; the destination bouncer
+// re-auths) → 302 to app.cjipro.com/sonar/barclays/, the real
+// authenticated briefing.
+//
+// Status is 302 + Cache-Control: no-store rather than the original
+// MIL-87 301, because the destination is per-request (cookie state
+// can change). 301 caches per-URL, which would lock a browser into
+// whichever destination it saw first regardless of later auth state.
+//
+// Fires BEFORE decide() so ENFORCE state and the approved-users gate
+// are both irrelevant — this layer is about path-level routing, not
+// authorisation.
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -46,37 +58,39 @@ function testCtx(): ExecutionContext {
   } as unknown as ExecutionContext;
 }
 
-const TARGET = "https://cjipro.com/insights/sample-briefing/";
+const COLD_TARGET = "https://cjipro.com/insights/sample-briefing/";
+const WARM_TARGET = "https://app.cjipro.com/sonar/barclays/";
 
-describe("MIL-87 legacy /briefing-v4 redirect", () => {
-  test("/briefing-v4 → 301 to sample-briefing (no trailing slash)", async () => {
+describe("MIL-87 + MIL-143 — cold visitor (no session cookie) → sample-briefing", () => {
+  test("/briefing-v4 → 302 to sample-briefing (no trailing slash)", async () => {
     const res = await worker.fetch(
       new Request("https://cjipro.com/briefing-v4"),
       envWith(false),
       testCtx(),
     );
-    expect(res.status).toBe(301);
-    expect(res.headers.get("location")).toBe(TARGET);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(COLD_TARGET);
+    expect(res.headers.get("cache-control")).toBe("no-store");
   });
 
-  test("/briefing-v4/ → 301 to sample-briefing", async () => {
+  test("/briefing-v4/ → 302 to sample-briefing", async () => {
     const res = await worker.fetch(
       new Request("https://cjipro.com/briefing-v4/"),
       envWith(false),
       testCtx(),
     );
-    expect(res.status).toBe(301);
-    expect(res.headers.get("location")).toBe(TARGET);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(COLD_TARGET);
   });
 
-  test("/briefing-v4/index.html → 301 to sample-briefing", async () => {
+  test("/briefing-v4/index.html → 302 to sample-briefing", async () => {
     const res = await worker.fetch(
       new Request("https://cjipro.com/briefing-v4/index.html"),
       envWith(false),
       testCtx(),
     );
-    expect(res.status).toBe(301);
-    expect(res.headers.get("location")).toBe(TARGET);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(COLD_TARGET);
   });
 
   test("redirect fires under ENFORCE=true too (no auth bypass needed)", async () => {
@@ -85,10 +99,94 @@ describe("MIL-87 legacy /briefing-v4 redirect", () => {
       envWith(true),
       testCtx(),
     );
-    expect(res.status).toBe(301);
-    expect(res.headers.get("location")).toBe(TARGET);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(COLD_TARGET);
   });
 
+  test("multiple unrelated cookies but no session cookie → cold-routed", async () => {
+    const res = await worker.fetch(
+      new Request("https://cjipro.com/briefing-v4/", {
+        headers: { cookie: "cf_clearance=abc; _ga=GA1.2.xyz; locale=en-GB" },
+      }),
+      envWith(false),
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(COLD_TARGET);
+  });
+
+  test("empty cookie header → cold-routed", async () => {
+    const res = await worker.fetch(
+      new Request("https://cjipro.com/briefing-v4/", {
+        headers: { cookie: "" },
+      }),
+      envWith(false),
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(COLD_TARGET);
+  });
+});
+
+describe("MIL-143 — warm visitor (session cookie present) → real briefing", () => {
+  test("session cookie present (valid value) → 302 to app.cjipro.com/sonar/barclays/", async () => {
+    const res = await worker.fetch(
+      new Request("https://cjipro.com/briefing-v4/", {
+        headers: { cookie: "__Secure-cjipro-session=signed.jwt.token" },
+      }),
+      envWith(true),
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(WARM_TARGET);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+  });
+
+  test("session cookie present alongside other cookies → warm-routed", async () => {
+    const res = await worker.fetch(
+      new Request("https://cjipro.com/briefing-v4/", {
+        headers: {
+          cookie:
+            "cf_clearance=xyz; __Secure-cjipro-session=anything; locale=en-GB",
+        },
+      }),
+      envWith(false),
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(WARM_TARGET);
+  });
+
+  test("expired/stale session cookie still warm-routes (validity not checked here)", async () => {
+    // Per MIL-143 panel verdict: an expired cookie still routes warm
+    // because the user was a partner. The destination bouncer at
+    // app.cjipro.com handles the actual session validation and will
+    // either pass them through or redirect to login as appropriate.
+    const res = await worker.fetch(
+      new Request("https://cjipro.com/briefing-v4/", {
+        headers: { cookie: "__Secure-cjipro-session=expired-or-malformed" },
+      }),
+      envWith(true),
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(WARM_TARGET);
+  });
+
+  test("warm-routing fires under ENFORCE=false (shadow) too — routing is independent of enforcement", async () => {
+    const res = await worker.fetch(
+      new Request("https://cjipro.com/briefing-v4/", {
+        headers: { cookie: "__Secure-cjipro-session=anything" },
+      }),
+      envWith(false),
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(WARM_TARGET);
+  });
+});
+
+describe("MIL-87 + MIL-143 — paths that must NOT be touched", () => {
   test("/briefing (V1) NOT redirected — still actively served", async () => {
     // V1 is load-bearing (V2/V3/V4 patch its HTML). Do not collapse
     // /briefing into the cutover.
@@ -126,15 +224,18 @@ describe("MIL-87 legacy /briefing-v4 redirect", () => {
     }
   });
 
-  test("/briefing-v40 (substring trap) NOT redirected", async () => {
+  test("/briefing-v40 (substring trap) NOT redirected — even with session cookie", async () => {
     // Defensive: startsWith("/briefing-v4/") prevents catching paths
     // that merely start with the literal "/briefing-v4" substring.
+    // The cookie-aware refactor must not regress this.
     const origFetch = globalThis.fetch;
     globalThis.fetch = (async () =>
       new Response("origin", { status: 200 })) as typeof fetch;
     try {
       const res = await worker.fetch(
-        new Request("https://cjipro.com/briefing-v40"),
+        new Request("https://cjipro.com/briefing-v40", {
+          headers: { cookie: "__Secure-cjipro-session=anything" },
+        }),
         envWith(false),
         testCtx(),
       );
@@ -142,17 +243,5 @@ describe("MIL-87 legacy /briefing-v4 redirect", () => {
     } finally {
       globalThis.fetch = origFetch;
     }
-  });
-
-  test("redirect preserved even with valid cookie (path is gone)", async () => {
-    const res = await worker.fetch(
-      new Request("https://cjipro.com/briefing-v4/", {
-        headers: { cookie: "__Secure-cjipro-session=anything" },
-      }),
-      envWith(true),
-      testCtx(),
-    );
-    expect(res.status).toBe(301);
-    expect(res.headers.get("location")).toBe(TARGET);
   });
 });

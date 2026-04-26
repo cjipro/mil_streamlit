@@ -73,20 +73,50 @@ function buildRedirect(request: Request, env: Env): Response {
   return Response.redirect(login.toString(), 302);
 }
 
-// MIL-87 — legacy /briefing-v4 paths permanently moved. Authenticated
-// home for the real briefing migrated to app.cjipro.com/sonar/{slug}/
-// (see MIL-86); the public-facing replacement is the sanitised sample
-// at /insights/sample-briefing/. 301 (not 302) because the move is
-// permanent — browsers + search engines should drop the old URL from
-// caches and indexes. Fires before decide() so ENFORCE state and
-// session presence are irrelevant to the routing decision.
-const _LEGACY_BRIEFING_TARGET = "https://cjipro.com/insights/sample-briefing/";
+// MIL-87 + MIL-143 — legacy /briefing-v4 paths permanently moved.
+// Authenticated home for the real briefing migrated to
+// app.cjipro.com/sonar/{slug}/ (see MIL-86); the public-facing
+// replacement is the sanitised sample at /insights/sample-briefing/.
+//
+// MIL-143 reframe (2026-04-26): warm partners with a session cookie
+// route to app.cjipro.com/sonar/barclays/ (the real briefing); only
+// cold visitors with no cookie route to the public sample. This
+// matches the panel verdict that warm partners with a magic-link
+// shouldn't be bait-and-switched to a sample. Cookie presence — not
+// validity — is the trigger; the destination bouncer handles auth.
+// An expired cookie is treated as warm: those users were partners
+// before and still know what they're looking for; the destination
+// will silently re-auth them.
+//
+// 302 (not 301) because the destination is per-request (cookie state
+// can change). 301 caches per-URL, which would lock a browser into
+// whichever destination it saw first regardless of later auth state.
+// Cache-Control: no-store reinforces this for proxies and Cloudflare
+// edge caches that might otherwise honour 302 with a default TTL.
+//
+// Fires before decide() so ENFORCE state is irrelevant to routing.
+const _LEGACY_BRIEFING_TARGET_COLD = "https://cjipro.com/insights/sample-briefing/";
+const _LEGACY_BRIEFING_TARGET_WARM = "https://app.cjipro.com/sonar/barclays/";
 
-function legacyPathRedirect(url: URL): Response | null {
-  if (url.pathname === "/briefing-v4" || url.pathname.startsWith("/briefing-v4/")) {
-    return Response.redirect(_LEGACY_BRIEFING_TARGET, 301);
+function legacyPathRedirect(request: Request, env: Env): Response | null {
+  const url = new URL(request.url);
+  if (url.pathname !== "/briefing-v4" && !url.pathname.startsWith("/briefing-v4/")) {
+    return null;
   }
-  return null;
+  const sessionCookie = extractCookie(
+    request.headers.get("cookie"),
+    env.SESSION_COOKIE_NAME,
+  );
+  const target = sessionCookie
+    ? _LEGACY_BRIEFING_TARGET_WARM
+    : _LEGACY_BRIEFING_TARGET_COLD;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: target,
+      "cache-control": "no-store",
+    },
+  });
 }
 
 async function decide(request: Request, env: Env): Promise<Decision> {
@@ -230,11 +260,11 @@ export default {
     env: Env,
     ctx: ExecutionContext,
   ): Promise<Response> {
-    // MIL-87 — legacy /briefing-v4 cutover. Returned BEFORE decide()
-    // so the redirect fires regardless of ENFORCE and regardless of
-    // session state. The path is gone; auth doesn't apply.
-    const url = new URL(request.url);
-    const legacy = legacyPathRedirect(url);
+    // MIL-87 + MIL-143 — legacy /briefing-v4 cutover, cookie-aware.
+    // Returned BEFORE decide() so the redirect fires regardless of
+    // ENFORCE state. Warm partners (cookie present) route to the real
+    // briefing on app.cjipro.com; cold visitors get the public sample.
+    const legacy = legacyPathRedirect(request, env);
     if (legacy) return legacy;
 
     const enforce = env.ENFORCE === "true";
