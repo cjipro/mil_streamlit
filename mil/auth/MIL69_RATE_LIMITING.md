@@ -1,8 +1,9 @@
 # MIL-69 — Login + Webhook Rate Limiting (Cloudflare WAF)
 
 Cloudflare's edge protects the auth surface BEFORE any Worker code
-runs. Five rules cover everything we expose; each is a one-time
-dashboard action.
+runs. Four rules cover everything we expose; each is a one-time
+dashboard action. (Rule 4 — the WorkOS source-IP allowlist — is
+intentionally NOT shipped; see "Rule 4 deferred" section below.)
 
 There's already a per-IP rate limit on `POST /request-access` inside
 the magic-link Worker (5 / hour / IP, see `mil/auth/approvals/src/
@@ -69,26 +70,29 @@ costs nothing on its own but warms our state-signing path; 30/min/IP
 is generous for a real human, way too slow for an enumeration
 attempt.
 
-### Rule 4 — WorkOS webhook (allowlist source IPs)
+### Rule 4 deferred — WorkOS webhook source-IP allowlist
 
-WorkOS publishes their webhook source IPs at
-https://workos.com/docs/events/webhooks#source-ip-addresses (last
-checked: confirm against current docs before deploying — they may
-rotate).
+**Not shipped.** WorkOS does not publish a stable list of webhook
+source IPs (verified 2026-04-26 against
+https://workos.com/docs/events/webhooks — no IP block in the docs).
+Hard-coding guessed IPs would silently drop webhooks the moment
+WorkOS rotates infra, breaking MIL-67/71 audit ingestion with no
+visible failure mode.
 
-| Field | Value |
-|---|---|
-| Name | `MIL-69 webhook IP allowlist` |
-| Expression | `(http.host eq "login.cjipro.com" and http.request.uri.path eq "/webhooks/workos" and not ip.src in {<workos_ip_1> <workos_ip_2> ...})` |
-| Action | Block |
-| (No rate-limit window — this is a fixed allowlist, not a counting rule.) |
+The original justification was edge-cost optimisation — keep
+unsigned events out of the Worker. The compensating controls
+already in place:
 
-Use Cloudflare → **Security** → **WAF** → **Custom rules** for an
-IP-allowlist (Custom rules, not Rate limiting rules).
+- HMAC-SHA256 signature verification at `webhooks.ts::verifyWorkosWebhook`
+  rejects every unsigned event with 401 before any audit-DB or
+  side-effect code runs (the Worker invocation cost is small
+  compared to the operational risk of a silent allowlist drift).
+- Rule 5 (global volume cap, 200/min/IP) catches volumetric abuse
+  on `/webhooks/workos` along with everything else on the host.
 
-Justification: signature verification already rejects unauth events;
-this drops them at the edge so we don't spend Worker time on them
-and the audit log stays clean.
+Re-evaluate if WorkOS publishes a versioned IP list in future, or
+if abuse-vol reports show non-trivial cost from rejected webhook
+calls.
 
 ### Rule 5 — Catch-all volume cap
 

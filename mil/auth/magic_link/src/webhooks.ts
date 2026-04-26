@@ -1,10 +1,11 @@
 // MIL-67a — WorkOS webhook signature verification.
 //
 // WorkOS signs every webhook delivery with HMAC-SHA256. The header
-// `WorkOS-Signature` looks like `t=<unix_ts>,v1=<hex_hmac>` where
-// the HMAC is computed over `<unix_ts>.<raw_request_body>` keyed by
-// the secret you set when creating the endpoint in the WorkOS
-// dashboard (NOT the same value as WORKOS_API_KEY).
+// `WorkOS-Signature` looks like `t=<unix_ms>,v1=<hex_hmac>` where the
+// HMAC is computed over `<unix_ms>.<raw_request_body>` keyed by the
+// secret you set when creating the endpoint in the WorkOS dashboard
+// (NOT the same value as WORKOS_API_KEY). NB the `t` value is unix
+// milliseconds, not seconds — Stripe-style intuition will fail here.
 //
 // The replay window check rejects deliveries older than 5 minutes
 // (per WorkOS guidance) — protects against an attacker who recorded
@@ -23,12 +24,12 @@ export interface WorkosEvent {
   created_at?: string;
 }
 
-const REPLAY_WINDOW_SECONDS = 300; // 5 minutes
+const REPLAY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 export interface VerifyConfig {
   secret: string;
   // Injection points for tests.
-  now?: () => number; // unix-seconds
+  now?: () => number; // unix-milliseconds — WorkOS sends `t=` in ms
   decoder?: TextDecoder;
 }
 
@@ -54,17 +55,20 @@ export async function verifyWorkosWebhook(
   if (!Number.isFinite(ts)) {
     return { kind: "rejected", reason: "non-numeric-timestamp", status: 401 };
   }
-  const nowSec = (cfg.now ?? (() => Math.floor(Date.now() / 1000)))();
-  const skew = Math.abs(nowSec - ts);
-  if (skew > REPLAY_WINDOW_SECONDS) {
+  const nowMs = (cfg.now ?? (() => Date.now()))();
+  const skew = Math.abs(nowMs - ts);
+  if (skew > REPLAY_WINDOW_MS) {
     return {
       kind: "rejected",
-      reason: `replay-window-exceeded:${skew}s`,
+      reason: `replay-window-exceeded:${skew}ms`,
       status: 401,
     };
   }
 
-  const expected = await computeHmacHex(cfg.secret, `${ts}.${rawBody}`);
+  // HMAC payload uses the *raw* `t` string from the header, not the
+  // parsed integer — avoids drift if WorkOS ever ships fractional or
+  // padded timestamps. For pure integers the two are identical.
+  const expected = await computeHmacHex(cfg.secret, `${t}.${rawBody}`);
   if (!constantTimeEqual(expected, v1.toLowerCase())) {
     return { kind: "rejected", reason: "signature-mismatch", status: 401 };
   }

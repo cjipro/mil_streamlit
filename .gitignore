@@ -2,6 +2,9 @@
 .env
 *.env
 secrets/
+**/workos_signing_secret*.txt
+**/workos_webhook_secret*.txt
+*.secret
 
 # Large data files
 data/*.parquet

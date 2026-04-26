@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { verifyWorkosWebhook } from "../src/webhooks";
 
 const SECRET = "whsec_test_0123456789abcdef0123456789abcdef";
-const FROZEN_TS = 1777068000; // 2026-04-25T01:20:00Z
+const FROZEN_TS = 1777068000000; // 2026-04-25T01:20:00Z (unix-ms — WorkOS sends t in ms)
 const NOW = () => FROZEN_TS;
 
 async function hmacHex(secret: string, payload: string): Promise<string> {
@@ -86,7 +86,7 @@ describe("verifyWorkosWebhook", () => {
 
   test("timestamp older than 5min → replay rejected", async () => {
     const body = eventBody();
-    const oldTs = FROZEN_TS - 600;
+    const oldTs = FROZEN_TS - 600_000;
     const header = await signedHeader(oldTs, body);
     const r = await verifyWorkosWebhook(body, header, { secret: SECRET, now: NOW });
     expect(r.kind).toBe("rejected");
@@ -95,7 +95,7 @@ describe("verifyWorkosWebhook", () => {
 
   test("timestamp newer than now+5min → also rejected", async () => {
     const body = eventBody();
-    const futureTs = FROZEN_TS + 600;
+    const futureTs = FROZEN_TS + 600_000;
     const header = await signedHeader(futureTs, body);
     const r = await verifyWorkosWebhook(body, header, { secret: SECRET, now: NOW });
     expect(r.kind).toBe("rejected");
