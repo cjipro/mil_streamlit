@@ -54,13 +54,63 @@ class IntentResult:
     raw_response: str = ""
 
 
-# ── System prompt (cached per process) ────────────────────────────────────
+# ── System prompt (cached per scope) ──────────────────────────────────────
 
-@lru_cache(maxsize=1)
-def _system_prompt() -> str:
+# Sonar-flavoured subject-policy block. Keeps the long-standing Barclays-
+# default behaviour for the firm-specific product surface (Sonar / legacy
+# /ask page).
+_SUBJECT_POLICY_SONAR = (
+    "BARCLAYS IS THE DEFAULT SUBJECT.\n"
+    "The user's own bank is Barclays. Competitors exist only to contextualise\n"
+    "Barclays performance. If a query does NOT explicitly name a competitor and\n"
+    "does NOT clearly ask for peer/rank/compare, default entities.competitor to\n"
+    "`barclays`. Examples:\n"
+    '  "Which journey is regressing?"    → entities.competitor=barclays\n'
+    '  "Any active P0 signals?"          → entities.competitor=barclays\n'
+    '  "what\'s the current state?"       → entities.competitor=barclays\n'
+    '  "daily sentiment chart"           → entities.competitor=barclays\n'
+    "Use all-competitor scanning ONLY when the query explicitly asks for it:\n"
+    '  "rank the banks", "compare", "peer", "which bank is worst", "all competitors".\n'
+    "When defaulting, set `entities.competitor_default` to the string `implicit`\n"
+    "so the system knows it was inferred (not stated by the user).\n\n"
+)
+
+# Reckoner-flavoured subject-policy block. Reckoner is industry-wide cohort
+# intelligence — queries WITHOUT a named competitor are the norm, not a
+# refusal trigger. Single-firm drill-ins are explicitly redirected to Sonar
+# upstream by the pipeline scope guard, so we don't need the classifier to
+# guard them too — the classifier just has to route them substantively.
+_SUBJECT_POLICY_RECKONER = (
+    "RECKONER IS COHORT-WIDE INDUSTRY INTELLIGENCE.\n"
+    "Queries WITHOUT a named competitor are the NORM here — they're cohort-\n"
+    "wide questions. Do NOT mark them insufficient. Do NOT default to any\n"
+    "single firm. Route them as cross-cohort queries against the monitored\n"
+    "competitor list. Examples:\n"
+    '  "industry sentiment"              → peer_rank or trend (cohort-wide)\n'
+    '  "which banks are seeing logins fail" → peer_rank, no competitor key\n'
+    '  "current outage patterns"         → issue_lookup, no competitor key\n'
+    '  "login crisis across the cohort"  → peer_rank or issue_lookup\n'
+    '  "what is the worst journey"       → peer_rank, no competitor key\n'
+    "If the user names a SINGLE competitor with no peer/cohort framing\n"
+    "(e.g. \"how is barclays doing on logins\"), still classify it normally —\n"
+    "an upstream scope guard will redirect them to Sonar. Don't refuse here.\n"
+    "Use `insufficient` ONLY when the query carries NO classifiable signal at\n"
+    "all — no issue type, no journey noun, no timeframe, no cohort framing,\n"
+    "no severity, no chronicle reference. A bare two-word phrase like\n"
+    "\"industry sentiment\" or \"cohort health\" IS classifiable — route to\n"
+    "peer_rank or trend with default 7-day window.\n\n"
+)
+
+
+@lru_cache(maxsize=4)
+def _system_prompt(scope: str = "all") -> str:
     issue_list = sorted(issue_types())
     journey_list = list(customer_journeys())
     journey_ids = sorted({v for v in journey_map().values() if v})
+
+    subject_policy = (
+        _SUBJECT_POLICY_RECKONER if scope == "reckoner" else _SUBJECT_POLICY_SONAR
+    )
 
     return (
         "You are the intent classifier for Ask CJI Pro — a conversational layer over\n"
@@ -86,19 +136,7 @@ def _system_prompt() -> str:
         "with the mapped issue_type. Do NOT refuse because the exact phrasing isn't\n"
         "MIL vocabulary — map it and route. Only use `insufficient` when the query has\n"
         "no competitor, no issue type, no journey noun, and no timeframe clue.\n\n"
-        "BARCLAYS IS THE DEFAULT SUBJECT.\n"
-        "The user's own bank is Barclays. Competitors exist only to contextualise\n"
-        "Barclays performance. If a query does NOT explicitly name a competitor and\n"
-        "does NOT clearly ask for peer/rank/compare, default entities.competitor to\n"
-        "`barclays`. Examples:\n"
-        '  "Which journey is regressing?"    → entities.competitor=barclays\n'
-        '  "Any active P0 signals?"          → entities.competitor=barclays\n'
-        '  "what\'s the current state?"       → entities.competitor=barclays\n'
-        '  "daily sentiment chart"           → entities.competitor=barclays\n'
-        "Use all-competitor scanning ONLY when the query explicitly asks for it:\n"
-        '  "rank the banks", "compare", "peer", "which bank is worst", "all competitors".\n'
-        "When defaulting, set `entities.competitor_default` to the string `implicit`\n"
-        "so the system knows it was inferred (not stated by the user).\n\n"
+        + subject_policy +
         "SEVERITY EXTRACTION (mandatory when present):\n"
         'If the user mentions P0 / P1 / P2 / "critical" / "blocking" / "severe",\n'
         'ALWAYS include `"severity": "P0"` (or P1 / P2) in entities. Without it,\n'
@@ -308,7 +346,7 @@ def classify(query: str, scope: str = "all") -> IntentResult:
     raw = call_anthropic(
         task="intent_classification",
         user_prompt=query,
-        system=_system_prompt(),
+        system=_system_prompt(scope),
         max_tokens=256,
     )
     payload = _extract_json(raw)

@@ -118,6 +118,45 @@ class TestIntentScope:
         assert result.entities.get("competitor") == "barclays"
 
 
+# ── intent._system_prompt scope branching ────────────────────────────────
+
+class TestSystemPromptScope:
+    def test_sonar_prompt_carries_barclays_default_block(self):
+        from mil.chat.intent import _system_prompt
+        prompt = _system_prompt("sonar")
+        assert "BARCLAYS IS THE DEFAULT SUBJECT" in prompt
+        assert "RECKONER IS COHORT-WIDE" not in prompt
+
+    def test_all_scope_carries_sonar_block_too(self):
+        # Backwards compat: scope="all" defaults to Sonar-flavoured prompt.
+        from mil.chat.intent import _system_prompt
+        prompt = _system_prompt("all")
+        assert "BARCLAYS IS THE DEFAULT SUBJECT" in prompt
+
+    def test_reckoner_prompt_uses_cohort_block(self):
+        from mil.chat.intent import _system_prompt
+        prompt = _system_prompt("reckoner")
+        assert "RECKONER IS COHORT-WIDE INDUSTRY INTELLIGENCE" in prompt
+        assert "BARCLAYS IS THE DEFAULT SUBJECT" not in prompt
+
+    def test_reckoner_prompt_explicitly_handles_cohort_two_word_phrases(self):
+        # The bug we just fixed: bare "industry sentiment" was returning
+        # insufficient. Prompt now tells the classifier to route it.
+        from mil.chat.intent import _system_prompt
+        prompt = _system_prompt("reckoner")
+        assert "industry sentiment" in prompt.lower()
+
+    def test_reckoner_prompt_tells_classifier_to_route_single_firm_queries_too(self):
+        # Single-firm queries are upstream-refused by the pipeline scope
+        # guard, not by the classifier — so the classifier should still
+        # route them rather than refusing.
+        from mil.chat.intent import _system_prompt
+        prompt = _system_prompt("reckoner")
+        # The prompt mentions the upstream scope guard so the model knows
+        # not to double-refuse.
+        assert "scope guard" in prompt.lower() or "redirect" in prompt.lower()
+
+
 # ── pipeline.ask scope guard ──────────────────────────────────────────────
 
 class TestPipelineScope:
