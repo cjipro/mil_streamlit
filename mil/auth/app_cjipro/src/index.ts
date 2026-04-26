@@ -32,6 +32,7 @@ import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
 import { isApproved } from "../../approvals/src/approvals";
 import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
 import { dispatch } from "./router";
+import { handleGetPortal, handlePostConfirm } from "./portal";
 
 export interface Env {
   ENFORCE: string;
@@ -216,6 +217,25 @@ function buildAuditInput(
   };
 }
 
+// MIL-151 — read the previous request's last_active_at for the
+// portal identity strip. Returns null if the row doesn't exist
+// (first sign-in for this sub) or D1 query fails (fail-open: portal
+// renders without "Last seen" rather than 500).
+async function readLastActiveAt(
+  db: D1Database,
+  sub: string,
+): Promise<string | null> {
+  try {
+    const row = await db
+      .prepare("SELECT last_active_at FROM sessions WHERE sub = ? LIMIT 1")
+      .bind(sub)
+      .first<{ last_active_at: string | null }>();
+    return row?.last_active_at ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function logDecision(
   request: Request,
   decision: Decision,
@@ -300,6 +320,71 @@ export default {
     }
     if (decision.action === "deny" && enforce) {
       return apiPath ? buildApiDeny("not_approved") : buildDenyResponse();
+    }
+
+    // MIL-151 — /portal handlers. Routed inline (not via dispatch)
+    // because they need full auth state (sub, email, AUDIT_DB) which
+    // lives here at the gate, not in the stateless router.
+    const portalAuthed =
+      decision.action === "render" &&
+      decision.reason === "valid-session" &&
+      decision.sub &&
+      decision.email &&
+      env.AUDIT_DB;
+    if (portalAuthed && (url.pathname === "/portal" || url.pathname === "/portal/")) {
+      // Read sessions.last_active_at BEFORE recordActivity bumps it
+      // to NOW for this request. The portal shows "Last seen Xmin
+      // ago" — so we want the previous request's timestamp, not the
+      // current one. recordActivity is fired in waitUntil above so
+      // it races with this read; the read here happens within the
+      // same request lifecycle but ordering with waitUntil isn't
+      // guaranteed. Best effort — accuracy ±1 request, fine for UX.
+      const lastActiveAt = await readLastActiveAt(env.AUDIT_DB!, decision.sub!);
+      return handleGetPortal(
+        { sub: decision.sub!, email: decision.email! },
+        { AUDIT_DB: env.AUDIT_DB! },
+        lastActiveAt,
+      );
+    }
+    if (
+      portalAuthed &&
+      url.pathname === "/portal/confirm" &&
+      request.method === "POST"
+    ) {
+      const formData = await request.formData();
+      const { response, outcome } = await handlePostConfirm(
+        { sub: decision.sub!, email: decision.email! },
+        { AUDIT_DB: env.AUDIT_DB! },
+        formData,
+      );
+      // MIL-152 audit — fire the portal.details_confirmed event with
+      // a detail string naming what changed (no raw values logged).
+      if (env.AUDIT_DB && outcome.new_hash) {
+        const db = env.AUDIT_DB;
+        ctx.waitUntil(
+          logAuthEvent(db, {
+            worker: "app-cjipro",
+            event_type: "portal.details_confirmed",
+            method: "POST",
+            host: url.host,
+            path: url.pathname,
+            session_sub: decision.sub,
+            ip: request.headers.get("cf-connecting-ip") ?? undefined,
+            user_agent: request.headers.get("user-agent") ?? undefined,
+            reason: outcome.fields_changed.length > 0 ? "changed" : "reaffirmed",
+            detail: outcome.fields_changed.join(","),
+          }).catch((err) => {
+            console.log(
+              JSON.stringify({
+                ts: new Date().toISOString(),
+                worker: "app-cjipro",
+                portal_audit_error: err instanceof Error ? err.message : String(err),
+              }),
+            );
+          }),
+        );
+      }
+      return response;
     }
 
     // ENFORCE=false (shadow) OR decision was "render" → dispatch to

@@ -30,6 +30,7 @@ import {
   handleApiAuditExport,
   handleApiDeny,
   handleApiForceSignout,
+  handleApiPartnerSetFirm,
   handleApiPortalLink,
   handleApiRevoke,
   handleApiSignups,
@@ -38,6 +39,7 @@ import {
 } from "./admin_routes";
 import { d1SaltStore, utcDateString } from "../../audit/src/salt";
 import { writeSession } from "../../approvals/src/sessions";
+import { ensureProfile } from "../../approvals/src/partner_profiles";
 import { verifyWorkosWebhook, webhookAuditInput } from "./webhooks";
 import { routeDsyncEvent } from "./dsync_router";
 
@@ -394,6 +396,15 @@ export default {
         });
         return handleApiPortalLink(request, env.WORKOS_CLIENT_SECRET);
       }
+      // MIL-152 — admin attaches firm_slug + firm_name to a sub.
+      if (path === "/admin/api/partner_set_firm" && method === "POST") {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "admin.partner_firm_set",
+          session_sub: adminEmail,
+        });
+        return handleApiPartnerSetFirm(request, env.AUDIT_DB);
+      }
       return new Response("not found", {
         status: 404,
         headers: { "content-type": "text/plain" },
@@ -436,6 +447,21 @@ export default {
                 JSON.stringify({
                   ts: new Date().toISOString(),
                   session_write_error:
+                    err instanceof Error ? err.message : String(err),
+                }),
+              );
+            }),
+          );
+          // MIL-152 — first-touch partner_profiles row. Idempotent;
+          // INSERT OR IGNORE means this never overwrites a profile
+          // that already carries admin-set firm fields or self-affirmed
+          // display_name/role. Same fail-open posture as writeSession.
+          ctx.waitUntil(
+            ensureProfile(db, sub, outcome.userEmail).catch((err) => {
+              console.log(
+                JSON.stringify({
+                  ts: new Date().toISOString(),
+                  partner_profile_write_error:
                     err instanceof Error ? err.message : String(err),
                 }),
               );

@@ -48,6 +48,20 @@ interface SessionRow {
   organization_id: string | null;
 }
 
+interface PartnerProfileRow {
+  sub: string;
+  display_name: string | null;
+  role: string | null;
+  firm_slug: string | null;
+  firm_name: string | null;
+  contact_email: string | null;
+  contact_pref: string;
+  last_confirmed_at: string | null;
+  last_confirmed_hash: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export class FakeD1 {
   public users: ApprovedUserRow[] = [];
   public signups: PendingSignupRow[] = [];
@@ -55,6 +69,7 @@ export class FakeD1 {
   public rateLimits: RateLimitRow[] = [];
   public sessions: SessionRow[] = [];
   public autoApproveOrgs: AutoApproveRow[] = [];
+  public partnerProfiles: PartnerProfileRow[] = [];
   public nextSignupId = 1;
 
   prepare(sql: string): FakeStatement {
@@ -118,6 +133,12 @@ export class FakeStatement {
       const sub = this.args[0] as string;
       const hit = this.db.sessions.find((r) => r.sub === sub);
       return hit ? ({ email: hit.email } as T) : null;
+    }
+    // partner_profiles
+    if (s.startsWith("SELECT * FROM partner_profiles WHERE sub")) {
+      const sub = this.args[0] as string;
+      const hit = this.db.partnerProfiles.find((r) => r.sub === sub);
+      return (hit as T | undefined) ?? null;
     }
     // rate limit
     if (s.startsWith("SELECT count FROM signup_rate_limit")) {
@@ -293,6 +314,84 @@ export class FakeStatement {
       );
       if (hit) hit.count += 1;
       return {};
+    }
+    if (s.startsWith("INSERT OR IGNORE INTO partner_profiles")) {
+      const [sub, contact_email, created_at, updated_at] = this.args as [
+        string,
+        string,
+        string,
+        string,
+      ];
+      if (!this.db.partnerProfiles.find((r) => r.sub === sub)) {
+        this.db.partnerProfiles.push({
+          sub,
+          display_name: null,
+          role: null,
+          firm_slug: null,
+          firm_name: null,
+          contact_email,
+          contact_pref: "email-only",
+          last_confirmed_at: null,
+          last_confirmed_hash: null,
+          created_at,
+          updated_at,
+        });
+        return { meta: { changes: 1 } };
+      }
+      return { meta: { changes: 0 } };
+    }
+    if (
+      s.startsWith(
+        "UPDATE partner_profiles SET firm_slug = ?, firm_name = ?, updated_at = ? WHERE sub = ?",
+      )
+    ) {
+      const [firm_slug, firm_name, updated_at, sub] = this.args as [
+        string,
+        string,
+        string,
+        string,
+      ];
+      const hit = this.db.partnerProfiles.find((r) => r.sub === sub);
+      if (!hit) return { meta: { changes: 0 } };
+      hit.firm_slug = firm_slug;
+      hit.firm_name = firm_name;
+      hit.updated_at = updated_at;
+      return { meta: { changes: 1 } };
+    }
+    if (
+      s.startsWith(
+        "UPDATE partner_profiles SET display_name = ?, role = ?, contact_email = ?, contact_pref = ?, last_confirmed_at = ?, last_confirmed_hash = ?, updated_at = ? WHERE sub = ?",
+      )
+    ) {
+      const [
+        display_name,
+        role,
+        contact_email,
+        contact_pref,
+        last_confirmed_at,
+        last_confirmed_hash,
+        updated_at,
+        sub,
+      ] = this.args as [
+        string | null,
+        string | null,
+        string | null,
+        string,
+        string,
+        string,
+        string,
+        string,
+      ];
+      const hit = this.db.partnerProfiles.find((r) => r.sub === sub);
+      if (!hit) return { meta: { changes: 0 } };
+      hit.display_name = display_name;
+      hit.role = role;
+      hit.contact_email = contact_email;
+      hit.contact_pref = contact_pref;
+      hit.last_confirmed_at = last_confirmed_at;
+      hit.last_confirmed_hash = last_confirmed_hash;
+      hit.updated_at = updated_at;
+      return { meta: { changes: 1 } };
     }
     throw new Error(`FakeD1.run: unhandled SQL: ${this.sql}`);
   }

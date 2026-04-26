@@ -29,9 +29,15 @@ interface FakeSessionRow {
   email: string;
 }
 
+interface FakePendingRow {
+  email: string;
+  requested_at: string;
+}
+
 class FakeApprovalsDb {
   public approved: FakeUserRow[] = [];
   public sessions: FakeSessionRow[] = [];
+  public pending: FakePendingRow[] = [];
   prepare(sql: string) {
     return new FakeStmt(this, sql, []);
   }
@@ -58,6 +64,19 @@ class FakeStmt {
       const sub = this.args[0] as string;
       const hit = this.db.sessions.find((r) => r.sub === sub);
       return hit ? ({ email: hit.email } as T) : null;
+    }
+    // MIL-153 — pending lookup (both isPending and the inline
+    // requested_at SELECT in lookupPendingRow). One handler covers
+    // both because they query the same table+where.
+    if (s.startsWith("SELECT id FROM pending_signups WHERE email")) {
+      const email = this.args[0] as string;
+      const hit = this.db.pending.find((r) => r.email === email);
+      return hit ? ({ id: 1 } as T) : null;
+    }
+    if (s.startsWith("SELECT requested_at FROM pending_signups WHERE email")) {
+      const email = this.args[0] as string;
+      const hit = this.db.pending.find((r) => r.email === email);
+      return hit ? ({ requested_at: hit.requested_at } as T) : null;
     }
     // Any SELECT / INSERT on auth_events is an audit-path call —
     // return the shape logAuthEvent expects so it doesn't blow up.
@@ -146,10 +165,37 @@ describe("approval gate — enforce=true", () => {
     }
   });
 
-  test("non-approved email → 403 deny page", async () => {
+  test("non-approved email WITH pending request → 200 in-queue page (MIL-153)", async () => {
+    const db = new FakeApprovalsDb();
+    db.sessions.push({ sub: "u_charlie", email: "charlie@example.com" });
+    db.pending.push({
+      email: "charlie@example.com",
+      requested_at: "2026-04-20T09:30:00.000Z",
+    });
+    vi.mocked(verifySession).mockResolvedValue({
+      kind: "valid",
+      payload: { sub: "u_charlie" },
+    });
+    const res = await worker.fetch(
+      req("/briefing-v3/", COOKIE_WITH_TOKEN),
+      envWith(db, true),
+      testCtx(),
+    );
+    // 200 not 403: positive ack of a known queue state, not an error.
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("Your request is being reviewed");
+    expect(body).toContain("charlie@example.com");
+    expect(body).toContain("2026-04-20"); // submitted-on date
+    expect(body).not.toContain("Request access");
+  });
+
+  test("non-approved email, no pending request → 403 not-on-allowlist page (MIL-153)", async () => {
     const db = new FakeApprovalsDb();
     db.sessions.push({ sub: "u_bravo", email: "bravo@example.com" });
-    // approved is empty — bravo is signed in but not approved
+    // approved is empty AND no pending row — bravo is signed in but
+    // hasn't requested access. Differentiated deny page should fire
+    // with the "Request access" CTA carrying their email pre-fill.
     vi.mocked(verifySession).mockResolvedValue({
       kind: "valid",
       payload: { sub: "u_bravo" },
@@ -161,8 +207,10 @@ describe("approval gate — enforce=true", () => {
     );
     expect(res.status).toBe(403);
     const body = await res.text();
-    expect(body).toContain("Access pending");
-    expect(body).toContain("hello@cjipro.com");
+    expect(body).toContain("Access not yet provisioned");
+    expect(body).toContain("Request access");
+    expect(body).toContain("bravo@example.com");
+    expect(body).toContain("/request-access?email=bravo%40example.com");
   });
 
   test("case-insensitive email match", async () => {

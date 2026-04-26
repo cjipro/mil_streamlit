@@ -57,7 +57,10 @@ function reckonerHandler(request: Request): Response {
 }
 
 function rootRedirect(request: Request): Response {
-  return Response.redirect(new URL("/reckoner", request.url).toString(), 302);
+  // MIL-151 — root → /portal (replaces previous /reckoner default).
+  // Authenticated requests land on the partner portal first; from
+  // there the Reckoner is one CTA away.
+  return Response.redirect(new URL("/portal", request.url).toString(), 302);
 }
 
 function healthzHandler(_request: Request): Response {

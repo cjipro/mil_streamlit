@@ -16,6 +16,7 @@ import {
   forceSignout,
   listApprovedWithSessions,
 } from "../../approvals/src/sessions";
+import { setFirm } from "../../approvals/src/partner_profiles";
 import {
   generatePortalLink,
   type PortalIntent,
@@ -483,6 +484,41 @@ export async function handleApiForceSignout(
   const out = await forceSignout(db, body.email);
   if (out.kind !== "ok") return json({ ok: false, error: out.kind }, 400);
   return json({ ok: true, affected: out.affected });
+}
+
+// MIL-152 — admin attaches firm_slug + firm_name to a sub. The user
+// must have signed in at least once so ensureProfile() has created
+// the row; not-found means "ask them to sign in first, then retry".
+// firm_slug shape is enforced by setFirm() — invalid throws here.
+export async function handleApiPartnerSetFirm(
+  request: Request,
+  db: D1Database,
+): Promise<Response> {
+  const body = await readJson<{
+    sub?: string;
+    firm_slug?: string;
+    firm_name?: string;
+  }>(request);
+  if (
+    !body ||
+    typeof body.sub !== "string" ||
+    typeof body.firm_slug !== "string" ||
+    typeof body.firm_name !== "string"
+  ) {
+    return json({ ok: false, error: "missing sub / firm_slug / firm_name" }, 400);
+  }
+  try {
+    const out = await setFirm(db, body.sub, body.firm_slug, body.firm_name);
+    if (out.kind !== "ok") {
+      return json({ ok: false, error: out.kind }, 400);
+    }
+    return json({ ok: true });
+  } catch (err) {
+    return json(
+      { ok: false, error: "invalid_firm_slug", detail: err instanceof Error ? err.message : String(err) },
+      400,
+    );
+  }
 }
 
 function json(body: unknown, status = 200): Response {

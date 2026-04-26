@@ -11,6 +11,12 @@ export type AuthEventType =
   | "bouncer.redirect.missing"
   | "bouncer.redirect.invalid"
   | "bouncer.deny.not_approved"
+  // MIL-153 — differentiated deny states. Replaces the generic
+  // not_approved for new flows (kept above for backward-compat
+  // with pre-MIL-153 audit history). in_queue = pending_signups
+  // row exists; not_on_allowlist = no row in either table.
+  | "bouncer.deny.in_queue"
+  | "bouncer.deny.not_on_allowlist"
   // magic-link flow
   | "magic_link.authorize"
   | "magic_link.callback.success"
@@ -52,7 +58,12 @@ export type AuthEventType =
   // Phase B will split out specific passkey events
   // (passkey.registered, passkey.used, etc.) once we observe what
   // event types WorkOS actually sends.
-  | "workos.webhook";
+  | "workos.webhook"
+  // MIL-152 — partner_profiles lifecycle. portal.details_confirmed
+  // fires from POST /portal/confirm; admin.partner_firm_set fires
+  // when an admin attaches firm_slug + firm_name to a sub.
+  | "portal.details_confirmed"
+  | "admin.partner_firm_set";
 
 // Input passed to logAuthEvent. The lib is responsible for turning
 // the raw `ip` / `user_agent` / `session_sub` into salted hashes

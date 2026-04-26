@@ -198,7 +198,7 @@ describe("app_cjipro auth gate — enforce=true", () => {
     expect(res.status).toBe(403);
   });
 
-  test("/ → 302 redirect to /reckoner (after auth pass)", async () => {
+  test("/ → 302 redirect to /portal (MIL-151 default landing, after auth pass)", async () => {
     const db = new FakeApprovalsDb();
     db.approved.push({ email: "alpha@example.com" });
     db.sessions.push({ sub: "u_alpha", email: "alpha@example.com" });
@@ -212,7 +212,7 @@ describe("app_cjipro auth gate — enforce=true", () => {
       testCtx(),
     );
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toContain("/reckoner");
+    expect(res.headers.get("location")).toContain("/portal");
   });
 });
 

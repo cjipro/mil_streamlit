@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — CJI</title>
+
+<!-- Utility surface, not a marketing page — keep out of search index. -->
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; form-action https://login.cjipro.com; frame-ancestors 'none'; base-uri 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<link rel="canonical" href="https://cjipro.com/sign-in/">
+<link rel="privacy-policy" href="/privacy/">
+
+<style>
+  :root {
+    --ink:       #0A1E2A;
+    --ink-soft:  #2C3E4D;
+    --muted:     #6B7A85;
+    --hairline:  #D8DFE5;
+    --paper:     #FFFFFF;
+    --cream:     #FAFAF7;
+    --navy:      #00273D;
+    --accent:    #003A5C;
+    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+  }
+  .brand-mark {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.2px;
+    margin-bottom: 2rem;
+  }
+  .card {
+    width: 100%;
+    max-width: 26rem;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    padding: 2.5rem 2rem 2rem;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--ink);
+  }
+  .lede {
+    color: var(--ink-soft);
+    margin: 0 0 1.75rem 0;
+    font-size: 0.95rem;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+  }
+  input[type="email"] {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font: inherit;
+    border: 1px solid #b7c2ca;
+    border-radius: 3px;
+    background: var(--paper);
+  }
+  input[type="email"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+    border-color: var(--accent);
+  }
+  button {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--navy); }
+  .fineprint {
+    margin: 1.25rem 0 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .trust {
+    margin-top: 1.5rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    justify-content: center;
+  }
+  .trust a { color: var(--muted); }
+  .trust a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .request {
+    text-align: center;
+    margin: 1.75rem 0 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+
+<body>
+<main class="page">
+
+  <a href="/" class="brand-mark" style="border:0;">CJI</a>
+
+  <section class="card">
+    <h1>Partner sign-in</h1>
+    <p class="lede">
+      Enter your work email. We'll send you a one-time sign-in link.
+    </p>
+
+    <form method="get" action="https://login.cjipro.com/">
+      <label for="email">Work email</label>
+      <input id="email" name="email" type="email" required autocomplete="email"
+             autofocus inputmode="email" spellcheck="false">
+      <button type="submit">Send sign-in link</button>
+    </form>
+
+    <p class="fineprint">
+      Links work for 10 minutes. No passwords stored.
+    </p>
+
+    <p class="request">
+      Don't have access yet?
+      <a href="https://login.cjipro.com/request-access">Request access</a>
+    </p>
+  </section>
+
+  <div class="trust">
+    <a href="/privacy/">Privacy</a>
+    <a href="/security/">Security</a>
+    <a href="mailto:hello@cjipro.com">hello@cjipro.com</a>
+  </div>
+
+</main>
+</body>
+</html>

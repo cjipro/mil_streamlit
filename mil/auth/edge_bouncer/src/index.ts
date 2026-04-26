@@ -24,6 +24,7 @@ import { logAuthEvent } from "../../audit/src/audit";
 import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
 import { isApproved } from "../../approvals/src/approvals";
 import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
+import { isPending } from "../../approvals/src/signups";
 
 export interface Env {
   ENFORCE: string;
@@ -44,7 +45,17 @@ export interface Env {
 type Decision =
   | { action: "pass"; reason: "public" | "valid-session"; sub?: string }
   | { action: "redirect"; reason: "missing" | "invalid"; detail?: string }
-  | { action: "deny"; reason: "not-approved"; sub?: string; email?: string };
+  | {
+      action: "deny";
+      // MIL-153 — three deny variants:
+      //   "not-approved"  : legacy fallback when D1 unavailable or no sub
+      //   "in-queue"      : pending_signups row exists
+      //   "not-on-allowlist": authenticated but no row anywhere
+      reason: "not-approved" | "in-queue" | "not-on-allowlist";
+      sub?: string;
+      email?: string;
+      requestedAt?: string;
+    };
 
 // Pattern list is parsed per-request rather than cached in module
 // scope because wrangler vars can hot-reload.
@@ -146,10 +157,44 @@ async function decide(request: Request, env: Env): Promise<Decision> {
   }
   const email = await lookupSessionEmail(env.AUDIT_DB, sub);
   const approved = await isApproved(env.AUDIT_DB, email);
-  if (!approved) {
-    return { action: "deny", reason: "not-approved", sub, email };
+  if (approved) {
+    return { action: "pass", reason: "valid-session", sub };
   }
-  return { action: "pass", reason: "valid-session", sub };
+  // MIL-153 — differentiate the deny: in-queue (has a pending row)
+  // gets a "your request is being reviewed" page; not-on-allowlist
+  // (no row anywhere) gets a "request access" CTA. Same audit
+  // sub/email plumbing as before; lookupRequestedAt scopes the
+  // requested_at lookup to a single column so we don't re-query
+  // half the table.
+  const pending = email ? await lookupPendingRow(env.AUDIT_DB, email) : null;
+  if (pending) {
+    return {
+      action: "deny",
+      reason: "in-queue",
+      sub,
+      email,
+      requestedAt: pending.requested_at,
+    };
+  }
+  return { action: "deny", reason: "not-on-allowlist", sub, email };
+}
+
+// MIL-153 — pending-row lookup with the requested_at column. Used
+// by the in-queue render to show "Submitted: <date>". Returns null
+// if no pending row exists.
+async function lookupPendingRow(
+  db: D1Database,
+  email: string,
+): Promise<{ requested_at: string } | null> {
+  const canonical = email.trim().toLowerCase();
+  if (!canonical) return null;
+  const row = await db
+    .prepare(
+      "SELECT requested_at FROM pending_signups WHERE email = ? AND status = 'pending' ORDER BY id DESC LIMIT 1",
+    )
+    .bind(canonical)
+    .first<{ requested_at: string }>();
+  return row ?? null;
 }
 
 function auditEventType(decision: Decision): AuthEventType {
@@ -162,7 +207,12 @@ function auditEventType(decision: Decision): AuthEventType {
   if (decision.action === "redirect" && decision.reason === "missing") {
     return "bouncer.redirect.missing";
   }
-  if (decision.action === "deny" && decision.reason === "not-approved") {
+  if (decision.action === "deny") {
+    // MIL-153 — differentiated states. Legacy not_approved kept as
+    // the D1-unavailable / no-sub fallback, so historical audit
+    // analysis stays linkable across the rename boundary.
+    if (decision.reason === "in-queue") return "bouncer.deny.in_queue";
+    if (decision.reason === "not-on-allowlist") return "bouncer.deny.not_on_allowlist";
     return "bouncer.deny.not_approved";
   }
   return "bouncer.redirect.invalid";
@@ -193,26 +243,116 @@ function buildAuditInput(
   };
 }
 
-function buildDenyResponse(): Response {
-  // Inline HTML — no loop back to login, no origin fetch. 403 so
-  // caches + browsers treat it as authoritative. Page names the
-  // contact address so the user has a next step.
+// Shared chrome — both deny variants + the legacy fallback render
+// over the same minimal page shell. Inlined to avoid a build step.
+const DENY_PAGE_STYLES = `
+  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; }
+  html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font:16px/1.55 ui-serif,Georgia,serif; }
+  main { max-width:32rem; margin:6rem auto; padding:2rem; }
+  h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
+  p { margin:0.5rem 0; color:var(--muted); }
+  a { color:var(--accent); }
+  .cta { display:inline-block; margin-top:1rem; padding:0.6rem 1.1rem;
+    background:var(--accent); color:#fff; border-radius:3px;
+    text-decoration:none; }
+  .cta:hover { filter:brightness(0.9); }
+  .submitted { font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:0.78rem; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.08em; margin-top:1rem; }
+`;
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// MIL-153 — pending request acknowledged. 200 (not 403): the user
+// is in a known queue state, this is a positive acknowledgment, not
+// an error. Keeps the auth-pending page out of browser-error UX.
+function renderInQueue(email: string | undefined, requestedAt: string | undefined): Response {
+  const submitted = requestedAt
+    ? `<p class="submitted">Submitted: ${escapeHtml(requestedAt.slice(0, 10))}</p>`
+    : "";
+  const who = email ? escapeHtml(email) : "your account";
   const html = `<!DOCTYPE html>
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Access pending · CJI Pro</title>
-<style>
-  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; }
-  html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
-    font:16px/1.55 ui-serif,Georgia,serif; }
-  main { max-width:32rem; margin:6rem auto; padding:2rem; }
-  h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
-  p { margin:0.5rem 0; color:var(--muted); }
-  a { color:#003A5C; }
-</style>
+<title>Request being reviewed · CJI</title>
+<style>${DENY_PAGE_STYLES}</style>
+</head>
+<body>
+<main>
+<h1>Your request is being reviewed</h1>
+<p>We've received your access request from <strong>${who}</strong>.</p>
+<p>We'll email you once it's approved.</p>
+${submitted}
+</main>
+</body>
+</html>`;
+  return new Response(html, {
+    status: 200,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}
+
+// MIL-153 — authenticated but never requested access. 403 with a
+// real CTA to /request-access (carrying email pre-fill via MIL-147).
+function renderNotOnAllowlist(email: string | undefined): Response {
+  const who = email ? escapeHtml(email) : "your account";
+  const cta = email
+    ? `https://login.cjipro.com/request-access?email=${encodeURIComponent(email)}`
+    : "https://login.cjipro.com/request-access";
+  const html = `<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Access not yet provisioned · CJI</title>
+<style>${DENY_PAGE_STYLES}</style>
+</head>
+<body>
+<main>
+<h1>Access not yet provisioned</h1>
+<p>You're signed in as <strong>${who}</strong>, but you don't have access to CJI yet.</p>
+<a class="cta" href="${escapeHtml(cta)}">Request access →</a>
+<p style="margin-top:1.5rem;">Or email
+<a href="mailto:hello@cjipro.com">hello@cjipro.com</a>.</p>
+</main>
+</body>
+</html>`;
+  return new Response(html, {
+    status: 403,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}
+
+// Legacy fallback — fires only when D1 is unavailable, no sub, or
+// (transitionally) any caller still passing reason="not-approved".
+// MIL-154 (BACKLOG) removes this once MIL-153 has soaked clean.
+function buildDenyResponse(): Response {
+  const html = `<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Access pending · CJI</title>
+<style>${DENY_PAGE_STYLES}</style>
 </head>
 <body>
 <main>
@@ -342,6 +482,14 @@ export default {
       return buildRedirect(request, env);
     }
     if (decision.action === "deny" && enforce) {
+      // MIL-153 — route to the differentiated page based on reason.
+      // not-approved (legacy) is the D1-unavailable / no-sub fallback.
+      if (decision.reason === "in-queue") {
+        return renderInQueue(decision.email, decision.requestedAt);
+      }
+      if (decision.reason === "not-on-allowlist") {
+        return renderNotOnAllowlist(decision.email);
+      }
       return buildDenyResponse();
     }
     // Pass through to origin for all other cases:

@@ -185,6 +185,26 @@ export async function revokeApproval(
   return { kind: "ok" };
 }
 
+// MIL-153 — does this email have a pending request? Used by the
+// edge-bouncer to differentiate "Access pending" deny states.
+// Mirrors the lookup inside submitRequest() but returns boolean
+// only — no row data needed at the bouncer.
+export async function isPending(
+  db: D1Database,
+  email: string | undefined | null,
+): Promise<boolean> {
+  if (!email) return false;
+  const canonical = canonicalEmail(email);
+  if (!canonical) return false;
+  const row = await db
+    .prepare(
+      "SELECT id FROM pending_signups WHERE email = ? AND status = 'pending' ORDER BY id DESC LIMIT 1",
+    )
+    .bind(canonical)
+    .first<{ id: number }>();
+  return row !== null && row !== undefined;
+}
+
 export async function listApproved(
   db: D1Database,
   limit = 200,

@@ -9,11 +9,11 @@ function req(path: string): Request {
 }
 
 describe("dispatch", () => {
-  test("/ → 302 redirect to /reckoner", async () => {
+  test("/ → 302 redirect to /portal (MIL-151 default landing)", async () => {
     const res = await dispatch(req("/"));
     expect(res).not.toBeNull();
     expect(res!.status).toBe(302);
-    expect(res!.headers.get("location")).toContain("/reckoner");
+    expect(res!.headers.get("location")).toContain("/portal");
   });
 
   test("/reckoner → 200 HTML with Reckoner shell", async () => {

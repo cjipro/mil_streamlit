@@ -92,6 +92,8 @@ _FILES: list[tuple[str, str]] = [
     ("insights_methodology.html",     "insights/methodology/index.html"),
     ("insights_sample_briefing.html", "insights/sample-briefing/index.html"),
     ("thank_you.html",                "thank-you/index.html"),
+    # MIL-150 — dedicated /sign-in utility page (no marketing chrome).
+    ("sign_in.html",                  "sign-in/index.html"),
     # Security section — MIL-79
     ("security_index.html",           "security/index.html"),
     ("security_standards.html",       "security/standards/index.html"),
