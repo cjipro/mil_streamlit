@@ -29,6 +29,14 @@ custom_domain = true
 
 [vars]
 ENFORCE                = "false"
+# MIL-93B — separate flag from page ENFORCE. APIs gate independently so
+# the user-facing surface can stay in shadow while /api/* locks down.
+API_ENFORCE            = "false"
+# MIL-93B — Python chat backend reachable via Cloudflare Tunnel.
+# Cut over to chat-backend.cjipro.com 2026-04-26 as part of MIL-95 prep
+# (internal-named host so sonar.cjipro.com can retire as a 301 stub).
+ASK_BACKEND_URL        = "https://chat-backend.cjipro.com/api/ask"
+ASK_BACKEND_SCOPE      = "reckoner"
 SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
 # Same JWKS / iss / aud as edge-bouncer + magic-link. Single source
 # of truth: the AuthKit domain's /.well-known/openid-configuration.

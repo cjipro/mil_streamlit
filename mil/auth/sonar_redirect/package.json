@@ -1,0 +1,19 @@
+{
+  "name": "mil-sonar-redirect",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MIL-95 sonar.cjipro.com 301 → app.cjipro.com/reckoner stub",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251015.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4",
+    "wrangler": "^4.85.0"
+  }
+}

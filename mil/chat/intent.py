@@ -217,6 +217,11 @@ _JOURNEY_KEYWORDS: dict[str, tuple[str, str, str]] = {
 
 _DEFAULT_COMPETITOR = "barclays"
 
+# Scope tags. "all"/"sonar" use the existing Barclays-default behaviour
+# (sonar is the firm-specific product). "reckoner" disables the default
+# because Reckoner is cohort-wide industry intelligence.
+VALID_SCOPES = ("all", "sonar", "reckoner")
+
 # Queries that genuinely want cross-competitor analysis — these phrases mean
 # "don't default to Barclays". Anything else defaults to Barclays.
 _PEER_HINTS = (
@@ -291,8 +296,15 @@ def _keyword_override(query: str, entities: dict) -> Optional[dict]:
     return None
 
 
-def classify(query: str) -> IntentResult:
-    """Classify a user query. Returns an IntentResult with extracted entities."""
+def classify(query: str, scope: str = "all") -> IntentResult:
+    """Classify a user query. Returns an IntentResult with extracted entities.
+
+    Args:
+        query: user question
+        scope: "all" / "sonar" / "reckoner". Sonar/all keep the Barclays
+               default-competitor injection. Reckoner disables it (cohort
+               intelligence — no single firm is the implicit subject).
+    """
     raw = call_anthropic(
         task="intent_classification",
         user_prompt=query,
@@ -312,7 +324,9 @@ def classify(query: str) -> IntentResult:
 
     # Safety net: the LLM refused but the query is clearly answerable. Force
     # issue_lookup so the retrievers get a chance to find something.
-    if intent in (Intent.INSUFFICIENT, Intent.UNKNOWN):
+    # Skip under Reckoner scope — the safety net's Barclays-default would
+    # contradict the cohort-wide framing.
+    if scope != "reckoner" and intent in (Intent.INSUFFICIENT, Intent.UNKNOWN):
         override = _keyword_override(query, entities)
         if override is not None:
             logger.info("[intent] keyword override fired for %r: %s",
@@ -327,9 +341,12 @@ def classify(query: str) -> IntentResult:
     # Barclays default: if the LLM classified successfully but left competitor
     # unset, inject Barclays unless the query explicitly asked for a peer view.
     # Peer intents (COMPARE, PEER_RANK) are always cross-competitor by design.
+    # Reckoner scope skips this entirely — its product surface is cohort-
+    # wide and has no implicit firm subject.
     needs_default_comp = (
-        intent not in (Intent.COMPARE, Intent.PEER_RANK,
-                       Intent.INSUFFICIENT, Intent.OUT_OF_SCOPE, Intent.UNKNOWN)
+        scope != "reckoner"
+        and intent not in (Intent.COMPARE, Intent.PEER_RANK,
+                           Intent.INSUFFICIENT, Intent.OUT_OF_SCOPE, Intent.UNKNOWN)
         and not entities.get("competitor")
         and not entities.get("competitors")
         and not _wants_peer_view(query.lower())

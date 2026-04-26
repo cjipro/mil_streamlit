@@ -52,18 +52,21 @@ describe("dispatch", () => {
     expect(body).toMatch(/href="\/reckoner\?mode=ask"[^>]*>Conversational/);
   });
 
-  test("/reckoner?mode=ask renders the ask-mode UI shell", async () => {
+  test("/reckoner?mode=ask renders the live ask-mode UI", async () => {
     const res = await dispatch(req("/reckoner?mode=ask"));
     expect(res!.status).toBe(200);
     const body = await res!.text();
     expect(body).toContain("Ask Reckoner");
-    expect(body).toContain("Conversational drill-in is alpha");
     expect(body).toContain("In scope");
     expect(body).toContain("Out of scope");
     // The ask-form textarea is present
     expect(body).toMatch(/<textarea[^>]*name="query"/);
-    // Submit button is disabled in Phase A
-    expect(body).toMatch(/<button[^>]*class="ask-submit"[^>]*disabled/);
+    // Phase B: submit is enabled, response container present, fetch wired
+    const submitMatch = body.match(/<button[^>]*id="ask-submit"[^>]*>/);
+    expect(submitMatch).not.toBeNull();
+    expect(submitMatch![0]).not.toMatch(/\bdisabled\b/);
+    expect(body).toContain('id="ask-response"');
+    expect(body).toContain('fetch("/api/ask"');
   });
 
   test("/reckoner?mode=ask shows Conversational tab as active", async () => {

@@ -35,6 +35,12 @@ import { dispatch } from "./router";
 
 export interface Env {
   ENFORCE: string;
+  // Separate flag from page-surface ENFORCE — lets us lock down /api/*
+  // independently of the user-facing pages. APIs are gated on this flag;
+  // pages stay on ENFORCE.
+  API_ENFORCE: string;
+  ASK_BACKEND_URL: string;
+  ASK_BACKEND_SCOPE: string;
   SESSION_COOKIE_NAME: string;
   JWKS_URL: string;
   EXPECTED_AUD: string;
@@ -47,7 +53,7 @@ export interface Env {
 }
 
 type Decision =
-  | { action: "render"; reason: "public" | "valid-session"; sub?: string }
+  | { action: "render"; reason: "public" | "valid-session"; sub?: string; email?: string }
   | { action: "redirect"; reason: "missing" | "invalid"; detail?: string }
   | { action: "deny"; reason: "not-approved"; sub?: string; email?: string };
 
@@ -138,7 +144,26 @@ async function decide(request: Request, env: Env): Promise<Decision> {
   if (!approved) {
     return { action: "deny", reason: "not-approved", sub, email };
   }
-  return { action: "render", reason: "valid-session", sub };
+  return { action: "render", reason: "valid-session", sub, email };
+}
+
+function isApiPath(pathname: string): boolean {
+  return pathname.startsWith("/api/");
+}
+
+function buildApiDeny(reason: string): Response {
+  // APIs return JSON, not HTML. Caller is a browser fetch() that won't
+  // follow a 302 to login.cjipro.com from a CORS request anyway.
+  return new Response(
+    JSON.stringify({ error: "unauthorized", reason }),
+    {
+      status: 401,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store",
+      },
+    },
+  );
 }
 
 function auditEventType(decision: Decision): AuthEventType {
@@ -213,7 +238,14 @@ export default {
     env: Env,
     ctx: ExecutionContext,
   ): Promise<Response> {
-    const enforce = env.ENFORCE === "true";
+    const url = new URL(request.url);
+    const apiPath = isApiPath(url.pathname);
+    // Pages use ENFORCE; APIs use API_ENFORCE. Independent flags so the
+    // user-facing surfaces can sit in shadow while the API path locks
+    // down (or vice versa).
+    const enforce = apiPath
+      ? env.API_ENFORCE === "true"
+      : env.ENFORCE === "true";
     const decision = await decide(request, env);
     logDecision(request, decision, enforce);
 
@@ -255,20 +287,31 @@ export default {
       }
     }
 
-    // Enforce: if the gate said redirect/deny and ENFORCE=true,
-    // return that response now (no content render).
+    // Enforce: if the gate said redirect/deny and the relevant ENFORCE
+    // flag is true, return that response now (no content render).
+    // APIs return JSON 401; pages return 302/403 HTML.
     if (decision.action === "redirect" && enforce) {
-      return buildRedirect(request, env);
+      return apiPath ? buildApiDeny("missing_session") : buildRedirect(request, env);
     }
     if (decision.action === "deny" && enforce) {
-      return buildDenyResponse();
+      return apiPath ? buildApiDeny("not_approved") : buildDenyResponse();
     }
 
     // ENFORCE=false (shadow) OR decision was "render" → dispatch to
     // router. Note that in shadow mode we render even for users who
     // would have been denied, so we get real traffic shape on the
     // surfaces themselves before flipping enforce.
-    const handlerResponse = await dispatch(request);
+    const apiEnv = {
+      ASK_BACKEND_URL: env.ASK_BACKEND_URL,
+      ASK_BACKEND_SCOPE: env.ASK_BACKEND_SCOPE,
+    };
+    const apiIdentity = {
+      email:
+        decision.action === "render" || decision.action === "deny"
+          ? decision.email
+          : undefined,
+    };
+    const handlerResponse = await dispatch(request, apiEnv, apiIdentity);
     return handlerResponse ?? new Response("internal error", { status: 500 });
   },
 };

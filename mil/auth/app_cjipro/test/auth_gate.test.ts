@@ -87,6 +87,9 @@ function testCtx(): ExecutionContext {
 function envWith(db: FakeApprovalsDb, enforce: boolean): Env {
   return {
     ENFORCE: enforce ? "true" : "false",
+    API_ENFORCE: "false",
+    ASK_BACKEND_URL: "https://chat-backend.example/api/ask",
+    ASK_BACKEND_SCOPE: "reckoner",
     SESSION_COOKIE_NAME: "__Secure-cjipro-session",
     JWKS_URL: "https://ideal-log-65-staging.authkit.app/oauth2/jwks",
     EXPECTED_AUD: "client_x",

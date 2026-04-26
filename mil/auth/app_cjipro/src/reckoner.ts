@@ -1,4 +1,4 @@
-// MIL-92 + MIL-93 Phase A — Reckoner surfaces
+// MIL-92 + MIL-93 Phase A + MIL-93 Phase B — Reckoner surfaces
 //
 // Reckoner has three interface modes per the locked brand spine:
 //   - Default surfacing (MIL-92, here as renderReckonerDefault)
@@ -13,10 +13,11 @@
 //   3. DECISIONS SURFACED — patterns escalated to a Clark tier and
 //      ready to be addressed (CLARK-2 ESCALATE, CLARK-3 ACT NOW).
 //
-// Ask mode — alpha-state chat shell. The UI renders today; the
-// retrieval/synthesis backend (the existing mil/chat pipeline today
-// served from sonar.cjipro.com) wires up in MIL-93 Phase B once the
-// tunnel migrates off sonar (post-MIL-95).
+// Ask mode — live in Phase B. Form posts to /api/ask which the Worker
+// reverse-proxies to the Python chat backend (mil/chat/api_server.py)
+// over a Cloudflare Tunnel. X-CJI-Scope=reckoner is injected by the
+// Worker so the backend disables Barclays-default and refuses single-
+// firm drill-ins (those belong in Sonar).
 //
 // MVP behaviour: the default surface renders from a typed
 // ReckonerSnapshot argument. The Worker passes a baked-in MVP
@@ -125,7 +126,7 @@ const CSS = `
   .tab.disabled { color: var(--hairline); cursor: not-allowed; }
   .tab-coming { display: inline-block; margin-left: 6px; font-size: 9px; color: var(--coming, #B07A1F); letter-spacing: 1.2px; }
 
-  /* ── Ask mode (MIL-93 Phase A) ────────────────────────── */
+  /* ── Ask mode (MIL-93 Phase B) ────────────────────────── */
   .ask-pane { padding: 36px 0; }
   .ask-grid {
     display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start;
@@ -154,6 +155,36 @@ const CSS = `
     font-family: var(--serif); font-size: 15px; line-height: 1.55; color: var(--ink-soft);
   }
   .ask-stub strong { color: var(--ink); }
+
+  /* ── Ask response (MIL-93 Phase B render) ─────────────── */
+  .ask-response { margin-top: 28px; }
+  .ask-response[hidden] { display: none; }
+  .ask-meta {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1.4px; color: var(--muted); margin-bottom: 10px;
+  }
+  .ask-meta .conf { margin-left: 8px; }
+  .ask-answer {
+    font-family: var(--serif); font-size: 16px; line-height: 1.6; color: var(--ink);
+    margin: 0 0 18px 0; white-space: pre-wrap;
+  }
+  .ask-quotes { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .ask-quote {
+    border-left: 3px solid var(--accent); padding: 10px 14px; background: var(--cream);
+    font-family: var(--serif); font-size: 14px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .ask-citations {
+    font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.4px;
+    margin-top: 12px; word-break: break-all;
+  }
+  .ask-error {
+    margin-top: 18px; padding: 14px 16px; border-left: 3px solid var(--p0);
+    background: #FBEBE6; font-family: var(--mono); font-size: 13px; color: var(--p0);
+  }
+  .ask-loading {
+    font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 1.4px;
+    text-transform: uppercase; padding: 18px 0;
+  }
   .ask-side { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
   .ask-side h3 {
     font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.6px;
@@ -461,10 +492,8 @@ function renderDefaultBody(snap: ReckonerSnapshot): string {
 }
 
 function renderAskBody(): string {
-  // MIL-93 Phase A: UI shell only. The form posts to /reckoner/ask
-  // (a route that returns the same page with a stub response inline).
-  // Phase B wires the form to the live retrieval pipeline once the
-  // tunnel migrates off sonar.cjipro.com (post-MIL-95).
+  // MIL-93 Phase B — live wire-up to the chat backend via /api/ask.
+  // Submit posts JSON, response renders inline below the form.
   return `
 <main>
   <section class="ask-pane">
@@ -486,27 +515,24 @@ function renderAskBody(): string {
 
       <div class="ask-grid">
         <div>
-          <form class="ask-form" action="/reckoner?mode=ask" method="post" autocomplete="off">
+          <form id="ask-form" class="ask-form" autocomplete="off" novalidate>
             <textarea
+              id="ask-query"
               class="ask-textarea"
               name="query"
               placeholder="e.g. What are the top three login-failure patterns across UK banking apps in the last 30 days, and which Chronicle entries do they rhyme with?"
               maxlength="800"
               aria-label="Ask Reckoner a question"
+              required
             ></textarea>
             <div class="ask-row">
-              <button class="ask-submit" type="submit" disabled aria-disabled="true">Send</button>
-              <span class="ask-hint">Backend integration follows MIL-95 — UI shell only in alpha.</span>
+              <button id="ask-submit" class="ask-submit" type="submit">Send</button>
+              <span class="ask-hint">Reckoner is industry-wide — for firm-specific drill-ins use Sonar.</span>
             </div>
           </form>
 
-          <div class="ask-stub">
-            <strong>Conversational drill-in is alpha.</strong> The retrieval
-            pipeline that powers this surface ships next, alongside the
-            retirement of <code>sonar.cjipro.com</code>. Today's
-            conversational chat is still served from that legacy host
-            (alpha cohort only); the move into Reckoner here is the
-            architectural target.
+          <div id="ask-response" class="ask-response" hidden>
+            <div id="ask-response-content"></div>
           </div>
         </div>
 
@@ -528,7 +554,103 @@ function renderAskBody(): string {
       </div>
     </div>
   </section>
-</main>`;
+</main>
+
+<script>
+(function () {
+  var form = document.getElementById("ask-form");
+  var input = document.getElementById("ask-query");
+  var btn = document.getElementById("ask-submit");
+  var panel = document.getElementById("ask-response");
+  var content = document.getElementById("ask-response-content");
+  if (!form || !input || !btn || !panel || !content) return;
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderQuotes(quotes) {
+    if (!Array.isArray(quotes) || !quotes.length) return "";
+    var html = '<div class="ask-quotes">';
+    for (var i = 0; i < quotes.length; i++) {
+      html += '<div class="ask-quote">' + escapeHtml(quotes[i]) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderCitations(cites) {
+    if (!Array.isArray(cites) || !cites.length) return "";
+    return '<div class="ask-citations">Citations: ' +
+      cites.map(escapeHtml).join(", ") + '</div>';
+  }
+
+  function renderResponse(data) {
+    var conf = data.confidence ? '<span class="conf">' +
+      escapeHtml(String(data.confidence)) + '</span>' : '';
+    var meta = '<div class="ask-meta">' +
+      escapeHtml(data.intent || 'response') + conf +
+      (data.refusal ? ' · refusal: ' + escapeHtml(data.refusal) : '') +
+      '</div>';
+    var answer = '<div class="ask-answer">' +
+      escapeHtml(data.answer || '(no answer)') + '</div>';
+    return meta + answer + renderQuotes(data.quotes) + renderCitations(data.citations);
+  }
+
+  function setLoading() {
+    panel.hidden = false;
+    content.innerHTML = '<div class="ask-loading">Thinking…</div>';
+  }
+
+  function setError(msg) {
+    panel.hidden = false;
+    content.innerHTML = '<div class="ask-error">' + escapeHtml(msg) + '</div>';
+  }
+
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var query = String(input.value || "").trim();
+    if (!query) return;
+    btn.disabled = true;
+    setLoading();
+    fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: query }),
+      credentials: "same-origin",
+    })
+      .then(function (res) {
+        if (res.status === 401) {
+          window.location.href = "https://login.cjipro.com/?return_to=" +
+            encodeURIComponent(window.location.pathname + window.location.search);
+          return null;
+        }
+        return res.json().then(function (data) {
+          return { status: res.status, data: data };
+        });
+      })
+      .then(function (wrap) {
+        if (!wrap) return;
+        if (wrap.status >= 200 && wrap.status < 300) {
+          panel.hidden = false;
+          content.innerHTML = renderResponse(wrap.data);
+        } else {
+          setError("Backend error (" + wrap.status + "): " +
+            (wrap.data && wrap.data.error ? wrap.data.error : "unknown"));
+        }
+      })
+      .catch(function (err) {
+        setError("Network error: " + (err && err.message ? err.message : String(err)));
+      })
+      .finally(function () { btn.disabled = false; });
+  });
+})();
+</script>`;
 }
 
 export function renderReckonerHtml(
@@ -547,6 +669,13 @@ export function renderReckonerHtml(
     mode === "ask"
       ? "Reckoner conversational drill-in (alpha)"
       : "Reckoner default surface (alpha)";
+  // Ask mode needs to run a small inline submit handler. Default mode
+  // stays on the strictest script-src 'none' since it has no scripts.
+  const scriptSrc = mode === "ask" ? "'self' 'unsafe-inline'" : "'none'";
+  const csp =
+    `default-src 'self'; style-src 'self' 'unsafe-inline'; script-src ${scriptSrc}; ` +
+    `img-src 'self' data:; font-src 'self' data:; connect-src 'self'; ` +
+    `frame-ancestors 'none'; base-uri 'self'; form-action 'self'`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -554,7 +683,7 @@ export function renderReckonerHtml(
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'none'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="${csp}">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">

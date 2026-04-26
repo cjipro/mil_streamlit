@@ -109,10 +109,40 @@ describe("renderReckonerHtml", () => {
   test("renderReckonerHtml(mvp, 'ask') renders the ask-mode body", () => {
     const html = renderReckonerHtml(mvpSnapshot(), "ask");
     expect(html).toContain("Ask Reckoner");
-    expect(html).toContain("Conversational drill-in is alpha");
     expect(html).toMatch(/<textarea[^>]*name="query"/);
     // Title reflects the mode
     expect(html).toContain("CJI Reckoner — Conversational drill-in");
+  });
+
+  test("ask mode submit button is enabled (Phase B live)", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "ask");
+    // Match the actual submit element and ensure it does NOT carry `disabled`
+    const submitMatch = html.match(/<button[^>]*id="ask-submit"[^>]*>/);
+    expect(submitMatch).not.toBeNull();
+    expect(submitMatch![0]).not.toMatch(/\bdisabled\b/);
+  });
+
+  test("ask mode renders the response container + inline submit script", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "ask");
+    expect(html).toMatch(/id="ask-response"[^>]*hidden/);
+    expect(html).toContain('id="ask-response-content"');
+    expect(html).toContain('fetch("/api/ask"');
+    // X-CJI-Scope is set server-side by the Worker, not the client script.
+  });
+
+  test("ask mode CSP allows inline script (only on this surface)", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "ask");
+    expect(html).toMatch(/script-src 'self' 'unsafe-inline'/);
+  });
+
+  test("default mode CSP keeps script-src 'none'", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "default");
+    expect(html).toMatch(/script-src 'none'/);
+  });
+
+  test("ask mode hint mentions Sonar handoff for firm-specific drill-ins", () => {
+    const html = renderReckonerHtml(mvpSnapshot(), "ask");
+    expect(html.toLowerCase()).toContain("sonar");
   });
 
   test("ask-mode footer label says drill-in (alpha)", () => {

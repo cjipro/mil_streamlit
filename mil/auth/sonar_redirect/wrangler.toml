@@ -1,0 +1,32 @@
+# MIL-95 — sonar.cjipro.com retirement
+#
+# 301 stub Worker. Replaces the Cloudflare Tunnel ingress for
+# sonar.cjipro.com so every path on the host redirects to
+# app.cjipro.com/reckoner?mode=ask (where Sonar's chat is now hosted
+# under MIL-93B).
+#
+# Deploy order:
+#   1. Migrate Python backend off the sonar.cjipro.com tunnel hostname
+#      (see ops/cloudflared/config.yml — replace with chat-backend.cjipro.com
+#      or similar before deploying this Worker, otherwise /api/ask 301s
+#      and the live chat backend is unreachable from the app-cjipro Worker).
+#   2. Update the app-cjipro Worker's ASK_BACKEND_URL to the new tunnel
+#      hostname + redeploy (mil/auth/app_cjipro/wrangler.toml).
+#   3. Deploy this Worker. custom_domain=true takes over sonar.cjipro.com
+#      from the tunnel (Cloudflare will refuse if the tunnel still owns
+#      it — that's why step 1 must happen first).
+#   4. Remove sonar.cjipro.com ingress from ops/cloudflared/config.yml
+#      and restart cloudflared service.
+#   5. Remove the Cloudflare Access policy on sonar.cjipro.com (no longer
+#      guards anything sensitive).
+
+name = "sonar-redirect"
+main = "src/index.ts"
+compatibility_date = "2025-10-15"
+
+[[routes]]
+pattern       = "sonar.cjipro.com"
+custom_domain = true
+
+[observability]
+enabled = true

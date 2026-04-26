@@ -16,6 +16,7 @@
 //   /reckoner POST (mode=ask)      → MIL-93 Phase B: live retrieval
 
 import { renderReckonerHtml, mvpSnapshot, type ReckonerMode } from "./reckoner";
+import { apiAskHandler, type ApiAskEnv, type ApiAskCallerIdentity } from "./api_ask";
 
 export type RouteHandler = (request: Request) => Response | Promise<Response>;
 
@@ -139,11 +140,27 @@ async function sonarHandler(request: Request, fetcher: typeof fetch = fetch): Pr
   return htmlResponse(html);
 }
 
-export async function dispatch(request: Request): Promise<Response | null> {
+export async function dispatch(
+  request: Request,
+  apiEnv?: ApiAskEnv,
+  apiIdentity?: ApiAskCallerIdentity,
+): Promise<Response | null> {
   const url = new URL(request.url);
   const path = url.pathname;
   if (path === "/" || path === "") return rootRedirect(request);
   if (path === "/reckoner" || path === "/reckoner/") return reckonerHandler(request);
+  if (path === "/api/ask") {
+    if (!apiEnv) {
+      // Defensive: only the worker entrypoint passes apiEnv. A direct
+      // dispatch() call from a unit test without the env arg would land
+      // here; fail closed rather than crash.
+      return new Response(
+        JSON.stringify({ error: "api_unconfigured" }),
+        { status: 500, headers: { "content-type": "application/json; charset=utf-8" } },
+      );
+    }
+    return apiAskHandler(request, apiEnv, apiIdentity ?? {});
+  }
   if (path === "/sonar" || path === "/sonar/" || path.startsWith("/sonar/")) {
     return sonarHandler(request);
   }

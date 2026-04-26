@@ -10,6 +10,9 @@ Endpoints
 GET  /api/health          → {"ok": true, "version": "..."}
 POST /api/ask             → body {"query": str, "deep"?: bool, "k_each"?: int}
                             returns full AskResponse as JSON
+                            Honours X-CJI-Scope header (reckoner | sonar | all,
+                            default "all"). Reckoner scope disables Barclays-
+                            default and refuses single-firm drill-ins.
 POST /api/feedback        → body {"trace_id": str, "verdict": "up"|"down"|...,
                                   "note"?: str, "partner_id"?: str}
 GET  /api/audit/summary   → last 50 audit rows
@@ -163,8 +166,14 @@ class _Handler(BaseHTTPRequestHandler):
             return
         deep = bool(body.get("deep", False))
         k_each = int(body.get("k_each", 8))
-        resp = ask(query, deep=deep, k_each=k_each, partner_id=self._partner_id())
+        scope = self._scope()
+        resp = ask(query, deep=deep, k_each=k_each,
+                   partner_id=self._partner_id(), scope=scope)
         self._write_json(200, resp.to_dict())
+
+    def _scope(self) -> str:
+        raw = (self.headers.get("X-CJI-Scope") or "").strip().lower()
+        return raw if raw in ("reckoner", "sonar", "all") else "all"
 
     def _route_feedback(self) -> None:
         body = self._read_body()

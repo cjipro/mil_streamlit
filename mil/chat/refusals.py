@@ -24,6 +24,7 @@ class RefusalClass(str, Enum):
     OUT_OF_SCOPE = "out_of_scope"
     INSUFFICIENT_EVIDENCE = "insufficient_evidence"
     FABRICATION_GUARD = "fabrication_guard"
+    SCOPE_MISMATCH = "scope_mismatch"
 
 
 @dataclass(frozen=True)
@@ -84,7 +85,50 @@ _MESSAGES: dict[RefusalClass, str] = {
         "The verifier flagged the draft answer as unverifiable against the "
         "retrieved evidence. No answer returned."
     ),
+    RefusalClass.SCOPE_MISMATCH: (
+        "Reckoner answers cohort-wide pattern questions across UK retail banking — "
+        "not single-firm drill-ins. For firm-specific questions (e.g. \"how is "
+        "Barclays doing on logins\"), use Sonar instead. For cross-cohort questions "
+        "(e.g. \"which banks are seeing biometric retry loops\"), keep going here."
+    ),
 }
+
+
+# ── Reckoner scope guard ──────────────────────────────────────────────────
+# Reckoner is industry intelligence — cohort-wide patterns. Single-firm
+# drill-ins belong in Sonar. This deterministic guard runs after intent
+# classification: if the query named exactly one competitor and didn't
+# carry peer/cohort framing, refuse with SCOPE_MISMATCH.
+
+_PEER_FRAMING_TERMS: tuple[str, ...] = (
+    "rank", "compare", "comparison", "peer", "peers", "competitors",
+    "other banks", "which bank", "which banks", "all banks",
+    "vs ", " vs.", "versus", "across", "cohort", "industry",
+    "uk banking", "uk retail banking", "sector",
+)
+
+
+def is_firm_specific_for_reckoner(query: str, entities: dict) -> bool:
+    """
+    True when a query under reckoner scope is asking about exactly one firm
+    without any cohort/peer framing — i.e. it belongs in Sonar, not Reckoner.
+
+    Uses the user's literal text rather than entities.competitor, because the
+    intent layer's Barclays-default would mark every implicit-Barclays query
+    as firm-specific even though the user never named anyone.
+    """
+    q = (query or "").lower()
+    competitors = ("barclays", "natwest", "lloyds", "hsbc", "monzo", "revolut")
+    named = [c for c in competitors if c in q]
+    if len(named) != 1:
+        return False
+    if any(term in q for term in _PEER_FRAMING_TERMS):
+        return False
+    # Chronicle queries are explicitly cross-firm even when one bank is named
+    # (e.g. "what does CHRONICLE say about TSB's 2018 outage").
+    if "chronicle" in q or "chr-" in q:
+        return False
+    return True
 
 
 # ── Public API ────────────────────────────────────────────────────────────

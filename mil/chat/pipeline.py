@@ -109,7 +109,7 @@ def _retrieve_all(names: list[str], query: str, entities: dict, k_each: int) -> 
 
 
 def ask(query: str, deep: bool = False, k_each: int = 8,
-        partner_id: Optional[str] = None) -> AskResponse:
+        partner_id: Optional[str] = None, scope: str = "all") -> AskResponse:
     """
     Full pipeline for an /ask query.
 
@@ -119,6 +119,10 @@ def ask(query: str, deep: bool = False, k_each: int = 8,
         k_each:      top-k items requested from each retriever.
         partner_id:  upstream-verified identity (e.g. Cloudflare Access email)
                      stamped into the audit log for attribution.
+        scope:       "all" (default, current behaviour), "sonar" (firm-specific
+                     product, same as all today), "reckoner" (industry
+                     intelligence — disables Barclays-default and refuses
+                     single-firm drill-ins via SCOPE_MISMATCH).
     """
     started = time.monotonic()
     trace_id = uuid.uuid4().hex[:10]
@@ -140,7 +144,7 @@ def ask(query: str, deep: bool = False, k_each: int = 8,
 
     # ── 2. Intent classification (Haiku) ──────────────────────────────────
     try:
-        ir: IntentResult = classify(query)
+        ir: IntentResult = classify(query, scope=scope)
     except Exception as exc:
         logger.warning("[pipeline] classify failed: %s", exc)
         return _refuse(trace_id, "unknown", RefusalClass.OUT_OF_SCOPE, query,
@@ -166,6 +170,13 @@ def ask(query: str, deep: bool = False, k_each: int = 8,
                        latency_ms=int((time.monotonic() - started) * 1000),
                        partner_id=partner_id)
 
+    # ── 2b. Reckoner scope guard ─────────────────────────────────────────
+    # Cohort-intelligence product — single-firm drill-ins belong in Sonar.
+    if scope == "reckoner" and refusals.is_firm_specific_for_reckoner(query, ir.entities):
+        return _refuse(trace_id, intent.value, RefusalClass.SCOPE_MISMATCH, query,
+                       latency_ms=int((time.monotonic() - started) * 1000),
+                       partner_id=partner_id)
+
     # Enrich entities with the intent so SQLRetriever can branch on it.
     entities = {**ir.entities, "_intent": intent.value}
 
@@ -174,7 +185,11 @@ def ask(query: str, deep: bool = False, k_each: int = 8,
     hit = cache.get(ckey)
     if hit:
         latency_ms = int((time.monotonic() - started) * 1000)
-        response = AskResponse(**hit, trace_id=trace_id, cache_hit=True, latency_ms=latency_ms)
+        # `response` is a to_dict alias for `answer` (legacy briefing-popup
+        # consumer reads it). Strip before splat — AskResponse() doesn't
+        # accept it as a constructor field.
+        hit_clean = {k: v for k, v in hit.items() if k != "response"}
+        response = AskResponse(**hit_clean, trace_id=trace_id, cache_hit=True, latency_ms=latency_ms)
         audit.log(audit.AuditEntry(
             trace_id=trace_id, query=query, intent=intent.value,
             retrievers_hit=response.retrievers_used,
@@ -236,7 +251,7 @@ def ask(query: str, deep: bool = False, k_each: int = 8,
     # ── 8. Cache + audit ──────────────────────────────────────────────────
     if ver.passed:
         cache.put(ckey, {k: v for k, v in response.to_dict().items()
-                         if k not in ("trace_id", "latency_ms", "cache_hit")})
+                         if k not in ("trace_id", "latency_ms", "cache_hit", "response")})
 
     audit.log(audit.AuditEntry(
         trace_id=trace_id, query=query, intent=intent.value,

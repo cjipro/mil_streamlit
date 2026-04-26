@@ -1,24 +1,23 @@
-# Cloudflare Tunnel — Ask CJI Pro
+# Cloudflare Tunnel — CJI chat backend
 #
-# ingress rules map public URLs onto local services. Requests NOT matching
-# any hostname/path rule fall through to the final catch-all (404).
+# Post-MIL-95 state. Tunnel exposes the local Python chat backend
+# (mil/chat/api_server.py on :8765) on chat-backend.cjipro.com only.
+# The app-cjipro Worker reverse-proxies authenticated /api/ask calls
+# through this hostname.
 #
-# Run order (one-time, from an elevated PowerShell):
-#   1. cloudflared tunnel login                      # browser OAuth
-#   2. cloudflared tunnel create ask-cji-pro         # writes <uuid>.json creds
-#   3. cloudflared tunnel route dns ask-cji-pro sonar.cjipro.com
-#   4. <edit this file: set `tunnel:` and `credentials-file:` from step 2>
-#   5. cloudflared --config ops/cloudflared/config.yml tunnel run ask-cji-pro
+# History:
+#   - Pre-2026-04-26: sonar.cjipro.com was the public face for the
+#     Streamlit chat UI + /api/* path. Backed up at config.yml.bak-pre-mil95.
+#   - 2026-04-26 MIL-93B: app.cjipro.com/api/ask reverse-proxy lands.
+#     chat-backend.cjipro.com added in addition to sonar.cjipro.com.
+#   - 2026-04-26 MIL-95: sonar.cjipro.com retired. Hostname is now
+#     owned by the sonar_redirect Worker which 301s to app.cjipro.com.
+#     This block removed from the tunnel ingress (custom_domain on the
+#     Worker takes precedence anyway — keeping it out is just hygiene).
 #
-# Or register as a Windows service so it boots with the machine:
-#   cloudflared --config ops/cloudflared/config.yml service install
-#
-# IMPORTANT — access control:
-#   This tunnel has no auth. Add a Cloudflare Access policy in the dashboard:
-#     Zero Trust -> Access -> Applications -> Add
-#     Self-hosted, hostname sonar.cjipro.com, path /*
-#     Policy: Allow -> Emails: <your alpha partners + hussain.marketing@gmail.com>
-#   Until that policy is active, ANYONE with the URL can hit /api/ask.
+# Run as Windows service ("cloudflared agent (cloudflared)").
+# Restart from elevated PowerShell:
+#   Restart-Service -Name cloudflared -Force
 
 tunnel: edd552d4-92db-405e-ae87-879dc5daed6c
 credentials-file: C:\Users\hussa\.cloudflared\edd552d4-92db-405e-ae87-879dc5daed6c.json
@@ -29,13 +28,15 @@ loglevel: info
 logfile: C:\Users\hussa\while-sleeping\mil\data\ask_api_tunnel.log
 
 ingress:
-  # Everything under sonar.cjipro.com routes to the local API server on 8765.
-  # The server internally serves:
-  #   GET  /              → chat.html (HTML UI)
-  #   GET  /api/health    → JSON
-  #   POST /api/ask       → JSON
-  #   POST /api/feedback  → JSON
-  - hostname: sonar.cjipro.com
+  # chat backend public hostname for the app-cjipro Worker reverse-proxy.
+  # Internal-named (not "sonar") so the Sonar product brand doesn't leak
+  # into infra URLs.
+  #
+  # No Cloudflare Access policy on this hostname today — the Worker's own
+  # auth gate (JWT cookie + approved_users) is the gate. Add a service-
+  # token Access policy in a follow-up so only the Worker can call it
+  # (defence in depth).
+  - hostname: chat-backend.cjipro.com
     service: http://127.0.0.1:8765
     originRequest:
       connectTimeout: 10s
