@@ -28,10 +28,10 @@ pattern       = "app.cjipro.com"
 custom_domain = true
 
 [vars]
-ENFORCE                = "false"
+ENFORCE                = "true"
 # MIL-93B — separate flag from page ENFORCE. APIs gate independently so
 # the user-facing surface can stay in shadow while /api/* locks down.
-API_ENFORCE            = "false"
+API_ENFORCE            = "true"
 # MIL-93B — Python chat backend reachable via Cloudflare Tunnel.
 # Cut over to chat-backend.cjipro.com 2026-04-26 as part of MIL-95 prep
 # (internal-named host so sonar.cjipro.com can retire as a 301 stub).
