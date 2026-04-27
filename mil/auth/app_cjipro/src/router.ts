@@ -18,6 +18,8 @@
 import { renderReckonerHtml, mvpSnapshot, type ReckonerMode } from "./reckoner";
 import { apiAskHandler, type ApiAskEnv, type ApiAskCallerIdentity } from "./api_ask";
 import { FONTS_BLOCK, FONT_STACK_SANS, FONT_STACK_SERIF } from "../../fonts_block/src/fonts_block.generated";
+import { renderShareAffordance, renderInviteSentBanner } from "./share_affordance";
+import { SUBJECTS } from "./subjects.generated";
 
 export type RouteHandler = (request: Request) => Response | Promise<Response>;
 
@@ -141,7 +143,35 @@ async function sonarHandler(request: Request, fetcher: typeof fetch = fetch): Pr
   if (!upstream.ok) {
     return notFoundResponse(url.pathname);
   }
-  const html = await upstream.text();
+  let html = await upstream.text();
+  // MIL-145 — inject share + forward affordances before </body>. Same
+  // request URL is used by the recipient so the share-link box mirrors
+  // the user's current address. firmDisplay falls back to the slug if
+  // SUBJECTS doesn't carry it (e.g. monitored peers we haven't added
+  // to email_domains yet) — better to show "barclays" than crash.
+  const firmDisplay =
+    SUBJECTS.find((s) => s.slug === slug)?.display ?? slug;
+  const briefingUrl = url.toString().split("?")[0]!;
+  const briefingDateLabel = date ?? "today";
+  const inviteSent = url.searchParams.get("invite_sent");
+  const banner = inviteSent ? renderInviteSentBanner(inviteSent) : "";
+  const affordance = renderShareAffordance({
+    firmSlug: slug,
+    firmDisplay,
+    briefingUrl,
+    briefingDateLabel,
+  });
+  // Inject affordance before </body>; banner just after <body> opens.
+  if (banner) {
+    html = html.replace(/<body([^>]*)>/i, `<body$1>\n${banner}`);
+  }
+  if (html.includes("</body>")) {
+    html = html.replace("</body>", `${affordance}\n</body>`);
+  } else {
+    // Defensive — if upstream HTML lacks </body>, append at end so the
+    // affordance still renders rather than getting silently dropped.
+    html = html + "\n" + affordance;
+  }
   return htmlResponse(html);
 }
 

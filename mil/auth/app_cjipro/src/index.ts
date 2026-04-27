@@ -29,6 +29,7 @@ import {
 import { isPublic, parsePatterns, type Matcher } from "../../edge_bouncer/src/whitelist";
 import { logAuthEvent } from "../../audit/src/audit";
 import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
+import { d1SaltStore, utcDateString } from "../../audit/src/salt";
 import { isApproved } from "../../approvals/src/approvals";
 import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
 import { dispatch } from "./router";
@@ -38,6 +39,7 @@ import {
   handleAdminSubjectSwitch,
   ADMIN_SUBJECT_COOKIE_NAME,
 } from "./portal";
+import { handleShareInvite } from "./share_invite";
 import {
   FONTS_BLOCK,
   FONT_STACK_SANS,
@@ -459,6 +461,59 @@ export default {
         );
       }
       return response;
+    }
+
+    // MIL-145 — POST /api/share-invite. Same auth posture as /portal/confirm:
+    // requires a fully authenticated, approved session. Inviter identity is
+    // taken from the Worker-side decision (not the form body) — defense
+    // against form-spoofing the inviter.
+    if (
+      portalAuthed &&
+      url.pathname === "/api/share-invite" &&
+      request.method === "POST"
+    ) {
+      let dailySalt: string | null = null;
+      if (env.AUDIT_DB) {
+        try {
+          dailySalt = await d1SaltStore(env.AUDIT_DB).getOrCreate(
+            utcDateString(new Date()),
+          );
+        } catch {
+          dailySalt = null;
+        }
+      }
+      const result = await handleShareInvite(
+        request,
+        { AUDIT_DB: env.AUDIT_DB! },
+        { sub: decision.sub!, email: decision.email! },
+        dailySalt,
+      );
+      if (env.AUDIT_DB) {
+        const db = env.AUDIT_DB;
+        ctx.waitUntil(
+          logAuthEvent(db, {
+            worker: "app-cjipro",
+            event_type: "portal.share_invite_sent",
+            method: "POST",
+            host: url.host,
+            path: url.pathname,
+            session_sub: decision.sub,
+            ip: request.headers.get("cf-connecting-ip") ?? undefined,
+            user_agent: request.headers.get("user-agent") ?? undefined,
+            reason: "share-form",
+            detail: result.outcomeKind,
+          }).catch((err) => {
+            console.log(
+              JSON.stringify({
+                ts: new Date().toISOString(),
+                worker: "app-cjipro",
+                share_audit_error: err instanceof Error ? err.message : String(err),
+              }),
+            );
+          }),
+        );
+      }
+      return result.response;
     }
 
     // ENFORCE=false (shadow) OR decision was "render" → dispatch to

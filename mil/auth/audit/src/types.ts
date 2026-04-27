@@ -73,7 +73,15 @@ export type AuthEventType =
   // MIL-156 — admin picker on /portal. Fires on every cookie write
   // (initial set + every change). reason carries the previous slug
   // (or "(default)" on first set), detail carries the new slug.
-  | "portal.admin_subject_switched";
+  | "portal.admin_subject_switched"
+  // MIL-145 — partner used the "Add colleague by email" share form on a
+  // Sonar briefing. The endpoint creates a pending_signups row + audits
+  // here. reason carries the share source ("share-form" / "mailto"),
+  // detail carries the outcome kind (created / already-pending /
+  // already-approved / invalid-email / rate-limited). Inviter's session
+  // sub is the session_sub on the row; recipient email isn't logged
+  // here — it's already in pending_signups, dedup-able by ipHash there.
+  | "portal.share_invite_sent";
 
 // Input passed to logAuthEvent. The lib is responsible for turning
 // the raw `ip` / `user_agent` / `session_sub` into salted hashes
