@@ -3,7 +3,9 @@
 // Routes:
 //   GET /           → build signed state, 302 to AuthKit /oauth2/authorize
 //   GET /callback   → verify state, exchange code, set cookie, 302 to return_to
-//   GET /logout     → clear cookie, 302 to /
+//   GET /logout     → confirm page (CSRF-tokened form POSTs back to /logout)
+//   POST /logout    → MIL-161 lifecycle: delete sessions row, revoke
+//                     WorkOS session, clear cookie, render done page
 //   GET /healthz    → 200 "ok" (for deployment smoke tests)
 //   GET /favicon.ico → 204 (browser probe, don't treat as auth trigger)
 //   (fallback)      → 404
@@ -18,6 +20,20 @@ import { buildClearCookie, type CookieConfig } from "./cookie";
 import { handleCallback, type CallbackConfig } from "./callback";
 import type { Env } from "./env";
 import { isValidReturnTo, signState } from "./state";
+import {
+  buildAuthkitLogoutUrl,
+  buildCsrfToken,
+  extractJwtSid,
+  outcomeToAuditDetail,
+  performLogout,
+  verifyCsrfToken,
+} from "./logout";
+import {
+  renderLogoutConfirm,
+  renderLogoutCsrfFailed,
+  renderLogoutDone,
+} from "./logout_pages";
+import { extractCookie } from "../../edge_bouncer/src/session";
 import {
   FONTS_BLOCK,
   FONT_STACK_SANS,
@@ -101,15 +117,130 @@ async function handleAuthorize(
   return Response.redirect(authorizeUrl, 302);
 }
 
-function handleLogout(env: Env): Response {
-  const setCookie = buildClearCookie(cookieConfigFromEnv(env));
-  return new Response(null, {
-    status: 302,
-    headers: {
-      location: env.DEFAULT_RETURN_TO,
-      "set-cookie": setCookie,
+// MIL-161 — GET /logout. If a session cookie is present, render a
+// CSRF-tokened confirm form (POST → handleLogoutAction). If not, the
+// user is already signed out — render the done page directly. Note
+// no cookie is cleared on GET; cookies are only cleared on the POST
+// path (or on the "already signed out" branch where there's nothing
+// to clear anyway). This makes `<img src="/logout">` a no-op.
+async function handleLogoutGet(request: Request, env: Env): Promise<Response> {
+  const jwt = extractCookie(request.headers.get("cookie"), env.COOKIE_NAME);
+  if (!jwt) {
+    // Already signed out (or never signed in). Render the done page
+    // with no outcome block — there's nothing to report.
+    return new Response(renderLogoutDone(null), {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+      },
+    });
+  }
+  const csrf = await buildCsrfToken(jwt, env.STATE_SIGNING_KEY);
+  return new Response(
+    renderLogoutConfirm(csrf, "https://app.cjipro.com/portal"),
+    {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+      },
     },
+  );
+}
+
+// MIL-161 — POST /logout. Verify the CSRF token, then run the full
+// lifecycle: delete sessions row, revoke WorkOS session, clear cookie.
+// Cookie is ALWAYS cleared on success, even if the WorkOS revoke or
+// D1 delete fails — the user-visible cookie clear is the floor.
+async function handleLogoutPost(
+  request: Request,
+  env: Env,
+): Promise<{ response: Response; outcome: import("./logout").LogoutOutcome | null }> {
+  const jwt = extractCookie(request.headers.get("cookie"), env.COOKIE_NAME);
+  // No cookie on POST → nothing to do. Treat as success (idempotent).
+  if (!jwt) {
+    return {
+      response: new Response(renderLogoutDone(null), {
+        status: 200,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+        },
+      }),
+      outcome: null,
+    };
+  }
+  // Read CSRF from form body. Workers' Request.formData() handles
+  // application/x-www-form-urlencoded and multipart equivalently.
+  let formCsrf: string | null = null;
+  try {
+    const form = await request.formData();
+    const raw = form.get("csrf");
+    formCsrf = typeof raw === "string" ? raw : null;
+  } catch {
+    formCsrf = null;
+  }
+  const csrfOk = await verifyCsrfToken(formCsrf, jwt, env.STATE_SIGNING_KEY);
+  if (!csrfOk) {
+    return {
+      response: new Response(renderLogoutCsrfFailed(), {
+        status: 400,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+        },
+      }),
+      outcome: null,
+    };
+  }
+  const outcome = await performLogout(jwt, {
+    db: env.AUDIT_DB,
+    workosApiKey: env.WORKOS_CLIENT_SECRET,
   });
+  const setCookie = buildClearCookie(cookieConfigFromEnv(env));
+
+  // MIL-161 v2 — server-side revoke alone leaves the AuthKit-domain
+  // cookie alive in the browser, so the next /authorize hit silent-
+  // auths the user back in. Send the browser through AuthKit's
+  // front-channel logout URL so it clears its own cookie, then back
+  // to /logout/done. If authKitHost is unset (e.g. test envs), fall
+  // back to rendering the done page directly.
+  const sid = extractJwtSid(jwt);
+  const authkitLogoutUrl = buildAuthkitLogoutUrl(
+    env.AUTHKIT_HOST,
+    sid,
+    "https://login.cjipro.com/logout/done",
+  );
+  if (authkitLogoutUrl) {
+    return {
+      response: new Response(null, {
+        status: 302,
+        headers: {
+          location: authkitLogoutUrl,
+          "cache-control": "no-store",
+          "set-cookie": setCookie,
+        },
+      }),
+      outcome,
+    };
+  }
+  return {
+    response: new Response(renderLogoutDone(outcome), {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+        "set-cookie": setCookie,
+      },
+    }),
+    outcome,
+  };
 }
 
 // MIL-138 — friendly user-facing reason mapping. The internal `reason`
@@ -256,11 +387,12 @@ export default {
       }
     }
 
-    // MIL-66b/67a — routes that accept POST: /request-access,
-    // /admin/api/*, /webhooks/workos. Others are GET-only.
+    // MIL-66b/67a/161 — routes that accept POST: /request-access,
+    // /admin/api/*, /webhooks/workos, /logout. Others are GET-only.
     const isPostPath =
       path === "/request-access" ||
       path === "/webhooks/workos" ||
+      path === "/logout" ||
       path.startsWith("/admin/api/");
     if (method !== "GET" && !(isPostPath && method === "POST")) {
       return new Response("method not allowed", {
@@ -540,12 +672,52 @@ export default {
       return renderErrorPage(outcome.status, outcome.reason);
     }
 
-    if (path === "/logout") {
-      audit(env, ctx, {
-        ...baseAuditInput(request, path),
-        event_type: "magic_link.logout",
+    if (path === "/logout/done") {
+      // MIL-161 v2 — AuthKit redirects here after clearing its own
+      // session cookie. By this point our cookie was already cleared
+      // on the original POST /logout response. Stateless render — no
+      // outcome detail (it didn't survive the AuthKit redirect; the
+      // audit row carries the full lifecycle record).
+      return new Response(renderLogoutDone(null), {
+        status: 200,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+        },
       });
-      return handleLogout(env);
+    }
+
+    if (path === "/logout") {
+      // MIL-161 — GET shows the confirm page (no cookie clear here),
+      // POST runs the lifecycle (delete sessions row + WorkOS revoke +
+      // cookie clear). Audit fires on POST only — GET is a render,
+      // not a state change.
+      if (method === "GET") {
+        return handleLogoutGet(request, env);
+      }
+      if (method === "POST") {
+        const { response, outcome } = await handleLogoutPost(request, env);
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "magic_link.logout",
+          detail: outcome ? outcomeToAuditDetail(outcome) : "no-cookie",
+          reason:
+            outcome === null
+              ? "no-cookie-or-csrf-failed"
+              : outcome.sessions_row_deleted === "error" ||
+                outcome.workos_session_revoked === "error"
+                ? "partial"
+                : "complete",
+        });
+        return response;
+      }
+      // Other methods → 405. Stops accidental DELETE/PUT scanners
+      // from spinning up the lifecycle.
+      return new Response("method not allowed", {
+        status: 405,
+        headers: { "content-type": "text/plain", "allow": "GET, POST" },
+      });
     }
 
     if (path === "/") {

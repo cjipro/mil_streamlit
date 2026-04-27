@@ -102,3 +102,23 @@ export async function forceSignout(
   if (changes === 0) return { kind: "not-found" };
   return { kind: "ok", affected: changes };
 }
+
+// MIL-161 — customer self-serve sign-out path. Mirrors forceSignout but
+// keys on `sub` (which we have from the JWT in the cookie at /logout
+// time) instead of `email` (which we don't extract there — saves a
+// lookup roundtrip on the hot path). Same effect: any cached JWT held
+// by this user fails the next bouncer hit because the sub→email row
+// is gone.
+export async function deleteSessionBySub(
+  db: D1Database,
+  sub: string,
+): Promise<{ kind: "ok"; affected: number } | { kind: "not-found" }> {
+  const result = await db
+    .prepare("DELETE FROM sessions WHERE sub = ?")
+    .bind(sub)
+    .run();
+  const meta = (result as { meta?: { changes?: number } }).meta;
+  const changes = meta?.changes ?? 0;
+  if (changes === 0) return { kind: "not-found" };
+  return { kind: "ok", affected: changes };
+}

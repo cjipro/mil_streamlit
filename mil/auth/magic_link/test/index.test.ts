@@ -94,15 +94,150 @@ describe("GET / — authorize redirect", () => {
   });
 });
 
-describe("GET /logout", () => {
-  test("clears cookie + redirects", async () => {
+describe("GET /logout (MIL-161)", () => {
+  // Pre-MIL-161 behaviour was: GET /logout → 302 + clear-cookie. That
+  // contract is gone — GET now renders a confirm page; the cookie is
+  // only cleared on POST. This closes the CSRF gap (an `<img src="/logout">`
+  // embedded on any open-web page would have signed the user out).
+
+  test("no cookie → renders 'Signed out' done page (idempotent)", async () => {
     const res = await worker.fetch(get("/logout"), ENV, testCtx());
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("You're signed out");
+    // Crucially: NO Set-Cookie on the cookie-less GET. We never touch
+    // headers when there's nothing to revoke.
+    expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
+  test("with cookie → renders confirm form with CSRF token", async () => {
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "GET",
+      headers: { cookie: "__Secure-cjipro-session=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1XzAxIn0.sig" },
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(200);
+    expect(res.headers.get("set-cookie")).toBeNull(); // GET never clears
+    const body = await res.text();
+    expect(body).toContain("Sign out of CJI?");
+    expect(body).toContain('method="POST"');
+    expect(body).toContain('name="csrf"');
+    expect(body).toContain("v1.");
+  });
+});
+
+describe("POST /logout (MIL-161)", () => {
+  test("missing cookie → idempotent done page (no audit lifecycle)", async () => {
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "POST",
+      body: new URLSearchParams({ csrf: "v1.whatever" }),
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("You're signed out");
+  });
+
+  test("missing CSRF token → 400 csrf-failed page", async () => {
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "POST",
+      headers: { cookie: "__Secure-cjipro-session=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1XzAxIn0.sig" },
+      body: new URLSearchParams({}),
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(400);
+    const body = await res.text();
+    expect(body).toContain("Couldn't complete sign out");
+    // Cookie MUST NOT be cleared on CSRF failure — that would let a
+    // bad CSRF attempt force-sign-out the user.
+    expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
+  test("DELETE / PUT → 405 method-not-allowed", async () => {
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "DELETE",
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(405);
+    expect(res.headers.get("allow")).toBe("GET, POST");
+  });
+});
+
+describe("POST /logout AuthKit front-channel redirect (MIL-161 v2)", () => {
+  // Server-side revoke alone left the AuthKit-domain cookie alive and
+  // produced silent-auth on the next /authorize. The fix sends the
+  // browser through AuthKit's logout endpoint so AuthKit clears its
+  // own cookie before redirecting back to /logout/done.
+
+  test("valid POST with sid → 302 to AuthKit logout, cookie cleared", async () => {
+    // Build a JWT with both sub and sid claims, then build a matching
+    // CSRF token so the POST passes verification.
+    const { signState } = await import("../src/state");
+    void signState; // keep import resolved
+    const { buildCsrfToken } = await import("../src/logout");
+
+    const b64url = (s: string) =>
+      btoa(s).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+    const jwt = `${b64url('{"alg":"HS256"}')}.${b64url('{"sub":"u_01","sid":"sess_77"}')}.sig`;
+    const csrf = await buildCsrfToken(jwt, ENV.STATE_SIGNING_KEY);
+
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "POST",
+      headers: { cookie: `__Secure-cjipro-session=${jwt}` },
+      body: new URLSearchParams({ csrf }),
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toBe(ENV.DEFAULT_RETURN_TO);
-    const sc = res.headers.get("set-cookie")!;
+    const loc = res.headers.get("location") ?? "";
+    expect(loc).toContain("ideal-log-65-staging.authkit.app");
+    expect(loc).toContain("/user_management/sessions/logout");
+    expect(loc).toContain("session_id=sess_77");
+    expect(loc).toContain(
+      "return_to=https%3A%2F%2Flogin.cjipro.com%2Flogout%2Fdone",
+    );
+    // Cookie clear MUST be on the same response — once AuthKit redirects
+    // back to /logout/done, our cookie is already gone and a fresh
+    // bouncer hit denies.
+    const sc = res.headers.get("set-cookie");
     expect(sc).toContain("__Secure-cjipro-session=");
     expect(sc).toContain("Max-Age=0");
-    expect(sc).toContain("Domain=.cjipro.com");
+  });
+
+  test("valid POST without sid → still 302s (AuthKit clears any cookie it finds)", async () => {
+    const { buildCsrfToken } = await import("../src/logout");
+    const b64url = (s: string) =>
+      btoa(s).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+    const jwt = `${b64url('{"alg":"HS256"}')}.${b64url('{"sub":"u_01"}')}.sig`;
+    const csrf = await buildCsrfToken(jwt, ENV.STATE_SIGNING_KEY);
+
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "POST",
+      headers: { cookie: `__Secure-cjipro-session=${jwt}` },
+      body: new URLSearchParams({ csrf }),
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("location") ?? "";
+    expect(loc).toContain("ideal-log-65-staging.authkit.app");
+    // No session_id param when sid was missing from the JWT.
+    expect(loc).not.toContain("session_id=");
+    expect(loc).toContain("return_to=");
+  });
+});
+
+describe("GET /logout/done (MIL-161 v2)", () => {
+  test("renders done page after AuthKit redirect", async () => {
+    const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("You're signed out");
+    // Public landing — no auth required, but never indexed.
+    expect(body).toContain("noindex");
+  });
+
+  test("does not Set-Cookie (the original POST already cleared it)", async () => {
+    const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
+    expect(res.headers.get("set-cookie")).toBeNull();
   });
 });
 
