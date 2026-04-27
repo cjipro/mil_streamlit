@@ -1,0 +1,36 @@
+# mil/config/tenant.yaml — locale + jurisdiction-specific scaffolding (MIL-148).
+#
+# Source of truth for two presentation-level values that change when a
+# new locale or jurisdiction lands (APAC partner, EU explicit-consent
+# notice, China ICP filing). Read at publish time by mil/publish/publish_site.py
+# and substituted into the public site's HTML output.
+#
+# Schema:
+#   schema_version: int (required, currently 1)
+#   lang:           str (required, BCP-47 tag — "en-GB" today; "zh-CN", "ja-JP"
+#                   are zero-cost flips when the cohort lands).
+#                   Becomes the value of <html lang="..."> on every public page.
+#   compliance_notices: list[str] (required, may be empty). Each entry renders as
+#                   a <p class="compliance-notice-line">…</p> inside the
+#                   .compliance-notice slot in the page footer.
+#                   Empty list → slot stays present but visually empty
+#                   (zero visual drift on production today).
+#                   Plain text only — do NOT inline HTML; the publisher escapes
+#                   the value to neutralise injection.
+#
+# Why a separate file (not clients.yaml): clients.yaml is per-firm; tenant.yaml
+# is per-deployment. A future multi-tenant CJI deploy (cjipro.cn / cjipro.eu)
+# would copy this file with different values, while clients.yaml stays cohort-
+# scoped. Splitting them now keeps both files simple.
+
+schema_version: 1
+
+# Default locale for the cjipro.com deployment.
+lang: en-GB
+
+# Empty by design today — the slot is reserved scaffolding, not active notices.
+# Reserve future entries here when:
+#   • China deployment goes live → "ICP备XXXXXXXX号"
+#   • EU partner needs explicit-consent footer text
+#   • UK firm wants ICO registration number visible
+compliance_notices: []

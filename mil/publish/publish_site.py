@@ -68,11 +68,33 @@ import logging
 import sys
 from pathlib import Path
 
+from mil.config.tenant_loader import compliance_notices_html, lang
 from mil.publish.adapters import get_adapter
 
 logger = logging.getLogger(__name__)
 
 _SITE_DIR = Path(__file__).parent / "site"
+
+# MIL-148 — placeholder substitution at publish time. The source HTML keeps
+# `{{ lang }}` and `{{ compliance_notices_html }}` literals; the publisher
+# resolves them from mil/config/tenant.yaml. Two reasons for plain string
+# substitution over a templating engine: (1) zero new dependency, (2) the
+# substitution surface is intentionally tiny — two values — so a real
+# template engine would obscure the contract more than it'd codify it.
+# Bare-text values (.txt / .xml) get the same treatment so robots.txt etc.
+# can pull tenant config too if needed later.
+_PLACEHOLDERS = (
+    "{{ lang }}",
+    "{{ compliance_notices_html }}",
+)
+
+
+def _render(content: str) -> str:
+    if not any(p in content for p in _PLACEHOLDERS):
+        return content
+    return content.replace("{{ lang }}", lang()).replace(
+        "{{ compliance_notices_html }}", compliance_notices_html()
+    )
 
 # (source_filename, destination_relative_path)
 # An empty source_filename means "publish an empty file at destination".
@@ -113,7 +135,7 @@ def _load(source: str) -> str:
     if source == "":
         return ""
     path = _SITE_DIR / source
-    return path.read_text(encoding="utf-8")
+    return _render(path.read_text(encoding="utf-8"))
 
 
 def publish_all(dry_run: bool = False) -> int:
