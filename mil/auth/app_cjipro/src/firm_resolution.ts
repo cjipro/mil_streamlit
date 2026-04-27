@@ -17,6 +17,7 @@
 // is that no caller treats `kind === "domain-inferred"` as authorisation.
 
 import type { PartnerProfile } from "../../approvals/src/partner_profiles";
+import { PARTNER_DOMAIN_TO_SLUG } from "./partner_domains.generated";
 
 export type FirmResolutionKind =
   | "admin-set"
@@ -32,14 +33,10 @@ export interface ResolvedFirm {
   has_briefing: boolean;        // can we show a working briefing hero? false for unprovisioned
 }
 
-// Alpha-cohort hardcode. When a real entitlements/email-domain table
-// lands in D1 (or as a build artefact from clients.yaml), swap to that.
-// Keys are lowercase, no leading "@". Values are client_slugs from
-// mil/config/clients.yaml.
-const PARTNER_DOMAIN_TO_SLUG: Record<string, { slug: string; display: string }> = {
-  "barclays.com":     { slug: "barclays", display: "Barclays" },
-  "barclays.co.uk":   { slug: "barclays", display: "Barclays" },
-};
+// PARTNER_DOMAIN_TO_SLUG is auto-generated at deploy time from
+// mil/config/clients.yaml (MIL-155). To add or change a partner's email
+// domains, edit clients.yaml — the npm predeploy hook regenerates the
+// TS artefact before upload. Keys are lowercase, no leading "@".
 
 // Default subject for admin-internal users. The only "subject" status
 // client today (clients.yaml) is barclays — admin gets the same default

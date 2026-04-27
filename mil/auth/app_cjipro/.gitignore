@@ -4,3 +4,8 @@ dist/
 *.log
 .env
 .env.local
+
+# MIL-155 — generated from mil/config/clients.yaml by
+# scripts/gen_partner_domains.py via predeploy/pretest hook. Never commit:
+# the YAML is source of truth, regeneration eliminates drift.
+src/partner_domains.generated.ts

@@ -16,7 +16,7 @@ import {
   type PortalEnv,
   type PortalIdentity,
 } from "../src/portal";
-import { resolveFirm, type ResolvedFirm } from "../src/firm_resolution";
+import { type ResolvedFirm } from "../src/firm_resolution";
 
 const FIRM_BARCLAYS_ADMIN_SET: ResolvedFirm = {
   slug: "barclays",
@@ -394,50 +394,7 @@ describe("renderPortal — visual rules", () => {
   });
 });
 
-describe("resolveFirm", () => {
-  test("admin-set wins over everything else", () => {
-    const profile = { ...FULL_PROFILE };
-    const r = resolveFirm(profile, "anything@barclays.com", true);
-    expect(r.kind).toBe("admin-set");
-    expect(r.slug).toBe("barclays");
-    expect(r.is_internal).toBe(false);
-  });
-  test("admin flag → admin-internal with default subject", () => {
-    const r = resolveFirm(null, "hussain.marketing@gmail.com", true);
-    expect(r.kind).toBe("admin-internal");
-    expect(r.is_internal).toBe(true);
-    expect(r.display_name).toBe("CJI");
-    expect(r.slug).toBe("barclays"); // default subject
-    expect(r.has_briefing).toBe(true);
-  });
-  test("known partner email domain → domain-inferred", () => {
-    const r = resolveFirm(null, "real.partner@barclays.com", false);
-    expect(r.kind).toBe("domain-inferred");
-    expect(r.slug).toBe("barclays");
-    expect(r.display_name).toBe("Barclays");
-    expect(r.has_briefing).toBe(true);
-  });
-  test("co.uk variant of barclays domain also inferred", () => {
-    const r = resolveFirm(null, "x@barclays.co.uk", false);
-    expect(r.kind).toBe("domain-inferred");
-    expect(r.slug).toBe("barclays");
-  });
-  test("unknown email domain + non-admin → unprovisioned", () => {
-    const r = resolveFirm(null, "stranger@randomdomain.com", false);
-    expect(r.kind).toBe("unprovisioned");
-    expect(r.slug).toBeNull();
-    expect(r.has_briefing).toBe(false);
-  });
-  test("profile with empty firm_slug falls through to next signal", () => {
-    const profile = { ...FULL_PROFILE, firm_slug: null, firm_name: null };
-    const r = resolveFirm(profile, "real.partner@barclays.com", false);
-    expect(r.kind).toBe("domain-inferred");
-  });
-  test("malformed email (no @) → unprovisioned for non-admin", () => {
-    const r = resolveFirm(null, "notanemail", false);
-    expect(r.kind).toBe("unprovisioned");
-  });
-});
+// resolveFirm tests live in firm_resolution.test.ts (MIL-155 split-out).
 
 describe("firstName helper", () => {
   test("uses display_name first token", () => {

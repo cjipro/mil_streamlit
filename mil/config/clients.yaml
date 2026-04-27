@@ -34,6 +34,17 @@
 #     onboarded:      str (ISO-8601 date, optional). Tracks when the
 #                     client became a paying partner. Empty until the
 #                     first contracted engagement.
+#     email_domains:  list[str] (optional, defaults to []). Lowercase,
+#                     no leading "@". Powers firm inference on /portal
+#                     for partners whose admin-set firm_slug isn't yet
+#                     populated (MIL-144 / MIL-155). One slug may carry
+#                     many domains (e.g. barclays.com + barclays.co.uk).
+#                     A domain MUST NOT appear under more than one slug
+#                     — the loader raises on duplicate to prevent silent
+#                     slug-collision footguns. Build artefact:
+#                     mil/auth/app_cjipro/src/partner_domains.generated.ts
+#                     regenerated via the app_cjipro predeploy/pretest
+#                     hook from this YAML.
 #
 # Loader: mil/config/clients_loader.py — typed accessors with @lru_cache,
 # validates required fields at import time and raises with a clear path-
@@ -61,6 +72,9 @@ clients:
     workos_org_id: ""           # populate at MIL-86 cutover
     status: subject
     onboarded: ""               # populate when first paid engagement signs
+    email_domains:
+      - barclays.com
+      - barclays.co.uk
 
   - client_slug: natwest
     display_name: NatWest

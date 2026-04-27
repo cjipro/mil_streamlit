@@ -5,10 +5,15 @@
   "description": "MIL-84 app.cjipro.com Worker — authenticated product surface",
   "type": "module",
   "scripts": {
+    "gen:partner-domains": "py scripts/gen_partner_domains.py",
+    "predev": "py scripts/gen_partner_domains.py",
     "dev": "wrangler dev",
+    "predeploy": "py scripts/gen_partner_domains.py",
     "deploy": "wrangler deploy",
+    "pretest": "py scripts/gen_partner_domains.py",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretypecheck": "py scripts/gen_partner_domains.py",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

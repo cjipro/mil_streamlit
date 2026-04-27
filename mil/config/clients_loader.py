@@ -13,6 +13,7 @@ Public API:
     by_slug(slug)                   -> Client | None
     display_name(slug)              -> str            (raises KeyError if unknown)
     slug_for_display_name(name)     -> str | None     (case-insensitive)
+    domain_to_slug()                -> dict[str, dict] {domain: {slug, display_name}}
 """
 from __future__ import annotations
 
@@ -40,6 +41,7 @@ class Client:
     workos_org_id: str
     status: ClientStatus
     onboarded: str
+    email_domains: tuple[str, ...]
 
 
 def _validate_entry(idx: int, raw: dict) -> Client:
@@ -54,6 +56,19 @@ def _validate_entry(idx: int, raw: dict) -> Client:
     slug = raw["client_slug"]
     if not slug or not slug.replace("-", "").isalnum() or slug != slug.lower():
         raise ValueError(f"clients.yaml entry [{idx}] slug must be lowercase alphanumeric/hyphen: {slug!r}")
+    domains_raw = raw.get("email_domains") or []
+    if not isinstance(domains_raw, list):
+        raise ValueError(f"clients.yaml entry [{idx}] email_domains must be a list, got {type(domains_raw).__name__}")
+    domains: list[str] = []
+    for d in domains_raw:
+        if not isinstance(d, str) or not d.strip():
+            raise ValueError(f"clients.yaml entry [{idx}] email_domains entries must be non-empty strings")
+        d = d.strip()
+        if d != d.lower():
+            raise ValueError(f"clients.yaml entry [{idx}] email_domains must be lowercase: {d!r}")
+        if d.startswith("@"):
+            raise ValueError(f"clients.yaml entry [{idx}] email_domains must not include leading '@': {d!r}")
+        domains.append(d)
     return Client(
         client_slug=slug,
         display_name=raw["display_name"],
@@ -61,6 +76,7 @@ def _validate_entry(idx: int, raw: dict) -> Client:
         workos_org_id=raw.get("workos_org_id", "") or "",
         status=raw["status"],
         onboarded=raw.get("onboarded", "") or "",
+        email_domains=tuple(domains),
     )
 
 
@@ -78,6 +94,18 @@ def clients() -> tuple[Client, ...]:
     if len(slugs) != len(set(slugs)):
         dupes = [s for s in slugs if slugs.count(s) > 1]
         raise ValueError(f"clients.yaml has duplicate client_slugs: {sorted(set(dupes))}")
+    # email_domains uniqueness — a domain MUST NOT appear under more than
+    # one client_slug, otherwise firm inference becomes a coin-flip and an
+    # employee at firm A could be silently routed to firm B's briefing.
+    seen: dict[str, str] = {}
+    for c in parsed:
+        for d in c.email_domains:
+            if d in seen and seen[d] != c.client_slug:
+                raise ValueError(
+                    f"clients.yaml domain {d!r} is claimed by both "
+                    f"{seen[d]!r} and {c.client_slug!r}"
+                )
+            seen[d] = c.client_slug
     logger.info(
         "clients.yaml loaded: %d entries (%d subject, %d monitored, %d retired)",
         len(parsed),
@@ -124,6 +152,21 @@ def slug_for_display_name(name: str) -> str | None:
         if c.display_name.lower() == target:
             return c.client_slug
     return None
+
+
+def domain_to_slug() -> dict[str, dict[str, str]]:
+    """Flat email-domain → {slug, display_name} map for firm inference.
+
+    Used by mil/auth/app_cjipro/scripts/gen_partner_domains.py to render
+    partner_domains.generated.ts. Includes retired clients' domains too —
+    they were once valid and a forwarded link from a retired-client domain
+    should still resolve sensibly. Filter at the call site if needed.
+    """
+    out: dict[str, dict[str, str]] = {}
+    for c in clients():
+        for d in c.email_domains:
+            out[d] = {"slug": c.client_slug, "display_name": c.display_name}
+    return out
 
 
 if __name__ == "__main__":
