@@ -1424,8 +1424,13 @@ def generate_html(
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sonar — App Intelligence Briefing</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- MIL-157 — self-hosted Plus Jakarta Sans + DM Mono (OFL). Drops the
+     Google Fonts CDN dependency that risked corp-proxy filtering on
+     Barclays / HSBC / Lloyds networks. fonts ship via publish_site.py
+     to cjipro.com/fonts/, same origin as the briefing pages. -->
+<link rel="preload" href="/fonts/plus-jakarta-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/dm-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/briefings_fonts.css">
 <style>
 /* -- Reset & Base ----------------------------------------------------------- */
 *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}

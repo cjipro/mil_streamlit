@@ -44,6 +44,27 @@ class TestFontsArtefacts:
         assert len(inter) >= 6, f"expected >=6 Inter weights/subsets, got {inter}"
         assert len(serif) >= 4, f"expected >=4 Source Serif 4 weights/subsets, got {serif}"
 
+    def test_briefings_woff2_files_present(self):
+        # MIL-157 — Plus Jakarta Sans (400/500/600/700/800) + DM Mono (400/500).
+        # Each weight × 2 subsets = 10 + 4 = 14 files.
+        files = sorted(p.name for p in FONTS.glob("*.woff2"))
+        pjs = [f for f in files if f.startswith("plus-jakarta-sans-")]
+        dm = [f for f in files if f.startswith("dm-mono-")]
+        assert len(pjs) >= 10, f"expected >=10 Plus Jakarta Sans files, got {pjs}"
+        assert len(dm) >= 4, f"expected >=4 DM Mono files, got {dm}"
+
+    def test_briefings_fonts_css_present_and_local(self):
+        # MIL-157 — separate CSS file from fonts.css so cjipro.com pages
+        # don't pay the briefings-only bandwidth cost.
+        path = FONTS / "briefings_fonts.css"
+        assert path.exists()
+        css = path.read_text(encoding="utf-8")
+        assert "fonts.googleapis.com" not in css
+        assert "fonts.gstatic.com" not in css
+        assert "Plus Jakarta Sans" in css
+        assert "DM Mono" in css
+        assert "font-display: swap" in css
+
     def test_fonts_css_references_only_local_paths(self):
         # No fonts.googleapis.com or fonts.gstatic.com URLs allowed in the
         # rendered CSS — the whole point of the migration is to keep every
@@ -123,3 +144,45 @@ class TestPublishSiteIncludesFonts:
         result = ps._load("fonts/fonts.css")
         assert isinstance(result, str)
         assert "@font-face" in result
+
+
+class TestBriefingsFontMigration:
+    """MIL-157 — V1 publish.py drops Google Fonts CDN, points at our self-
+    hosted briefings_fonts.css. V2/V3/V4 inherit from V1's HTML (per
+    feedback_v1_publisher_load_bearing.md), so the V1 link change is
+    sufficient — we test against the source file."""
+
+    PUBLISH = REPO / "mil" / "publish" / "publish.py"
+    PUBLISH_V2 = REPO / "mil" / "publish" / "publish_v2.py"
+    PUBLISH_V3 = REPO / "mil" / "publish" / "publish_v3.py"
+    PUBLISH_V4 = REPO / "mil" / "publish" / "publish_v4.py"
+    BRIEFING_TEMPLATE = REPO / "mil" / "publish" / "templates" / "briefing_v4.html.j2"
+
+    def test_v1_no_google_fonts_cdn(self):
+        # Direct CSS-link reference to fonts.googleapis.com is the corp-
+        # proxy risk we're closing. Catch any future re-introduction.
+        src = self.PUBLISH.read_text(encoding="utf-8")
+        assert "fonts.googleapis.com" not in src
+        assert "fonts.gstatic.com" not in src
+        # preconnect to fonts.googleapis.com is also gone — the lookup
+        # was paying for connection setup we no longer need.
+        assert 'preconnect" href="https://fonts.googleapis.com"' not in src
+
+    def test_v1_links_briefings_fonts_css(self):
+        src = self.PUBLISH.read_text(encoding="utf-8")
+        assert "/fonts/briefings_fonts.css" in src
+
+    def test_v1_preloads_critical_briefing_weights(self):
+        src = self.PUBLISH.read_text(encoding="utf-8")
+        # Plus Jakarta 400 = body weight, DM Mono 400 = number weight.
+        # Both above-the-fold on every briefing render.
+        assert "plus-jakarta-sans-400-latin.woff2" in src
+        assert "dm-mono-400-latin.woff2" in src
+
+    def test_v2_v3_v4_have_no_google_fonts_link(self):
+        # V2/V3/V4 inherit V1's HTML; if any of them sneaks back in a
+        # direct CDN link they'd reintroduce the corp-proxy risk.
+        for path in (self.PUBLISH_V2, self.PUBLISH_V3, self.PUBLISH_V4, self.BRIEFING_TEMPLATE):
+            src = path.read_text(encoding="utf-8")
+            assert "fonts.googleapis.com" not in src, f"{path.name} still references fonts.googleapis.com"
+            assert "fonts.gstatic.com" not in src, f"{path.name} still references fonts.gstatic.com"
