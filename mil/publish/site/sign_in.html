@@ -109,6 +109,81 @@
     cursor: pointer;
   }
   button:hover { background: var(--navy); }
+
+  /* MIL-140 — divider + passkey CTA below magic-link form. Defuses
+     "where's the second factor?" at first IT-review touch. */
+  .or-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .or-divider::before,
+  .or-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--hairline);
+  }
+  .passkey-wrap {
+    position: relative;
+    margin-top: 1rem;
+  }
+  button.passkey {
+    margin-top: 0;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+  }
+  button.passkey:hover { background: var(--cream); border-color: var(--ink-soft); }
+  button.passkey[disabled] {
+    cursor: not-allowed;
+    color: var(--muted);
+    background: var(--cream);
+    border-color: var(--hairline);
+    opacity: 0.85;
+  }
+  button.passkey[disabled]:hover { background: var(--cream); border-color: var(--hairline); }
+  button.passkey svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .passkey-tip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 0.4rem);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    padding: 0.55rem 0.75rem;
+    border-radius: 3px;
+    width: max-content;
+    max-width: 17rem;
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.12s ease-in-out, visibility 0s linear 0.12s;
+    z-index: 5;
+  }
+  .passkey-wrap:hover .passkey-tip,
+  .passkey-wrap:focus-within .passkey-tip {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.12s ease-in-out, visibility 0s;
+  }
+
   .fineprint {
     margin: 1.25rem 0 0 0;
     font-size: 0.85rem;
@@ -154,7 +229,32 @@
       <button type="submit">Send sign-in link</button>
     </form>
 
+    <!-- MIL-140 — passkey CTA. Disabled until MIL-67 Phase B activates the
+         WebAuthn challenge handler; tooltip explains the timeline. Visible
+         affordance answers "where's the second factor?" at IT review. -->
+    <div class="or-divider" role="separator" aria-label="or">or</div>
+
+    <div class="passkey-wrap">
+      <button type="button" class="passkey" disabled
+              aria-describedby="passkey-tip-text"
+              aria-label="Sign in with passkey (currently unavailable)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <circle cx="9" cy="12" r="4"></circle>
+          <path d="M13 12h8"></path>
+          <path d="M19 12v3"></path>
+          <path d="M16 12v2"></path>
+        </svg>
+        Sign in with passkey
+      </button>
+      <span class="passkey-tip" id="passkey-tip-text" role="tooltip">
+        Passkeys available 2026-Q2 — request via your admin.
+      </span>
+    </div>
+
     <p class="fineprint">
+      Magic-link sends a one-time code. Passkeys use your device biometrics.
       Links work for 10 minutes. No passwords stored.
     </p>
 

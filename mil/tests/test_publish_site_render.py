@@ -89,3 +89,52 @@ class TestRealSiteFiles:
         assert "{{ lang }}" not in out, f"{name} still has unrendered lang placeholder"
         assert "{{ compliance_notices_html }}" not in out, f"{name} still has unrendered notices placeholder"
         assert '<html lang="en-GB">' in out, f"{name} missing rendered lang attribute"
+
+
+class TestSignInPagePasskeyCTA:
+    """MIL-140 — passkey CTA on cjipro.com/sign-in/ must always render in
+    the disabled state today (MIL-67 Phase B not yet complete) so the
+    affordance is visible without dispatching a WebAuthn challenge that
+    the backend can't honour."""
+
+    SITE_DIR = Path(__file__).resolve().parent.parent / "publish" / "site"
+
+    def _src(self) -> str:
+        return (self.SITE_DIR / "sign_in.html").read_text(encoding="utf-8")
+
+    def test_or_divider_present(self):
+        assert 'class="or-divider"' in self._src()
+
+    def test_passkey_button_present(self):
+        assert "Sign in with passkey" in self._src()
+
+    def test_passkey_button_disabled(self):
+        # Active state requires MIL-67 Phase B + a WebAuthn handler. Until
+        # then the button MUST be disabled — an enabled-but-broken button
+        # is worse than a disabled-with-explanation button at IT review.
+        assert 'class="passkey" disabled' in self._src()
+
+    def test_tooltip_explains_availability(self):
+        src = self._src()
+        assert 'Passkeys available 2026-Q2' in src
+        assert 'request via your admin' in src
+
+    def test_footer_microcopy_present(self):
+        src = self._src()
+        # Single line covering both auth paths + no-password promise.
+        assert "Magic-link sends a one-time code" in src
+        assert "Passkeys use your device biometrics" in src
+        assert "No passwords stored" in src
+
+    def test_csp_does_not_need_inline_script(self):
+        # Disabled-state implementation must work with the existing strict
+        # CSP (script-src 'self' only, no 'unsafe-inline'). Hover/focus
+        # tooltip is pure CSS — no <script> or onclick attribute on the
+        # button. If a future change adds inline JS, this test catches it.
+        src = self._src()
+        # Find the passkey region between "or-divider" and the closing wrap div.
+        start = src.index('class="or-divider"')
+        end = src.index('class="fineprint"')
+        passkey_region = src[start:end]
+        assert "<script" not in passkey_region
+        assert "onclick=" not in passkey_region
