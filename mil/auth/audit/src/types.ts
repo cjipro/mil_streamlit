@@ -22,6 +22,12 @@ export type AuthEventType =
   | "magic_link.callback.success"
   | "magic_link.callback.error"
   | "magic_link.logout"
+  // MIL-146 — fires alongside callback.success when the IP /24 prefix or
+  // UA family at /callback differs from /authorize. Observability only;
+  // never blocks the cookie set or redirect. detail carries a small JSON
+  // blob with {ip_changed, ua_changed, time_delta_seconds} so partner-
+  // portal UX can later distinguish "fresh sign-in" from "forwarded".
+  | "magic_link.forwarded_use_detected"
   // MIL-66b — signup + admin
   | "signup.request"
   | "admin.approve"

@@ -68,12 +68,20 @@ async function handleAuthorize(
   url: URL,
   env: Env,
   now: number,
+  request?: Request,
 ): Promise<Response> {
   const raw = url.searchParams.get(env.RETURN_TO_PARAM) ?? "";
   const returnTo = isValidReturnTo(raw) ? raw : env.DEFAULT_RETURN_TO;
 
+  // MIL-146 — capture original-authorize IP + UA inside the HMAC-signed
+  // state. Compared at /callback to flag forwarded magic-link clicks.
+  // Optional — request is only available from the fetch entrypoint; tests
+  // can call without it and the forward-detection just no-ops.
+  const ip = request?.headers.get("cf-connecting-ip") ?? undefined;
+  const ua = request?.headers.get("user-agent") ?? undefined;
+
   const state = await signState(
-    { returnTo, ts: now },
+    { returnTo, ts: now, ip, ua },
     env.STATE_SIGNING_KEY,
   );
 
@@ -430,6 +438,16 @@ export default {
       const outcome = await handleCallback(
         request.url,
         callbackConfigFromEnv(env),
+        undefined,
+        Date.now(),
+        // MIL-146 — pass the /callback request's IP + UA so handleCallback
+        // can compare against the IP + UA captured at /authorize (carried
+        // inside the HMAC-signed state token). Non-blocking; informs the
+        // forwarded_use_detected audit event only.
+        {
+          ip: request.headers.get("cf-connecting-ip") ?? undefined,
+          userAgent: request.headers.get("user-agent") ?? undefined,
+        },
       );
       if (outcome.kind === "redirect") {
         const sub = outcome.userId ?? extractJwtSub(outcome.accessToken);
@@ -477,6 +495,18 @@ export default {
           event_type: "magic_link.callback.success",
           session_sub: sub,
         });
+        // MIL-146 — fires AFTER the success row so the timeline reads
+        // success-then-forward-flag rather than the opposite. detail
+        // carries the heuristic outcome so partner-portal queries
+        // ("was this sign-in forwarded?") can filter on it.
+        if (outcome.forward) {
+          audit(env, ctx, {
+            ...baseAuditInput(request, path),
+            event_type: "magic_link.forwarded_use_detected",
+            session_sub: sub,
+            detail: JSON.stringify(outcome.forward),
+          });
+        }
         return new Response(null, {
           status: 302,
           headers: {
@@ -515,7 +545,7 @@ export default {
         ...baseAuditInput(request, path),
         event_type: "magic_link.authorize",
       });
-      return handleAuthorize(url, env, Date.now());
+      return handleAuthorize(url, env, Date.now(), request);
     }
 
     return new Response("not found", {

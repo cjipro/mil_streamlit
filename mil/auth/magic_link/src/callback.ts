@@ -9,6 +9,7 @@
 
 import { buildSessionCookie, type CookieConfig } from "./cookie";
 import { exchangeCode, type ExchangeConfig } from "./exchange";
+import { looksForwarded, type ForwardDetectResult } from "./forward_detect";
 import { isValidReturnTo, verifyState } from "./state";
 
 export type CallbackConfig = {
@@ -17,6 +18,14 @@ export type CallbackConfig = {
   stateSigningKey: string;
   defaultReturnTo: string;
 };
+
+// MIL-146 — current request context for forwarded-use detection. Both
+// optional. When omitted (older callers / tests that don't care), the
+// detector silently no-ops.
+export interface CallbackContext {
+  ip?: string;
+  userAgent?: string;
+}
 
 export type CallbackOutcome =
   | {
@@ -34,6 +43,14 @@ export type CallbackOutcome =
       userEmail?: string;
       // MIL-72 — organization_id for per-tenant audit scoping.
       organizationId?: string;
+      // MIL-146 — non-null when the heuristic fires. Caller should
+      // emit a magic_link.forwarded_use_detected audit event but MUST
+      // NOT block the redirect: forwarding is supported.
+      forward?: {
+        ip_changed: boolean;
+        ua_changed: boolean;
+        time_delta_seconds: number;
+      };
     }
   | { kind: "error"; status: number; reason: string; detail?: string };
 
@@ -42,6 +59,7 @@ export async function handleCallback(
   cfg: CallbackConfig,
   fetchImpl: typeof fetch = fetch,
   now: number = Date.now(),
+  ctxArg: CallbackContext = {},
 ): Promise<CallbackOutcome> {
   const url = new URL(requestUrl);
 
@@ -91,6 +109,28 @@ export async function handleCallback(
   }
 
   const setCookie = buildSessionCookie(exchange.accessToken, cfg.cookie);
+
+  // MIL-146 — forwarded-use detection. Compares IP /24 + UA family of
+  // /authorize (carried inside state) against /callback (passed in).
+  // Non-blocking: heuristic only informs the audit event, never stops
+  // the cookie + redirect flow.
+  const detect: ForwardDetectResult = looksForwarded(
+    verified.payload.ip,
+    verified.payload.ua,
+    ctxArg.ip,
+    ctxArg.userAgent,
+  );
+  const forward = detect.forwarded
+    ? {
+        ip_changed: detect.ip_changed,
+        ua_changed: detect.ua_changed,
+        time_delta_seconds: Math.max(
+          0,
+          Math.floor((now - verified.payload.ts) / 1000),
+        ),
+      }
+    : undefined;
+
   return {
     kind: "redirect",
     location: returnTo,
@@ -99,5 +139,6 @@ export async function handleCallback(
     userId: exchange.userId,
     userEmail: exchange.userEmail,
     organizationId: exchange.organizationId,
+    forward,
   };
 }

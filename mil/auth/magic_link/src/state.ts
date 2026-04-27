@@ -17,6 +17,14 @@
 export type StatePayload = {
   returnTo: string;
   ts: number;
+  // MIL-146 — original-authorize context. Both optional so older states
+  // (pre-MIL-146) verify successfully and forward-detection no-ops.
+  // These are NOT logged in clear anywhere; they live inside the HMAC
+  // envelope and are compared to the /callback request's context to
+  // detect forwarded use. State is short-lived (10 min) so leak risk
+  // is bounded.
+  ip?: string;
+  ua?: string;
 };
 
 const MAX_STATE_AGE_MS = 10 * 60 * 1000;
@@ -103,6 +111,14 @@ export async function verifyState(
     typeof payload.returnTo !== "string" ||
     typeof payload.ts !== "number"
   ) {
+    return { ok: false, reason: "malformed" };
+  }
+  // MIL-146 — ip/ua are optional. If present, they MUST be strings —
+  // a malformed type means a tampered or older payload, fail closed.
+  if (payload.ip !== undefined && typeof payload.ip !== "string") {
+    return { ok: false, reason: "malformed" };
+  }
+  if (payload.ua !== undefined && typeof payload.ua !== "string") {
     return { ok: false, reason: "malformed" };
   }
   if (now - payload.ts > maxAgeMs) return { ok: false, reason: "expired" };
