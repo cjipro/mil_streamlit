@@ -16,6 +16,39 @@ import {
   type PortalEnv,
   type PortalIdentity,
 } from "../src/portal";
+import { resolveFirm, type ResolvedFirm } from "../src/firm_resolution";
+
+const FIRM_BARCLAYS_ADMIN_SET: ResolvedFirm = {
+  slug: "barclays",
+  display_name: "Barclays",
+  kind: "admin-set",
+  is_internal: false,
+  has_briefing: true,
+};
+
+const FIRM_UNPROVISIONED: ResolvedFirm = {
+  slug: null,
+  display_name: "Setting up your account",
+  kind: "unprovisioned",
+  is_internal: false,
+  has_briefing: false,
+};
+
+const FIRM_ADMIN_INTERNAL: ResolvedFirm = {
+  slug: "barclays",
+  display_name: "CJI",
+  kind: "admin-internal",
+  is_internal: true,
+  has_briefing: true,
+};
+
+const FIRM_DOMAIN_INFERRED: ResolvedFirm = {
+  slug: "barclays",
+  display_name: "Barclays",
+  kind: "domain-inferred",
+  is_internal: false,
+  has_briefing: true,
+};
 
 interface PartnerProfileRow {
   sub: string;
@@ -33,6 +66,7 @@ interface PartnerProfileRow {
 
 class FakeD1 {
   public profiles: PartnerProfileRow[] = [];
+  public admins: string[] = []; // canonicalised emails
   prepare(sql: string) {
     return new FakeStmt(this, sql, []);
   }
@@ -53,6 +87,12 @@ class FakeStmt {
       const sub = this.args[0] as string;
       const hit = this.db.profiles.find((r) => r.sub === sub);
       return (hit as T | undefined) ?? null;
+    }
+    if (s.startsWith("SELECT 1 AS present FROM admin_users WHERE email")) {
+      const email = (this.args[0] as string).toLowerCase();
+      return this.db.admins.includes(email)
+        ? ({ present: 1 } as unknown as T)
+        : null;
     }
     throw new Error(`FakeD1.first unhandled: ${this.sql}`);
   }
@@ -127,6 +167,7 @@ describe("renderPortal — visual rules", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: null,
+      firm: FIRM_UNPROVISIONED,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
@@ -141,18 +182,22 @@ describe("renderPortal — visual rules", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: FULL_PROFILE,
+      firm: FIRM_BARCLAYS_ADMIN_SET,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
       recentDates: [],
     });
     expect(html).toContain("Welcome back, Alpha.");
+    expect(html).toContain("Barclays");
+    expect(html).toContain("workspace");
   });
 
   test("welcome line falls back to email-prefix when display_name unset", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: null,
+      firm: FIRM_UNPROVISIONED,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
@@ -161,26 +206,66 @@ describe("renderPortal — visual rules", () => {
     expect(html).toContain("Welcome back, Alpha.");
   });
 
-  test("no firm → fallback firm name + briefing hero shows disabled actions, no /sonar link", () => {
+  test("admin-internal welcome → 'CJI' + Internal badge, no 'workspace' suffix", () => {
+    const html = renderPortal({
+      identity: { sub: "u_admin", email: "hussain.marketing@gmail.com" },
+      profile: null,
+      firm: FIRM_ADMIN_INTERNAL,
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: false,
+      recentDates: [],
+    });
+    expect(html).toContain("Welcome back, Hussain.");
+    expect(html).toContain("CJI");
+    expect(html).toContain("Internal");
+    expect(html).not.toContain("CJI workspace");
+    // Briefing hero is still functional — admin gets default subject (Barclays)
+    expect(html).toContain('href="/sonar/barclays/"');
+    expect(html).toContain("Today's Sonar briefing — Barclays");
+  });
+
+  test("domain-inferred firm renders as full workspace (no Internal badge)", () => {
+    const html = renderPortal({
+      identity: { sub: "u_p", email: "real.partner@barclays.com" },
+      profile: null,
+      firm: FIRM_DOMAIN_INFERRED,
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: false,
+      recentDates: [{ iso: "2026-04-27", label: "Today" }],
+    });
+    expect(html).toContain("Welcome back, Real.");
+    expect(html).toMatch(/Barclays<\/span>\s*workspace/);
+    expect(html).not.toContain("Internal");
+    expect(html).toContain('href="/sonar/barclays/2026-04-27/"');
+    expect(html).toContain("Today's Sonar briefing for Barclays");
+  });
+
+  test("unprovisioned → 'Welcome back, X.' (no firm clause), disabled briefing hero", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: { ...FULL_PROFILE, firm_slug: null, firm_name: null },
+      firm: FIRM_UNPROVISIONED,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
       recentDates: [],
     });
+    expect(html).toContain("Welcome back, Alpha.");
+    expect(html).not.toContain("workspace");
+    expect(html).not.toContain("Internal");
     expect(html).toContain("Setting up your account");
     expect(html).toContain("once your firm is provisioned");
     expect(html).not.toContain('href="/sonar/');
-    // Sonar product row still renders but with no link to /sonar/{slug}
     expect(html).toContain("CJI Sonar");
   });
 
-  test("firm set → briefing hero links to /sonar/{slug}/, share/forward mailto present", () => {
+  test("admin-set firm → briefing hero links + share/forward mailto present", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: FULL_PROFILE,
+      firm: FIRM_BARCLAYS_ADMIN_SET,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
@@ -193,10 +278,11 @@ describe("renderPortal — visual rules", () => {
     expect(html).toContain("Forward by email");
   });
 
-  test("recent strip renders when firm + dates supplied; links to dated /sonar paths", () => {
+  test("recent strip renders when firm has briefing + dates supplied", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: FULL_PROFILE,
+      firm: FIRM_BARCLAYS_ADMIN_SET,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
@@ -212,10 +298,11 @@ describe("renderPortal — visual rules", () => {
     expect(html).toContain("All briefings →");
   });
 
-  test("recent strip suppressed when no firm even if dates supplied", () => {
+  test("recent strip suppressed when firm.has_briefing=false even if dates supplied", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: { ...FULL_PROFILE, firm_slug: null },
+      firm: FIRM_UNPROVISIONED,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
@@ -228,6 +315,7 @@ describe("renderPortal — visual rules", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: FULL_PROFILE,
+      firm: FIRM_BARCLAYS_ADMIN_SET,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
@@ -237,14 +325,9 @@ describe("renderPortal — visual rules", () => {
     expect(html).toContain("CJI Sonar");
     expect(html).toContain("CJI Pulse");
     expect(html).toContain("CJI Lever");
-    // Reckoner: open
     expect(html).toContain('href="/reckoner"');
-    // Sonar: "You're here" — string is hardcoded in the view, not user-supplied,
-    // so it's emitted as-is (no escapeHtml call).
     expect(html).toContain("You're here");
-    // Pulse: prospect mailto
     expect(html).toContain("mailto:hello@cjipro.com?subject=CJI%20Pulse%20design%20partner");
-    // Lever: prospect mailto
     expect(html).toContain("mailto:hello@cjipro.com?subject=CJI%20Lever%20enquiry");
   });
 
@@ -252,6 +335,7 @@ describe("renderPortal — visual rules", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: null,
+      firm: FIRM_UNPROVISIONED,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
@@ -266,6 +350,7 @@ describe("renderPortal — visual rules", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: { ...FULL_PROFILE, last_confirmed_at: "2026-04-25T12:00:00.000Z" },
+      firm: FIRM_BARCLAYS_ADMIN_SET,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
@@ -275,7 +360,7 @@ describe("renderPortal — visual rules", () => {
     expect(html).toContain("Details last confirmed");
   });
 
-  test("XSS — email + firm_name escaped, display_name first-name escaped", () => {
+  test("XSS — email, firm.display_name, display_name escaped", () => {
     const html = renderPortal({
       identity: { sub: "u_alpha", email: "<script>alert(1)</script>@example.com" },
       profile: {
@@ -284,6 +369,7 @@ describe("renderPortal — visual rules", () => {
         firm_slug: "x",
         firm_name: '<img onerror="x">',
       },
+      firm: { ...FIRM_BARCLAYS_ADMIN_SET, display_name: '<img onerror="x">' },
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
@@ -298,12 +384,58 @@ describe("renderPortal — visual rules", () => {
     const html = renderPortal({
       identity: IDENTITY,
       profile: null,
+      firm: FIRM_UNPROVISIONED,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
       recentDates: [],
     });
     expect(html).toContain('name="robots" content="noindex,nofollow"');
+  });
+});
+
+describe("resolveFirm", () => {
+  test("admin-set wins over everything else", () => {
+    const profile = { ...FULL_PROFILE };
+    const r = resolveFirm(profile, "anything@barclays.com", true);
+    expect(r.kind).toBe("admin-set");
+    expect(r.slug).toBe("barclays");
+    expect(r.is_internal).toBe(false);
+  });
+  test("admin flag → admin-internal with default subject", () => {
+    const r = resolveFirm(null, "hussain.marketing@gmail.com", true);
+    expect(r.kind).toBe("admin-internal");
+    expect(r.is_internal).toBe(true);
+    expect(r.display_name).toBe("CJI");
+    expect(r.slug).toBe("barclays"); // default subject
+    expect(r.has_briefing).toBe(true);
+  });
+  test("known partner email domain → domain-inferred", () => {
+    const r = resolveFirm(null, "real.partner@barclays.com", false);
+    expect(r.kind).toBe("domain-inferred");
+    expect(r.slug).toBe("barclays");
+    expect(r.display_name).toBe("Barclays");
+    expect(r.has_briefing).toBe(true);
+  });
+  test("co.uk variant of barclays domain also inferred", () => {
+    const r = resolveFirm(null, "x@barclays.co.uk", false);
+    expect(r.kind).toBe("domain-inferred");
+    expect(r.slug).toBe("barclays");
+  });
+  test("unknown email domain + non-admin → unprovisioned", () => {
+    const r = resolveFirm(null, "stranger@randomdomain.com", false);
+    expect(r.kind).toBe("unprovisioned");
+    expect(r.slug).toBeNull();
+    expect(r.has_briefing).toBe(false);
+  });
+  test("profile with empty firm_slug falls through to next signal", () => {
+    const profile = { ...FULL_PROFILE, firm_slug: null, firm_name: null };
+    const r = resolveFirm(profile, "real.partner@barclays.com", false);
+    expect(r.kind).toBe("domain-inferred");
+  });
+  test("malformed email (no @) → unprovisioned for non-admin", () => {
+    const r = resolveFirm(null, "notanemail", false);
+    expect(r.kind).toBe("unprovisioned");
   });
 });
 
@@ -394,6 +526,54 @@ describe("handleGetPortal", () => {
     const res = await handleGetPortal(IDENTITY, envFor(db), null, NOW);
     const body = await res.text();
     expect(body).not.toContain('href="/sonar/');
+  });
+
+  test("admin email → CJI welcome + Internal badge + functional briefing hero", async () => {
+    const db = new FakeD1();
+    db.admins.push("hussain.marketing@gmail.com");
+    // No partner_profiles row — admin auto-resolves to CJI without one.
+    const res = await handleGetPortal(
+      { sub: "u_admin", email: "hussain.marketing@gmail.com" },
+      envFor(db),
+      null,
+      NOW,
+    );
+    const body = await res.text();
+    expect(body).toContain("Welcome back, Hussain.");
+    expect(body).toContain("CJI");
+    expect(body).toContain("Internal");
+    expect(body).toContain("Today's Sonar briefing — Barclays");
+    expect(body).toContain('href="/sonar/barclays/"');
+  });
+
+  test("@barclays.com email (non-admin, no profile) → domain-inferred Barclays", async () => {
+    const db = new FakeD1();
+    const res = await handleGetPortal(
+      { sub: "u_p", email: "real.partner@barclays.com" },
+      envFor(db),
+      null,
+      NOW,
+    );
+    const body = await res.text();
+    expect(body).toContain("Welcome back, Real.");
+    expect(body).toMatch(/Barclays<\/span>\s*workspace/);
+    expect(body).not.toContain("Internal");
+    expect(body).toContain('href="/sonar/barclays/"');
+  });
+
+  test("admin-set firm overrides domain inference", async () => {
+    const db = new FakeD1();
+    seedProfile(db, { firm_slug: "barclays", firm_name: "Barclays" });
+    // Email domain is unrelated, but admin-set firm wins.
+    const res = await handleGetPortal(
+      { sub: "u_alpha", email: "alpha@example.com" },
+      envFor(db),
+      null,
+      NOW,
+    );
+    const body = await res.text();
+    expect(body).toMatch(/Barclays<\/span>\s*workspace/);
+    expect(body).toContain('href="/sonar/barclays/"');
   });
 });
 

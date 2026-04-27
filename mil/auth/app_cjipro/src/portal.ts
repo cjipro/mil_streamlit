@@ -22,6 +22,8 @@ import {
   type PartnerProfile,
 } from "../../approvals/src/partner_profiles";
 import { lookupSessionEmail } from "../../approvals/src/sessions";
+import { isAdmin } from "../../approvals/src/admin";
+import { resolveFirm, type ResolvedFirm } from "./firm_resolution";
 
 export interface PortalIdentity {
   sub: string;
@@ -36,6 +38,7 @@ export interface RecentDate {
 export interface PortalRenderOptions {
   identity: PortalIdentity;
   profile: PartnerProfile | null;
+  firm: ResolvedFirm;
   lastActiveAt: string | null;
   lastActiveCountry: string | null;
   promptReaffirmation: boolean;
@@ -73,6 +76,11 @@ const CSS = `
 
   .welcome { font-family: var(--serif); font-size: 1.85rem; font-weight: 600;
     color: var(--ink); margin: 0 0 0.4rem 0; line-height: 1.25; }
+  .welcome-firm { color: var(--accent); }
+  .role-badge { display: inline-block; margin-left: 0.6rem; padding: 0.15rem 0.55rem;
+    font-family: var(--mono); font-size: 0.65rem; text-transform: uppercase;
+    letter-spacing: 0.1em; border: 1px solid var(--accent); color: var(--accent);
+    background: var(--paper); border-radius: 2px; vertical-align: middle; }
 
   .identity { margin-top: 0.25rem; padding: 1.1rem 1.4rem;
     border: 1px solid var(--hairline); background: var(--cream); }
@@ -154,9 +162,7 @@ const CSS = `
 `;
 
 export function renderPortal(opts: PortalRenderOptions): string {
-  const { identity, profile, lastActiveAt, lastActiveCountry, promptReaffirmation, recentDates } = opts;
-  const firmSlug = profile?.firm_slug ?? null;
-  const firmName = profile?.firm_name ?? "Setting up your account";
+  const { identity, profile, firm, lastActiveAt, lastActiveCountry, promptReaffirmation, recentDates } = opts;
   const first = firstName(profile, identity.email);
 
   return `<!DOCTYPE html>
@@ -177,36 +183,55 @@ export function renderPortal(opts: PortalRenderOptions): string {
 </header>
 <main>
 
-  <h1 class="welcome">Welcome back, ${escapeHtml(first)}.</h1>
+  ${renderWelcome(first, firm)}
 
   <section class="identity">
     <p class="identity-line">Signed in as <strong>${escapeHtml(identity.email)}</strong></p>
-    <p class="identity-firm">${escapeHtml(firmName)}</p>
+    <p class="identity-firm">${escapeHtml(firm.display_name)}</p>
     ${renderLastSignIn(lastActiveAt, lastActiveCountry)}
     <p class="identity-mismatch">
       Not you? <a href="https://login.cjipro.com/logout">Sign out</a> and sign back in.
     </p>
   </section>
 
-  ${renderBriefingHero(firmSlug, firmName)}
+  ${renderBriefingHero(firm)}
 
-  ${renderRecentStrip(recentDates, firmSlug)}
+  ${renderRecentStrip(recentDates, firm)}
 
   ${promptReaffirmation
     ? renderConfirmBlock(profile)
     : renderLastConfirmedLine(profile?.last_confirmed_at ?? null)}
 
-  ${renderProductFamily(firmSlug)}
+  ${renderProductFamily(firm)}
 
 </main>
 </body>
 </html>`;
 }
 
+function renderWelcome(first: string, firm: ResolvedFirm): string {
+  // For partners with a real firm context: "Welcome back, Alpha. Barclays workspace."
+  // For admin/internal: "Welcome back, Hussain. CJI [INTERNAL]"
+  // For unprovisioned: "Welcome back, Alpha." (no firm clause — there's nothing
+  // honest to say until the admin sets one)
+  const firstSafe = escapeHtml(first);
+  if (firm.kind === "unprovisioned") {
+    return `<h1 class="welcome">Welcome back, ${firstSafe}.</h1>`;
+  }
+  const firmSafe = escapeHtml(firm.display_name);
+  const badge = firm.is_internal
+    ? `<span class="role-badge">Internal</span>`
+    : "";
+  const firmClause = firm.is_internal
+    ? `<span class="welcome-firm">${firmSafe}</span>${badge}`
+    : `<span class="welcome-firm">${firmSafe}</span> workspace`;
+  return `<h1 class="welcome">Welcome back, ${firstSafe}. ${firmClause}.</h1>`;
+}
+
 // ── Sections ─────────────────────────────────────────────────────────
 
-function renderBriefingHero(firmSlug: string | null, firmName: string): string {
-  if (!firmSlug) {
+function renderBriefingHero(firm: ResolvedFirm): string {
+  if (!firm.has_briefing || !firm.slug) {
     return `<section class="briefing-hero" aria-disabled="true">
       <p class="briefing-eyebrow">Today's briefing</p>
       <h2 class="briefing-title">Your briefing will appear here once your firm is provisioned.</h2>
@@ -220,37 +245,60 @@ function renderBriefingHero(firmSlug: string | null, firmName: string): string {
   // MIL-145 sibling will replace mailto: with token-based share links and
   // forward-detection audit-tagging. Until then, mailto: is the affordance —
   // partner copies the link into Outlook / Gmail and forwards manually.
-  const briefingUrl = `https://app.cjipro.com/sonar/${escapeAttr(firmSlug)}/`;
-  const shareSubject = encodeURIComponent(`Today's CJI Sonar briefing — ${firmName}`);
+  // Internal admins get the same hero pointed at the default subject — the
+  // briefing-title names the subject explicitly so it doesn't read as
+  // "your" briefing for the CJI team.
+  const subjectLabel = firm.is_internal
+    ? `${firm.display_name === "CJI" ? "Today's Sonar briefing" : firm.display_name}`
+    : `Today's Sonar briefing for ${firm.display_name}`;
+  const heroTitle = firm.is_internal
+    ? `Today's Sonar briefing — ${escapeHtml(slugDisplayFor(firm))}`
+    : `Today's Sonar briefing for ${escapeHtml(firm.display_name)}`;
+  const briefingUrl = `https://app.cjipro.com/sonar/${escapeAttr(firm.slug)}/`;
+  const shareSubject = encodeURIComponent(`Today's CJI Sonar briefing — ${subjectLabel}`);
   const shareBody = encodeURIComponent(`Today's briefing:\n${briefingUrl}\n\n— shared via CJI Sonar`);
   const mailto = `mailto:?subject=${shareSubject}&body=${shareBody}`;
   return `<section class="briefing-hero">
     <p class="briefing-eyebrow">Today's briefing</p>
-    <h2 class="briefing-title">Today's Sonar briefing for ${escapeHtml(firmName)}</h2>
+    <h2 class="briefing-title">${heroTitle}</h2>
     <div class="briefing-actions">
-      <a class="btn-primary" href="/sonar/${escapeAttr(firmSlug)}/">Open</a>
+      <a class="btn-primary" href="/sonar/${escapeAttr(firm.slug)}/">Open</a>
       <a class="btn-secondary" href="${mailto}">Share with team</a>
       <a class="btn-secondary" href="${mailto}">Forward by email</a>
     </div>
   </section>`;
 }
 
-function renderRecentStrip(dates: RecentDate[], firmSlug: string | null): string {
-  if (!firmSlug || dates.length === 0) return "";
+// For admin-internal: surface the actual subject's display name in the
+// hero title, since "CJI workspace" is the partner-context label but the
+// briefing itself is FOR a specific subject (today: Barclays). Maps the
+// slug back to its known display.
+function slugDisplayFor(firm: ResolvedFirm): string {
+  if (firm.slug === "barclays") return "Barclays";
+  if (firm.slug === "natwest") return "NatWest";
+  if (firm.slug === "lloyds") return "Lloyds";
+  if (firm.slug === "hsbc") return "HSBC";
+  if (firm.slug === "monzo") return "Monzo";
+  if (firm.slug === "revolut") return "Revolut";
+  return firm.slug ?? "";
+}
+
+function renderRecentStrip(dates: RecentDate[], firm: ResolvedFirm): string {
+  if (!firm.slug || !firm.has_briefing || dates.length === 0) return "";
   const links = dates
     .map(
       (d) =>
-        `<a href="/sonar/${escapeAttr(firmSlug)}/${escapeAttr(d.iso)}/">${escapeHtml(d.label)}</a>`,
+        `<a href="/sonar/${escapeAttr(firm.slug!)}/${escapeAttr(d.iso)}/">${escapeHtml(d.label)}</a>`,
     )
     .join("");
   return `<p class="recent">
     <span class="recent-label">Recent</span>
     ${links}
-    <a class="recent-all" href="/sonar/${escapeAttr(firmSlug)}/">All briefings →</a>
+    <a class="recent-all" href="/sonar/${escapeAttr(firm.slug)}/">All briefings →</a>
   </p>`;
 }
 
-function renderProductFamily(firmSlug: string | null): string {
+function renderProductFamily(firm: ResolvedFirm): string {
   // Alpha entitlements: Reckoner + Sonar always; Pulse + Lever as prospects.
   // Sonar shows "(you are here)" since the briefing hero is the dominant
   // motion above. Reckoner is "Open" not "Start free trial" — alpha cohort
@@ -266,8 +314,8 @@ function renderProductFamily(firmSlug: string | null): string {
       <div class="product-name">CJI Sonar</div>
       <div class="product-tagline">Daily firm briefing</div>
       ${
-        firmSlug
-          ? `<a class="product-cta here" href="/sonar/${escapeAttr(firmSlug)}/">You're here</a>`
+        firm.slug && firm.has_briefing
+          ? `<a class="product-cta here" href="/sonar/${escapeAttr(firm.slug)}/">You're here</a>`
           : `<span class="product-cta here">You're here</span>`
       }
     </div>
@@ -404,11 +452,14 @@ export async function handleGetPortal(
   now: Date = new Date(),
 ): Promise<Response> {
   const profile = await getProfile(env.AUDIT_DB, identity.sub);
+  const adminFlag = await isAdmin(env.AUDIT_DB, identity.email);
+  const firm = resolveFirm(profile, identity.email, adminFlag);
   const promptReaffirmation = needsReaffirmation(profile, now);
-  const recentDates = profile?.firm_slug ? buildRecentDates(now, 3) : [];
+  const recentDates = firm.has_briefing ? buildRecentDates(now, 3) : [];
   const html = renderPortal({
     identity,
     profile,
+    firm,
     lastActiveAt,
     lastActiveCountry: null,
     promptReaffirmation,
