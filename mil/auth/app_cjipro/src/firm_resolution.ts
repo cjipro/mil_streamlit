@@ -18,6 +18,7 @@
 
 import type { PartnerProfile } from "../../approvals/src/partner_profiles";
 import { PARTNER_DOMAIN_TO_SLUG } from "./partner_domains.generated";
+import { SUBJECTS } from "./subjects.generated";
 
 export type FirmResolutionKind =
   | "admin-set"
@@ -38,18 +39,46 @@ export interface ResolvedFirm {
 // domains, edit clients.yaml — the npm predeploy hook regenerates the
 // TS artefact before upload. Keys are lowercase, no leading "@".
 
-// Default subject for admin-internal users. The only "subject" status
-// client today (clients.yaml) is barclays — admin gets the same default
-// briefing surface as the Barclays partner cohort, with an "Internal"
-// badge to make role visible. When more subjects come online, this
-// becomes a picker.
-const ADMIN_DEFAULT_SUBJECT_SLUG = "barclays";
+// MIL-156 — default subject for admin-internal users is the FIRST
+// `status: subject` entry in clients.yaml (today: barclays). With one
+// subject, this is the only thing rendered. With >= 2 subjects + a
+// valid `__Host-cji_admin_subject` cookie, the cookie value overrides.
+// Falls back to first-subject if SUBJECTS is somehow empty (defensive —
+// the loader rejects an empty subjects list at load time, but Workers
+// shouldn't crash on a misgenerated artefact).
+const ADMIN_DEFAULT_SUBJECT_SLUG: string = SUBJECTS[0]?.slug ?? "barclays";
 const ADMIN_FIRM_DISPLAY = "CJI";
+
+/**
+ * MIL-156 — given the admin's selected-subject cookie value (or null /
+ * undefined), return the slug + display the admin-internal portal should
+ * route to. Cookie wins ONLY if it matches a current SUBJECTS entry —
+ * stale or tampered cookies fall back to the default. Returns the picker
+ * source-of-truth tuple so portal.ts can also light up the right radio.
+ */
+export function resolveAdminSubject(
+  cookieValue: string | null | undefined,
+): { slug: string; display: string } {
+  if (cookieValue) {
+    const hit = SUBJECTS.find((s) => s.slug === cookieValue);
+    if (hit) return { slug: hit.slug, display: hit.display };
+  }
+  // First subject in YAML order is the default. SUBJECTS is non-empty in
+  // production; the ?? guard is defensive against a misgenerated artefact.
+  const first = SUBJECTS[0];
+  return first
+    ? { slug: first.slug, display: first.display }
+    : { slug: ADMIN_DEFAULT_SUBJECT_SLUG, display: "Barclays" };
+}
 
 export function resolveFirm(
   profile: PartnerProfile | null,
   email: string,
   isAdmin: boolean,
+  // MIL-156 — admin-side subject cookie (`__Host-cji_admin_subject`).
+  // Only consulted on the admin-internal branch. Default falls back to
+  // SUBJECTS[0] — barclays today — when cookie is absent or invalid.
+  adminSubjectCookie: string | null = null,
 ): ResolvedFirm {
   // 1. Admin-set firm always wins (most specific).
   if (profile?.firm_slug && profile?.firm_name) {
@@ -65,10 +94,12 @@ export function resolveFirm(
   // 2. Admin / CJI-internal user. Display "CJI" but route briefing-hero
   //    Open button to the default subject so the surface is still
   //    functional (otherwise admins land on the same dead surface as
-  //    unprovisioned partners).
+  //    unprovisioned partners). MIL-156 — cookie value picks among
+  //    multiple subjects when they exist; falls back to first.
   if (isAdmin) {
+    const picked = resolveAdminSubject(adminSubjectCookie);
     return {
-      slug: ADMIN_DEFAULT_SUBJECT_SLUG,
+      slug: picked.slug,
       display_name: ADMIN_FIRM_DISPLAY,
       kind: "admin-internal",
       is_internal: true,

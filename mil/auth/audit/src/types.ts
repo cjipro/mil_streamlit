@@ -69,7 +69,11 @@ export type AuthEventType =
   // fires from POST /portal/confirm; admin.partner_firm_set fires
   // when an admin attaches firm_slug + firm_name to a sub.
   | "portal.details_confirmed"
-  | "admin.partner_firm_set";
+  | "admin.partner_firm_set"
+  // MIL-156 — admin picker on /portal. Fires on every cookie write
+  // (initial set + every change). reason carries the previous slug
+  // (or "(default)" on first set), detail carries the new slug.
+  | "portal.admin_subject_switched";
 
 // Input passed to logAuthEvent. The lib is responsible for turning
 // the raw `ip` / `user_agent` / `session_sub` into salted hashes

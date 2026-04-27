@@ -32,7 +32,12 @@ import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
 import { isApproved } from "../../approvals/src/approvals";
 import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
 import { dispatch } from "./router";
-import { handleGetPortal, handlePostConfirm } from "./portal";
+import {
+  handleGetPortal,
+  handlePostConfirm,
+  handleAdminSubjectSwitch,
+  ADMIN_SUBJECT_COOKIE_NAME,
+} from "./portal";
 import {
   FONTS_BLOCK,
   FONT_STACK_SANS,
@@ -244,6 +249,26 @@ async function readLastActiveAt(
   }
 }
 
+// MIL-156 — read the admin-subject cookie. Validates only the slug shape
+// (no characters that would break a Set-Cookie roundtrip); validation
+// against SUBJECTS happens in handleAdminSubjectSwitch / firm_resolution.
+function readAdminSubjectCookie(request: Request): string | null {
+  const header = request.headers.get("cookie");
+  if (!header) return null;
+  for (const part of header.split(";")) {
+    const eq = part.indexOf("=");
+    if (eq < 0) continue;
+    const name = part.slice(0, eq).trim();
+    if (name !== ADMIN_SUBJECT_COOKIE_NAME) continue;
+    const raw = part.slice(eq + 1).trim();
+    // Slugs are lowercase alphanumeric/hyphen (per clients.yaml validation).
+    // Anything else is suspect — drop the cookie rather than echo it back.
+    if (!/^[a-z0-9-]+$/.test(raw)) return null;
+    return raw;
+  }
+  return null;
+}
+
 function logDecision(
   request: Request,
   decision: Decision,
@@ -340,6 +365,45 @@ export default {
       decision.email &&
       env.AUDIT_DB;
     if (portalAuthed && (url.pathname === "/portal" || url.pathname === "/portal/")) {
+      // MIL-156 — read the admin subject cookie for both branches: the
+      // switch path uses it as old-slug for the audit event, and the
+      // render path passes it through to firm_resolution.
+      const adminSubjectCookie = readAdminSubjectCookie(request);
+
+      // MIL-156 picker-switch path. /portal?subject=<slug> sets the
+      // cookie + 303s back to /portal so the URL stays clean. Audit-log
+      // the switch — old slug from current cookie, new slug from result.
+      const requestedSubject = url.searchParams.get("subject");
+      if (requestedSubject !== null) {
+        const switchResult = handleAdminSubjectSwitch(requestedSubject, adminSubjectCookie);
+        if (env.AUDIT_DB) {
+          const db = env.AUDIT_DB;
+          ctx.waitUntil(
+            logAuthEvent(db, {
+              worker: "app-cjipro",
+              event_type: "portal.admin_subject_switched",
+              method: "GET",
+              host: url.host,
+              path: url.pathname,
+              session_sub: decision.sub,
+              ip: request.headers.get("cf-connecting-ip") ?? undefined,
+              user_agent: request.headers.get("user-agent") ?? undefined,
+              reason: switchResult.oldSlug ?? "(default)",
+              detail: switchResult.newSlug,
+            }).catch((err) => {
+              console.log(
+                JSON.stringify({
+                  ts: new Date().toISOString(),
+                  worker: "app-cjipro",
+                  picker_audit_error: err instanceof Error ? err.message : String(err),
+                }),
+              );
+            }),
+          );
+        }
+        return switchResult.response;
+      }
+
       // Read sessions.last_active_at BEFORE recordActivity bumps it
       // to NOW for this request. The portal shows "Last seen Xmin
       // ago" — so we want the previous request's timestamp, not the
@@ -352,6 +416,8 @@ export default {
         { sub: decision.sub!, email: decision.email! },
         { AUDIT_DB: env.AUDIT_DB! },
         lastActiveAt,
+        new Date(),
+        adminSubjectCookie,
       );
     }
     if (

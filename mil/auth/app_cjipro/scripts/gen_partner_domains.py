@@ -1,13 +1,18 @@
-"""gen_partner_domains.py — emit partner_domains.generated.ts from clients.yaml.
+"""gen_partner_domains.py — emit TS artefacts from clients.yaml.
 
-MIL-155. Source of truth for partner email-domain → client_slug mapping is
-mil/config/clients.yaml. The Worker can't read YAML at runtime (no Node fs
-in CF Workers), so we generate a TypeScript artefact at deploy time.
+MIL-155 — partner_domains.generated.ts (email-domain → slug map for
+firm-resolution).
+MIL-156 — subjects.generated.ts (ordered list of `status: subject` clients,
+powers the multi-subject admin picker on /portal).
 
-The generated file is gitignored — the predeploy/pretest hook regenerates
-it before each upload, eliminating the drift class entirely.
+The Worker can't read YAML at runtime (no Node fs in CF Workers), so both
+artefacts ship as TS modules generated at deploy time. Both are gitignored;
+the npm predeploy/pretest hook regenerates before every upload + every test
+run, so source-of-truth (clients.yaml) and runtime are never out of sync.
 
-Output: mil/auth/app_cjipro/src/partner_domains.generated.ts
+Outputs:
+    mil/auth/app_cjipro/src/partner_domains.generated.ts  (MIL-155)
+    mil/auth/app_cjipro/src/subjects.generated.ts         (MIL-156)
 """
 from __future__ import annotations
 
@@ -19,11 +24,12 @@ APP_CJIPRO = HERE.parent
 REPO = APP_CJIPRO.parent.parent.parent
 sys.path.insert(0, str(REPO))
 
-from mil.config.clients_loader import domain_to_slug  # noqa: E402
+from mil.config.clients_loader import domain_to_slug, subjects  # noqa: E402
 
-OUTPUT = APP_CJIPRO / "src" / "partner_domains.generated.ts"
+DOMAINS_OUTPUT = APP_CJIPRO / "src" / "partner_domains.generated.ts"
+SUBJECTS_OUTPUT = APP_CJIPRO / "src" / "subjects.generated.ts"
 
-HEADER = """\
+DOMAINS_HEADER = """\
 // AUTO-GENERATED from mil/config/clients.yaml. DO NOT EDIT.
 // Regenerate via: py mil/auth/app_cjipro/scripts/gen_partner_domains.py
 //
@@ -40,7 +46,28 @@ export interface PartnerDomainEntry {
 export const PARTNER_DOMAIN_TO_SLUG: Record<string, PartnerDomainEntry> = {
 """
 
-FOOTER = "};\n"
+DOMAINS_FOOTER = "};\n"
+
+SUBJECTS_HEADER = """\
+// AUTO-GENERATED from mil/config/clients.yaml. DO NOT EDIT.
+// Regenerate via: py mil/auth/app_cjipro/scripts/gen_partner_domains.py
+//
+// MIL-156 — ordered list of `status: subject` entries from clients.yaml.
+// Powers the multi-subject admin picker on /portal: when SUBJECTS.length
+// is 1, the picker stays hidden and the single subject is the implicit
+// default. When >= 2, admins see a radio strip and can switch via a
+// session-scoped cookie (see portal.ts for picker rendering + cookie
+// handling).
+
+export interface SubjectEntry {
+  slug: string;
+  display: string;
+}
+
+export const SUBJECTS: ReadonlyArray<SubjectEntry> = [
+"""
+
+SUBJECTS_FOOTER = "];\n"
 
 
 def _ts_string(s: str) -> str:
@@ -49,12 +76,12 @@ def _ts_string(s: str) -> str:
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def render() -> str:
+def render_domains() -> str:
     mapping = domain_to_slug()
     if not mapping:
         # Empty mapping is valid — no partners with email_domains set yet.
         # Emit an empty record so the import still resolves.
-        return HEADER + FOOTER
+        return DOMAINS_HEADER + DOMAINS_FOOTER
     # Sort for stable output — diffs only fire on real changes.
     rows: list[str] = []
     width = max(len(_ts_string(d)) for d in mapping)
@@ -64,15 +91,33 @@ def render() -> str:
         slug = _ts_string(entry["slug"])
         display = _ts_string(entry["display_name"])
         rows.append(f"  {key}: {{ slug: {slug}, display: {display} }},\n")
-    return HEADER + "".join(rows) + FOOTER
+    return DOMAINS_HEADER + "".join(rows) + DOMAINS_FOOTER
+
+
+def render_subjects() -> str:
+    """Emit SUBJECTS in clients.yaml declaration order.
+
+    Order matters for picker rendering AND for the default-when-no-cookie
+    fallback (the first entry wins). `subjects()` returns clients in
+    YAML order, so the emitted array preserves it.
+    """
+    rows: list[str] = []
+    for c in subjects():
+        slug = _ts_string(c.client_slug)
+        display = _ts_string(c.display_name)
+        rows.append(f"  {{ slug: {slug}, display: {display} }},\n")
+    return SUBJECTS_HEADER + "".join(rows) + SUBJECTS_FOOTER
 
 
 def main() -> int:
-    content = render()
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    # LF line endings — matches mil/publish/adapters.py write_text_lf rule.
-    OUTPUT.write_bytes(content.encode("utf-8"))
-    print(f"wrote {OUTPUT.relative_to(REPO)} ({len(content)} bytes)")
+    DOMAINS_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    domains_content = render_domains()
+    DOMAINS_OUTPUT.write_bytes(domains_content.encode("utf-8"))
+    print(f"wrote {DOMAINS_OUTPUT.relative_to(REPO)} ({len(domains_content)} bytes)")
+
+    subjects_content = render_subjects()
+    SUBJECTS_OUTPUT.write_bytes(subjects_content.encode("utf-8"))
+    print(f"wrote {SUBJECTS_OUTPUT.relative_to(REPO)} ({len(subjects_content)} bytes)")
     return 0
 
 

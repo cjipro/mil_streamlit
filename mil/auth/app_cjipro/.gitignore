@@ -9,3 +9,7 @@ dist/
 # scripts/gen_partner_domains.py via predeploy/pretest hook. Never commit:
 # the YAML is source of truth, regeneration eliminates drift.
 src/partner_domains.generated.ts
+
+# MIL-156 — same generator, separate output (ordered subjects list for
+# the multi-subject admin picker on /portal).
+src/subjects.generated.ts

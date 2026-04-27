@@ -24,6 +24,7 @@ import {
 import { lookupSessionEmail } from "../../approvals/src/sessions";
 import { isAdmin } from "../../approvals/src/admin";
 import { resolveFirm, type ResolvedFirm } from "./firm_resolution";
+import { SUBJECTS } from "./subjects.generated";
 import { FONTS_BLOCK } from "../../fonts_block/src/fonts_block.generated";
 
 export interface PortalIdentity {
@@ -44,6 +45,11 @@ export interface PortalRenderOptions {
   lastActiveCountry: string | null;
   promptReaffirmation: boolean;
   recentDates: RecentDate[]; // empty when firm not provisioned
+  // MIL-156 — admin-internal users only. Currently-selected subject slug
+  // (from the `__Host-cji_admin_subject` cookie via firm_resolution).
+  // Used to highlight the right radio when the picker renders.
+  // Partners ignore this; passing it has no effect on their render.
+  adminSubjectChoice?: string;
 }
 
 const CSS = `
@@ -160,6 +166,21 @@ const CSS = `
     .product-row .product-cta { justify-self: start; margin-top: 0.4rem; }
     .briefing-actions { flex-direction: column; align-items: stretch; }
   }
+
+  /* MIL-156 — admin subject picker. Hidden by default (no rule needed —
+     renderAdminPicker emits empty string when SUBJECTS.length < 2). */
+  .admin-picker { margin: 0 0 1.25rem 0; padding: 0.85rem 1rem;
+    border: 1px solid var(--hairline); background: var(--cream); border-radius: 4px; }
+  .picker-eyebrow { font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 0.5rem 0; }
+  .picker-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .subject-pick { font-family: var(--sans); font-size: 0.88rem;
+    padding: 0.35rem 0.7rem; border: 1px solid var(--hairline); border-radius: 3px;
+    color: var(--ink-soft); background: var(--paper); text-decoration: none;
+    border-bottom: 1px solid var(--hairline); }
+  .subject-pick:hover { border-color: var(--accent); color: var(--accent); }
+  .subject-pick-on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .subject-pick-on:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
 `;
 
 export function renderPortal(opts: PortalRenderOptions): string {
@@ -195,6 +216,8 @@ ${FONTS_BLOCK}
       Not you? <a href="https://login.cjipro.com/logout">Sign out</a> and sign back in.
     </p>
   </section>
+
+  ${renderAdminPicker(firm, opts.adminSubjectChoice)}
 
   ${renderBriefingHero(firm)}
 
@@ -273,16 +296,37 @@ function renderBriefingHero(firm: ResolvedFirm): string {
 
 // For admin-internal: surface the actual subject's display name in the
 // hero title, since "CJI workspace" is the partner-context label but the
-// briefing itself is FOR a specific subject (today: Barclays). Maps the
-// slug back to its known display.
+// briefing itself is FOR a specific subject. MIL-156 — refactored from
+// a hardcoded if-chain to a SUBJECTS-driven lookup so the picker and the
+// hero title always agree on display names.
 function slugDisplayFor(firm: ResolvedFirm): string {
-  if (firm.slug === "barclays") return "Barclays";
-  if (firm.slug === "natwest") return "NatWest";
-  if (firm.slug === "lloyds") return "Lloyds";
-  if (firm.slug === "hsbc") return "HSBC";
-  if (firm.slug === "monzo") return "Monzo";
-  if (firm.slug === "revolut") return "Revolut";
-  return firm.slug ?? "";
+  if (!firm.slug) return "";
+  const hit = SUBJECTS.find((s) => s.slug === firm.slug);
+  return hit?.display ?? firm.slug;
+}
+
+// MIL-156 — multi-subject admin picker.
+//
+// Hidden when SUBJECTS.length === 1 (the default-and-only-subject case
+// today, barclays). Visible only on the admin-internal branch — partners
+// have a fixed firm and never see this strip even when multiple subjects
+// exist. Each option is a plain GET link to /portal?subject=<slug>; the
+// handler in index.ts validates, sets the `__Host-cji_admin_subject`
+// cookie, and 303s back to /portal so the URL stays clean.
+function renderAdminPicker(firm: ResolvedFirm, currentSubject?: string): string {
+  if (firm.kind !== "admin-internal") return "";
+  if (SUBJECTS.length < 2) return "";
+  const selected = currentSubject ?? firm.slug ?? SUBJECTS[0]!.slug;
+  const options = SUBJECTS.map((s) => {
+    const isOn = s.slug === selected;
+    const cls = isOn ? "subject-pick subject-pick-on" : "subject-pick";
+    const ariaCurrent = isOn ? ' aria-current="true"' : "";
+    return `<a class="${cls}" href="/portal?subject=${escapeAttr(s.slug)}"${ariaCurrent}>${escapeHtml(s.display)}</a>`;
+  }).join("");
+  return `<section class="admin-picker" aria-label="Subject picker (admin)">
+    <p class="picker-eyebrow">Viewing as CJI Internal — subject:</p>
+    <div class="picker-row" role="group">${options}</div>
+  </section>`;
 }
 
 function renderRecentStrip(dates: RecentDate[], firm: ResolvedFirm): string {
@@ -447,15 +491,85 @@ export interface PortalEnv {
   AUDIT_DB: D1Database;
 }
 
+// MIL-156 — picker-switch handler.
+//
+// Called from index.ts when the request URL is `/portal?subject=<slug>`.
+// Validates the slug against SUBJECTS, sets the `__Host-cji_admin_subject`
+// cookie if valid (or clears it if the slug is unknown), and 303s back to
+// /portal so the URL stays clean. Caller is responsible for emitting the
+// `portal.admin_subject_switched` audit event with the old + new slugs —
+// this function returns the (oldSlug, newSlug) tuple so the audit step
+// can be done outside, where the env binding is available.
+export interface AdminSubjectSwitchResult {
+  response: Response;
+  oldSlug: string | null;
+  newSlug: string;
+}
+
+export const ADMIN_SUBJECT_COOKIE_NAME = "__Host-cji_admin_subject";
+
+export function handleAdminSubjectSwitch(
+  requestedSlug: string | null,
+  currentCookie: string | null,
+): AdminSubjectSwitchResult {
+  const valid = requestedSlug
+    ? SUBJECTS.find((s) => s.slug === requestedSlug)
+    : undefined;
+  // Default fallback (unknown slug) → clear cookie + redirect anyway.
+  const newSlug = valid?.slug ?? SUBJECTS[0]!.slug;
+  const setCookie = valid
+    ? buildAdminSubjectCookie(valid.slug)
+    : clearAdminSubjectCookie();
+  return {
+    response: new Response(null, {
+      status: 303,
+      headers: {
+        location: "/portal",
+        "set-cookie": setCookie,
+        "cache-control": "no-store",
+      },
+    }),
+    oldSlug: currentCookie ?? null,
+    newSlug,
+  };
+}
+
+function buildAdminSubjectCookie(slug: string): string {
+  // __Host- prefix invariants: Path=/, Secure, no Domain. SameSite=Lax
+  // because the picker click is a top-level GET navigation. Max-Age 30d.
+  return [
+    `${ADMIN_SUBJECT_COOKIE_NAME}=${slug}`,
+    "Path=/",
+    "Secure",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=2592000",
+  ].join("; ");
+}
+
+function clearAdminSubjectCookie(): string {
+  return [
+    `${ADMIN_SUBJECT_COOKIE_NAME}=`,
+    "Path=/",
+    "Secure",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=0",
+  ].join("; ");
+}
+
 export async function handleGetPortal(
   identity: PortalIdentity,
   env: PortalEnv,
   lastActiveAt: string | null,
   now: Date = new Date(),
+  // MIL-156 — value of the `__Host-cji_admin_subject` cookie if present.
+  // Only consulted on the admin-internal branch; other firm kinds ignore.
+  adminSubjectCookie: string | null = null,
 ): Promise<Response> {
   const profile = await getProfile(env.AUDIT_DB, identity.sub);
   const adminFlag = await isAdmin(env.AUDIT_DB, identity.email);
-  const firm = resolveFirm(profile, identity.email, adminFlag);
+  const firm = resolveFirm(profile, identity.email, adminFlag, adminSubjectCookie);
   const promptReaffirmation = needsReaffirmation(profile, now);
   const recentDates = firm.has_briefing ? buildRecentDates(now, 3) : [];
   const html = renderPortal({
@@ -466,6 +580,7 @@ export async function handleGetPortal(
     lastActiveCountry: null,
     promptReaffirmation,
     recentDates,
+    adminSubjectChoice: firm.kind === "admin-internal" ? firm.slug ?? undefined : undefined,
   });
   return new Response(html, {
     status: 200,

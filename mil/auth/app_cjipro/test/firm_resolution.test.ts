@@ -8,8 +8,9 @@
 // pick up the new domains automatically — no manual sync.
 
 import { describe, expect, test } from "vitest";
-import { resolveFirm } from "../src/firm_resolution";
+import { resolveAdminSubject, resolveFirm } from "../src/firm_resolution";
 import { PARTNER_DOMAIN_TO_SLUG } from "../src/partner_domains.generated";
+import { SUBJECTS } from "../src/subjects.generated";
 
 interface PartnerProfileRow {
   sub: string;
@@ -93,6 +94,52 @@ describe("resolveFirm", () => {
 
   test("uppercase email domain matches lowercase YAML entry", () => {
     const r = resolveFirm(null, "PARTNER@BARCLAYS.COM", false);
+    expect(r.kind).toBe("domain-inferred");
+    expect(r.slug).toBe("barclays");
+  });
+});
+
+describe("MIL-156 — resolveAdminSubject + cookie-driven admin path", () => {
+  test("null cookie → defaults to first subject in YAML order", () => {
+    const r = resolveAdminSubject(null);
+    expect(r.slug).toBe(SUBJECTS[0]!.slug);
+    expect(r.display).toBe(SUBJECTS[0]!.display);
+  });
+
+  test("undefined cookie → defaults to first subject", () => {
+    const r = resolveAdminSubject(undefined);
+    expect(r.slug).toBe(SUBJECTS[0]!.slug);
+  });
+
+  test("cookie matching a known subject is used", () => {
+    const known = SUBJECTS[0]!.slug;
+    const r = resolveAdminSubject(known);
+    expect(r.slug).toBe(known);
+  });
+
+  test("unknown cookie value → falls back to default (no error)", () => {
+    const r = resolveAdminSubject("totally-not-a-real-slug");
+    expect(r.slug).toBe(SUBJECTS[0]!.slug);
+  });
+
+  test("admin-internal resolveFirm uses the cookie when valid", () => {
+    const r = resolveFirm(null, "h@cji.com", true, SUBJECTS[0]!.slug);
+    expect(r.kind).toBe("admin-internal");
+    expect(r.slug).toBe(SUBJECTS[0]!.slug);
+    expect(r.is_internal).toBe(true);
+  });
+
+  test("admin-internal resolveFirm ignores cookie when invalid (silent fallback)", () => {
+    const r = resolveFirm(null, "h@cji.com", true, "spoofed-slug");
+    expect(r.kind).toBe("admin-internal");
+    // Falls back to first subject — never echoes back attacker-controlled slug.
+    expect(r.slug).toBe(SUBJECTS[0]!.slug);
+  });
+
+  test("partner cohort never reads the admin cookie even if passed", () => {
+    // Domain-inferred for a Barclays email — cookie value should be
+    // ignored, firm stays barclays via domain inference.
+    const r = resolveFirm(null, "p@barclays.com", false, "totally-not-real");
     expect(r.kind).toBe("domain-inferred");
     expect(r.slug).toBe("barclays");
   });
