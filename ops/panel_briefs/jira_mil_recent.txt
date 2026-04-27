@@ -1,0 +1,101 @@
+=== MIL recent 14d: 50 issues ===
+MIL-160    [To Do         ] Build /engineering page on app.cjipro.com — render the MIL-159 panel output
+           desc: ## Why  Sibling to MIL-159 (panel design). Once the panel synthesis lands in `ops/engineering_philosophy_design.md`, render the page on `app.cjipro.com/engineering` so authenticated partners (especial
+MIL-159    [To Do         ] Engineering-philosophy page: convene panel + design content
+           desc: ## Why  Demo to a Head of AI Engineering at a partner firm (likely Barclays). The Sonar briefing surface shows the OUTPUT of the system; the demo audience needs to see the ENGINEERING POSTURE undernea
+MIL-158    [To Do         ] Worker pages on Source Serif 4 + Inter — cross-origin font loading from cjipro.com (MIL-136 follow-up)
+           desc: ## Why  MIL-136 migrated `cjipro.com/*` (the marketing surfaces) to self-hosted Source Serif 4 + Inter. The Worker-rendered pages on `login.cjipro.com` and `app.cjipro.com` were deliberately scoped ou
+MIL-157    [To Do         ] Self-host Plus Jakarta Sans + DM Mono for briefings (MIL-136 follow-up)
+           desc: ## Why  MIL-136 self-hosted Source Serif 4 + Inter for `cjipro.com/*` to neutralise the Google Fonts CDN corp-proxy risk on the marketing surfaces. The Sonar briefings (V1 / V2 / V3 / V4) still load *
+MIL-156    [To Do         ] Multi-subject admin picker on /portal — gated on 2nd "subject" client
+           desc: ## Why  `mil/auth/app_cjipro/src/firm_resolution.ts` admin-internal path hardcodes the default subject:  ```ts const ADMIN_DEFAULT_SUBJECT_SLUG = "barclays"; ```  This is fine TODAY because `mil/confi
+MIL-155    [To Do         ] YAML-driven partner email-domain mapping — replace hardcoded TS const
+           desc: ## Why  `mil/auth/app_cjipro/src/firm_resolution.ts` resolves a partner's firm context from email domain when `partner_profiles.firm_slug` is not yet set (commit `5e51de5`, MIL-144 follow-up). The map
+MIL-154    [To Do         ] Cleanup — remove generic 403 / legacy deny pages after MIL-153 lands
+           desc: ## Why  MIL-153 introduces differentiated access-pending render functions (`renderInQueue`, `renderNotOnAllowlist`) and downgrades the existing `buildDenyResponse()` from primary path to D1-unavailabl
+MIL-153    [To Do         ] Differentiated access-pending states — "in queue" vs "not on any allowlist"
+           desc: ## Why  Today, anyone who authenticates via WorkOS but isn't on `approved_users` hits the same generic "Access pending" 403 page (`buildDenyResponse()` in `mil/auth/edge_bouncer/src/index.ts`). This c
+MIL-152    [To Do         ] partner_profiles D1 table + 90-day re-affirmation logic + audit event
+           desc: ## Why  The `/portal` shim (MIL-151) and the partner workspace landing (MIL-144) both reference partner attributes — `display_name`, `firm_name`, `firm_slug`, `last_confirmed_at` — that don't exist in
+MIL-151    [To Do         ] /portal post-auth landing — thin shim, identity + 90-day re-affirmation + two CTAs
+           desc: ## Why  Post-auth landing today is whatever URL the partner got bounced from. There is no concept of "you're signed in as X at Y, here's what's available". Partners on shared bank machines need to kno
+MIL-150    [To Do         ] Partner sign-in affordance + dedicated /sign-in page (public marketing surface)
+           desc: ## Why  Partners visiting cjipro.com today have no discoverable sign-in path. Sign-in only happens via auto-redirect from a gated route, OR by clicking a magic-link in email. We need a persistent, dis
+MIL-149    [To Do         ] Direct WorkOS Magic Auth on login.cjipro.com — full login chrome on our domain (supersedes MIL-138)
+           desc: ## Status  **PLAN — for build after WorkOS dashboard verification (Q4-A through Q4-G).** Drafted + approved 2026-04-26. Supersedes MIL-138 (whose original scope of "rebrand AuthKit-hosted UI" is moot 
+MIL-148    [To Do         ] Locale + footer scaffolding — templated lang attribute, reserved compliance-notice slot, zero-cost APAC future-proof
+           desc: ## Why  Cheap moves now, prevent rework when MIL-95 successor or APAC partner lands (panel verdict 2026-04-26, 梁宁 + Wang Junyu).  ## Spec  **HTML lang attribute:**  * Replace hardcoded `<html lang="en
+MIL-147    [To Do         ] /request-access pre-fill (email only) + contextual copy — accept all domains, manual triage, flag personal emails
+           desc: ## Why  Forwarded-recipient lands on `/request-access`. Friction kills team adoption. Pre-fill email to close the loop fast (Hussain decision Q4). Hua Li nuance: do NOT pre-fill firm name (enumeration
+MIL-146    [To Do         ] Magic-link forward detection — audit-tag forwarded use, non-blocking, informs UX
+           desc: ## Why  Forwarding is intentional and supported (Q4). But knowing when a magic-link is used by a different recipient than the original is useful telemetry — informs partner-portal UX, helps detect ano
+MIL-145    [To Do         ] Share + Forward affordances on Sonar briefing — modal share link, mailto forward, lands recipient on /request-access
+           desc: ## Why  Forwarding is dominant motion (panel #4). Currently no first-class affordance. Panel verdict 2026-04-26: turn forwarding into a growth feature, not a support problem (Hussain decision Q4).  ##
+MIL-144    [To Do         ] app.cjipro.com/ partner workspace landing — team-shaped, four products visible, share/forward affordances
+           desc: ## Why  Currently no post-auth landing — partner clicks magic-link, lands on raw briefing. Panel verdict 2026-04-26: partner workspace must be team-shaped (forwarding is dominant motion #4) and show f
+MIL-143    [To Do         ] /briefing-v4 smart redirect — warm session → app.cjipro.com/sonar/barclays/, cold → /insights/sample-briefing/
+           desc: ## Why  Current MIL-87 redirect sends every visitor to public sample. Panel verdict 2026-04-26: warm partners with cjipro session evidence should land on real authenticated briefing; only cold visitor
+MIL-142    [To Do         ] Public sample briefing — /insights/sample-briefing/ as standalone surface (not /briefing-v4 redirect target)
+           desc: ## Why  Currently `/briefing-v4` 301s to `/insights/sample-briefing/` (MIL-87). Panel verdict 2026-04-26 reverses this: warm partners with magic-links should land on real briefing, not a bait-and-swit
+MIL-141    [To Do         ] Landing IA refit — IT-reviewer first, single CTA "Request access", masthead "Sign in", drop Reckoner trial CTA from landing
+           desc: ## Why  Current landing serves three visitor classes (alpha partner, IT reviewer, self-serve trial) with one funnel. Failing all three. Panel verdict 2026-04-26: optimise primarily for IT reviewer ("d
+MIL-140    [To Do         ] Visible passkey CTA below magic-link form — answers "where's the second factor"
+           desc: ## Why  Some bank IT teams treat magic-link-alone as below-bar (panel verdict 2026-04-26, Alok Kothari). Visible passkey option signals second factor exists, even if not all partners enable it. Defuse
+MIL-139    [To Do         ] Login form a11y + autofill — paste full magic-link URL, autocomplete one-time-code, WCAG 2.2 AA
+           desc: ## Why  Banking-buyer ergonomics: magic-link arrives in inbox on corp laptop, sometimes phone. Code-input form must accept paste of full URL (extract code), auto-fill from email apps, and pass WCAG 2.
+MIL-138    [Done          ] login.cjipro.com rebrand — kill third-party visibility (no WorkOS / AuthKit branding)
+           desc: ## Why  Most threatening thing IT reviewer sees on first login is unfamiliar third-party branding. Surprise redirect to `*.authkit.app` or visible "WorkOS" copy reads as supply-chain risk (panel verdi
+MIL-137    [To Do         ] security@cjipro.com Email Routing live — vuln disclosure address active
+           desc: ## Why  `/security` page (sibling ticket) cites `security@cjipro.com` as the vulnerability disclosure address. Currently not routed.  ## Spec  Cloudflare dashboard → Email → Email Routing → Routing ru
+MIL-136    [To Do         ] Typography migration — Source Serif 4 + Inter (self-hosted), single push across landing + login + post-auth
+           desc: ## Why  System-serif on cjipro.com reads as ad-hoc. A deliberate serif (Source Serif 4) reads as chosen — banking-trust artefact (panel verdict 2026-04-26, Oliver Reichenstein + Una Kravets).  Hussain
+MIL-135    [To Do         ] /security public page — IT-reviewer trust signals (cert grade, HSTS, CSP, vuln disclosure, posture)
+           desc: ## Why  Several alpha partners' IT teams will run a vulnerability scan on cjipro.com and login.cjipro.com before approving a magic-link click. A public `/security` reachable without auth defuses \~80%
+MIL-134    [To Do         ] App Store + Google Play fetcher pagination — capture mid-window reviews dropping off page 1
+           desc: ## Status  **BUILT 2026-04-25** — commit `09a3217` `fix(harvester): paginate App Store + Google Play fetchers (5 pages each)`. Filed retroactively because the work surfaced from operational diagnosis 
+MIL-133    [To Do         ] Box 1 third quote slot — worst non-app-source negative comment, content-deduped against existing slots
+           desc: ## Why  Box 1 today renders only two quote slots — App Store + Google Play (Barclays only). Reddit, YouTube, DownDetector and City AM signals **influence findings** (CAC, CHR anchoring) but **never su
+MIL-132    [To Do         ] Extract branding/legal text from code — Competition Act 1998, ICO refs, FCA framing → template fragments
+           desc: **Source: panel review 2026-04-25 (Mitchell Hashimoto §3).**  Branding/copy/legal text mixed with code. Examples:  * Competition Act 1998 Ch.I clause hardcoded in `mil/auth/app_cjipro/` Reckoner trial
+MIL-131    [To Do         ] Domain Pack spec — taxonomy YAML + 50-pair calibration set + 5-entry seed CHRONICLE + synthetic eval
+           desc: **Source: panel review 2026-04-25 (Andrej Karpathy §4 — non-obvious clonability cost).**  Karpathy's diagnosis: forking the code is fast (depends on MIL-115/116/119/120). What a partner CANNOT fork:  
+MIL-130    [To Do         ] Build ops/agents.yaml registry + ops/agents_status.py — single-screen view of scheduled agents
+           desc: **Source: panel review 2026-04-25 (Camille Fournier §5).**  4+ scheduled Claude Code remote agents fired at fixed UTC times (Apr 26 ENFORCE review `trig_018ru4WoKYPKxZkuS9M5jvk9`, Apr 27 passkey mappi
+MIL-129    [To Do         ] Replace 9 phase labels with dependency edges in system_manifest.yaml
+           desc: **Source: panel review 2026-04-25 (Camille Fournier §5).**  9 phases (Phase 0 / 1 / 2 / A / Ask CJI Pro / comms / login-journey / post-soak / website-rebuild) is over-systematization for one person. P
+MIL-128    [To Do         ] Closure-backlog automation — Slack heartbeat shows debt OR commit-trailer auto-close
+           desc: **Source: panel review 2026-04-25 (Camille Fournier §3).**  51-ticket closure backlog (BUILT/LIVE in production but not closed in Jira) is a workflow smell, not a discipline problem. Closure has no do
+MIL-127    [To Do         ] Doc split — extract ARCHITECTURE.md + RUNBOOK.md + GETTING_STARTED.md from CLAUDE.md
+           desc: **Source: panel review 2026-04-25 (Camille Fournier §5 + Kelsey Hightower #2 + Karpathy §3).**  CLAUDE.md is 126KB — operating memory for Claude, hostile for a human partner. README.md is generic boil
+MIL-126    [To Do         ] Build mil/prompts/ directory — file-based prompts with file-hash versioning + per-prompt eval set
+           desc: **Source: panel review 2026-04-25 (Andrej Karpathy §2 — highest-leverage AI-engineering refactor).**  Prompts are scattered as inline strings across `mil/publish/commentary_engine.py`, `mil/notify/bri
+MIL-125    [To Do         ] Retire V1/V2/V3 briefing publishers — ship V4 only
+           desc: **Source: panel review 2026-04-25 (Andrej Karpathy §5).**  Four parallel HTML generators is three too many. V1 (`publish.py`), V2 (`publish_v2.py`), V3 (`publish_v3.py`), V4 (`publish_v4.py`) all run 
+MIL-124    [To Do         ] run_daily.py: add --step N flag for step isolation
+           desc: **Source: panel review 2026-04-25 (Kelsey Hightower #5).**  `run_daily.py` is a 913-line, 13-numbered-step monolith. Steps 4a–4f are nested. Step 4f (drift monitor) shouldn't require Steps 1–3 ran tod
+MIL-123    [To Do         ] Add data/sample/ — frozen 100-review corpus + sample CHRONICLE for offline demo
+           desc: **Source: panel review 2026-04-25 (Kelsey Hightower #1, #6).**  `bootstrap.sh` (MIL-121) needs frozen sample data so the demo path doesn't depend on App Store / Google Play / Reddit fetches.  Action: 
+MIL-122    [To Do         ] Build bootstrap.sh + Makefile demo target — offline working briefing in 5 minutes
+           desc: **Source: panel review 2026-04-25 (Kelsey Hightower #1, #6).**  A stranger clones the repo today and never reaches a working briefing. Need a path from `git clone` to "open output/index.html and see s
+MIL-121    [To Do         ] Streamlit page numbers (07_mil, 08_ask) — decouple from Pulse pages 01-06
+           desc: **Source: panel review 2026-04-25 (Soumith Chintala §1).**  `app/pages/07_mil.py` and `app/pages/08_ask_cji_pro.py` assume CJI Pulse pages 01–06 exist next to them. They don't, in a clone — only MIL s
+MIL-120    [To Do         ] Parametrize WorkOS org/client ID in auth stack — read from env, not hardcoded
+           desc: **Source: panel review 2026-04-25 (Soumith Chintala §1).**  `mil/config/workos.yaml` carries: Org ID `org_01KPY8K0RGC6ABNTC73YMW9ERP`, Client ID `client_01KPY7CA07ZD1WG3DMQE1FZQE1`, JWKS URL, AuthKit 
+MIL-119    [To Do         ] Extract hardcoded cjipro.com / app.cjipro.com / login.cjipro.com to config
+           desc: **Source: panel review 2026-04-25 (Mitchell Hashimoto §3).**  Domain names are baked into adapters, auth stack EXPECTED_ISS, CSP headers, email signatures, Workers wrangler.toml routes, publish_site/l
+MIL-118    [To Do         ] chronicle_loader.py: replace RuntimeError on <15 entries with graceful degradation
+           desc: **Source: panel review 2026-04-25 (Soumith Chintala #1).**  `mil/inference/chronicle_loader.py` raises `RuntimeError` if fewer than 15 entries load. Right in spirit (signals data corruption) but wrong
+MIL-117    [To Do         ] Build scripts/clone_doctor.py — preflight diagnostics for fresh forks
+           desc: **Source: panel review 2026-04-25 (Soumith Chintala — "10-hour silent fork → 10-minute loud diagnosis").**  A fresh clone today fails silently across 4+ subsystems. Need a single command that runs fiv
+MIL-116    [To Do         ] Remove "Barclays" string literals across publish/inference/commentary — replace with tenant config
+           desc: **Source: panel review 2026-04-25 (Soumith Chintala #1 + Mitchell Hashimoto §3 + Karpathy §4). Safeguards added 2026-04-25 (post-discussion).**  `grep -i "barclays"` across `mil/` returns dozens of hi
+MIL-115    [To Do         ] Add mil/config/tenant.yaml — proof-of-clonability via "YOUR APP" framing
+           desc: **Source: panel review 2026-04-25 (Mitchell Hashimoto §6 — diagnostic test).**  Mitchell's diagnostic: if you can't render a coherent (if wrong-content) briefing with `tenant_slug: acme` in 3 days, yo
+MIL-114    [To Do         ] Tier secrets — .env.minimal / .env.publish / .env.full + docs
+           desc: **Source: panel review 2026-04-25 (Soumith Chintala #4 + Kelsey Hightower #3).**  Current `.env` carries 8+ tokens across 5+ providers (GitHub, GitLab, Cloudflare, Anthropic, WorkOS, SMTP, Slack). A f
+MIL-113    [To Do         ] Fix .env line 43 parse error — quote every value with special chars
+           desc: **Source: panel review 2026-04-25 (Julia Evans §4 #1).**  `.env` line 43 emits `hqcw: command not found` when sourced via bash (`set -a; source .env; set +a`). Indicates an unquoted value containing `
+MIL-112    [To Do         ] Audit git history for leaked secrets — trufflehog + gitleaks against full history; rotate keys found
+           desc: **Source: panel review 2026-04-25 (Tavis Ormandy #3).**  The 2026-04-20 Slack-webhook leak fix used `git filter-branch` rewriting 214 commits. That cleaned LOCAL history. It did NOT: invalidate forks,
+MIL-111    [To Do         ] Rotate GitLab PAT → project-scoped deploy token + credential.helper manager-core
+           desc: **Source: panel review 2026-04-25 (Julia Evans §2 + Tavis Ormandy #2).**  GitLab PAT currently lives in `.git/config` via `git remote set-url --add --push origin https://oauth2:$GITLAB_TOKEN@gitlab.co

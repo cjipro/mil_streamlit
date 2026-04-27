@@ -4,6 +4,7 @@
 //   /                              → 302 to /reckoner
 //   /reckoner                      → MIL-92 Reckoner default surface
 //   /reckoner?mode=ask             → MIL-93 Reckoner ask-mode (UI shell)
+//   /engineering                   → MIL-160 engineering-philosophy page
 //   /sonar                         → MIL-86 redirect to /sonar/{default_client}/
 //   /sonar/{client_slug}/          → MIL-86 latest Sonar briefing for slug
 //   /sonar/{client_slug}/{date}/   → MIL-86 historical Sonar briefing
@@ -16,6 +17,7 @@
 //   /reckoner POST (mode=ask)      → MIL-93 Phase B: live retrieval
 
 import { renderReckonerHtml, mvpSnapshot, type ReckonerMode } from "./reckoner";
+import { renderEngineering } from "./engineering";
 import { apiAskHandler, type ApiAskEnv, type ApiAskCallerIdentity } from "./api_ask";
 import { FONTS_BLOCK, FONT_STACK_SANS, FONT_STACK_SERIF } from "../../fonts_block/src/fonts_block.generated";
 import { renderShareAffordance, renderInviteSentBanner } from "./share_affordance";
@@ -58,6 +60,14 @@ function parseMode(url: URL): ReckonerMode {
 function reckonerHandler(request: Request): Response {
   const url = new URL(request.url);
   return htmlResponse(renderReckonerHtml(mvpSnapshot(), parseMode(url)));
+}
+
+// MIL-160 — /engineering page. Stateless render of the panel synthesis
+// from MIL-159. Auth gate is applied by index.ts (ENFORCE=true on
+// app-cjipro Worker is already on); by the time this runs the request
+// already carries a valid session cookie + approved-user gate.
+function engineeringHandler(_request: Request): Response {
+  return htmlResponse(renderEngineering());
 }
 
 function rootRedirect(request: Request): Response {
@@ -184,6 +194,7 @@ export async function dispatch(
   const path = url.pathname;
   if (path === "/" || path === "") return rootRedirect(request);
   if (path === "/reckoner" || path === "/reckoner/") return reckonerHandler(request);
+  if (path === "/engineering" || path === "/engineering/") return engineeringHandler(request);
   if (path === "/api/ask") {
     if (!apiEnv) {
       // Defensive: only the worker entrypoint passes apiEnv. A direct

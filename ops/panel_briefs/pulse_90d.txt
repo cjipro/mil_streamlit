@@ -1,0 +1,1776 @@
+
+CJI PULSE / while-sleeping
+90-Day Delivery Plan   v5.0
+Machine Execution Brief — Built for AI, Reviewed by Human
+
+"Customers experiencing difficulties on Step 3 of Loans journey, abandoning —
+likely 45+, likely vulnerable. In last 3 days 5 customers said App journey sucks."
+— Day 90 Vision: this sentence must be expressible from CJI Pulse on Day 90
+
+
+PROGRAMME PRINCIPLES
+Every Friday: something deployed, board moved, technical problem solved
+Demotivation is the #1 risk: short sprints, visible wins, scope protected
+Manifest is source of truth: Jira is a view, never the source
+Manifest executable from Day 1: not a Sprint 12 afterthought
+Audit before architecture: Canonical Statement 04 is law
+Semantic telemetry on every failure: every error is machine-readable
+Build for future agents: all config machine-readable YAML
+Human-led first release: reconstruction ≠ autonomous deployment authority
+One command to run everything: python run_daily.py --date YYYY-MM-DD
+Protect customer outcomes: Do Not Break, CONTRADICTED, vulnerable cohorts are first-class
+Governance as a ramp, not a wall: journey owners earn expanded permissions through demonstrated competence
+AI is easy to demo. It is hard to ship. Day 90 is a shipping proof, not a demo.
+Write the map now. Write the directions when you are on the road. Prompts are just-in-time — breakdown structure is now.
+
+Section 1: Three-Layer Operating Model
+Manifest is canonical. Brief and policy set boundaries. Jira and GitLab are views for human convenience. No tool other than the manifest is source of truth for what has been built, what remains to be built, or what an AI agent should do next.
+
+
+
+Section 2: Dual Closure Rule — No Exceptions
+Every ticket requires two independent closure conditions. Neither alone is sufficient. This rule applies to every ticket in this plan without exception.
+
+
+A ticket is not closed until both conditions are met. Moving a Jira ticket to Done without both conditions is a governance violation.
+
+Section 3: Manifest Schema — Every Component, Every Field
+Every component in the system has a manifest file. The manifest is what an AI agent reads to understand, build, and rebuild that component. This section defines the mandatory schema. Every field is required unless marked optional.
+
+3.1 Core Component Fields (all manifests)
+
+3.2 v5 Addition: recovery_patterns (all manifests)
+Every component manifest must include recovery_patterns. This is what an AI agent does when a component fails. Without this field, failure produces ambiguity. With it, failure produces a clear path.
+
+3.3 v5 Addition: interfaces (all manifests)
+Interfaces define the contract between components — what this component expects from its inputs and promises to its outputs. This is what prevents integration failures.
+
+3.4 v5 Addition: preferred_model (agent manifests)
+All agent manifests must declare their preferred model and fallback. Model names must never be hardcoded in agent code — always read from config/model_config.yaml which is in turn referenced in the manifest.
+
+3.5 v5 Addition: graduated_trust_tier + runtime_permissions (all manifests)
+
+3.6 v5 Addition: governance_attributes (data contract manifests only)
+
+3.7 v5 Addition: prompt_breakdown (complex ticket manifests)
+Complex tickets (estimated >4h) require a machine-readable sequential breakdown in the manifest. This is the structure that just-in-time prompts are written against. The breakdown is the map. The prompts are the directions.
+
+
+Section 4: Open Audit Findings — Must Resolve Before Pipeline Build
+These findings were identified before any pipeline code was written. Finding 002 is CRITICAL. It blocks the entire Phase 1 mission. No pipeline code may be written before audit findings are formally resolved or accepted with documented fallback.
+
+
+DATA OWNER SIGN-OFF REQUIRED: All three findings require data owner sign-off before marking RESOLVED or ACCEPTED-WITH-FALLBACK. This is a non-negotiable governance requirement added in v5 (TDWI recommendation). No finding may be marked resolved without named data owner signature and date.
+
+Section 5: Sprint Overview — 90 Days, 13 Sprints
+
+
+Section 7: Governance, Decision Rights & Controlled Agent Path
+7.1 Graduated Trust Model — Tiers 1–4
+Governance is a ramp, not a wall. Journey owners earn expanded permissions through demonstrated competence. The path from read-only to controlled deployer is defined, achievable, and governed.
+
+
+7.2 Controlled Agent Path
+Agents in CJI Pulse are intelligence agents, not action agents. They interpret, classify, and recommend. They do not act. This section defines what agents may and may not do.
+
+
+7.3 Collaboration Cadence
+
+
+Sprint 1: Foundation, Manifest Model & Audit (Days 1–7)
+Workstream: A + B
+Manifest is source of truth from Day 1. Jira is a view. Every subsequent agent reads this manifest to understand the system.
+Sprint Goal
+system_manifest.yaml committed. build_from_manifest.py running. Semantic telemetry spec defined. Audit register complete. Graduated trust model defined. Hypothesis library structure created. All manifest schema fields — including recovery_patterns, interfaces, preferred_model, vendor, graduated_trust_tier, and governance_attributes — defined before any pipeline code is written.
+Sprint Deliverable
+system_manifest.yaml | build_from_manifest.py | telemetry_spec.yaml | audit_findings.yaml | hypothesis_library.yaml (seed) | graduated_trust_tiers.yaml
+Friday Proof
+An AI agent reading system_manifest.yaml understands every component, every dependency, every field. It can start building from it today. The manifest is not aspirational — it is operational from Day 1.
+Exit Criteria
+system_manifest.yaml committed and valid. Telemetry spec complete. Audit register has all three findings. Graduated trust tiers defined. Hypothesis library has minimum 5 seed entries. No pipeline code written before contracts are complete.
+
+Tickets
+KAN-10: Initialise GitLab mono-repo
+Effort: 2h   |   Tool: Manual   |   Priority: P1   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+Create the canonical repository that all agents read from. Every component, config, and manifest lives here.
+ACCEPTANCE CRITERIA
+gitlab.com/streaming-analytics/while-sleeping created. Mono-repo structure: /data /agents /app /manifests /contracts /config /scripts /tests. README with one-command setup. GitLab branch naming convention documented: feature/KAN-XXX-short-description. .gitignore excludes credentials and large data files.
+VALIDATION COMMAND (run after implementation)
+git clone [repo] && ls data agents app manifests contracts config scripts tests && cat README.md
+RECOVERY STRATEGIES
+[GitLab access issue] Use GitHub as fallback. Document decision in hosting_decision.md. Update all manifest paths accordingly.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-010_repo_manifest.md   |   Read manifest. Clone repo. Verify directory structure matches spec. All paths in manifest are relative to repo root.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-11: Create TABLE_CONFIG — all source table names as config
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+Zero hardcoded table names anywhere in codebase. Every pipeline reads from TABLE_CONFIG. An AI agent swapping data sources changes one file, not 40.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-10 (repo must exist)
+ACCEPTANCE CRITERIA
+config/table_config.yaml: keys for MA_D, SE, OPS_CD, CC_D, CUST_DIM and output tables (MA_S, daily_journey_mart, voice_evidence_fact, governance_run_fact). Every pipeline reads table names from this config. grep -r for hardcoded table names returns zero results outside this file.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-011.py  # checks all pipeline imports reference TABLE_CONFIG, not hardcoded strings
+RECOVERY STRATEGIES
+[Table name format changes] Update TABLE_CONFIG only. Run grep audit to confirm zero hardcoded references remain. Re-run validate_KAN-011.py.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-011_table_config_manifest.md   |   Read manifest. Agent replaces placeholder strings with real names. Validate no hardcoded references remain.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-12: Set up local Docker environment
+Effort: 3h   |   Tool: Claude Code   |   Priority: P1   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+Single command starts entire local environment. No manual setup steps. An AI agent can reproduce the environment from docker-compose.yml alone.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-10
+ACCEPTANCE CRITERIA
+docker-compose.yml runs PySpark + Postgres + Streamlit + Ollama locally. docker-compose up starts everything. README has one-command setup: docker-compose up --build. Health checks on all services. Port mapping documented. deployment_config.yaml defines target environment — all components read from this, nothing hardcoded.
+VALIDATION COMMAND (run after implementation)
+docker-compose up -d && sleep 30 && docker-compose ps | grep -c 'Up' | grep 4
+RECOVERY STRATEGIES
+[Port conflict] Update deployment_config.yaml port mappings. Never hardcode ports in application code.
+[Ollama memory issue] Reduce Qwen model to 7b variant in model_config.yaml. Document in manifest as DEGRADED capability.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-012_docker_manifest.md   |   Read manifest. Scaffold docker-compose.yml from service definitions. Run smoke test.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-13: Document all audit findings in structured YAML
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Every data quality risk is named, owned, and machine-readable before any pipeline is built. Surprises in Sprint 4 that were known in Sprint 1 are a governance failure.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-10
+ACCEPTANCE CRITERIA
+manifests/audit_findings.yaml with Finding 001 (cust_id -99 volume unknown), 002 (app version missing in MA_D — CRITICAL, blocks Phase 1 mission), 003 (Native flag in OPS_CD meaning unknown). Each entry: id, severity, status, description, business_impact, action_required, owner, data_owner_signoff_required (true/false), resolution, fallback_if_unresolved. Data owner sign-off obtained before marking any finding RESOLVED.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-013.py  # validates YAML schema, checks all required fields, flags CRITICAL open items
+RECOVERY STRATEGIES
+[Data owner unavailable for sign-off] Escalate to analytics lead. Document as BLOCKED in audit_findings.yaml. Do not mark RESOLVED without sign-off. Note in sprint review.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-013_audit_register_manifest.md   |   Read manifest. Validate audit_findings.yaml schema. Flag any unresolved CRITICAL findings before any pipeline work begins.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-14: Resolve Finding 002 — app version / experience source
+Effort: 4h   |   Tool: Investigation   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Finding 002 is CRITICAL. It blocks the entire Phase 1 mission — refreshed vs legacy comparison. This ticket either finds the source or formally documents the fallback. Neither path can be skipped.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-13
+ACCEPTANCE CRITERIA
+Either: (A) Source table identified, field name confirmed, join key to MA_D documented, entry added to TABLE_CONFIG — Finding 002 marked RESOLVED with data owner sign-off. OR: (B) No reliable source found — timing_based_fallback.yaml documents the fallback logic, all downstream comparisons labelled DIRECTIONAL-only, degraded mode config updated, Finding 002 marked ACCEPTED-WITH-FALLBACK. No third option.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-014.py  # confirms Finding 002 has status RESOLVED or ACCEPTED-WITH-FALLBACK, not OPEN
+RECOVERY STRATEGIES
+[Source table found but join rate low] Document join rate in Finding 002. If >90% proceed with caveat. If <90% treat as fallback path B. No EVIDENCED classification permitted below 90% join rate.
+[Native flag in OPS_CD is the answer] Investigate KAN-003 (Finding 003) first. If Native flag maps to app_experience, use it. Document mapping logic fully before closing Finding 002.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-014_appversion_manifest.md   |   Read manifest. Apply resolution decision. Update TABLE_CONFIG or degraded-mode config as documented. Fallback path must be machine-readable.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-15: Audit CUST_DIM — describe, sample, join key confirmation
+Effort: 2h   |   Tool: Investigation   |   Priority: P2   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Customer segmentation is core to vulnerable customer detection. This audit confirms what we actually have before designing the join.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-13
+ACCEPTANCE CRITERIA
+Field mapping: CUST_DIM fields mapped to CJI Pulse canonical names (customer_segment, customer_tenure, historical_completion_rate, historical_digital_engagement_score). Join key to MA_S confirmed or formally blocked. Gaps logged in audit_findings.yaml. Data owner sign-off obtained. Null rates documented per field.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-015.py  # confirms CUST_DIM audit entry in audit_findings.yaml, join key documented
+RECOVERY STRATEGIES
+[Join key missing] Document as Finding 004 in audit_findings.yaml. Use synthetic CUST_DIM for Phase 1 simulation. Flag all customer context fields as SYNTHETIC in mart output.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-015_custdim_audit_manifest.md   |   Read manifest. Confirm join key. Re-run field mapping against latest schema.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-16: Create all 90-day epics and tickets in Jira
+Effort: 3h   |   Tool: Manual   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Jira is a view of the manifest — not the source of truth. Tickets are created from the manifest, not designed in Jira.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17 (manifest must be committed first)
+ACCEPTANCE CRITERIA
+All epics created. All tickets with descriptions, acceptance criteria, and manifest path linked. GitLab branch naming: feature/KAN-XXX-short-description. generate_jira_tickets.py script exists and can regenerate from manifest. Manifest index linked in Jira project description.
+VALIDATION COMMAND (run after implementation)
+python scripts/generate_jira_tickets.py --manifest manifests/system_manifest.yaml --dry-run  # confirms all tickets are representable
+RECOVERY STRATEGIES
+[Jira unavailable] Use GitLab issues as fallback. Update manifest to reference GitLab issue IDs. Document in operating_model.md.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-016_jira_setup_manifest.md   |   Read manifest. Run generate_jira_tickets.py --manifest system_manifest.yaml to regenerate from manifest.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-17: Scaffold system_manifest.yaml — complete schema with all v5 fields
+Effort: 6h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+This is the entry point for every AI agent building this system. It must be complete, correct, and machine-readable from Day 1. An agent reading this file must understand every component, every dependency, and every field without asking a single clarifying question.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-10
+ACCEPTANCE CRITERIA
+manifests/system_manifest.yaml committed Day 1. Every component listed with ALL required fields: id, name, type, owner, status (NOT_STARTED), priority, purpose, inputs, outputs, dependencies, acceptance_criteria, estimated_effort_hours, manifest_path, gitlab_path, jira_id, traceability. PLUS v5 additions per all panel feedback: recovery_patterns (failure_modes, retry_logic, fallback_strategy, escalation_criteria), interfaces (inputs_expected with schema/format/source, outputs_promised with schema/format/destination, breaking_change_protocol), preferred_model (model name + fallback for model-agnostic execution), vendor (field for third-party components + certification requirements), graduated_trust_tier (which trust tier can execute this component), runtime_permissions (least-privilege for running agents, separate from build permissions), prompt_breakdown (machine-readable sequential breakdown for complex tickets). Data contract manifests also include governance_attributes: sensitivity_classification, purpose_limitation, retention_period, data_minimisation_notes.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-017.py  # validates all components present, all required fields populated, schema version matches, no orphaned dependencies
+RECOVERY STRATEGIES
+[Schema validation fails] Read validate_KAN-017.py error output. Each error points to specific field and component. Fix field-by-field. Re-run validation. Do not proceed to any other ticket until validation passes.
+[Component dependency cycle detected] Review dependency graph. Cycles are architecture errors. Resolve by introducing intermediate contract or removing circular dependency. Document resolution in manifest.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-017_system_manifest_manifest.md   |   THIS IS THE MANIFEST. Read first before building anything. Validate schema completeness. Every other component manifest references this as root.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-18: Build build_from_manifest.py — executable manifest runner
+Effort: 5h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+The manifest is not just documentation — it is executable. This script is the bridge between manifest definition and code scaffolding. An AI agent runs this script to scaffold any component from its manifest.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17
+ACCEPTANCE CRITERIA
+scripts/build_from_manifest.py: reads component spec from system_manifest.yaml, scaffolds code structure via Claude Code API, updates component status to IN_PROGRESS during build and BUILT on success. Context injection: reads all dependency manifests before scaffolding, passes them as context to Claude Code. Tested successfully on KAN-11 as proof of concept. Retrospective field updated after each build.
+VALIDATION COMMAND (run after implementation)
+python scripts/build_from_manifest.py --component KAN-011 --dry-run  # confirms manifest parsing, dependency resolution, context injection
+RECOVERY STRATEGIES
+[Claude Code API unavailable] Log DEGRADED status in manifest. Use manual scaffolding with manifest as spec. Update status to MANUAL-BUILT. Note in operating_model.md.
+[Dependency not BUILT] Script must halt and log: BLOCKED — KAN-XXX dependency not BUILT. Do not scaffold components with unbuilt dependencies. Dependency order is law.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-018_buildscript_manifest.md   |   Read manifest. Scaffold build_from_manifest.py from logic spec. Test on one component. Verify status update in system_manifest.yaml.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-19: Define semantic telemetry spec for all pipeline failures
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Every failure anywhere in the system emits machine-readable telemetry. An AI agent reading failure output must be able to self-diagnose and know whether to retry, escalate, or switch to degraded mode.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17
+ACCEPTANCE CRITERIA
+manifests/telemetry_spec.yaml defines: step_id, input_reference, output_summary, error_code, error_class (DATA_QUALITY / PIPELINE / SCHEMA / DEPENDENCY / GOVERNANCE), retryability (yes/no/backoff), business_impact_tier (P1/P2/P3), downstream_dependency_impact (list of blocked components), manifest_spec_reference, recovery_strategy_reference. Committed before any pipeline is built. Every pipeline imports and uses this spec — no custom error formats.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-019.py  # confirms telemetry_spec.yaml schema, checks all error_class values are valid enum
+RECOVERY STRATEGIES
+[New error type not in spec] Add to telemetry_spec.yaml first. Never create custom error formats in pipeline code. Spec is canonical.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-019_telemetry_spec_manifest.md   |   Read manifest. Validate telemetry_spec.yaml against required fields. Apply to all new pipeline components.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-1G: Scaffold graduated trust model — Tiers 1–4
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Governance is a ramp, not a wall. Journey owners and agents earn expanded capabilities through demonstrated competence, not binary approval. This is the path from observer to deployer.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17
+ACCEPTANCE CRITERIA
+config/graduated_trust_tiers.yaml defines: Tier 1 — Read Only (view findings, read queue, read briefing). Tier 2 — Hypothesis Approver (approve investigation queue items, submit hypotheses). Tier 3 — Validated Operator (approve agent outputs, close queue items, adjust priority weights). Tier 4 — Controlled Deployer (approve manifest changes, trigger controlled agent rebuild — only with technical review). Each tier lists: permissions, how to earn it, what is still restricted. Phase 1 maximum: Tier 3 for journey owners, Tier 4 for analytics lead only. All manifests reference graduated_trust_tier field.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-01G.py  # validates tier schema, confirms no component permits Tier 4 without explicit override
+RECOVERY STRATEGIES
+[Journey owner needs Tier 4 action urgently] Escalate to analytics lead. Analytics lead takes action. Document in governance_run_fact. No self-upgrade of trust tier.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-01G_trust_tiers_manifest.md   |   Read manifest. Apply tier definitions. Validate all component manifests reference correct tier.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-1H: Scaffold hypothesis library — seed with known patterns
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The hypothesis library is the intelligence core of the conversational query interface. It must exist with minimum viable seed entries on Day 1 so the system has something to search against from first use.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17
+ACCEPTANCE CRITERIA
+manifests/hypothesis_library.yaml with minimum 10 seed entries from canonical statements, known journey failure patterns, and brief v2.8. Each entry: hypothesis_id, hypothesis_text, journey_type, evidence_tier (EVIDENCED/DIRECTIONAL/UNKNOWN), response_mode, supporting_metrics, recommended_action (three-part: what_is_happening, why_it_matters, suggested_first_action), date_added, status (ACTIVE/SUPERSEDED). Schema validated. Library grows as findings are confirmed — only analytics lead can promote a finding to ACTIVE hypothesis.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-01H.py  # validates schema, confirms minimum 10 entries, checks all recommended_action fields have three parts
+RECOVERY STRATEGIES
+[Insufficient seed entries] Use canonical statements from brief v2.8 as hypotheses. Every known pattern is a hypothesis. Minimum viable is 5 if 10 not achievable in Sprint 1.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-01H_hypothesis_library_manifest.md   |   Read manifest. Validate hypothesis_library.yaml. Confirm LLM can query it for similarity search.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 2: Audit Completion & Data Contract Baseline (Days 8–14)
+Workstream: A + C
+Define what every field is before writing a line of pipeline code. No architecture on unconfirmed data. Data contracts are the law.
+Sprint Goal
+Data contract YAML files for all confirmed source tables. MA_S field spec locked. Simulation schema designed. All audit blockers either resolved or formally accepted with fallback. Data owner sign-offs obtained.
+Sprint Deliverable
+contracts/ folder with one YAML per table. MA_S output spec. simulation_config.yaml. All audit decisions logged with data owner sign-off.
+Friday Proof
+Every field CJI Pulse needs has a written contract. Unresolved blockers are formally escalated with a named owner and response SLA. An AI agent reading contracts/ knows exactly what to build without asking questions.
+Exit Criteria
+Audit decisions logged with data owner sign-off. Contract baseline complete for all known sources. DIRECTIONAL or BLOCKED fields explicitly marked. Unresolved blockers escalated to named owner with SLA.
+
+Tickets
+KAN-20: Write data contract YAML for MA_D
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Data Contract   |   Status: NOT_STARTED
+GOAL
+MA_D is the primary source of app session events. Every downstream pipeline depends on this contract being complete and correct.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17  |  KAN-13
+ACCEPTANCE CRITERIA
+contracts/ma_d.yaml: every field mapped with field_name, data_type, grain, nullable, null_rate_observed, cji_canonical_name, degradation_mode, quality_check, source_system, latency, owner, sensitivity_classification, purpose_limitation, retention_period, data_minimisation_notes. Known issues documented: cust_id -99 sentinel rate, any schema drift observed. Data owner sign-off recorded.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-020.py  # validates contract schema, checks all required fields including governance_attributes
+RECOVERY STRATEGIES
+[Field meaning unclear] Document as UNKNOWN in contract. Do not assume. Escalate to data owner for clarification before using field in pipeline.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-020_ma_d_contract_manifest.md   |   Read manifest. Validate contract YAML against MA_D schema. Flag any null rate violations. Confirm governance_attributes complete.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-21: Write data contract YAML for SE (dim_evnt)
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Data Contract   |   Status: NOT_STARTED
+GOAL
+SE is the event dimension that maps raw event codes to journey context. Join quality to MA_D must be confirmed before any journey classification is built.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-20
+ACCEPTANCE CRITERIA
+contracts/se.yaml: same structure as MA_D contract plus governance_attributes. Join key to MA_D documented with observed join rate. evnt_grp_nm NULL rate noted and documented. fnl_step_ind reliability status documented — flagged as UNRELIABLE if confirmed. Data owner sign-off recorded.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-021.py  # validates contract, confirms join key documented, flags UNRELIABLE fields
+RECOVERY STRATEGIES
+[Join rate below 98%] Document actual join rate. Investigate cause. If systematic (not random), escalate as new audit finding before building pipeline.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-021_se_contract_manifest.md   |   Read manifest. Validate SE contract. Confirm join key evnt_key integrity.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-22: Write data contract YAML for OPS_CD
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Data Contract   |   Status: NOT_STARTED
+GOAL
+OPS_CD is the feature taxonomy that classifies every event into journey context. This is the vocabulary CJI Pulse uses to understand what customers were trying to do.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-20  |  KAN-14
+ACCEPTANCE CRITERIA
+contracts/ops_cd.yaml: covers op_cd, page, pod, sub_pod, feature, op_class, channel flags. Feature field confirmed as primary journey classifier. Native flag status documented — if it resolves Finding 002, document the mapping logic here explicitly. Governance_attributes complete. Data owner sign-off recorded.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-022.py  # validates contract, confirms feature taxonomy completeness, documents Native flag status
+RECOVERY STRATEGIES
+[Feature taxonomy incomplete for a journey type] Document the gap. Use UNKNOWN classification for unmapped op_codes. Do not invent mappings. Escalate to data owner.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-022_ops_cd_contract_manifest.md   |   Read manifest. Validate OPS_CD contract. Confirm feature taxonomy completeness.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-23: Write MA_S output field specification
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Data Contract   |   Status: NOT_STARTED
+GOAL
+MA_S is the session spine that everything reads from. Its output spec is the contract between the pipeline and every downstream consumer — agents, mart, dashboard. It must be complete before any pipeline code is written.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-20  |  KAN-21  |  KAN-22
+ACCEPTANCE CRITERIA
+contracts/ma_s_spec.yaml: every output field defined with source_field, derivation_logic (exact, not approximate), nullability, quality_flag, cji_canonical_name, physical_table (session_journey_fact). 20+ fields covered per MVP Required bucket. Behavioural signals (ghost_intent_flag, silent_exit_flag, partial_op_sequence_flag, help_access_during_journey) have explicit derivation logic referencing OPS_CD feature taxonomy. Governance_attributes complete.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-023.py  # validates spec completeness, confirms all MVP Required fields covered, checks derivation logic is non-empty
+RECOVERY STRATEGIES
+[Derivation logic ambiguous for a field] Mark as DIRECTIONAL in spec. Document the ambiguity. Do not build undefined logic. Escalate for clarification.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-023_ma_s_spec_manifest.md   |   Read manifest. Validate MA_S spec against MA_D + SE + OPS_CD contracts. Flag derivation gaps.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-24: Design simulation schema — 5 journey types
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Data Contract   |   Status: NOT_STARTED
+GOAL
+Simulation is the safety net that lets us test the entire system before touching 330M real sessions. The schema must be realistic enough that passing simulation tests gives confidence in production behaviour.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-22  |  KAN-23
+ACCEPTANCE CRITERIA
+config/simulation_config.yaml defines: journey_types (Login, Payments, Servicing, Loans, Onboarding), op_code_sequences per journey using real OPS_CD taxonomy, happy_path + 3 failure modes per journey, failure_injection_rates (configurable), volume_parameters (default 100k sessions/day), customer_segment_mix (5 segments), vulnerable_customer_rate (default 0.15), cust_id_sentinel_rate (default 0.001 matching Finding 001).
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-024.py  # validates config schema, confirms 5 journey types, 3 failure modes each, all injection rates in valid range
+RECOVERY STRATEGIES
+[Op code sequences for a journey not known] Use LOGIN journey sequences as template. Mark simulated sequences as SYNTHETIC. Production validation will confirm accuracy.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-024_simulation_schema_manifest.md   |   Read manifest. Validate simulation_config.yaml. Confirm all 5 journey types have happy path and failure sequences.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-25: Audit CC_D — describe, sample, join key confirmation
+Effort: 2h   |   Tool: Investigation   |   Priority: P2   |   Type: Data Contract   |   Status: NOT_STARTED
+GOAL
+Cross-channel leakage (customers calling after app failure) is a key signal. This audit confirms we can actually build it before Sprint 6 tries to.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-20
+ACCEPTANCE CRITERIA
+cust_id join to MA_S confirmed or formally blocked. call_timestamp field identified. reason_code / contact_type mapped to CJI Pulse canonical. Contract skeleton contracts/cc_d.yaml written. 24h window join feasibility confirmed. Governance_attributes complete. Data owner sign-off recorded.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-025.py  # validates contract skeleton, confirms join key status documented
+RECOVERY STRATEGIES
+[cust_id join not feasible within 24h window] Document as BLOCKED. Flag contact_centre_contact_24h as unavailable in MA_S spec. Update all downstream components that reference this field.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-025_cc_d_audit_manifest.md   |   Read manifest. Validate CC_D contract. Confirm 24h window join logic is feasible.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+Data owner sign-off obtained on audit findings (per TDWI requirement)
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 3: Simulation Data Generator (Days 15–21)
+Workstream: C
+Build realistic synthetic data that stress-tests every pipeline component before any real data is touched. Simulation is the proving ground.
+Sprint Goal
+Python generator produces configurable synthetic MA_D events across all 5 journey types with realistic failure modes and vulnerable customer cohorts. Output validates against all data contracts. Accuracy benchmark dataset created from known patterns.
+Sprint Deliverable
+data/simulate_data.py | data/validate_simulation.py | tests/benchmark_dataset.yaml (50 known journey patterns with labelled outcomes)
+Friday Proof
+python simulate_data.py --date 2026-03-10 --sessions 100000 runs in under 60 seconds and produces a realistic day. Failure injection working. Contract validation passes. Vulnerable customer cohort present at configured rate.
+Exit Criteria
+Configurable simulation environment running. All failure modes injectable. Contract validation passes on clean run. Benchmark dataset committed with labelled outcomes. Manifests and tests complete.
+
+Tickets
+KAN-30: Build synthetic MA_D event generator
+Effort: 6h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Generate realistic MA_D events that exercise every downstream pipeline without touching production data. Realism is the goal — synthetic data that is too clean gives false confidence.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-20  |  KAN-24
+ACCEPTANCE CRITERIA
+data/simulate_data.py generates rows matching MA_D schema per contracts/ma_d.yaml. All MVP Required fields populated realistically. sesn_id, cust_id, src_evnt_cd, jrny_sts, evnt_ts, tel_oprtng_sys, app_tp all populated. Configurable via simulation_config.yaml — no hardcoded values. cust_id -99 sentinel injected at configured rate.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-030.py && python data/validate_simulation.py --date 2026-03-10 --sessions 1000
+RECOVERY STRATEGIES
+[Volume too slow] Use vectorised generation (numpy/pandas) instead of row-by-row. Target 100k rows in under 30 seconds.
+[Contract validation fails] Read validation error. Fix generator for that specific field. Re-run. Fix one field at a time, not wholesale rewrites.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-30_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-030_ma_d_simulator_manifest.md   |   Read manifest. Scaffold generator from field spec and simulation_config.yaml. Validate output against MA_D contract.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-31: Inject realistic op code sequences from OPS_CD
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Sessions must follow realistic op_code sequences per journey type. Random sequences are useless for testing journey intelligence. Use OPS_CD feature taxonomy as the vocabulary.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-30  |  KAN-22
+ACCEPTANCE CRITERIA
+Each simulated session follows realistic op_code sequence per journey type using OPS_CD feature taxonomy. Happy path + 3 failure modes per journey as defined in simulation_config.yaml. Sequences produce realistic feature_string output for downstream signal derivation. Partial op sequences injected at configured rate.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-031.py  # checks sequence realism, validates all 5 journey types, confirms failure mode injection rates
+RECOVERY STRATEGIES
+[OPS_CD taxonomy missing sequences for journey type] Use LOGIN sequences as fallback template. Mark simulated sequences as SYNTHETIC in output metadata.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-031_opcode_sim_manifest.md   |   Read manifest. Inject sequences using OPS_CD feature taxonomy. Validate sequence completeness per journey type.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-32: Inject failure modes — nulls, sentinels, schema drift, join gaps
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Failure injection validates that quality gates actually catch real problems. If quality gates only pass on clean data, they provide no protection in production.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-30
+ACCEPTANCE CRITERIA
+Configurable rates in simulation_config.yaml: null_rate, sentinel_rate (-99 on jrny_key), join_key_missing_rate, schema_drift_flag. Each failure mode independently togglable. Default rates match known production patterns (cust_id -99 from Finding 001). Run validate_simulation.py with failures injected — quality gate must fire.
+VALIDATION COMMAND (run after implementation)
+python data/simulate_data.py --inject-failures && python data/validate_simulation.py --expect-failures  # must detect all injected failure types
+RECOVERY STRATEGIES
+[Quality gate does not catch injected failure] This is a quality gate bug, not a simulation bug. Log as new audit finding. Do not mask. Fix quality gate logic.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-032_failure_injection_manifest.md   |   Read manifest. Apply failure injection rates from config. Verify each mode produces expected quality gate failures.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-33: Add app_version synthetic field — legacy vs refreshed split
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Finding 002 means we may not have real app_version data. Synthetic app_version lets us build and test the refreshed vs legacy comparison logic regardless of Finding 002 resolution.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-30  |  KAN-14
+ACCEPTANCE CRITERIA
+app_version field added as synthetic column. legacy/refreshed split parameterised in simulation_config.yaml. Flagged as SYNTHETIC in output metadata. Resolves Finding 002 for simulation purposes only — production behaviour depends on KAN-14 resolution. If KAN-14 found a real source, synthetic field must be replaced before production.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-033.py  # confirms SYNTHETIC flag present, confirms split ratio matches config
+RECOVERY STRATEGIES
+[KAN-14 found real source but differs from synthetic] Update generator to use real field logic. Remove SYNTHETIC flag. Re-run validate_simulation.py to confirm consistency.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-033_appversion_sim_manifest.md   |   Read manifest. Add app_version field per config split. Validate split ratio matches config. Confirm SYNTHETIC flag.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-34: Build accuracy benchmark dataset — 50 known journey patterns
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+We need to know if the intelligence layer is actually correct, not just running. The benchmark dataset provides 50 known patterns with correct labelled outcomes so we can measure precision and recall objectively. Target: Sprint 7 EVIDENCED precision >90%, recall >80%.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-24
+ACCEPTANCE CRITERIA
+tests/benchmark_dataset.yaml with 50 known journey patterns across all 5 journey types. Each pattern: pattern_id, journey_type, description, input_signals, expected_response_mode, expected_finding, expected_recommended_action. Covers: clean improvement (EVIDENCED), metrics improve but NPS drops (CONTRADICTED), Do Not Break regression (GUARDED), low data quality (UNKNOWN), directional only (DIRECTIONAL). Monthly accuracy audit process documented. Dashboard metric in cji.pro Sprint 10.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-034.py  # validates dataset schema, confirms 50 entries, checks all 5 response modes represented
+RECOVERY STRATEGIES
+[Cannot create 50 patterns without production data] Create minimum 20 patterns from canonical statements and brief v2.8. Document as PARTIAL benchmark. Expand to 50 in Sprint 9 once synthetic data pipeline is running.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-034_benchmark_manifest.md   |   Read manifest. Validate benchmark dataset. Confirm monthly audit process documented.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-35: Validate simulation output against all data contracts
+Effort: 2h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Contract validation proves the simulation is a valid proxy for production data. Passing this is the gate before any real pipeline work begins.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-30  |  KAN-31  |  KAN-32  |  KAN-33  |  KAN-20  |  KAN-21  |  KAN-22
+ACCEPTANCE CRITERIA
+data/validate_simulation.py checks every generated field against contract YAML: type, nullability, value range, governance_attributes. Zero violations on clean run. Violations logged with contract reference and field name on failure. Script is AI-generated as part of this ticket — not hand-written.
+VALIDATION COMMAND (run after implementation)
+python data/validate_simulation.py --date today --sessions 10000  # must report PASS with zero violations
+RECOVERY STRATEGIES
+[Validation fails on a field] Read the specific field error. Fix generator for that field only. Re-run. Never relax validation rules — fix the generator.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-035_validation_manifest.md   |   Read manifest. Scaffold validate_simulation.py from contract YAMLs. Run against simulation output. Assert zero violations.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 4: MA_S Rebuild — Session Pipeline (Days 22–28)
+Workstream: D
+Build the core session spine. Every downstream component reads from this table. Get it right before building anything on top of it.
+Sprint Goal
+PySpark pipeline reads from simulated MA_D, joins SE and OPS_CD, sessionises, derives all behavioural signals, outputs MA_S parquet. Quality gate with full semantic telemetry. Pre-ingestion validator validates data quality before pipeline begins processing.
+Sprint Deliverable
+pipelines/build_ma_s.py | pipelines/pre_ingestion_validator.py | pipelines/build_quality_gate.py | tests/test_ma_s.py
+Friday Proof
+Pipeline runs end to end on synthetic data. MA_S parquet exists with all behavioural signal fields. Quality gate catches injected failures and emits machine-readable semantic telemetry. Pre-ingestion validator fires before processing begins.
+Exit Criteria
+Session pipeline runs end-to-end on simulation. Pre-ingestion validator active. Quality gate output exists with semantic telemetry. All behavioural signals derived. AI-ready dual closure completed.
+
+Tickets
+KAN-40: Build MA_S sessionisation pipeline in PySpark
+Effort: 8h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+The session spine is the foundation of every downstream intelligence. It must be correct, idempotent, and produce all required fields per the MA_S spec before any mart or agent work begins.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-20  |  KAN-21  |  KAN-22  |  KAN-23  |  KAN-34  |  KAN-35
+ACCEPTANCE CRITERIA
+pipelines/build_ma_s.py: groups by sesn_id ordered by evnt_ts. Derives: session_start, session_end, session_duration_sec, event_count, event_string (ordered src_evnt_cd concat), feature_string (ordered feature concat via OPS_CD join), final_event_code, final_journey_status, first_error_code, journey_map. Reads table names from TABLE_CONFIG. Writes parquet partitioned by session_dt. Idempotent (delete partition before write). All fields per contracts/ma_s_spec.yaml.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_ma_s.py -v && python scripts/validate_KAN-040.py  # all tests pass, all MA_S spec fields present in output
+RECOVERY STRATEGIES
+[Sessionisation grouping wrong] Read contracts/ma_s_spec.yaml sessionisation logic. Verify GROUP BY is sesn_id only — do not group by date unless partitioning. Check evnt_ts ordering.
+[Memory error on volume] Add repartition(200) before sessionisation window. Add broadcast hint for OPS_CD join (small table). Increase driver memory in deployment_config.yaml.
+[Output missing fields] Run python scripts/validate_KAN-040.py — it lists missing fields. Fix one field at a time. Re-run validation after each fix.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-40_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-040_ma_s_pipeline_manifest.md   |   Read manifest. Read all dependency contracts before writing any code. Scaffold PySpark job from contracts/ma_s_spec.yaml. Validate against benchmark dataset.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-41: Build pre-ingestion quality gate validator
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Validate data quality before pipeline begins — not after. Catching bad data after 8 hours of processing wastes time and produces misleading output. Pre-ingestion validation is the first line of defence.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-19  |  KAN-20  |  KAN-40
+ACCEPTANCE CRITERIA
+pipelines/pre_ingestion_validator.py: runs before any pipeline step. Checks: row count vs expected range, null rates on critical fields, sentinel value rates (cust_id -99), schema field presence, join key existence. On failure: emits semantic telemetry, logs to governance_run_fact, halts pipeline with DEGRADED status. Thresholds in circuit_breaker_config.yaml — not hardcoded.
+VALIDATION COMMAND (run after implementation)
+python pipelines/pre_ingestion_validator.py --date today --simulate-bad-data  # must detect injected quality issues and halt
+RECOVERY STRATEGIES
+[Pre-ingestion failure on production day] Do not proceed with pipeline. Publish DEGRADED banner. Log to governance_run_fact. Alert analytics lead. Investigate cause before next run.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-041_pre_ingestion_manifest.md   |   Read manifest + telemetry_spec.yaml. Scaffold validator. Test with injected bad data. Confirm DEGRADED halt.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-42: Derive behavioural signal fields from ordered event sequence
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Behavioural signals are what make CJI Pulse distinctive. They encode what customers actually did — not just whether they completed. Each signal has an exact derivation logic that must be implemented precisely.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-40  |  KAN-22  |  KAN-34
+ACCEPTANCE CRITERIA
+All signals derived from event_string and feature_string using OPS_CD taxonomy: ghost_intent_flag (intent event present but no terminal success op_code), silent_exit_flag (final event is mid-journey op_code not terminal), partial_op_sequence_flag (expected sequence starts but never completes), help_access_during_journey (help/search feature appears mid-session). Additional: back_navigation_count, repeat_attempt_count, rage_tap_count (if available in MA_D). Unit test per signal using known sequences from benchmark dataset.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_ma_s.py::test_behavioural_signals -v  # all signal tests pass against benchmark patterns
+RECOVERY STRATEGIES
+[Signal logic ambiguous for a journey type] Set signal to NULL for that journey type. Document in contracts/ma_s_spec.yaml. Do not guess. Log as investigation item.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-42_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-042_behavioural_signals_manifest.md   |   Read manifest. Read contracts/ops_cd.yaml for feature taxonomy. Unit test each signal against benchmark dataset patterns.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-43: Build quality gate with full semantic telemetry
+Effort: 3h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Every pipeline failure must emit machine-readable telemetry. An AI agent reading failure output must be able to diagnose the problem and know whether to retry, escalate, or degrade. The quality gate is the enforcement mechanism.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-19  |  KAN-40
+ACCEPTANCE CRITERIA
+pipelines/build_quality_gate.py: checks null rates per critical field, join rates (OPS_CD, SE), session volume vs expected range, schema drift flags. On any failure emits complete telemetry per manifests/telemetry_spec.yaml: step_id, input_reference, output_summary, error_code, error_class, retryability, business_impact_tier, downstream_dependency_impact, manifest_spec_reference. Degraded mode triggers automatically on 3+ critical failures — no human needed to trigger it.
+VALIDATION COMMAND (run after implementation)
+python pipelines/build_quality_gate.py --inject-failures  # must emit valid telemetry JSON for each injected failure. python scripts/validate_KAN-043.py  # validates telemetry output structure against spec
+RECOVERY STRATEGIES
+[Quality gate too strict — fires on legitimate data variation] Adjust thresholds in circuit_breaker_config.yaml. Never change threshold in code. Config is the control. Document why threshold changed.
+[Telemetry JSON invalid] Read telemetry_spec.yaml. Each field is mandatory. Add missing field. Re-run validate_KAN-043.py.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-043_quality_gate_manifest.md   |   Read manifest + telemetry_spec.yaml. Scaffold quality gate. Inject all failure types from simulation. Validate telemetry output structure.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-44: MA_S pipeline unit test suite
+Effort: 3h   |   Tool: Cursor   |   Priority: P2   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+AI-generated tests prove correctness and serve as regression protection. The test suite must be comprehensive enough that passing it gives real confidence, not just a green badge.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-40  |  KAN-42  |  KAN-43  |  KAN-34
+ACCEPTANCE CRITERIA
+tests/test_ma_s.py: covers sessionisation grouping correctness, OPS_CD join rate and broadcast behaviour, each behavioural signal against known sequences from benchmark dataset, quality gate threshold behaviour, semantic telemetry output format and completeness. Coverage >80%. All tests pass. Tests are AI-generated as part of this ticket.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_ma_s.py -v --cov=pipelines/build_ma_s --cov-report=term-missing  # >80% coverage, all tests pass
+RECOVERY STRATEGIES
+[Coverage below 80%] Run coverage report. Identify uncovered branches. Add targeted tests for those branches only. Do not add trivial tests to inflate coverage.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-044_pipeline_tests_manifest.md   |   Read manifest. Scaffold pytest suite from acceptance criteria. Run and assert all pass. Coverage report must confirm >80%.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 5: Daily Journey Mart (Days 29–35)
+Workstream: D
+Build the layer agents and dashboard read from. Never the raw 330M-row fact. The mart is the intelligence surface — it must be fast, correct, and circuit-breaker-aware.
+Sprint Goal
+daily_journey_mart aggregated from MA_S. Journey-level metrics. Refreshed vs legacy raw comparison with DIRECTIONAL labels. Today vs yesterday delta. Circuit breaker thresholds. Metric definitions versioned and controlled.
+Sprint Deliverable
+pipelines/build_daily_mart.py | config/circuit_breaker_config.yaml | config/metric_definitions.yaml
+Friday Proof
+Query daily_journey_mart — see funnel leakage, ghost intent rate, error rate, circuit breaker level, refreshed vs legacy comparison, delta vs yesterday — all by journey type. All on synthetic data.
+Exit Criteria
+Daily mart queryable with all defined metrics. Circuit breaker logic working. Comparison layer labelled DIRECTIONAL-only. Metric definitions versioned.
+
+Tickets
+KAN-50: Build daily_journey_mart aggregation
+Effort: 6h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+The mart is what every downstream consumer reads. It must contain all journey-level metrics in queryable form. Raw data is never touched by agents or dashboard.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-40  |  KAN-41  |  KAN-42  |  KAN-43
+ACCEPTANCE CRITERIA
+pipelines/build_daily_mart.py: groups MA_S by journey_type, app_version (legacy/refreshed), session_dt. Computes per journey: session_count, completion_rate, ghost_intent_rate, error_rate, avg_session_duration, funnel_leakage, help_access_rate, silent_exit_rate, contact_centre_contact_24h_rate. All metric definitions in config/metric_definitions.yaml — not hardcoded in pipeline. Writes parquet partitioned by session_dt.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_daily_mart.py -v && python scripts/validate_KAN-050.py  # all metrics present, definitions match config
+RECOVERY STRATEGIES
+[Metric definition unclear] Read config/metric_definitions.yaml. If not defined there, add definition first. Never implement undefined metrics.
+[Performance too slow for daily run] Add session_dt partition filter to MA_S read (process only today's partition). Add .cache() after MA_S load if mart uses it multiple times.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-50_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-050_daily_mart_manifest.md   |   Read manifest. Scaffold aggregation from config/metric_definitions.yaml. Never hardcode metric logic.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-51: Add refreshed vs legacy raw comparison layer
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Refreshed vs legacy comparison is the core Phase 1 mission. But raw comparison without cohort adjustment can mislead. Every raw comparison must be labelled DIRECTIONAL-only until propensity model is ready.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-50
+ACCEPTANCE CRITERIA
+Raw comparison computed for each metric: refreshed_value, legacy_value, raw_gap, raw_direction (improving/worsening/stable). All comparison fields labelled raw_comparison=true. DIRECTIONAL classification enforced — no EVIDENCED classification permitted from raw comparison alone. Propensity_adjusted=false flag visible in mart output until KAN Phase 2.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_daily_mart.py::test_comparison_labels -v  # must confirm all raw comparison fields have DIRECTIONAL label, none have EVIDENCED
+RECOVERY STRATEGIES
+[Comparison produces EVIDENCED classification on raw data] This is a classification bug. Halt. Fix response_mode logic to enforce DIRECTIONAL for raw comparisons. Re-test.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-051_comparison_layer_manifest.md   |   Read manifest. Add comparison fields. Validate DIRECTIONAL label is present on all raw comparisons. EVIDENCED requires propensity adjustment.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-52: Add delta fields — today vs yesterday vs 7-day baseline
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Journey owners need to know if things are getting better or worse, not just what the current state is. Delta fields answer: is today worse than yesterday?
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-50
+ACCEPTANCE CRITERIA
+delta_vs_yesterday and delta_vs_7day_baseline computed per metric per journey. Direction flag: improving/worsening/stable per configurable threshold. Baseline window defined in config/metric_definitions.yaml — not hardcoded. Mart includes yesterday's partition as lookback input.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_daily_mart.py::test_delta_fields -v  # confirms direction logic, confirms baseline window is config-driven
+RECOVERY STRATEGIES
+[Yesterday partition missing] Set delta_vs_yesterday to NULL with flag delta_unavailable=true. Do not fabricate yesterday's values. Log to governance_run_fact.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-052_delta_fields_manifest.md   |   Read manifest. Add delta computation. Validate baseline window is config-driven. Test missing-yesterday scenario.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-53: Add circuit breaker threshold checks
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The circuit breaker is the safety mechanism that prevents bad data or genuine customer harm from being normalised. Do Not Break journeys must never be silently downgraded.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-50
+ACCEPTANCE CRITERIA
+Thresholds defined in config/circuit_breaker_config.yaml per metric per journey: GREEN / AMBER / RED / CRITICAL levels with numeric thresholds. Mart output includes circuit_breaker_level per journey. Do Not Break journeys (Payments, Authentication) trigger GUARDED circuit_breaker_level regardless of metric level — this override cannot be suppressed. CRITICAL level triggers degraded mode automatically.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_daily_mart.py::test_circuit_breaker -v  # tests all 4 levels, tests Do Not Break override, tests CRITICAL degraded trigger
+RECOVERY STRATEGIES
+[Do Not Break override not triggering] This is a CRITICAL bug. Halt all downstream processing. Fix override logic. Do not release any day's report without passing this test.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-053_circuit_breaker_manifest.md   |   Read manifest + config. Apply thresholds. Validate Do Not Break override is unconditional. CRITICAL cannot be suppressed.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 6: Cross-Channel & Customer Context (Days 36–42)
+Workstream: E
+Add the signals that show what customers did after the app journey failed. Contact centre calls after app failure are the clearest evidence of customer harm.
+Sprint Goal
+CC_D joined to MA_S on cust_id within 24h window. CUST_DIM joined for segment, tenure, historical rates. Cross-channel leakage flags live in mart. Vulnerable customer cohort identifiable.
+Sprint Deliverable
+pipelines/build_cross_channel.py | pipelines/build_cust_dim.py | contact_centre_contact_24h and customer context fields in daily_journey_mart
+Friday Proof
+Daily mart shows contact_centre_contact_24h by journey type. Vulnerable customer segment (45+, low digital engagement) identifiable. Cross-channel leakage rate computable. Day 90 vision sentence nearly expressible.
+Exit Criteria
+Context joins working with documented stitching confidence. Customer segment available per journey. All assumptions documented in manifests and contracts.
+
+Tickets
+KAN-60: Build CC_D synthetic data generator
+Effort: 3h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Synthetic contact centre data lets us build and test cross-channel stitching before KAN-25 audit confirms the real CC_D join is feasible.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-30  |  KAN-25
+ACCEPTANCE CRITERIA
+data/simulate_cc_d.py generates synthetic call records: cust_id, call_timestamp, reason_code, call_duration, journey_type_inferred. Approximately 5% of failed app sessions generate a call within 24h. reason_code distribution realistic per journey failure type (Loans failure → payment query reason code). Volume realistic per day.
+VALIDATION COMMAND (run after implementation)
+python data/simulate_cc_d.py --date today && python scripts/validate_KAN-060.py  # confirms 24h timing distribution, confirms ~5% call rate on failed sessions
+RECOVERY STRATEGIES
+[KAN-25 blocked real CC_D join] Use synthetic generator only for Phase 1. Flag contact_centre_contact_24h as SYNTHETIC in mart output. Note in operating_model.md.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-060_cc_d_sim_manifest.md   |   Read manifest. Scaffold CC_D generator. Validate 24h timing distribution and failure correlation.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-61: Build cross-channel stitching pipeline
+Effort: 5h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Stitching app sessions to contact centre calls is what allows CJI Pulse to say: this customer had a bad app experience AND called us about it. That is the highest-confidence leakage signal.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-50  |  KAN-60
+ACCEPTANCE CRITERIA
+pipelines/build_cross_channel.py: joins CC_D to MA_S on cust_id where call_timestamp BETWEEN session_end AND session_end + 24h. contact_centre_contact_24h flag added to daily_journey_mart. Stitching confidence documented in manifest: synthetic data = SYNTHETIC, real join >90% = DIRECTIONAL, real join >98% = EVIDENCED candidate. Join rate logged in governance_run_fact.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_cross_channel.py -v && python scripts/validate_KAN-061.py  # validates join logic, confirms confidence label, confirms join rate logging
+RECOVERY STRATEGIES
+[Join rate unexpectedly low on real data] Check cust_id format match between CC_D and MA_S. Check timestamp timezone alignment. Log actual join rate. Do not label as EVIDENCED below 90%.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-61_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-061_cross_channel_manifest.md   |   Read manifest. Scaffold stitching logic. Validate 24h window join. Confirm confidence label in mart output.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-62: Build CUST_DIM synthetic data + join to MA_S
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Customer context transforms aggregate statistics into customer outcomes. Without segment and vulnerability data, we cannot identify the 45+ vulnerable customers on Step 3 — the Day 90 vision.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-50  |  KAN-15
+ACCEPTANCE CRITERIA
+data/simulate_cust_dim.py: synthetic CUST_DIM with customer_segment (5 types including 45+ low digital engagement = vulnerable), customer_tenure (years), historical_completion_rate, historical_digital_engagement_score. Joined to MA_S on cust_id. All cohort adjustment fields available in daily_journey_mart. Vulnerable customer cohort identifiable by query.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_cust_dim.py -v && python scripts/validate_KAN-062.py  # confirms vulnerable cohort identifiable, confirms segment distribution matches config
+RECOVERY STRATEGIES
+[KAN-15 blocked real CUST_DIM join] Use synthetic CUST_DIM only. Flag all customer context fields as SYNTHETIC. Vulnerable customer detection still functional but labelled SYNTHETIC-COHORT.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-062_cust_dim_manifest.md   |   Read manifest. Scaffold CUST_DIM generator and join. Validate vulnerable cohort is identifiable. Segment distribution matches config.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 7: Core Intelligence Layer — Qwen + Response Modes + Hypothesis Library + Conversational Interface (Days 43–49)
+Workstream: F + G
+The interpretive brain. This is what makes CJI Pulse an intelligence system, not a dashboard. Every output has a response mode. Every finding has a recommended action. The hypothesis library is searchable.
+Sprint Goal
+Qwen 2.5-Coder:14b running locally via Ollama. Narrative Agent produces structured daily briefing with all 5 response modes. Contradiction-aware. Tone guardrails active. Context pre-flight validation. Investigation queue generated. Hypothesis library queryable via conversational interface (library-grounded — AI interprets intent, answers from library, logs unknowns). Benchmark accuracy targets set.
+Sprint Deliverable
+agents/narrative_agent.py | agents/hypothesis_query_agent.py | Structured JSON output with response_mode, headline, findings[], recommended_action (three-part), investigation_queue[] | Prompt templates versioned | Accuracy benchmark first run
+Friday Proof
+Feed mart output to Narrative Agent. Get a real narrative back with EVIDENCED, DIRECTIONAL, CONTRADICTED all working. Journey owner types a hypothesis into the query interface — library match returned with evidence or logged for investigation. Benchmark precision target documented.
+Exit Criteria
+All 5 response modes tested. Tone guardrails validated. Recommended action field in every finding (three-part format). Hypothesis library searchable. Context pre-flight validation active. Benchmark first run complete.
+
+Tickets
+KAN-70: Set up Qwen 2.5-Coder:14b via Ollama in Docker + model config
+Effort: 3h   |   Tool: Claude Code   |   Priority: P1   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+The LLM is the interpretive engine. It must run reliably in the local Docker environment before any agent code is written. Model must be swappable via config — never hardcoded.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-12
+ACCEPTANCE CRITERIA
+ollama run qwen2.5-coder:14b responds from Docker container. Model service in docker-compose.yml. Health check endpoint tested. Latency within acceptable range for daily batch (not real-time). config/model_config.yaml defines: preferred_model, fallback_model (qwen2.5:7b), model_endpoint, timeout_seconds, max_tokens. All agent code reads model config — never hardcoded model name.
+VALIDATION COMMAND (run after implementation)
+curl http://localhost:11434/api/tags | grep qwen && python scripts/validate_KAN-070.py  # confirms model responding, confirms model_config.yaml valid
+RECOVERY STRATEGIES
+[14b model too slow or memory issue] Switch to 7b variant in model_config.yaml. Document capability impact. No code change required — config change only.
+[Ollama service not responding] Check docker-compose logs ollama. Restart service. If persistent, document in hosting_decision.md and investigate port/memory allocation.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-070_qwen_setup_manifest.md   |   Read manifest. Add Ollama service to docker-compose. Pull model. Validate health check. Confirm model_config.yaml drives model selection.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-71: Build Narrative Agent prompt template with context injection + tone guardrails + pre-flight validation
+Effort: 6h   |   Tool: Cursor   |   Priority: P1   |   Type: Agent   |   Status: NOT_STARTED
+GOAL
+The prompt template is the governance layer of the intelligence output. It controls what the model sees, in what order, and what it is permitted to say. Tone guardrails prevent accurate-but-harmful outputs. Pre-flight validation prevents stale context poisoning.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-70  |  KAN-50  |  KAN-1H
+ACCEPTANCE CRITERIA
+agents/narrative_agent.py prompt template with tiered context injection: Tier 1 (always, strict token budget): canonical statements, response mode definitions, tone guardrails, quality gate status, circuit breaker level, Do Not Break status, calendar flag. Tier 2: hypothesis subset per journey type, friction taxonomy, crash telemetry. Tier 3: expectation register fragments. Token budget enforced — omissions logged with reason. Context pre-flight validation: freshness check (flag if context data >30 days old → GUARDED), consistency check (flag contradictory signals → CONTRADICTED or UNKNOWN), completeness check (flag missing required context → DEGRADED). Tone guardrails: agent must never suggest customer behaviour is the problem, never dismiss low-volume findings as insignificant without evidence, never imply vulnerable customers should use a different channel. Guardrails tested adversarially.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_narrative_agent.py::test_context_injection -v && pytest tests/test_narrative_agent.py::test_tone_guardrails -v && pytest tests/test_narrative_agent.py::test_preflight_validation -v
+RECOVERY STRATEGIES
+[Token budget exceeded] Reduce Tier 2 context first. Never reduce Tier 1. Log which Tier 2 items were omitted. If Tier 1 alone exceeds budget, reduce max_tokens and switch to 7b model.
+[Pre-flight detects stale context] Set response_mode to GUARDED. Include stale context warning in briefing. Do not suppress — journey owner must know context is potentially outdated.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-071_narrative_prompt_manifest.md   |   Read manifest. Scaffold prompt template from Tier definitions. Validate token budget. Run tone guardrail adversarial tests. Run pre-flight validation tests.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-72: Build response mode classification + recommended action (three-part)
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Agent   |   Status: NOT_STARTED
+GOAL
+Response mode is the honesty signal. Recommended action is what transforms diagnosis into decision. Every finding must answer: what is happening, why it matters, what to do next. These are non-negotiable output fields.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-71
+ACCEPTANCE CRITERIA
+Agent output always includes response_mode (EVIDENCED/DIRECTIONAL/UNKNOWN/GUARDED/CONTRADICTED). CONTRADICTED cannot be suppressed or overridden — if evidence tier conflicts with metric improvement, CONTRADICTED is mandatory. Recommended_action field mandatory on every finding — three-part format: what_is_happening (one sentence), why_it_matters (one sentence including customer impact), suggested_first_action (one actionable sentence). Unit tests for all 5 response modes. CONTRADICTED test: metrics improve but NPS drops — must produce CONTRADICTED not EVIDENCED.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_narrative_agent.py::test_response_modes -v  # all 5 modes tested, CONTRADICTED non-suppression tested, recommended_action three-part format validated
+RECOVERY STRATEGIES
+[Model produces EVIDENCED where CONTRADICTED expected] This is a classification failure. Strengthen CONTRADICTED rule in prompt template Tier 1. Re-run adversarial test. Never release until this test passes.
+[Recommended action missing or incomplete] Add output validation that rejects findings without all three recommended_action parts. Model must regenerate if incomplete.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-072_response_modes_manifest.md   |   Read manifest. Scaffold classification logic. Test all 5 modes against benchmark dataset. Assert CONTRADICTED is non-suppressible.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-73: Build investigation queue generator
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Agent   |   Status: NOT_STARTED
+GOAL
+The queue is the action layer. It translates intelligence output into prioritised work items. Journey owners need to know: of all the problems, which three should I work on tomorrow?
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-72
+ACCEPTANCE CRITERIA
+Agent outputs ranked investigation_queue JSON. Each item: queue_id, triage_band (P1/P2/P3), journey_type, finding_summary, evidence_source_tier, response_mode, priority_score, promise_breach_flag, recommended_action (three-part), user_priority_weight (default 1.0 — user-configurable in cji.pro Sprint 10). P1 auto-override for: Do Not Break violations, CONTRADICTED payment/auth findings, vulnerable customer findings with ghost_intent + contact_centre within 24h. User priority weights configurable per journey owner without code change.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_narrative_agent.py::test_queue_generator -v  # P1 auto-override logic tested, user weights applied correctly, queue ordering deterministic
+RECOVERY STRATEGIES
+[P1 auto-override not triggering for Do Not Break] This is a CRITICAL bug. Halt. Fix override logic. Re-test. Do not release queue without passing this test.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-073_inv_queue_manifest.md   |   Read manifest. Scaffold queue generator. Test P1 auto-override with Do Not Break and CONTRADICTED scenarios. Validate user weight application.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-74: Build hypothesis query interface — library-grounded conversational search
+Effort: 5h   |   Tool: Claude Code   |   Priority: P1   |   Type: Agent   |   Status: NOT_STARTED
+GOAL
+Journey owners think in questions, not dashboard filters. The hypothesis query interface lets them type what they think is happening and get an evidence-grounded answer. The LLM interprets intent — not exact match — and retrieves from the hypothesis library. Unknown hypotheses are logged for investigation.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-70  |  KAN-72  |  KAN-1H
+ACCEPTANCE CRITERIA
+agents/hypothesis_query_agent.py: accepts free-text hypothesis from journey owner, uses LLM to interpret intent and retrieve closest match from hypothesis_library.yaml using semantic similarity (not exact match), returns: matched_hypothesis, evidence_tier, response_mode, recommended_action, supporting_kpis (list of chart references to display inline), confidence_score. If confidence_score < threshold (configurable, default 0.7): log as candidate hypothesis with KAN reference, return honest response 'This pattern is not in our library yet — logging as [KAN-XXX] for investigation in next weekly cycle.' Session memory: maintains conversation context within single session for follow-up questions. Fallback always honest: never generates findings not in library. Source always visible.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_hypothesis_query.py -v  # tests library match, tests below-threshold logging, tests session memory, tests source visibility, tests honest fallback
+RECOVERY STRATEGIES
+[Confidence threshold too high — too many unknowns] Lower threshold in config. But never below 0.5 — below 0.5 the match is guesswork. Log threshold change and reason.
+[Model generates findings not in library] This is a hallucination. Strengthen grounding instruction in prompt. Add output validation that rejects responses with no library reference.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-74_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-074_hypothesis_query_manifest.md   |   Read manifest + hypothesis_library.yaml. Scaffold query agent. Test library match, unknown logging, session memory. Honest fallback is mandatory.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-75: Adversarial test suite — response modes + tone + benchmark accuracy first run
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The adversarial suite is the proof that the intelligence layer is trustworthy. It must be run before any journey owner sees the system. Passing it is a precondition for Sprint 10 demo.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-71  |  KAN-72  |  KAN-73  |  KAN-34
+ACCEPTANCE CRITERIA
+tests/test_adversarial.py: (1) clean improvement → EVIDENCED. (2) metrics improve but NPS drops → CONTRADICTED, not EVIDENCED. (3) Do Not Break regression → GUARDED P1. (4) low data quality → UNKNOWN/degraded. (5) directional only → DIRECTIONAL. (6) tone test: step 3 failure for 45+ customer → narrative must not suggest customer error. (7) vulnerable customer finding → P1 queue item with recommended_action. Benchmark accuracy first run: run benchmark_dataset.yaml through intelligence layer, compute precision and recall. Target: precision >90%, recall >80%. Document actual results. Monthly audit cadence from this point.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_adversarial.py -v  # all 7 scenarios pass. python scripts/run_accuracy_benchmark.py  # documents precision/recall vs targets
+RECOVERY STRATEGIES
+[Benchmark precision below 90%] Do not suppress result. Document actual precision. Identify which benchmark scenarios failed. Fix classification logic for those specific failure types. Re-run. Do not release to journey owners until >80% precision minimum.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-075_adversarial_manifest.md   |   Read manifest. Run all 7 adversarial scenarios. Run benchmark accuracy. Document results honestly regardless of outcome.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 8: Voice, Promise & Expectation Intelligence (Days 50–56)
+Workstream: F
+Voice shows what customers said. Behaviour shows what customers did. Neither replaces the other. Voice is corroborative evidence — it can support a finding but cannot alone produce EVIDENCED classification.
+Sprint Goal
+Synthetic app store reviews and NPS verbatims ingested. Keyword clustering using OPS_CD taxonomy. Expectation and promise registries populated. Voice signal flows into narrative with source tier label. Rating velocity computed as operational signal.
+Sprint Deliverable
+agents/voice_agent.py | data/simulate_reviews.py | manifests/expectation_register.yaml | manifests/promise_register.yaml
+Friday Proof
+Narrative includes 'In last 3 days, 5 customers said App journey sucks.' The Day 90 vision sentence is working. Voice source tier label VOICE visible on every voice-sourced finding.
+Exit Criteria
+Voice evidence flows into narrative with correct labelling. Voice alone cannot upgrade DIRECTIONAL to EVIDENCED (tested). Rating velocity AMBER flag working. Expectation register populated.
+
+Tickets
+KAN-80: Build synthetic app store review and NPS generator
+Effort: 3h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Synthetic voice data lets us build and test the voice intelligence pipeline. Reviews must correlate with simulated failure injection so the system learns the relationship between behaviour and voice.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-30
+ACCEPTANCE CRITERIA
+data/simulate_reviews.py: realistic reviews with rating (1-5), text, app_version, review_date. NPS verbatims with score, journey_type, and realistic text referencing the Day 90 vision ('App journey sucks', 'Step 3 impossible', 'Called your number instead'). Negative review spike correlates with failure injection rate in simulation. Volume: realistic per day (50–200 reviews). Example clusters pre-defined in simulation config so Claude Code knows what 'good' looks like.
+VALIDATION COMMAND (run after implementation)
+python data/simulate_reviews.py --date today && python scripts/validate_KAN-080.py  # confirms negative review / failure injection correlation
+RECOVERY STRATEGIES
+[Review text not realistic enough] Use example_clusters from simulation_config.yaml as seed vocabulary. Reviews should mention journey steps, not generic app criticism.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-080_review_sim_manifest.md   |   Read manifest. Scaffold generator. Validate negative review / failure injection correlation. Example clusters must be in simulation_config.yaml.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-81: Build keyword clustering pipeline — OPS_CD seeded, k-means n=5
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Clustering reviews by journey type lets the system say: here are the top 3 things customers are saying about the Loans journey. The OPS_CD taxonomy seeds the vocabulary so clusters map to journey context.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-80  |  KAN-22
+ACCEPTANCE CRITERIA
+agents/voice_agent.py clustering function: k-means with n=5 clusters per journey type (n=5 specified exactly — no ambiguity for AI builder). Seed vocabulary from OPS_CD feature taxonomy. Outputs per cluster: cluster_id, journey_type, top_terms (5), volume, avg_rating, sentiment_score. App store rating velocity (rolling 24h and 7d) computed separately as operational signal. Journey type mapped from top_terms using OPS_CD taxonomy — not free-form.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_voice_agent.py::test_clustering -v  # confirms 5 clusters per journey, OPS_CD vocabulary mapping, journey type assignment
+RECOVERY STRATEGIES
+[Clusters not mapping to journey types] Review OPS_CD seed vocabulary. Add journey-specific terms if missing. Re-run clustering. Do not manually assign cluster labels — use taxonomy mapping.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-081_clustering_manifest.md   |   Read manifest. Use k-means n=5 exactly. Seed from OPS_CD. Validate cluster-to-journey mapping.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-82: Build Voice Agent — retrieval and narrative injection with source tier label
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Agent   |   Status: NOT_STARTED
+GOAL
+The Voice Agent retrieves voice evidence and injects it into the Narrative Agent context with explicit source labelling. The source tier label is what allows journey owners to distinguish operational data from voice evidence.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-81  |  KAN-71
+ACCEPTANCE CRITERIA
+agents/voice_agent.py retrieval function: retrieves top 3 clusters per flagged journey. Injects into Narrative Agent context with source_tier=VOICE label. Corroboration logged (voice agrees with behavioural finding) or contradiction logged (voice contradicts). Voice alone cannot change DIRECTIONAL to EVIDENCED — this constraint is tested adversarially and must pass. VOICE label visible in all narrative output that cites voice evidence.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_voice_agent.py::test_tier_enforcement -v  # DIRECTIONAL + VOICE = DIRECTIONAL (not EVIDENCED). pytest tests/test_voice_agent.py::test_source_label -v
+RECOVERY STRATEGIES
+[Voice evidence upgrading DIRECTIONAL to EVIDENCED] CRITICAL bug. Fix source tier enforcement in narrative agent. Voice is corroborative only. Re-run adversarial test.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-082_voice_agent_manifest.md   |   Read manifest. Scaffold Voice Agent. Run voice-only upgrade test. Assert DIRECTIONAL stays DIRECTIONAL. VOICE label on all voice citations.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-83: Build expectation and promise registry
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Customer expectations are first-class evidence in CJI Pulse. A metric improving while expectations are unmet produces CONTRADICTED — not EVIDENCED. The registry makes this machine-readable.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-71
+ACCEPTANCE CRITERIA
+manifests/expectation_register.yaml: pre-refresh customer expectations per journey type (what customers expected before refresh). manifests/promise_register.yaml: testable promise statements from product teams per journey (what was promised to customers). Both injected into Narrative Agent Tier 3 context. promise_to_outcome_status tracked per promise: KEPT / BROKEN / UNKNOWN. CONTRADICTED response mode required if promise_to_outcome_status=BROKEN on a finding.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_voice_agent.py::test_expectation_injection -v && pytest tests/test_narrative_agent.py::test_promise_contradicted -v
+RECOVERY STRATEGIES
+[Promise register empty at Sprint 8] Populate with at least 3 promises from brief v2.8. Use canonical statements as promise proxies. Empty promise register means CONTRADICTED can never fire from promise breach — document this limitation.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-083_expectation_registry_manifest.md   |   Read manifest. Scaffold registries from template. Validate schema. Confirm injection into narrative Tier 3 context. Test CONTRADICTED fires on BROKEN promise.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-84: Build app store rating velocity signal
+Effort: 2h   |   Tool: Cursor   |   Priority: P2   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Rating velocity is the earliest operational signal of a bad release. A 1-star spike within 90 minutes of rollout expansion is detectable before any session data accumulates.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-80  |  KAN-53
+ACCEPTANCE CRITERIA
+Rolling 24h and 7d rating change computed. Review volume per hour post-expansion tracked. AMBER circuit_breaker_level triggered if 1-star spike exceeds threshold within 90 min of rollout expansion. Threshold configurable in circuit_breaker_config.yaml. Velocity signal included in daily_journey_mart as app_store_velocity_signal.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_voice_agent.py::test_rating_velocity -v  # confirms AMBER trigger at configured threshold
+RECOVERY STRATEGIES
+[Spike threshold too sensitive] Adjust threshold in circuit_breaker_config.yaml. Document reason. Never change threshold in code.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-084_rating_velocity_manifest.md   |   Read manifest. Compute velocity. Validate AMBER flag at configured threshold. Config-driven, not hardcoded.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 9: Daily Orchestrator & Semantic Telemetry (Days 57–63)
+Workstream: H
+Wire everything together into one autonomous daily run. One command. No human intervention required. Every failure is machine-readable. Mid-execution escalation fires when confidence drops.
+Sprint Goal
+Orchestrator runs full pipeline: pre-ingestion → quality gate → session pipeline → mart → cross-channel → intelligence → report → queue → push notifications. Every failure emits full semantic telemetry. Degraded mode tested. Mid-execution human escalation on low confidence. Monthly agent output review process established.
+Sprint Deliverable
+orchestrator/run_daily.py | governance_run_fact parquet | Structured report JSON | Slack/email push notification stubs
+Friday Proof
+python run_daily.py --date 2026-03-10 produces a complete structured report with queue. No manual steps. Inject a failure — telemetry fires correctly. Degraded mode tested and confirmed.
+Exit Criteria
+One-command run works end-to-end. Semantic telemetry fires on all failures. Degraded mode tested. Mid-execution escalation tested. Monthly review process documented. Push notification stubs working.
+
+Tickets
+KAN-90: Build orchestrator pipeline runner
+Effort: 6h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+One command runs everything in the correct order. No human orchestration. No manual steps. The orchestrator is the daily operating heartbeat of CJI Pulse.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-41  |  KAN-43  |  KAN-50  |  KAN-61  |  KAN-62  |  KAN-72  |  KAN-73
+ACCEPTANCE CRITERIA
+orchestrator/run_daily.py: runs all pipeline steps in dependency order: pre_ingestion_validator → build_ma_s → build_daily_mart → build_cross_channel → build_cust_dim → voice_agent → narrative_agent → queue_generator → push_notifications. Each step logs: step_id, start_ts, end_ts, status, rows_processed, semantic_telemetry_reference. governance_run_fact written per run: run_id, date, steps_passed, steps_failed, quality_gate_status, circuit_breaker_level, duration_sec, degraded_mode_flag. Single entry point: python orchestrator/run_daily.py --date YYYY-MM-DD.
+VALIDATION COMMAND (run after implementation)
+python orchestrator/run_daily.py --date today --dry-run && python scripts/validate_KAN-090.py  # confirms all steps registered, governance_run_fact schema valid
+RECOVERY STRATEGIES
+[A pipeline step fails mid-run] Log failure to governance_run_fact. Emit semantic telemetry. Continue to next step if retryability=yes in telemetry. Halt if retryability=no. Never skip silently.
+[Run takes too long] Add --parallel flag for independent steps. Steps 3, 4, 5 (mart, cross-channel, cust_dim) can run in parallel after MA_S completes.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-90_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-090_orchestrator_manifest.md   |   Read manifest. Scaffold orchestrator from step dependency graph in system_manifest.yaml. governance_run_fact schema must be validated.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-91: Build degraded mode handler + mid-execution escalation
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Degraded mode ensures the system never publishes partial or misleading intelligence when data quality is insufficient. Mid-execution escalation ensures a human is notified when confidence drops mid-run — not discovered the next morning.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-90  |  KAN-43
+ACCEPTANCE CRITERIA
+orchestrator/degraded_mode.py: if quality gate fails 3+ critical fields → suppress all detailed findings, publish headline-only report with DEGRADED banner, create P2 queue item with failed field list, notify analytics lead and engineering lead via configured channel. No improvised interpretation on partial data. Mid-execution escalation: if Narrative Agent confidence_score drops below threshold mid-run (configurable, default 0.6) → pause, send alert 'Low confidence run — human review required before publishing', wait for operator approval or auto-publish with GUARDED banner after 30 min timeout.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_orchestrator.py::test_degraded_mode -v && pytest tests/test_orchestrator.py::test_mid_execution_escalation -v  # inject 3 failures, confirm DEGRADED banner. Inject low confidence, confirm escalation alert.
+RECOVERY STRATEGIES
+[Notification channel not configured] Log to governance_run_fact. Do not fail the run. Flag as NOTIFICATIONS_UNCONFIGURED in operating_model.md. Configure before production.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-091_degraded_mode_manifest.md   |   Read manifest. Scaffold degraded mode. Inject 3 critical failures. Validate DEGRADED banner and P2 queue item. Test mid-execution escalation.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-92: Implement full semantic telemetry on all failures
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Machine-readable telemetry on every failure is what makes the system self-diagnosable. An AI agent reading failure output must be able to understand exactly what happened, why, and what to try next.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-19  |  KAN-90
+ACCEPTANCE CRITERIA
+Every pipeline failure emits complete telemetry per manifests/telemetry_spec.yaml: step_id, input_reference, output_summary, error_code, error_class, retryability, business_impact_tier, downstream_dependency_impact, manifest_spec_reference, recovery_strategy_reference. Output as machine-readable JSON. Agent self-diagnosis test: given failure JSON, agent must identify correct recovery strategy without additional context.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-092.py  # validates all fields present on failure output. pytest tests/test_orchestrator.py::test_agent_self_diagnosis -v  # agent reads failure JSON and identifies correct recovery
+RECOVERY STRATEGIES
+[Self-diagnosis test fails] Add more specific manifest_spec_reference and recovery_strategy_reference to failure output. The richer the telemetry, the better the self-diagnosis.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-092_telemetry_impl_manifest.md   |   Read manifest + telemetry_spec.yaml. Validate all fields. Run agent self-diagnosis test. Telemetry must be actionable, not just logged.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-93: End-to-end integration test — 7 days synthetic + push notification stubs + monthly review process
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+Seven days of successful synthetic runs proves the orchestrator works reliably before a single real journey owner sees the system. Monthly agent output review process must be documented before journey owners engage.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-90  |  KAN-91  |  KAN-92
+ACCEPTANCE CRITERIA
+7 days of synthetic data processed. All pipeline steps pass on each day. Report JSON produced. Degraded mode test passes (Day 4 with injected failures). Semantic telemetry fires on Day 4 injection. governance_run_fact has 7 rows. Push notification stubs fire on Days 1 and 4 (P1 finding and degraded mode). Monthly agent output review process documented in operating_model.md: who reviews, what they check, what gets escalated, cadence (first Monday of each month), retrospective format.
+VALIDATION COMMAND (run after implementation)
+python scripts/run_7day_integration_test.py  # all 7 days pass, Day 4 degraded mode confirmed, governance_run_fact has 7 rows. python scripts/validate_KAN-093.py
+RECOVERY STRATEGIES
+[Day N fails in 7-day test] Investigate governance_run_fact for Day N. Read semantic telemetry. Apply recovery strategy from telemetry. Fix and re-run from Day N.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-093_integration_test_manifest.md   |   Read manifest. Run 7-day test. Validate all assertions. Monthly review process must be in operating_model.md before closing ticket.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 10: Streamlit Frontend — Decision Surface + Conversational Interface (Days 64–70)
+Workstream: H
+Build the screen. Confidence, caveats, response modes, and recommended actions must be visible — not hidden. The chat interface meets journey owners where they think. Charts answer what they see.
+Sprint Goal
+Streamlit app locally with daily briefing, journey scorecard, investigation queue with user-configurable priority weights, voice signal panel, and conversational hypothesis query interface (Ask CJI). Daily briefing email stub. P1 Slack alert stub. Journey owner first experience designed.
+Sprint Deliverable
+app/cji_app.py — login, daily briefing, scorecard, queue with user weights, voice panel, Ask CJI chat interface
+Friday Proof
+Open browser. Log in. See Day 90 vision sentence. 45+ vulnerable customer, Step 3, Loans journey, 3x abandonment. CONTRADICTED badge visible. Recommended action: three parts. Type a hypothesis into Ask CJI. Get an answer or a log confirmation.
+Exit Criteria
+All 5 pages functional. Response mode badges visible. Recommended actions visible on all findings. Ask CJI returns library-grounded responses. User priority weighting functional. Push notification stubs confirmed. First experience design reviewed.
+
+Tickets
+KAN-100: Build Streamlit app scaffold with login and navigation
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: UI Component   |   Status: NOT_STARTED
+GOAL
+The scaffold is the container for every subsequent UI ticket. Login, navigation, and data loading must be solid before any page is built on top of them.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-93
+ACCEPTANCE CRITERIA
+app/cji_app.py: login screen with session state. Navigation between 5 pages: Daily Briefing, Journey Scorecard, Investigation Queue, Voice Panel, Ask CJI. Reads from orchestrator report JSON (not mart directly). No hardcoded data anywhere. Manifest path visible in footer for traceability. Manifest version displayed in footer.
+VALIDATION COMMAND (run after implementation)
+python -m streamlit run app/cji_app.py --headless && python scripts/validate_KAN-100.py  # confirms 5 pages load, session state works, data reads from report JSON
+RECOVERY STRATEGIES
+[Report JSON missing or malformed] Show DEGRADED banner with last successful run date. Never show empty dashboard — always show the most recent valid report.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-100_app_scaffold_manifest.md   |   Read manifest. Generate Streamlit scaffold. Smoke test: login, navigate all 5 pages, load report.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-101: Build daily briefing page + email stub
+Effort: 5h   |   Tool: Cursor   |   Priority: P1   |   Type: UI Component   |   Status: NOT_STARTED
+GOAL
+The briefing page is what journey owners see first every morning. It must answer in 30 seconds: is today good or bad, and what do I need to do? Response mode badge must be impossible to miss.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-100
+ACCEPTANCE CRITERIA
+Displays: response_mode badge (colour-coded, large, top of page), Qwen executive headline, circuit breaker status (GREEN/AMBER/RED/CRITICAL with colour), top 3 findings each with evidence tier + recommended_action (three-part visible), quality gate status, calendar flag. Day 90 vision sentence displayed when Loans journey flagged with vulnerable customer finding. Email stub: generates email-ready HTML version of briefing (delivered 7am). One-click drill-down link from email to full dashboard.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-101.py  # smoke test with CONTRADICTED finding — confirms badge visible, three-part recommended_action visible, email stub generates
+RECOVERY STRATEGIES
+[Response mode badge not prominent enough] Increase font size to H1. Add colour background. Badge is the most important single element on the page — never de-emphasise it.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-101_briefing_page_manifest.md   |   Read manifest. Generate briefing page. Smoke test with CONTRADICTED finding. Validate all sections render. Email stub confirmed.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-102: Build journey scorecard page with user priority weighting
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: UI Component   |   Status: NOT_STARTED
+GOAL
+The scorecard gives journey owners an at-a-glance view of all journeys. User-configurable priority weights let them apply their own judgment about what matters — the system provides the data, the journey owner sets the priorities.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-100  |  KAN-73
+ACCEPTANCE CRITERIA
+Table per journey: session_count, completion_rate, ghost_intent_rate, error_rate, contact_centre_24h_rate, delta_vs_yesterday, circuit_breaker_level. Colour coded (GREEN/AMBER/RED). Accessibility cohort shown as named cut, not buried in aggregate ('Vulnerable customers: 45+ low engagement — abandonment rate 3x average'). User priority weights: slider per journey type, default 1.0, range 0.5–2.0. Weight adjustment changes queue priority ordering in real time. Weights saved to session state.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-102.py  # smoke test with Do Not Break regression, accessibility cohort visible, weight adjustment changes queue ordering
+RECOVERY STRATEGIES
+[Accessibility cohort not visible as named cut] This is a UX failure. Vulnerable customers must never be buried in aggregate. Add explicit named cohort row to scorecard before release.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-102_scorecard_manifest.md   |   Read manifest. Generate scorecard table. Smoke test Do Not Break regression. Validate accessibility cohort visibility. Test weight adjustment.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-103: Build investigation queue page + Slack P1 alert stub
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: UI Component   |   Status: NOT_STARTED
+GOAL
+The queue is where intelligence becomes action. Items older than 14 days represent a governance failure. P1 items must be impossible to miss — including in Slack where journey owners actually spend their day.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-100  |  KAN-73
+ACCEPTANCE CRITERIA
+Queue table: queue_id, triage_band, journey_type, finding_summary, response_mode badge, age_days, status, promise_breach_flag, recommended_action (three-part visible on expand). P1 items highlighted red. Items older than 14 days flagged amber with age_warning. Filter by triage band. Slack alert stub: P1 items trigger Slack message to configured channel ('P1 CONTRADICTED finding on Loans journey — vulnerable customers 3x abandonment — Investigate now: [link]'). Stub fires to webhook URL in config — easily activated in production.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-103.py  # P1 highlight, age flag, Slack stub fires to test webhook, recommended_action visible on expand
+RECOVERY STRATEGIES
+[Slack webhook not configured] Log alert to governance_run_fact. Do not fail the run. Flag SLACK_UNCONFIGURED in operating_model.md.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-103_queue_page_manifest.md   |   Read manifest. Generate queue page. Smoke test P1 highlight and age flag. Slack stub fires.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-104: Build Ask CJI — conversational hypothesis query interface
+Effort: 5h   |   Tool: Claude Code   |   Priority: P1   |   Type: UI Component   |   Status: NOT_STARTED
+GOAL
+Ask CJI is how journey owners interact with the intelligence layer without being data analysts. They type what they think is happening. The system interprets, searches the library, and answers from evidence. Charts appear inline alongside the answer.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-100  |  KAN-74
+ACCEPTANCE CRITERIA
+app/cji_app.py Ask CJI page: text input with example hypothesis visible before typing ('Example: vulnerable customers are abandoning Step 3 of the Loans journey after the income verification screen'). Response shows: matched hypothesis (if found), response_mode badge, recommended_action (three-part), supporting KPIs (inline chart references from mart), confidence_score, source label. If below confidence threshold: 'This pattern is not in our library yet — logged as [KAN-XXX] for investigation in next weekly analyst cycle.' Session memory: follow-up questions maintain context. All responses show source — never sourceless claims.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-104.py  # tests 3 library-match scenarios, 1 unknown scenario (logs correctly), session memory (follow-up question uses context), source visible on all responses
+RECOVERY STRATEGIES
+[LLM response time too slow for interactive feel] Add spinner with 'Searching hypothesis library...' message. Target <5s response. If consistently >10s, investigate model config.
+[Unknown hypothesis not logging correctly] Check hypothesis_query_agent.py logging function. Verify KAN reference generated and visible in response. Journey owner must see confirmation their question is being investigated.
+SEQUENTIAL PROMPT BREAKDOWN
+Write each prompt just-in-time at the start of that step. The breakdown below defines structure, not the final prompt. Prompts improve sprint-over-sprint. Write the map now; write directions when on the road.
+
+PROMPT TEMPLATE SKELETON (for each step above, include these elements when writing just-in-time)
+Files to create or modify: exact paths
+Read first: list dependency manifests and contracts to read before coding
+Context anchors: point to real files that exist — never describe schema, reference the YAML
+Logic steps: numbered, exact, unambiguous — no interpretation required
+Success criteria: deterministic pass/fail checks
+Generate validation script at scripts/validate_KAN-104_P{n}.py — AI writes its own test
+Manifest update: after validation passes, update system_manifest.yaml status to PARTIAL-P{n} or BUILT
+Retrospective: fill after execution — what worked, what confused AI, what needed manual fix, what to change for next step
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-104_ask_cji_manifest.md   |   Read manifest. Read agents/hypothesis_query_agent.py before building UI. Example must be visible. Unknown logging must be confirmed to journey owner.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-105: Build voice signal panel
+Effort: 3h   |   Tool: Cursor   |   Priority: P2   |   Type: UI Component   |   Status: NOT_STARTED
+GOAL
+Voice evidence is shown separately with its own source label so journey owners always know they are reading voice data, not operational data. The caveat is part of the display, not a footnote.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-100  |  KAN-82
+ACCEPTANCE CRITERIA
+Top 3 voice clusters per flagged journey. Format: 'In last N days, X customers said [top_terms].' Rating velocity indicator. Source tier label VOICE visible and prominent. Explicit caveat displayed below every voice finding: 'Voice evidence is corroborative. It supports but does not replace operational data. DIRECTIONAL findings with voice support remain DIRECTIONAL.' App store rating velocity shown as operational signal (separate section with different colour).
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-105.py  # VOICE label visible, caveat present, rating velocity separate section
+RECOVERY STRATEGIES
+[Caveat not visible] Move caveat to top of voice panel, not bottom. It must be seen before the data, not after.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-105_voice_panel_manifest.md   |   Read manifest. Generate voice panel. VOICE label and caveat must be prominent — validate before closing.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 11: Deployment, Security & Operating Model (Days 71–77)
+Workstream: I
+Deploy it. Name the owners. A URL and a signed operating model change everything. Governance is a ramp, not a wall.
+Sprint Goal
+Streamlit app deployed with CI/CD. Operating model published with named owners, SLAs, decision rights, controlled agent path, graduated trust tiers, SM&CR accountability column, collaboration cadences, and monthly agent output review. Journey owner onboarding guide written.
+Sprint Deliverable
+cji.pro live | .gitlab-ci.yml | operating_model.md | journey_owner_onboarding.md
+Friday Proof
+Open cji.pro on phone. It works. Show it to a journey owner. Operating model exists with a real named owner for every decision. Onboarding guide ready for journey owner training.
+Exit Criteria
+Live controlled deployment. Named owners documented. SM&CR column populated. Collaboration cadences documented. Monthly review process documented. Journey owner onboarding guide complete. Graduated trust tiers enforced.
+
+Tickets
+KAN-110: Choose and document hosting decision + deployment config
+Effort: 2h   |   Tool: Research   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Hosting decision is infrastructure policy. It must be documented, versioned, and machine-readable. All deployment code reads from config — never hardcoded.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-10
+ACCEPTANCE CRITERIA
+config/hosting_decision.md: Streamlit Cloud preferred (free, zero ops, Phase 1 appropriate). VPS fallback documented if data volume requires. Security posture documented. config/deployment_config.yaml: environment (staging/production), streamlit_app_url, data_path, model_endpoint, notification_webhooks, log_level. All components read from deployment_config.yaml — zero hardcoded URLs or paths.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-110.py  # confirms deployment_config.yaml valid, no hardcoded URLs in codebase
+RECOVERY STRATEGIES
+[Streamlit Cloud data volume limit hit] Switch to VPS as documented fallback. Update deployment_config.yaml. No code change required.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-110_hosting_decision_manifest.md   |   Read manifest. Apply hosting decision. All components read from deployment_config.yaml.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-111: Deploy to Streamlit Cloud
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+Live deployment with a real URL transforms the project from a local experiment to a working system. A URL is credibility.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-110  |  KAN-100
+ACCEPTANCE CRITERIA
+App live at streamlit.app URL (or cji.pro after KAN-113). Login works. Daily report loads from latest synthetic run. No errors. HTTPS active. Secrets managed via Streamlit secrets.toml (not committed to repo). Smoke test from mobile device.
+VALIDATION COMMAND (run after implementation)
+curl -s https://[app-url]/healthz | grep 'ok' && python scripts/validate_KAN-111.py  # confirms live URL, login, report load
+RECOVERY STRATEGIES
+[Deployment fails] Check Streamlit Cloud logs. Most common: missing requirements.txt entry, missing secret, path error. Fix one issue at a time. Re-deploy.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-111_deployment_manifest.md   |   Read manifest. Apply deployment config. Run smoke test from mobile device. Secrets not in repo.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-112: Set up GitLab CI/CD pipeline
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+CI/CD makes every merged commit safe. Tests run automatically. Bad code does not reach production. One engineer with CI/CD is more reliable than a team without it.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-111
+ACCEPTANCE CRITERIA
+.gitlab-ci.yml: run all tests on every push to main branch. Deploy to Streamlit on merge to main. Pipeline badge visible in repo. Rollback procedure documented in manifest: git revert [commit], push to main, auto-deploys previous version. Test stage must pass before deploy stage.
+VALIDATION COMMAND (run after implementation)
+Push a test commit. Confirm pipeline runs. Confirm deploy stage triggers on merge. Confirm rollback works on test deployment.
+RECOVERY STRATEGIES
+[CI/CD pipeline fails unexpectedly] Check GitLab pipeline logs. Most common: environment variable missing, test timeout. Fix environment first, then re-trigger.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-112_cicd_manifest.md   |   Read manifest. Scaffold .gitlab-ci.yml from pipeline steps. Test push triggers tests. Merge triggers deploy.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-113: Configure custom domain cji.pro
+Effort: 2h   |   Tool: Manual   |   Priority: P2   |   Type: Deployment Config   |   Status: NOT_STARTED
+GOAL
+cji.pro is the identity. A professional domain communicates that this is a real system, not an experiment.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-111
+ACCEPTANCE CRITERIA
+cji.pro resolves to deployed app. HTTPS certificate active (Let's Encrypt or Streamlit managed). DNS configuration documented in deployment_config.yaml. Smoke test from mobile device.
+VALIDATION COMMAND (run after implementation)
+curl -s https://cji.pro | grep '<title>' && openssl s_client -connect cji.pro:443 -brief 2>&1 | grep 'Verification: OK'
+RECOVERY STRATEGIES
+[DNS propagation slow] Verify nameserver update at registrar. DNS TTL is the delay — check propagation with dig cji.pro. No code action needed, wait for propagation.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-113_domain_manifest.md   |   Read manifest. Apply DNS config. Validate HTTPS and resolution.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-114: Publish operating model — full governance document
+Effort: 6h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The operating model is the governance layer that makes CJI Pulse trustworthy to regulators, senior managers, and journey owners. Without it, every agent action is ungoverned. With it, every action is traceable to a named human.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-17  |  KAN-1G
+ACCEPTANCE CRITERIA
+docs/operating_model.md covers: (1) Named owner per decision area — analytics lead, engineering lead, journey owner per journey. (2) SLAs: P1 findings = 4h response, daily report = 7am, queue P2/P3 = 14 day closure target. (3) Escalation paths per severity. (4) Controlled agent path: approved tools, approved environments, test requirements before production, merge review requirements, rollback procedure, auditability standard, no autonomous production deployment without human approval. (5) SM&CR accountability column: which named senior manager is accountable for each decision area — design now, enforce Phase 2. (6) Graduated trust tiers: how journey owners earn expanded permissions (Tier 1–4). (7) Collaboration cadence: weekly journey owner sync (Mondays 9am), monthly governance review (first Monday), quarterly steering group. (8) Monthly agent output review: who attends, what is reviewed (accuracy vs benchmark, false positives, missed findings), what gets escalated, retrospective format. (9) Data governance: how data subject access requests are handled, retention policy, purpose limitation enforcement.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-114.py  # confirms all required sections present, no unnamed owners, SLAs documented, SM&CR column populated
+RECOVERY STRATEGIES
+[Named owner not yet identified for a decision area] Mark as TBC with escalation date. Do not publish operating_model.md with blank owners — document the gap and set a resolution date.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-114_operating_model_manifest.md   |   Read manifest. Validate operating_model.md covers all required sections. Flag unnamed owners. SM&CR column must be populated.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-115: Write journey owner onboarding guide
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Journey owners have never used a system like this. The onboarding guide is their first experience — it determines whether they trust the system and use it daily, or dismiss it as another dashboard.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-114
+ACCEPTANCE CRITERIA
+docs/journey_owner_onboarding.md: (1) What CJI Pulse does and does not do — honest scope statement. (2) How to read response mode badges — what each means in plain language. (3) How to read recommended actions — three-part format explained. (4) How to use the investigation queue — what P1/P2/P3 means, how to close items. (5) How to use Ask CJI — 5 example questions, what happens when the system does not know. (6) How to adjust priority weights — what the slider means, how it affects queue ordering. (7) What the system cannot do — explicit list of limitations. (8) How to raise concerns — who to contact if a finding seems wrong. (9) Trust tiers — what Tier 1 users can do vs Tier 2. Estimated reading time: 15 minutes.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-115.py  # confirms all 9 sections present, Ask CJI examples included, limitations section present
+RECOVERY STRATEGIES
+[Journey owners confused by response modes in pilot] Update onboarding guide based on feedback. CONTRADICTED especially needs plain-language explanation. 'The numbers improved but customers expected more — this is not a success.'
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-115_onboarding_manifest.md   |   Read manifest. Validate all 9 sections. Ask CJI examples must include at least 5 questions.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 12: Reconstruction Readiness & Controlled Rebuild Proof (Days 78–84)
+Workstream: J
+The manifest has been growing since Day 1. Now prove it works. An agent reading the manifests must be able to rebuild any component without asking a single question.
+Sprint Goal
+Manifest corpus complete for all Phase 1 production components. Component-level controlled execution proven on all targets. Representative dependency chain rebuilt. Zero hardcoding. Adversarial test suite including tone tests. Pre-ingestion validation confirmed on all pipelines.
+Sprint Deliverable
+Complete manifest corpus | system_manifest_index.md | Rebuild test results documented | Adversarial suite passing | Gap log
+Friday Proof
+Give Claude Code the manifest for the Voice Agent. It rebuilds it without touching code. Document any gaps honestly. Adversarial suite passes all scenarios including tone tests.
+Exit Criteria
+All production components meet binary controlled-execution standard. Representative chain rebuilt. Every item has dual closure. Adversarial suite passes. Zero hardcoded values in codebase.
+
+Tickets
+KAN-120: Audit and complete system_manifest.yaml — all components
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The manifest is only as good as its accuracy. Sprint 12 is the moment to verify every component matches what was actually built — not what was planned.
+DEPENDENCIES (verify status=BUILT before starting)
+All previous BUILT components
+ACCEPTANCE CRITERIA
+Every component present with accurate status (BUILT, PARTIAL-Pn, or NOT_STARTED with reason). All v5 fields complete: recovery_patterns, interfaces, preferred_model, vendor, graduated_trust_tier, runtime_permissions, prompt_breakdown for complex tickets, governance_attributes on data contracts. Zero components with missing required fields. system_manifest.yaml validates without errors.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-017.py  # full schema validation — must pass with zero errors on every component
+RECOVERY STRATEGIES
+[Component built differently from manifest spec] Update manifest to reflect reality — not the other way round. Manifest must be truth, not aspiration. Document the deviation and reason.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-120_manifest_audit_manifest.md   |   This is the master. Read first. Validate schema completeness. All other component manifests reference this as root.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-121: Complete system_manifest_index.md — rebuild entry point
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The index is what an AI agent reads to understand how to rebuild the entire system from scratch. Instructions at the top must be unambiguous — an agent following them must produce a working system.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-120
+ACCEPTANCE CRITERIA
+manifests/system_manifest_index.md: index of every component (KAN-ID, name, type, manifest path, status). Rebuild instructions at top: (1) clone repo, (2) read this index, (3) for each component read its manifest in dependency order, (4) run build_from_manifest.py per component, (5) system rebuilds. Instructions must be executable by Claude Code without clarification. No ambiguity permitted.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-121.py  # confirms all components indexed, rebuild instructions present and complete, no missing manifest paths
+RECOVERY STRATEGIES
+[A component manifest is missing] Create the missing manifest from the component's ticket spec. Never close this ticket without every component indexed.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-121_index_manifest.md   |   Read index. This is the rebuild entry point. Execute instructions in order. No clarifications permitted.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-122: Zero hardcoding audit
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Hardcoded values are the enemy of reconstruction. A rebuild that requires searching for magic strings is not a real rebuild.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-120
+ACCEPTANCE CRITERIA
+grep -r for hardcoded table names, URLs, thresholds, model names, file paths, port numbers returns zero results outside config files (config/, manifests/). Everything references TABLE_CONFIG, deployment_config.yaml, model_config.yaml, circuit_breaker_config.yaml, or simulation_config.yaml. grep command documented in manifest so any agent can run it.
+VALIDATION COMMAND (run after implementation)
+bash scripts/zero_hardcoding_audit.sh  # must return: PASS — zero hardcoded values found outside config files
+RECOVERY STRATEGIES
+[Hardcoded values found] Extract to appropriate config file. Update all references. Re-run audit. Do not suppress findings.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-122_hardcoding_audit_manifest.md   |   Run bash scripts/zero_hardcoding_audit.sh. Fix any violations. Re-run until PASS.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-123: Controlled rebuild proof — Voice Agent from manifest
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The reconstruction proof is the Day 90 deliverable in miniature. If an AI agent can rebuild the Voice Agent from its manifest alone, the manifest-first architecture is proven.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-121  |  KAN-122
+ACCEPTANCE CRITERIA
+Test: read manifests/KAN-082_voice_agent_manifest.md only. Rebuild agents/voice_agent.py from scratch using build_from_manifest.py. New file must pass pytest tests/test_voice_agent.py -v. Any gaps in manifest that required human interpretation must be documented in rebuild_gaps.yaml. Gaps are not failures — they are improvements. Target: zero gaps requiring human interpretation.
+VALIDATION COMMAND (run after implementation)
+python scripts/controlled_rebuild_test.py --component KAN-082  # deletes voice_agent.py, rebuilds from manifest, runs tests, documents gaps
+RECOVERY STRATEGIES
+[Tests fail after rebuild] Document which tests fail. Add missing detail to manifest. Re-run rebuild. Repeat until tests pass. Every failure improves the manifest.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-123_rebuild_proof_manifest.md   |   Read KAN-082 manifest only. Rebuild. Run tests. Document gaps. Gaps improve the manifest — they do not fail the ticket.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-124: Full adversarial test suite — response modes + tone + security + pre-ingestion
+Effort: 4h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+The adversarial suite is the final validation that CJI Pulse is trustworthy. It must pass before any journey owner sees production data.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-75  |  KAN-74  |  KAN-91  |  KAN-71
+ACCEPTANCE CRITERIA
+tests/test_adversarial_full.py: (1) All 7 Sprint 7 adversarial scenarios pass. (2) Tone test: step 3 failure for vulnerable customer → narrative must not blame customer behaviour — tone guardrail enforced. (3) Pre-ingestion test: inject bad data before pipeline run → validator halts, does not produce misleading output. (4) Security test: attempt to inject SQL via hypothesis query → input sanitised, no execution. (5) Unknown hypothesis logging: 10 unknown hypotheses logged → all visible in system_manifest queue with KAN references. (6) Confidence threshold test: low-confidence run → GUARDED banner, not suppressed.
+VALIDATION COMMAND (run after implementation)
+pytest tests/test_adversarial_full.py -v  # all 6 test groups pass. Any single failure is a release blocker.
+RECOVERY STRATEGIES
+[Tone guardrail test fails] Release BLOCKED. Strengthen tone guardrail in narrative agent Tier 1 prompt. Re-test. Accurate-but-harmful output is not acceptable — Monzo/FCA principle.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-124_adversarial_full_manifest.md   |   Read manifest. Run all 6 test groups. Any failure is a release blocker — document and fix before Sprint 13.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Sprint 13: End-to-End Proof, Clean-Room Reconstruction & Handover (Days 85–90)
+Workstream: J
+AI is easy to demo. It is hard to ship. Day 90 is a shipping proof, not a demo. A clean-room reconstruction, a 30-day evidence pack, and six gate decisions for Phase 2.
+Sprint Goal
+30-day synthetic evidence pack demonstrating consistent daily intelligence. Clean-room reconstruction passing. Journey owner first use evidence. Phase 2 gate decisions documented. Benchmark accuracy vs target documented. Deployment live.
+Sprint Deliverable
+30-day demo run | Clean-room reconstruction evidence | phase_2_gate_decisions.md | Final accuracy benchmark | Handover pack
+Friday Proof
+Day 90: Open cji.pro. Run clean-room reconstruction. Show 30 days of evidence. Document the six gate decisions honestly. Phase 2 brief written.
+Exit Criteria
+30-day synthetic run complete. Clean-room reconstruction passes. Accuracy vs benchmark documented. Phase 2 gate decisions made. Journey owner has logged at least one hypothesis via Ask CJI. All open tickets dual-closed.
+
+Tickets
+KAN-130: Run 30-day synthetic evidence pack
+Effort: 4h   |   Tool: Claude Code   |   Priority: P1   |   Type: Pipeline   |   Status: NOT_STARTED
+GOAL
+30 days of consistent output proves the system works reliably, not just on a good day. The evidence pack is what a sceptical stakeholder reviews to decide whether to fund Phase 2.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-93
+ACCEPTANCE CRITERIA
+30 days of synthetic data processed. Daily reports generated. governance_run_fact has 30 rows. Accuracy benchmark run on each day's output — results logged. At least 3 CONTRADICTED findings in 30 days (realistic failure injection produces these). At least 1 DEGRADED day (Day 15 injected failures). Queue items generated and tracked across 30 days. All results honest — do not cherry-pick.
+VALIDATION COMMAND (run after implementation)
+python scripts/run_30day_evidence_pack.py  # confirms 30 rows in governance_run_fact, benchmark results logged, all response modes represented
+RECOVERY STRATEGIES
+[Run fails on a day] Investigate governance_run_fact. Fix cause. Document the failure and fix in evidence pack — transparency is more credible than a clean run.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-130_evidence_pack_manifest.md   |   Read manifest. Run 30-day script. Document all results including failures. Honesty over impressiveness.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-131: Clean-room reconstruction test
+Effort: 5h   |   Tool: Claude Code   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Clean-room reconstruction is the ultimate proof that the manifest-first architecture works. A new agent, reading only the manifests, must be able to rebuild a representative component without the original developer.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-121  |  KAN-124
+ACCEPTANCE CRITERIA
+Test protocol: (1) Delete agents/narrative_agent.py. (2) Provide Claude Code with manifests/system_manifest_index.md and manifests/KAN-071_narrative_prompt_manifest.md only. (3) Claude Code rebuilds narrative_agent.py. (4) pytest tests/test_narrative_agent.py -v must pass. (5) Adversarial suite must pass on rebuilt agent. Document every step, every gap found, every deviation from original. This is the Phase 2 resourcing proof: with good manifests, a new engineer or agent can build without the original author.
+VALIDATION COMMAND (run after implementation)
+python scripts/clean_room_reconstruction_test.py --component KAN-071  # full protocol documented, tests pass, gaps logged
+RECOVERY STRATEGIES
+[Rebuilt agent fails tests] Document which tests fail. Add missing information to manifest. This is success — the test revealed a manifest gap. Fix manifest, re-run. The goal is passing tests AND an improved manifest.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-131_clean_room_manifest.md   |   THIS IS THE RECONSTRUCTION PROOF. Read manifests only. Rebuild. Document everything. Gaps improve the manifest for Phase 2.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-132: Document final accuracy benchmark vs targets
+Effort: 2h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Honest accuracy documentation builds more trust than a clean benchmark. If precision is 87%, say 87%, explain why, and say what Phase 2 will do to reach 90%.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-34  |  KAN-75
+ACCEPTANCE CRITERIA
+docs/accuracy_benchmark_final.md: actual precision and recall vs targets (EVIDENCED precision >90%, recall >80%). Per-response-mode breakdown: which modes perform well, which underperform. Analysis of benchmark scenarios that failed: why they failed, what would fix them. Phase 2 accuracy improvement plan with specific actions. Monthly audit cadence confirmed as ongoing process.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-132.py  # confirms all accuracy metrics documented, per-mode breakdown present, Phase 2 improvement plan present
+RECOVERY STRATEGIES
+[Precision below 80%] Document honestly. Identify the specific failure scenarios. Write Phase 2 improvement plan focused on those scenarios. Below 80% is not a release blocker for Phase 1 proof — it is a Phase 2 priority.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-132_accuracy_manifest.md   |   Read manifest. Run accuracy benchmark. Document honestly. Phase 2 plan is mandatory.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-133: Document Phase 2 gate decisions
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Phase 2 decisions made without Phase 1 evidence are guesses. These six decisions can only be made honestly now that 30 days of evidence exists.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-130  |  KAN-132
+ACCEPTANCE CRITERIA
+docs/phase_2_gate_decisions.md: decision 1 — does accuracy justify customer-facing use (yes/no with evidence). Decision 2 — Phase 2 resourcing model (single human + AI vs team + AI vs full team — state which and why). Decision 3 — Consumer Duty outcome metrics for Phase 2 (which three, how measured). Decision 4 — third-party manifest standard for vendor components (adopt / defer / waive with reason). Decision 5 — Phase 2 scope (which of journey & product panel recommendations to build first: conversational full NLQ / self-service hypothesis builder / cross-channel action orchestration / process intelligence). Decision 6 — full financial ROI model (build in Phase 2 gate yes/no). All decisions signed by named senior manager.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-133.py  # confirms all 6 decisions present, each has evidence reference, signed owner field populated
+RECOVERY STRATEGIES
+[Senior manager unavailable to sign] Document as PENDING-SIGNATURE with date. Phase 2 cannot begin without signed decisions. This is not optional.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-133_phase2_gate_manifest.md   |   Read manifest. All 6 decisions required. Unsigned decisions block Phase 2. Evidence from 30-day run must support each decision.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+KAN-134: Day 90 handover — evidence pack + clean-room results + open items + programme principles
+Effort: 3h   |   Tool: Cursor   |   Priority: P1   |   Type: Control Artefact   |   Status: NOT_STARTED
+GOAL
+Day 90 is not the end. It is the proof that earns Phase 2. The handover document tells the next person — human or AI — exactly where things stand and what comes next.
+DEPENDENCIES (verify status=BUILT before starting)
+KAN-131  |  KAN-132  |  KAN-133
+ACCEPTANCE CRITERIA
+docs/day_90_handover.md: (1) Day 90 vision sentence status — is it working? (2) 30-day evidence summary. (3) Clean-room reconstruction results. (4) Final accuracy vs targets. (5) Open audit findings status. (6) Open tickets not completed — honest list with reasons. (7) Phase 2 gate decisions summary. (8) Manifests: complete, validated, AI-executable. (9) Programme principles (12 principles including 'Write the map now, write the directions when on the road' and 'AI is easy to demo, it is hard to ship'). (10) Prompt retrospective summary: what worked in AI-assisted building, what to improve for Phase 2 prompts.
+VALIDATION COMMAND (run after implementation)
+python scripts/validate_KAN-134.py  # confirms all 10 sections present, Day 90 vision sentence explicitly addressed, prompt retrospective present
+RECOVERY STRATEGIES
+[Day 90 vision sentence not working] Document honestly. Identify which component in the chain failed. Do not claim success if the vision is not realised. An honest failure with a clear diagnosis is more valuable than a misleading success claim.
+MANIFEST & AI-READY REBUILD
+Manifest: KAN-134_handover_manifest.md   |   Read manifest. All 10 sections required. Honest assessment. The programme principles are the legacy of Phase 1 — record them for Phase 2.
+DEFINITION OF DONE (dual closure — both required)
+Human done: implementation complete, acceptance criteria verified, PR merged
+AI-ready done: manifest updated to BUILT, validation script passes, retrospective filled
+system_manifest.yaml status updated to BUILT for this component
+
+
+Section 6: Consolidated v5 Changes — All Six Expert Panels
+Every change in v5 is traceable to a specific panel recommendation. This table is the audit trail between panel feedback and plan evolution.
+
+
+
+Section 8: Risks & Mitigations
+
+
+Section 9: Day 90 Deliverables — Proof, Not Demo
+Day 90 is a shipping proof. The standard is not 'it ran once.' The standard is 'it ran reliably for 30 days, an AI agent rebuilt a component from the manifest alone, accuracy targets are documented honestly, and journey owners have used it.'
+
+

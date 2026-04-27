@@ -375,6 +375,11 @@ function renderProductFamily(firm: ResolvedFirm): string {
       <div class="product-tagline">Tailored decision framework — design partners only</div>
       <a class="product-cta muted" href="mailto:hello@cjipro.com?subject=CJI%20Lever%20enquiry">Talk to us</a>
     </div>
+    <div class="product-row">
+      <div class="product-name">Engineering posture</div>
+      <div class="product-tagline">How this is built — Article Zero, audit chain, model routing</div>
+      <a class="product-cta" href="/engineering">View →</a>
+    </div>
   </section>`;
 }
 

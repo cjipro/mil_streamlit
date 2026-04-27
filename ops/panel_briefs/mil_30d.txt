@@ -1,0 +1,202 @@
+
+SOVEREIGN INTELLIGENCE
+CJI Pulse + Market Intelligence Layer
+
+
+REVISED 30-DAY EXECUTION PLAN
+Version 2.0  |  Panel-Amended  |  27 March 2026
+
+
+"This system shall prioritise the expression of its own ignorance over the delivery of any unverified certainty. Honesty in calibration is the only product; all inferences are secondary to the preservation of the Designed Ceiling."
+— Article Zero, MIL Sovereign Blueprint
+
+1. What Changed From v1 and Why
+
+Three targeted amendments absorb all legitimate panel concerns. The core architecture is unchanged.
+
+
+2. Governing Principle
+
+Deploy the smallest truthful version first. Scale with evidence, not ambition. QLoRA fine-tuning is removed from the 30-day window — it requires a real signal corpus to validate against before it earns its place.
+
+Two Systems. One Intelligence Stack.
+
+
+MIL Phase 0 starts now, in parallel with CJI Pulse Sprint 1 completion. CJI Pulse is currently blocked on PULSE-11 field population. MIL Phase 0 requires zero data access — it is pure constitutional document work. The two systems are kept sovereign via Nico Zhao's Law.
+
+3. Blockers — Decisions Required Before Build Starts
+
+Nothing is built until all three are confirmed.
+
+
+4. Day 30 Success Metrics
+
+Three. Measurable. Binary pass/fail. Day 30 is a validated milestone, not an arbitrary date.
+
+
+What Day 30 success is NOT: a fine-tuned model, a high finding volume, or a dashboard that looks impressive in a demo. Success is the honest version working correctly.
+
+5. Daily Operating Rhythm
+
+To be added to SOVEREIGN_BRIEF.md under ## Human Operating Model. The Clark Protocol and countersign rules require this rhythm to function.
+
+Weekday Rhythm
+
+
+Weekly Rhythm
+
+
+Hard rule: The system never escalates itself. It only records that an escalation was missed. Human ownership of every action is non-negotiable.
+
+6. Failure Mode Definitions
+
+To be added to MIL_SCHEMA.yaml as a failure_modes block. Three operational states. Each has a defined response — not just awareness.
+
+SILENCE — No Signals
+Trigger: No signals detected for a monitored competitor in a 48-hour window.
+Response:
+Log SILENCE_FLAG with timestamp and competitor ID
+Do not interpret as good news — silence is ambiguous, not positive
+Morning Briefing notes: 'No signal detected — possible scraper failure or genuine absence. Check harvester health first.'
+Owner checks voice_intelligence_agent.py logs before drawing any conclusion
+If harvester healthy and silence genuine — log as data point, not a finding
+
+CONTRADICTION — Signals Conflict
+Trigger: Two or more signals from different platforms point in opposite directions (e.g. App Store rating stable, Reddit complaint cluster spiking).
+Response:
+Log as CONTRADICTED finding — same response mode as CJI Pulse uses
+Do not flatten. Do not average. Do not suppress.
+Present both signals in Inference Card with source trust weights visible
+Human countersign required before any action is taken
+CONTRADICTED is information, not a failure — it is the system working correctly
+
+NO CHRONICLE MATCH — Unanchored Signal
+Trigger: Inference requested but no CHRONICLE entry matches the signal pattern above similarity threshold.
+Response:
+Finding logged as UNANCHORED and held — it does not reach Morning Briefing
+It does not get trained on under any circumstances
+Appears in weekly Unanchored Signals digest for Hussain to review
+These are candidates for new CHRONICLE entries, not inferences
+Article Zero governs: unverified certainty does not get reported
+
+Nico Zhao's Law extended to failure modes: the system cannot infer its way out of a gap in the CHRONICLE. Honesty about what cannot be known is the only permitted response.
+
+7. Week 1 — Constitutional Foundation (Days 1–7)
+
+Gate condition: No Python executes until all three MIL documents exist, validate, and are reviewed by Hussain. This is the law.
+
+MIL — Claude Code Builds
+
+CHRONICLE.md
+Immutable failure ledger. Three verified entries at creation.
+
+MIL_SCHEMA.yaml
+Full taxonomy aligned to CJI Pulse journey IDs from Day 1.
+
+SOVEREIGN_BRIEF.md
+Trust Manifesto. The Laws of the system.
+
+Supporting Files
+
+CJI Pulse — Week 1
+
+8. Week 2 — Harvester Live (Days 8–14)
+
+7-day listening period begins. No classification. No inference. Observation only — this week is about establishing baseline.
+
+MIL — Claude Code Builds
+
+
+Olah Interpretability Layer logs Top-3 Keyword Drivers from Day 1. Monday Morning Noise baseline captured. SILENCE monitoring active — first 48-hour gap triggers SILENCE_FLAG protocol.
+
+CJI Pulse — Week 2
+
+9. Week 3 — Knowledge Distillation via Retrieval (Days 15–21)
+
+RAG-first architecture. QLoRA fine-tuning removed from 30-day window. The retrieval-first architecture is the production model for Phase 1. Fine-tuning is scheduled for post-Day 30, gated on 5 conditions.
+
+MIL — Sonnet via Claude API (Teacher Role)
+
+
+CAC weights reviewed against first real signal corpus from Week 2. Weights adjusted only if real data justifies it — not before.
+
+CJI Pulse — Week 3
+
+10. Week 4 — Command Centre (Days 22–30)
+
+First Morning Briefing delivered on Day 30. All three Day 30 success metrics evaluated on Day 30.
+
+MIL — Claude Code Builds
+
+
+CJI Pulse — Week 4
+
+11. Post-Day 30 — QLoRA Schedule
+
+This is not a deferral — it is the correct sequencing. Fine-tuning before real signal validation risks overfitting to historical patterns that may not reflect the actual competitor signal landscape.
+
+All five conditions must pass before mil/specialist/train_qwen.py is executed. Owner: Hussain Ahmed sign-off required.
+
+
+12. Model Routing
+
+Sonnet is used only where the document explicitly requires it. All other tasks stay local.
+
+
+13. MIL Import Rule
+
+To be added to CLAUDE.md and enforced by the build validator. Violation fails the build.
+
+MIL IMPORT RULE:
+
+No file under mil/ may import from pulse/, poc/, app/, dags/,
+
+or any internal data module.
+
+No file outside mil/ may import from mil/ directly.
+
+Permitted data exchange: read mil/outputs/mil_findings.json only.
+
+Violation of this rule fails the build validator.
+
+File Structure
+
+while-sleeping/
+
+└── mil/                      # Sovereign root — sibling to pulse
+
+    ├── CHRONICLE.md
+
+    ├── MIL_SCHEMA.yaml
+
+    ├── SOVEREIGN_BRIEF.md
+
+    ├── config/apps_config.yaml
+
+    ├── harvester/
+
+    ├── researcher/
+
+    ├── inference/
+
+    ├── command/
+
+    ├── data/
+
+    └── outputs/              # THE ONLY EXIT POINT
+
+        └── mil_findings.json # Only file CJI Pulse may read
+
+14. Closing Statement
+
+The Day 90 Vision: "Customers experiencing difficulties on Step 3 of the Loans journey, abandoning — likely 45+, likely vulnerable. In the last 3 days, 5 customers said the App journey is broken."
+
+This revised plan absorbs all legitimate panel concerns without dismantling the architecture. The three targeted amendments — QLoRA sequenced correctly, ownership named at creation, signal severity classified at ingestion — make the system more deployable, not less ambitious.
+
+The Designed Ceiling is unchanged. Article Zero is unchanged. The 33 Canonical Statements are unchanged. The sovereignty of MIL is unchanged.
+
+What changed is the build order. Real signal data before fine-tuning. Named owners before shipping. Severity classification before inference. These are not concessions — they are the correct engineering decisions.
+
+
+Build the honest version. Deploy the smallest version. Then scale with confidence.
+— CJI Pulse Canonical Statement 22 + Panel Amendment v2

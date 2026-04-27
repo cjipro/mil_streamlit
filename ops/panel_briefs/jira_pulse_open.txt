@@ -1,0 +1,101 @@
+=== PULSE open: 50 issues ===
+PULSE-82   [To Do         ] Day 90 handover — evidence pack + clean-room results + open items + programme principles
+           desc: Purpose: Day 90 is not the end. It is the proof that earns Phase 2. | Sprint: 13 | Status: NOT_STARTED | Depends on: KAN-131, KAN-132, KAN-133
+PULSE-81   [To Do         ] Document Phase 2 gate decisions
+           desc: Purpose: Phase 2 decisions made without Phase 1 evidence are guesses. These six decisions can only be made honestly now. | Sprint: 13 | Status: NOT_STARTED | Depends on: KAN-130, KAN-132
+PULSE-80   [To Do         ] Document final accuracy benchmark vs targets
+           desc: Purpose: Honest accuracy documentation builds more trust than a clean benchmark. | Sprint: 13 | Status: NOT_STARTED | Depends on: KAN-34, KAN-75
+PULSE-79   [To Do         ] Clean-room reconstruction test
+           desc: Purpose: Clean-room reconstruction is the ultimate proof that the manifest-first architecture works. | Sprint: 13 | Status: NOT_STARTED | Depends on: KAN-121, KAN-124
+PULSE-78   [To Do         ] Run 30-day synthetic evidence pack
+           desc: Purpose: 30 days of consistent output proves the system works reliably, not just on a good day. | Sprint: 13 | Status: NOT_STARTED | Depends on: KAN-93
+PULSE-77   [To Do         ] Full adversarial test suite — response modes + tone + security + pre-ingestion
+           desc: Purpose: The adversarial suite is the final validation that CJI Pulse is trustworthy. Must pass before any journey owner sees production data. | Sprint: 12 | Status: NOT_STARTED | Depends on: KAN-75, 
+PULSE-76   [To Do         ] Controlled rebuild proof — Voice Agent from manifest
+           desc: Purpose: If an AI agent can rebuild the Voice Agent from its manifest alone, the manifest-first architecture is proven. | Sprint: 12 | Status: NOT_STARTED | Depends on: KAN-121, KAN-122
+PULSE-75   [To Do         ] Zero hardcoding audit
+           desc: Purpose: Hardcoded values are the enemy of reconstruction. A rebuild that requires searching for magic strings is not a real rebuild. | Sprint: 12 | Status: NOT_STARTED | Depends on: KAN-120
+PULSE-74   [To Do         ] Complete system_manifest_index.md — rebuild entry point
+           desc: Purpose: The index is what an AI agent reads to understand how to rebuild the entire system from scratch. | Sprint: 12 | Status: NOT_STARTED | Depends on: KAN-120
+PULSE-73   [To Do         ] Audit and complete system_manifest.yaml — all components
+           desc: Purpose: The manifest is only as good as its accuracy. Sprint 12 verifies every component matches what was actually built. | Sprint: 12 | Status: NOT_STARTED
+PULSE-72   [To Do         ] Write journey owner onboarding guide
+           desc: Purpose: The onboarding guide determines whether journey owners trust the system and use it daily, or dismiss it. | Sprint: 11 | Status: NOT_STARTED | Depends on: KAN-114
+PULSE-71   [To Do         ] Publish operating model — full governance document
+           desc: Purpose: The operating model makes CJI Pulse trustworthy to regulators, senior managers, and journey owners. | Sprint: 11 | Status: NOT_STARTED | Depends on: KAN-17, KAN-01G
+PULSE-70   [To Do         ] Configure custom domain cji.pro
+           desc: Purpose: cji.pro is the identity. A professional domain communicates that this is a real system, not an experiment. | Sprint: 11 | Status: NOT_STARTED | Depends on: KAN-111
+PULSE-69   [To Do         ] Set up GitLab CI/CD pipeline
+           desc: Purpose: CI/CD makes every merged commit safe. Tests run automatically. Bad code does not reach production. | Sprint: 11 | Status: NOT_STARTED | Depends on: KAN-111
+PULSE-68   [To Do         ] Deploy to Streamlit Cloud
+           desc: Purpose: Live deployment with a real URL transforms the project from a local experiment to a working system. | Sprint: 11 | Status: NOT_STARTED | Depends on: KAN-110, KAN-100
+PULSE-67   [To Do         ] Choose and document hosting decision + deployment config
+           desc: Purpose: Hosting decision is infrastructure policy. Must be documented, versioned, machine-readable. | Sprint: 11 | Status: NOT_STARTED | Depends on: KAN-10
+PULSE-66   [To Do         ] Build voice signal panel
+           desc: Purpose: Voice evidence shown separately with source label — journey owners always know they are reading voice data, not operational data. | Sprint: 10 | Status: NOT_STARTED | Depends on: KAN-100, KAN
+PULSE-65   [To Do         ] Build Ask CJI — conversational hypothesis query interface
+           desc: Purpose: Journey owners type what they think is happening. The system interprets, searches the library, answers from evidence. | Sprint: 10 | Status: NOT_STARTED | Depends on: KAN-100, KAN-74
+PULSE-64   [To Do         ] Build investigation queue page + Slack P1 alert stub
+           desc: Purpose: Where intelligence becomes action. P1 items must be impossible to miss. | Sprint: 10 | Status: NOT_STARTED | Depends on: KAN-100, KAN-73
+PULSE-63   [To Do         ] Build journey scorecard page with user priority weighting
+           desc: Purpose: At-a-glance view of all journeys. User-configurable priority weights let journey owners apply their own judgment. | Sprint: 10 | Status: NOT_STARTED | Depends on: KAN-100, KAN-73
+PULSE-62   [To Do         ] Build daily briefing page + email stub
+           desc: Purpose: What journey owners see first every morning. Answers in 30 seconds: is today good or bad, what do I need to do? | Sprint: 10 | Status: NOT_STARTED | Depends on: KAN-100
+PULSE-61   [To Do         ] Build Streamlit app scaffold with login and navigation
+           desc: Purpose: The scaffold is the container for every subsequent UI ticket. Login, navigation, and data loading must be solid. | Sprint: 10 | Status: NOT_STARTED | Depends on: KAN-93
+PULSE-60   [To Do         ] End-to-end integration test — 7 days synthetic + push notification stubs + monthly review process
+           desc: Purpose: Seven days of successful synthetic runs proves the orchestrator works reliably before any journey owner sees the system. | Sprint: 9 | Status: NOT_STARTED | Depends on: KAN-90, KAN-91, KAN-92
+PULSE-59   [To Do         ] Implement full semantic telemetry on all failures
+           desc: Purpose: Machine-readable telemetry on every failure makes the system self-diagnosable. | Sprint: 9 | Status: NOT_STARTED | Depends on: KAN-19, KAN-90
+PULSE-58   [To Do         ] Build degraded mode handler + mid-execution escalation
+           desc: Purpose: Degraded mode ensures the system never publishes partial or misleading intelligence. Mid-execution escalation notifies humans when confidence drops. | Sprint: 9 | Status: NOT_STARTED | Depend
+PULSE-57   [To Do         ] Build orchestrator pipeline runner
+           desc: Purpose: One command runs everything in the correct order. No human orchestration. No manual steps. | Sprint: 9 | Status: NOT_STARTED | Depends on: KAN-41, KAN-43, KAN-50, KAN-61, KAN-62, KAN-72, KAN-
+PULSE-56   [To Do         ] Build app store rating velocity signal
+           desc: Purpose: Rating velocity is the earliest operational signal of a bad release. | Sprint: 8 | Status: NOT_STARTED | Depends on: KAN-80, KAN-53
+PULSE-55   [To Do         ] Build expectation and promise registry
+           desc: Purpose: Customer expectations are first-class evidence. CONTRADICTED fires when promise_to_outcome_status=BROKEN. | Sprint: 8 | Status: NOT_STARTED | Depends on: KAN-71
+PULSE-54   [To Do         ] Build Voice Agent — retrieval and narrative injection with source tier label
+           desc: Purpose: Retrieves voice evidence and injects into Narrative Agent context with explicit source labelling. | Sprint: 8 | Status: NOT_STARTED | Depends on: KAN-81, KAN-71
+PULSE-53   [To Do         ] Build keyword clustering pipeline — OPS_CD seeded, k-means n=5
+           desc: Purpose: Clustering reviews by journey type: here are the top 3 things customers are saying about the Loans journey. | Sprint: 8 | Status: NOT_STARTED | Depends on: KAN-80, KAN-22
+PULSE-52   [To Do         ] Build synthetic app store review and NPS generator
+           desc: Purpose: Synthetic voice data lets us build and test the voice intelligence pipeline. | Sprint: 8 | Status: NOT_STARTED | Depends on: KAN-30
+PULSE-51   [To Do         ] Adversarial test suite — response modes + tone + benchmark accuracy first run
+           desc: Purpose: The adversarial suite is the proof that the intelligence layer is trustworthy. Precondition for Sprint 10 demo. | Sprint: 7 | Status: NOT_STARTED | Depends on: KAN-71, KAN-72, KAN-73, KAN-34
+PULSE-50   [To Do         ] Build hypothesis query interface — library-grounded conversational search
+           desc: Purpose: Journey owners think in questions. The hypothesis query interface lets them type what they think is happening and get an evidence-grounded answer. | Sprint: 7 | Status: NOT_STARTED | Depends 
+PULSE-49   [To Do         ] Build investigation queue generator
+           desc: Purpose: The queue is the action layer. Translates intelligence into prioritised work items. | Sprint: 7 | Status: NOT_STARTED | Depends on: KAN-72
+PULSE-48   [To Do         ] Build response mode classification + recommended action (three-part)
+           desc: Purpose: Response mode is the honesty signal. Recommended action transforms diagnosis into decision. | Sprint: 7 | Status: NOT_STARTED | Depends on: KAN-71
+PULSE-47   [To Do         ] Build Narrative Agent prompt template with context injection + tone guardrails + pre-flight validation
+           desc: Purpose: The prompt template is the governance layer of the intelligence output. Controls what the model sees, in what order, and what it is permitted to say. | Sprint: 7 | Status: NOT_STARTED | Depen
+PULSE-46   [To Do         ] Set up Qwen 2.5-Coder:14b via Ollama in Docker + model config
+           desc: Purpose: The LLM is the interpretive engine. Must run reliably. Model must be swappable via config — never hardcoded. | Sprint: 7 | Status: NOT_STARTED | Depends on: KAN-12
+PULSE-45   [To Do         ] Build CUST_DIM synthetic data + join to MA_S
+           desc: Purpose: Customer context transforms aggregate statistics into customer outcomes. Enables identification of 45+ vulnerable customers. | Sprint: 6 | Status: NOT_STARTED | Depends on: KAN-50, KAN-15
+PULSE-44   [To Do         ] Build cross-channel stitching pipeline
+           desc: Purpose: Stitching app sessions to contact centre calls — the highest-confidence leakage signal. | Sprint: 6 | Status: NOT_STARTED | Depends on: KAN-50, KAN-60
+PULSE-43   [To Do         ] Build CC_D synthetic data generator
+           desc: Purpose: Synthetic contact centre data lets us build and test cross-channel stitching before real CC_D join feasibility is confirmed. | Sprint: 6 | Status: NOT_STARTED | Depends on: KAN-30, KAN-25
+PULSE-42   [To Do         ] Add circuit breaker threshold checks
+           desc: Purpose: The circuit breaker prevents bad data or genuine customer harm from being normalised. Do Not Break journeys must never be silently downgraded. | Sprint: 5 | Status: NOT_STARTED | Depends on: 
+PULSE-41   [To Do         ] Add delta fields — today vs yesterday vs 7-day baseline
+           desc: Purpose: Delta fields answer: is today worse than yesterday? | Sprint: 5 | Status: NOT_STARTED | Depends on: KAN-50
+PULSE-40   [To Do         ] Add refreshed vs legacy raw comparison layer
+           desc: Purpose: Refreshed vs legacy comparison is the core Phase 1 mission. Raw comparison must be labelled DIRECTIONAL-only. | Sprint: 5 | Status: NOT_STARTED | Depends on: KAN-50
+PULSE-39   [To Do         ] Build daily_journey_mart aggregation
+           desc: Purpose: The mart is what every downstream consumer reads. Raw data is never touched by agents or dashboard. | Sprint: 5 | Status: NOT_STARTED | Depends on: KAN-40, KAN-41, KAN-42, KAN-43
+PULSE-38   [To Do         ] MA_S pipeline unit test suite
+           desc: Purpose: AI-generated tests prove correctness and serve as regression protection. | Sprint: 4 | Status: NOT_STARTED | Depends on: KAN-40, KAN-42, KAN-43, KAN-34
+PULSE-37   [To Do         ] Build quality gate with full semantic telemetry
+           desc: Purpose: Every pipeline failure must emit machine-readable telemetry. The quality gate is the enforcement mechanism. | Sprint: 4 | Status: NOT_STARTED | Depends on: KAN-19, KAN-40
+PULSE-36   [To Do         ] Derive behavioural signal fields from ordered event sequence
+           desc: Purpose: Behavioural signals are what make CJI Pulse distinctive. Each signal has exact derivation logic. | Sprint: 4 | Status: NOT_STARTED | Depends on: KAN-40, KAN-22, KAN-34
+PULSE-35   [To Do         ] Build pre-ingestion quality gate validator
+           desc: Purpose: Validate data quality before pipeline begins — not after. First line of defence. | Sprint: 4 | Status: NOT_STARTED | Depends on: KAN-19, KAN-20, KAN-40
+PULSE-34   [To Do         ] Build MA_S sessionisation pipeline in PySpark
+           desc: Purpose: The session spine is the foundation of every downstream intelligence. Must be correct, idempotent, produce all required fields. | Sprint: 4 | Status: NOT_STARTED | Depends on: KAN-20, KAN-21,
+PULSE-33   [To Do         ] Validate simulation output against all data contracts
+           desc: Purpose: Contract validation proves simulation is a valid proxy for production data. Gate before any real pipeline work. | Sprint: 3 | Status: NOT_STARTED | Depends on: KAN-30, KAN-31, KAN-32, KAN-33,
