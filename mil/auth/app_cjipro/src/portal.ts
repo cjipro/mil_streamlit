@@ -1,14 +1,19 @@
-// MIL-151 — /portal post-auth landing.
+// MIL-151 + MIL-144 — /portal post-auth landing.
 //
-// Thin shim over the partner_profiles row. Three blocks:
-//   1. Identity strip — who you are, where you signed in last, sign-out
-//   2. Confirm details — soft prompt, only when stale (>90d / null)
-//   3. Two CTAs — Today's briefing (firm-scoped) + Open Reckoner
+// Merged scope:
+//   - MIL-151: identity strip, 90-day re-affirmation prompt, sign-out
+//   - MIL-144: welcome line, briefing hero (Share / Forward), recent
+//             dates strip, full product family with entitlement CTAs
 //
-// The portal is the default landing; magic-link callbacks may still
-// deep-link to /sonar/{slug}/ via return_to. Refusal to confirm
-// details does NOT block — it's a Consumer Duty 2.0 touchpoint, not
-// an auth gate.
+// Single surface at /portal. Root `/` still 302s here (router.ts). The
+// portal stays the default landing; magic-link callbacks may still
+// deep-link to /sonar/{slug}/ via return_to. Refusal to confirm details
+// does NOT block — Consumer Duty 2.0 touchpoint, not an auth gate.
+//
+// Entitlements are hardcoded for the alpha cohort: Reckoner + Sonar are
+// always available; Pulse + Lever render as prospect CTAs. When an
+// entitlements column lands on partner_profiles, swap `entitlements()`
+// to read from the row.
 
 import {
   confirmDetails,
@@ -23,12 +28,18 @@ export interface PortalIdentity {
   email: string;
 }
 
+export interface RecentDate {
+  iso: string;   // YYYY-MM-DD
+  label: string; // "Apr 27" / "Yesterday" / "Today"
+}
+
 export interface PortalRenderOptions {
   identity: PortalIdentity;
   profile: PartnerProfile | null;
-  lastActiveAt: string | null; // sessions.last_active_at (previous request)
-  lastActiveCountry: string | null; // null for MVP — column doesn't exist yet
+  lastActiveAt: string | null;
+  lastActiveCountry: string | null;
   promptReaffirmation: boolean;
+  recentDates: RecentDate[]; // empty when firm not provisioned
 }
 
 const CSS = `
@@ -41,6 +52,7 @@ const CSS = `
     --cream:      #FAFAF7;
     --navy:       #00273D;
     --accent:     #003A5C;
+    --accent-soft:#E8F0F5;
     --serif:      Georgia, "Times New Roman", "DejaVu Serif", serif;
     --sans:       -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     --mono:       "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -50,105 +62,102 @@ const CSS = `
     font-family: var(--sans); font-size: 16px; line-height: 1.55; }
   a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
   a:hover { border-bottom-color: var(--accent); }
-  main { max-width: 44rem; margin: 4rem auto; padding: 0 1.75rem; }
+  main { max-width: 50rem; margin: 3.5rem auto 5rem; padding: 0 1.75rem; }
 
-  .topbar {
-    border-bottom: 1px solid var(--hairline);
-    padding: 18px 0;
-    background: var(--paper);
-  }
+  .topbar { border-bottom: 1px solid var(--hairline); padding: 18px 0; background: var(--paper); }
   .topbar-inner { display: flex; align-items: baseline; justify-content: space-between;
-    max-width: 44rem; margin: 0 auto; padding: 0 1.75rem; }
+    max-width: 50rem; margin: 0 auto; padding: 0 1.75rem; }
   .brand { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); }
-  .signout {
-    font-size: 13px;
-    color: var(--muted);
-  }
+  .signout { font-size: 13px; color: var(--muted); }
   .signout:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
-  .identity {
-    margin-top: 2rem;
-    padding: 1.5rem 1.75rem;
-    border: 1px solid var(--hairline);
-    background: var(--cream);
-  }
-  .identity-line { font-family: var(--serif); font-size: 1.1rem; color: var(--ink); margin: 0; }
-  .identity-firm { font-family: var(--sans); font-size: 0.95rem; color: var(--ink-soft);
-    margin: 0.4rem 0 0 0; }
-  .identity-meta { font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.08em; margin: 1rem 0 0 0; }
-  .identity-mismatch { font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem; }
+  .welcome { font-family: var(--serif); font-size: 1.85rem; font-weight: 600;
+    color: var(--ink); margin: 0 0 0.4rem 0; line-height: 1.25; }
 
-  .confirm-block {
-    margin-top: 2rem;
-    padding: 1.75rem;
-    border: 1px solid var(--hairline);
-    background: var(--paper);
-  }
+  .identity { margin-top: 0.25rem; padding: 1.1rem 1.4rem;
+    border: 1px solid var(--hairline); background: var(--cream); }
+  .identity-line { font-family: var(--sans); font-size: 0.92rem; color: var(--ink-soft); margin: 0; }
+  .identity-firm { font-family: var(--sans); font-size: 0.88rem; color: var(--muted);
+    margin: 0.3rem 0 0 0; }
+  .identity-meta { font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin: 0.7rem 0 0 0; }
+  .identity-mismatch { font-size: 0.78rem; color: var(--muted); margin-top: 0.45rem; }
+
+  .briefing-hero { margin-top: 2rem; padding: 1.75rem;
+    border: 1px solid var(--accent); background: var(--accent-soft); }
+  .briefing-eyebrow { font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 0.5rem 0; }
+  .briefing-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 600;
+    color: var(--ink); margin: 0 0 1.25rem 0; line-height: 1.3; }
+  .briefing-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .briefing-actions .btn-primary,
+  .briefing-actions .btn-secondary {
+    padding: 0.6rem 1.1rem; font-family: var(--sans); font-size: 0.9rem;
+    border-radius: 3px; border: 1px solid var(--accent); cursor: pointer; }
+  .briefing-actions .btn-primary { background: var(--accent); color: #fff; }
+  .briefing-actions .btn-primary:hover { background: var(--navy); border-color: var(--navy); }
+  .briefing-actions .btn-secondary { background: var(--paper); color: var(--accent); }
+  .briefing-actions .btn-secondary:hover { background: var(--accent); color: #fff; }
+  .briefing-actions .btn-disabled {
+    padding: 0.6rem 1.1rem; font-family: var(--sans); font-size: 0.9rem;
+    border-radius: 3px; border: 1px solid var(--hairline); background: var(--paper);
+    color: var(--muted); cursor: not-allowed; }
+
+  .recent { margin-top: 1rem; font-family: var(--sans); font-size: 0.85rem; color: var(--muted); }
+  .recent-label { text-transform: uppercase; font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.1em; color: var(--muted); margin-right: 0.6rem; }
+  .recent a { color: var(--accent); margin-right: 0.5rem; }
+  .recent a:not(:last-of-type)::after { content: "·"; color: var(--hairline);
+    margin-left: 0.5rem; pointer-events: none; }
+  .recent-all { margin-left: 0.4rem; }
+
+  .confirm-block { margin-top: 2rem; padding: 1.75rem;
+    border: 1px solid var(--hairline); background: var(--paper); }
   .confirm-eyebrow { font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 0.5rem 0; }
   .confirm-h2 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
     color: var(--ink); margin: 0 0 0.5rem 0; }
   .confirm-lede { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 1.25rem 0; }
   label { display: block; font-size: 0.85rem; color: var(--ink-soft); margin: 0.75rem 0 0.25rem 0; }
-  input[type="text"] {
-    width: 100%;
-    padding: 0.55rem 0.65rem;
-    font: inherit;
-    border: 1px solid #b7c2ca;
-    border-radius: 3px;
-    background: var(--paper);
-  }
+  input[type="text"] { width: 100%; padding: 0.55rem 0.65rem; font: inherit;
+    border: 1px solid #b7c2ca; border-radius: 3px; background: var(--paper); }
   .confirm-row { display: flex; gap: 0.6rem; align-items: center; margin-top: 1rem; }
-  .confirm-btn {
-    padding: 0.55rem 1.1rem;
-    font: inherit;
-    font-size: 0.9rem;
-    background: var(--accent);
-    color: #fff;
-    border: 0;
-    border-radius: 3px;
-    cursor: pointer;
-  }
+  .confirm-btn { padding: 0.55rem 1.1rem; font: inherit; font-size: 0.9rem;
+    background: var(--accent); color: #fff; border: 0; border-radius: 3px; cursor: pointer; }
   .confirm-btn:hover { background: var(--navy); }
   .confirm-skip { color: var(--muted); font-size: 0.85rem; }
 
-  .last-confirmed {
-    margin-top: 2rem;
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
+  .last-confirmed { margin-top: 2rem; font-size: 0.82rem; color: var(--muted); }
 
-  .ctas {
-    margin-top: 2.5rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-  .cta {
-    padding: 1.1rem 1.25rem;
-    border: 1px solid var(--hairline);
-    background: var(--paper);
-    text-align: left;
-    font-family: var(--serif);
-  }
-  .cta:hover { border-color: var(--accent); }
-  .cta.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .cta.primary:hover { background: var(--navy); border-color: var(--navy); }
-  .cta-name { font-size: 1.05rem; font-weight: 600; display: block; }
-  .cta-sub { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); margin-top: 0.25rem; display: block; }
-  .cta.primary .cta-sub { color: #d8e3ec; }
-  .cta.disabled { opacity: 0.55; cursor: not-allowed; }
+  .products { margin-top: 3rem; }
+  .products-eyebrow { font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 1rem 0; }
+  .product-row { display: grid; grid-template-columns: minmax(11rem, 1fr) 1.7fr auto;
+    gap: 1rem; align-items: center; padding: 1rem 0; border-top: 1px solid var(--hairline); }
+  .product-row:last-child { border-bottom: 1px solid var(--hairline); }
+  .product-name { font-family: var(--serif); font-size: 1rem; font-weight: 600; color: var(--ink); }
+  .product-tagline { font-family: var(--sans); font-size: 0.88rem; color: var(--muted); }
+  .product-cta { font-family: var(--sans); font-size: 0.85rem; padding: 0.45rem 0.9rem;
+    border: 1px solid var(--accent); border-radius: 3px; color: var(--accent);
+    background: var(--paper); white-space: nowrap; }
+  .product-cta:hover { background: var(--accent); color: #fff; }
+  .product-cta.muted { border-color: var(--hairline); color: var(--muted); }
+  .product-cta.muted:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+  .product-cta.here { border-color: var(--hairline); color: var(--muted); cursor: default; }
+  .product-cta.here:hover { background: var(--paper); color: var(--muted); }
 
-  @media (max-width: 560px) {
-    .ctas { grid-template-columns: 1fr; }
+  @media (max-width: 640px) {
+    .product-row { grid-template-columns: 1fr; gap: 0.4rem; }
+    .product-row .product-cta { justify-self: start; margin-top: 0.4rem; }
+    .briefing-actions { flex-direction: column; align-items: stretch; }
   }
 `;
 
 export function renderPortal(opts: PortalRenderOptions): string {
-  const { identity, profile, lastActiveAt, lastActiveCountry, promptReaffirmation } = opts;
+  const { identity, profile, lastActiveAt, lastActiveCountry, promptReaffirmation, recentDates } = opts;
   const firmSlug = profile?.firm_slug ?? null;
   const firmName = profile?.firm_name ?? "Setting up your account";
+  const first = firstName(profile, identity.email);
 
   return `<!DOCTYPE html>
 <html lang="en-GB">
@@ -168,6 +177,8 @@ export function renderPortal(opts: PortalRenderOptions): string {
 </header>
 <main>
 
+  <h1 class="welcome">Welcome back, ${escapeHtml(first)}.</h1>
+
   <section class="identity">
     <p class="identity-line">Signed in as <strong>${escapeHtml(identity.email)}</strong></p>
     <p class="identity-firm">${escapeHtml(firmName)}</p>
@@ -177,29 +188,100 @@ export function renderPortal(opts: PortalRenderOptions): string {
     </p>
   </section>
 
+  ${renderBriefingHero(firmSlug, firmName)}
+
+  ${renderRecentStrip(recentDates, firmSlug)}
+
   ${promptReaffirmation
     ? renderConfirmBlock(profile)
     : renderLastConfirmedLine(profile?.last_confirmed_at ?? null)}
 
-  <div class="ctas">
-    ${firmSlug
-      ? `<a class="cta primary" href="/sonar/${escapeAttr(firmSlug)}/">
-           <span class="cta-name">Today's briefing</span>
-           <span class="cta-sub">CJI Sonar — ${escapeHtml(firmName)}</span>
-         </a>`
-      : `<span class="cta primary disabled" title="Briefing available once your firm is provisioned">
-           <span class="cta-name">Today's briefing</span>
-           <span class="cta-sub">Available once your account is set up</span>
-         </span>`}
-    <a class="cta" href="/reckoner">
-      <span class="cta-name">Open Reckoner</span>
-      <span class="cta-sub">Industry intelligence — cohort patterns</span>
-    </a>
-  </div>
+  ${renderProductFamily(firmSlug)}
 
 </main>
 </body>
 </html>`;
+}
+
+// ── Sections ─────────────────────────────────────────────────────────
+
+function renderBriefingHero(firmSlug: string | null, firmName: string): string {
+  if (!firmSlug) {
+    return `<section class="briefing-hero" aria-disabled="true">
+      <p class="briefing-eyebrow">Today's briefing</p>
+      <h2 class="briefing-title">Your briefing will appear here once your firm is provisioned.</h2>
+      <div class="briefing-actions">
+        <span class="btn-disabled">Open</span>
+        <span class="btn-disabled">Share with team</span>
+        <span class="btn-disabled">Forward by email</span>
+      </div>
+    </section>`;
+  }
+  // MIL-145 sibling will replace mailto: with token-based share links and
+  // forward-detection audit-tagging. Until then, mailto: is the affordance —
+  // partner copies the link into Outlook / Gmail and forwards manually.
+  const briefingUrl = `https://app.cjipro.com/sonar/${escapeAttr(firmSlug)}/`;
+  const shareSubject = encodeURIComponent(`Today's CJI Sonar briefing — ${firmName}`);
+  const shareBody = encodeURIComponent(`Today's briefing:\n${briefingUrl}\n\n— shared via CJI Sonar`);
+  const mailto = `mailto:?subject=${shareSubject}&body=${shareBody}`;
+  return `<section class="briefing-hero">
+    <p class="briefing-eyebrow">Today's briefing</p>
+    <h2 class="briefing-title">Today's Sonar briefing for ${escapeHtml(firmName)}</h2>
+    <div class="briefing-actions">
+      <a class="btn-primary" href="/sonar/${escapeAttr(firmSlug)}/">Open</a>
+      <a class="btn-secondary" href="${mailto}">Share with team</a>
+      <a class="btn-secondary" href="${mailto}">Forward by email</a>
+    </div>
+  </section>`;
+}
+
+function renderRecentStrip(dates: RecentDate[], firmSlug: string | null): string {
+  if (!firmSlug || dates.length === 0) return "";
+  const links = dates
+    .map(
+      (d) =>
+        `<a href="/sonar/${escapeAttr(firmSlug)}/${escapeAttr(d.iso)}/">${escapeHtml(d.label)}</a>`,
+    )
+    .join("");
+  return `<p class="recent">
+    <span class="recent-label">Recent</span>
+    ${links}
+    <a class="recent-all" href="/sonar/${escapeAttr(firmSlug)}/">All briefings →</a>
+  </p>`;
+}
+
+function renderProductFamily(firmSlug: string | null): string {
+  // Alpha entitlements: Reckoner + Sonar always; Pulse + Lever as prospects.
+  // Sonar shows "(you are here)" since the briefing hero is the dominant
+  // motion above. Reckoner is "Open" not "Start free trial" — alpha cohort
+  // is already inside the trial perimeter.
+  return `<section class="products">
+    <p class="products-eyebrow">All CJI products</p>
+    <div class="product-row">
+      <div class="product-name">CJI Reckoner</div>
+      <div class="product-tagline">Industry intelligence</div>
+      <a class="product-cta" href="/reckoner">Open →</a>
+    </div>
+    <div class="product-row">
+      <div class="product-name">CJI Sonar</div>
+      <div class="product-tagline">Daily firm briefing</div>
+      ${
+        firmSlug
+          ? `<a class="product-cta here" href="/sonar/${escapeAttr(firmSlug)}/">You're here</a>`
+          : `<span class="product-cta here">You're here</span>`
+      }
+    </div>
+    <div class="product-row">
+      <div class="product-name">CJI Pulse</div>
+      <div class="product-tagline">Live insight — coming 2026</div>
+      <a class="product-cta muted" href="mailto:hello@cjipro.com?subject=CJI%20Pulse%20design%20partner">Join design partners</a>
+    </div>
+    <div class="product-row">
+      <div class="product-name">CJI Lever</div>
+      <div class="product-tagline">Tailored decision framework — design partners only</div>
+      <a class="product-cta muted" href="mailto:hello@cjipro.com?subject=CJI%20Lever%20enquiry">Talk to us</a>
+    </div>
+  </section>`;
 }
 
 function renderLastSignIn(ts: string | null, country: string | null): string {
@@ -234,6 +316,52 @@ function renderLastConfirmedLine(ts: string | null): string {
   return `<p class="last-confirmed">Details last confirmed: ${escapeHtml(humanTime(ts))}</p>`;
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────
+
+// First-name extraction: prefer the first whitespace-separated token of
+// display_name; fall back to the email local-part with first letter
+// capitalised. Empty/unset display_name OR malformed email both land on
+// the email-prefix path; if that's also empty (shouldn't happen) we
+// return "there" as a last-ditch friendly fallback.
+export function firstName(profile: PartnerProfile | null, email: string): string {
+  const dn = profile?.display_name?.trim();
+  if (dn) {
+    const first = dn.split(/\s+/)[0];
+    if (first) return first;
+  }
+  const local = email.split("@")[0] ?? "";
+  if (local) return local.charAt(0).toUpperCase() + local.slice(1);
+  return "there";
+}
+
+// Recent date strip: today + previous (count-1) days, formatted as
+// "Today" / "Yesterday" / "Apr 25" etc. Server-side computation only
+// (the page has no JS); UTC is used for ISO slugs since /sonar/{slug}/
+// historical paths are UTC-day-keyed by run_daily.py.
+export function buildRecentDates(now: Date, count = 3): RecentDate[] {
+  const out: RecentDate[] = [];
+  for (let i = 0; i < count; i++) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i));
+    out.push({ iso: isoDate(d), label: relativeDayLabel(d, i) });
+  }
+  return out;
+}
+
+function isoDate(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function relativeDayLabel(d: Date, i: number): string {
+  if (i === 0) return "Today";
+  if (i === 1) return "Yesterday";
+  return `${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCDate()}`;
+}
+
 // Lightweight relative-time formatter — server-side, no JS needed.
 // Falls back to ISO date for >30 days.
 function humanTime(iso: string): string {
@@ -263,12 +391,7 @@ function escapeAttr(s: string): string {
   return escapeHtml(s);
 }
 
-// ── Handler façade ───────────────────────────────────────────────
-//
-// The route handlers below are pure-data — they take a session
-// identity (sub + email already extracted by index.ts auth gate) and
-// the D1 binding, and return either a Response or an opaque "not-
-// authed" sentinel that index.ts handles by redirecting to login.
+// ── Handler façade ───────────────────────────────────────────────────
 
 export interface PortalEnv {
   AUDIT_DB: D1Database;
@@ -282,12 +405,14 @@ export async function handleGetPortal(
 ): Promise<Response> {
   const profile = await getProfile(env.AUDIT_DB, identity.sub);
   const promptReaffirmation = needsReaffirmation(profile, now);
+  const recentDates = profile?.firm_slug ? buildRecentDates(now, 3) : [];
   const html = renderPortal({
     identity,
     profile,
     lastActiveAt,
     lastActiveCountry: null,
     promptReaffirmation,
+    recentDates,
   });
   return new Response(html, {
     status: 200,
@@ -326,9 +451,6 @@ export async function handlePostConfirm(
   );
 
   if ("kind" in result) {
-    // Profile row missing — shouldn't happen in production (ensureProfile
-    // fires at /callback), but be defensive: redirect back to portal so
-    // the user isn't stuck.
     return {
       response: redirectToPortal(),
       outcome: {
@@ -352,14 +474,11 @@ export async function handlePostConfirm(
   };
 }
 
-// Re-exported for the index.ts wiring path: it needs to look up
-// session email from sub (already in app_cjipro for the auth gate)
-// and read sessions.last_active_at to display on the portal.
 export { lookupSessionEmail };
 
-// Workers' Response.redirect requires an absolute URL. We don't have
-// the request URL available in handlePostConfirm without threading it,
-// so build a 302 with a relative Location header — which IS legal.
+// Workers' Response.redirect requires an absolute URL. handlePostConfirm
+// has no request context, so a relative Location header is used (legal
+// per RFC 7231 §7.1.2 — modern Workers runtime accepts it).
 function redirectToPortal(): Response {
   return new Response(null, {
     status: 302,

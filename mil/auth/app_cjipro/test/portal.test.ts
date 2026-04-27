@@ -1,11 +1,15 @@
-// MIL-151 — /portal handler tests.
+// MIL-151 + MIL-144 — /portal handler tests.
 //
 // Pure handler-level tests against a local FakeD1. The end-to-end
 // auth-gate-then-portal flow is exercised in auth_gate.test.ts; this
-// file pins the rendering rules and the confirm POST behaviour.
+// file pins the rendering rules and the confirm POST behaviour, plus
+// the MIL-144 additions: welcome line, briefing hero (Share/Forward),
+// recent dates strip, and product family with entitlement CTAs.
 
-import { describe, expect, test, beforeEach } from "vitest";
+import { describe, expect, test } from "vitest";
 import {
+  buildRecentDates,
+  firstName,
   handleGetPortal,
   handlePostConfirm,
   renderPortal,
@@ -104,6 +108,20 @@ function seedProfile(db: FakeD1, overrides: Partial<PartnerProfileRow> = {}) {
   });
 }
 
+const FULL_PROFILE: PartnerProfileRow = {
+  sub: "u_alpha",
+  display_name: "Alpha User",
+  role: "Head of CX",
+  firm_slug: "barclays",
+  firm_name: "Barclays",
+  contact_email: "alpha@example.com",
+  contact_pref: "email-only",
+  last_confirmed_at: NOW.toISOString(),
+  last_confirmed_hash: "abc",
+  created_at: NOW.toISOString(),
+  updated_at: NOW.toISOString(),
+};
+
 describe("renderPortal — visual rules", () => {
   test("shows email + signed-in state", () => {
     const html = renderPortal({
@@ -112,61 +130,122 @@ describe("renderPortal — visual rules", () => {
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
+      recentDates: [],
     });
     expect(html).toContain("alpha@example.com");
     expect(html).toContain("Signed in as");
     expect(html).toContain("Sign out");
   });
 
-  test("no firm → 'Setting up your account' fallback + disabled briefing CTA", () => {
+  test("welcome line uses display_name first token when set", () => {
     const html = renderPortal({
       identity: IDENTITY,
-      profile: {
-        sub: "u_alpha",
-        display_name: null,
-        role: null,
-        firm_slug: null,
-        firm_name: null,
-        contact_email: "alpha@example.com",
-        contact_pref: "email-only",
-        last_confirmed_at: null,
-        last_confirmed_hash: null,
-        created_at: NOW.toISOString(),
-        updated_at: NOW.toISOString(),
-      },
-      lastActiveAt: null,
-      lastActiveCountry: null,
-      promptReaffirmation: true,
-    });
-    expect(html).toContain("Setting up your account");
-    expect(html).toContain("disabled");
-    expect(html).not.toContain('href="/sonar/');
-  });
-
-  test("firm set → primary briefing CTA links to /sonar/{slug}/", () => {
-    const html = renderPortal({
-      identity: IDENTITY,
-      profile: {
-        sub: "u_alpha",
-        display_name: "Alpha User",
-        role: "Head of CX",
-        firm_slug: "barclays",
-        firm_name: "Barclays",
-        contact_email: "alpha@example.com",
-        contact_pref: "email-only",
-        last_confirmed_at: NOW.toISOString(),
-        last_confirmed_hash: "abc",
-        created_at: NOW.toISOString(),
-        updated_at: NOW.toISOString(),
-      },
+      profile: FULL_PROFILE,
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
+      recentDates: [],
+    });
+    expect(html).toContain("Welcome back, Alpha.");
+  });
+
+  test("welcome line falls back to email-prefix when display_name unset", () => {
+    const html = renderPortal({
+      identity: IDENTITY,
+      profile: null,
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: true,
+      recentDates: [],
+    });
+    expect(html).toContain("Welcome back, Alpha.");
+  });
+
+  test("no firm → fallback firm name + briefing hero shows disabled actions, no /sonar link", () => {
+    const html = renderPortal({
+      identity: IDENTITY,
+      profile: { ...FULL_PROFILE, firm_slug: null, firm_name: null },
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: true,
+      recentDates: [],
+    });
+    expect(html).toContain("Setting up your account");
+    expect(html).toContain("once your firm is provisioned");
+    expect(html).not.toContain('href="/sonar/');
+    // Sonar product row still renders but with no link to /sonar/{slug}
+    expect(html).toContain("CJI Sonar");
+  });
+
+  test("firm set → briefing hero links to /sonar/{slug}/, share/forward mailto present", () => {
+    const html = renderPortal({
+      identity: IDENTITY,
+      profile: FULL_PROFILE,
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: false,
+      recentDates: [],
     });
     expect(html).toContain('href="/sonar/barclays/"');
-    expect(html).toContain("Barclays");
-    // Reckoner CTA always present
+    expect(html).toContain("Today's Sonar briefing for Barclays");
+    expect(html).toContain('href="mailto:?subject=');
+    expect(html).toContain("Share with team");
+    expect(html).toContain("Forward by email");
+  });
+
+  test("recent strip renders when firm + dates supplied; links to dated /sonar paths", () => {
+    const html = renderPortal({
+      identity: IDENTITY,
+      profile: FULL_PROFILE,
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: false,
+      recentDates: [
+        { iso: "2026-04-27", label: "Today" },
+        { iso: "2026-04-26", label: "Yesterday" },
+        { iso: "2026-04-25", label: "Apr 25" },
+      ],
+    });
+    expect(html).toContain('href="/sonar/barclays/2026-04-27/"');
+    expect(html).toContain('href="/sonar/barclays/2026-04-26/"');
+    expect(html).toContain('href="/sonar/barclays/2026-04-25/"');
+    expect(html).toContain("All briefings →");
+  });
+
+  test("recent strip suppressed when no firm even if dates supplied", () => {
+    const html = renderPortal({
+      identity: IDENTITY,
+      profile: { ...FULL_PROFILE, firm_slug: null },
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: false,
+      recentDates: [{ iso: "2026-04-27", label: "Today" }],
+    });
+    expect(html).not.toContain('href="/sonar/');
+  });
+
+  test("product family — all four products visible with correct CTAs", () => {
+    const html = renderPortal({
+      identity: IDENTITY,
+      profile: FULL_PROFILE,
+      lastActiveAt: null,
+      lastActiveCountry: null,
+      promptReaffirmation: false,
+      recentDates: [],
+    });
+    expect(html).toContain("CJI Reckoner");
+    expect(html).toContain("CJI Sonar");
+    expect(html).toContain("CJI Pulse");
+    expect(html).toContain("CJI Lever");
+    // Reckoner: open
     expect(html).toContain('href="/reckoner"');
+    // Sonar: "You're here" — string is hardcoded in the view, not user-supplied,
+    // so it's emitted as-is (no escapeHtml call).
+    expect(html).toContain("You're here");
+    // Pulse: prospect mailto
+    expect(html).toContain("mailto:hello@cjipro.com?subject=CJI%20Pulse%20design%20partner");
+    // Lever: prospect mailto
+    expect(html).toContain("mailto:hello@cjipro.com?subject=CJI%20Lever%20enquiry");
   });
 
   test("promptReaffirmation=true → confirm form rendered", () => {
@@ -176,6 +255,7 @@ describe("renderPortal — visual rules", () => {
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
+      recentDates: [],
     });
     expect(html).toContain('action="/portal/confirm"');
     expect(html).toContain('name="display_name"');
@@ -185,46 +265,29 @@ describe("renderPortal — visual rules", () => {
   test("promptReaffirmation=false → confirm form NOT rendered, last-confirmed line shown", () => {
     const html = renderPortal({
       identity: IDENTITY,
-      profile: {
-        sub: "u_alpha",
-        display_name: null,
-        role: null,
-        firm_slug: "barclays",
-        firm_name: "Barclays",
-        contact_email: "alpha@example.com",
-        contact_pref: "email-only",
-        last_confirmed_at: "2026-04-25T12:00:00.000Z",
-        last_confirmed_hash: "abc",
-        created_at: NOW.toISOString(),
-        updated_at: NOW.toISOString(),
-      },
+      profile: { ...FULL_PROFILE, last_confirmed_at: "2026-04-25T12:00:00.000Z" },
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
+      recentDates: [],
     });
     expect(html).not.toContain('action="/portal/confirm"');
     expect(html).toContain("Details last confirmed");
   });
 
-  test("XSS — email + firm_name escaped", () => {
+  test("XSS — email + firm_name escaped, display_name first-name escaped", () => {
     const html = renderPortal({
       identity: { sub: "u_alpha", email: "<script>alert(1)</script>@example.com" },
       profile: {
-        sub: "u_alpha",
-        display_name: null,
-        role: null,
+        ...FULL_PROFILE,
+        display_name: '<img onerror="x">',
         firm_slug: "x",
         firm_name: '<img onerror="x">',
-        contact_email: null,
-        contact_pref: "email-only",
-        last_confirmed_at: NOW.toISOString(),
-        last_confirmed_hash: "abc",
-        created_at: NOW.toISOString(),
-        updated_at: NOW.toISOString(),
       },
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: false,
+      recentDates: [],
     });
     expect(html).not.toContain("<script>");
     expect(html).not.toContain('<img onerror=');
@@ -238,8 +301,39 @@ describe("renderPortal — visual rules", () => {
       lastActiveAt: null,
       lastActiveCountry: null,
       promptReaffirmation: true,
+      recentDates: [],
     });
     expect(html).toContain('name="robots" content="noindex,nofollow"');
+  });
+});
+
+describe("firstName helper", () => {
+  test("uses display_name first token", () => {
+    expect(firstName(FULL_PROFILE, "x@y.com")).toBe("Alpha");
+  });
+  test("falls back to email-prefix capitalised", () => {
+    expect(firstName(null, "hussain@example.com")).toBe("Hussain");
+  });
+  test("falls back to 'there' on empty everything", () => {
+    expect(firstName(null, "")).toBe("there");
+  });
+  test("trims whitespace-only display_name and falls back", () => {
+    expect(firstName({ ...FULL_PROFILE, display_name: "   " }, "alpha@x.com")).toBe("Alpha");
+  });
+});
+
+describe("buildRecentDates helper", () => {
+  test("returns 3 dates by default — Today / Yesterday / Apr 25", () => {
+    const dates = buildRecentDates(NOW);
+    expect(dates).toHaveLength(3);
+    expect(dates[0]).toEqual({ iso: "2026-04-27", label: "Today" });
+    expect(dates[1]).toEqual({ iso: "2026-04-26", label: "Yesterday" });
+    expect(dates[2]).toEqual({ iso: "2026-04-25", label: "Apr 25" });
+  });
+  test("respects custom count", () => {
+    const dates = buildRecentDates(NOW, 1);
+    expect(dates).toHaveLength(1);
+    expect(dates[0].iso).toBe("2026-04-27");
   });
 });
 
@@ -283,6 +377,23 @@ describe("handleGetPortal", () => {
     const res = await handleGetPortal(IDENTITY, envFor(db), null, NOW);
     const body = await res.text();
     expect(body).toContain('action="/portal/confirm"');
+  });
+
+  test("includes recent dates when firm is provisioned", async () => {
+    const db = new FakeD1();
+    seedProfile(db, { firm_slug: "barclays", firm_name: "Barclays" });
+    const res = await handleGetPortal(IDENTITY, envFor(db), null, NOW);
+    const body = await res.text();
+    expect(body).toContain('href="/sonar/barclays/2026-04-27/"');
+    expect(body).toContain('href="/sonar/barclays/2026-04-26/"');
+  });
+
+  test("omits recent dates when firm is not provisioned", async () => {
+    const db = new FakeD1();
+    seedProfile(db);
+    const res = await handleGetPortal(IDENTITY, envFor(db), null, NOW);
+    const body = await res.text();
+    expect(body).not.toContain('href="/sonar/');
   });
 });
 
@@ -330,7 +441,6 @@ describe("handlePostConfirm", () => {
     fd.set("display_name", "Alpha User");
     fd.set("role", "Head of CX");
     const first = await handlePostConfirm(IDENTITY, envFor(db), fd, NOW);
-    // Identical second submission
     const fd2 = new FormData();
     fd2.set("display_name", "Alpha User");
     fd2.set("role", "Head of CX");
