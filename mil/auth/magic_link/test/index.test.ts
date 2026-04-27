@@ -124,6 +124,21 @@ describe("GET /logout (MIL-161)", () => {
     expect(body).toContain('name="csrf"');
     expect(body).toContain("v1.");
   });
+
+  // MIL-162 — explicit ← Back affordance on the confirm form so a user
+  // who reached /logout by misclick (or `<img src="/logout">` rendering
+  // a confirm page) has a labelled escape, not just a Cancel button
+  // tucked next to Sign out.
+  test("MIL-162: confirm page renders ← Back link to /portal", async () => {
+    const req = new Request("https://login.cjipro.com/logout", {
+      method: "GET",
+      headers: { cookie: "__Secure-cjipro-session=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1XzAxIn0.sig" },
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    const body = await res.text();
+    expect(body).toContain('class="back-link"');
+    expect(body).toContain("&larr; Back");
+  });
 });
 
 describe("POST /logout (MIL-161)", () => {
@@ -190,14 +205,18 @@ describe("POST /logout AuthKit front-channel redirect (MIL-161 v2)", () => {
     expect(res.status).toBe(302);
     const loc = res.headers.get("location") ?? "";
     expect(loc).toContain("ideal-log-65-staging.authkit.app");
-    expect(loc).toContain("/user_management/sessions/logout");
+    expect(loc).toContain("/api/logout");
     expect(loc).toContain("session_id=sess_77");
-    expect(loc).toContain(
-      "return_to=https%3A%2F%2Flogin.cjipro.com%2Flogout%2Fdone",
-    );
+    // AuthKit ignores return_to / post_logout_redirect_uri / redirect_uri
+    // on /api/logout. Post-logout landing is governed by the WorkOS
+    // application's Homepage URL setting (admin config). See
+    // buildAuthkitLogoutUrl source comment for details.
+    expect(loc).not.toContain("return_to");
+    expect(loc).not.toContain("post_logout_redirect_uri");
+    expect(loc).not.toContain("redirect_uri");
     // Cookie clear MUST be on the same response — once AuthKit redirects
-    // back to /logout/done, our cookie is already gone and a fresh
-    // bouncer hit denies.
+    // to the configured Homepage URL, our cookie is already gone and a
+    // fresh bouncer hit denies.
     const sc = res.headers.get("set-cookie");
     expect(sc).toContain("__Secure-cjipro-session=");
     expect(sc).toContain("Max-Age=0");
@@ -219,13 +238,15 @@ describe("POST /logout AuthKit front-channel redirect (MIL-161 v2)", () => {
     expect(res.status).toBe(302);
     const loc = res.headers.get("location") ?? "";
     expect(loc).toContain("ideal-log-65-staging.authkit.app");
+    expect(loc).toContain("/api/logout");
     // No session_id param when sid was missing from the JWT.
     expect(loc).not.toContain("session_id=");
-    expect(loc).toContain("return_to=");
+    // No return_to either — AuthKit ignores post-logout redirect params.
+    expect(loc).not.toContain("return_to");
   });
 });
 
-describe("GET /logout/done (MIL-161 v2)", () => {
+describe("GET /logout/done (MIL-161 + MIL-162)", () => {
   test("renders done page after AuthKit redirect", async () => {
     const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
     expect(res.status).toBe(200);
@@ -238,6 +259,18 @@ describe("GET /logout/done (MIL-161 v2)", () => {
   test("does not Set-Cookie (the original POST already cleared it)", async () => {
     const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
     expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
+  // MIL-162 — explicit ← Back affordance so users aren't stranded if
+  // they reached this page by accident or after the AuthKit cookie
+  // clear. The back-link points to cjipro.com so it's a real escape
+  // route from the auth surface, not a loop back through login.
+  test("renders MIL-162 back-link to cjipro.com", async () => {
+    const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
+    const body = await res.text();
+    expect(body).toContain('class="back-link"');
+    expect(body).toContain('href="https://cjipro.com/"');
+    expect(body).toContain("&larr; Back to cjipro.com");
   });
 });
 

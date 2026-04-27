@@ -1,14 +1,19 @@
-// MIL-161 — sign-out page renders.
+// MIL-161 (initial) + MIL-162 (back-affordance + AuthKit endpoint fix)
+// — sign-out page renders.
 //
 // Two pages:
 //   1. GET /logout (signed-in)  → confirm form, POSTs back to /logout
-//      with CSRF token + Sign-out button.
+//      with CSRF token + Sign-out button. "← Back" returns to /portal.
 //   2. POST /logout result      → "You're signed out" confirmation,
-//      with Sign-in-again CTA. The outcome of the lifecycle is shown
-//      as a compact status line so a partner who has just demoed on
-//      a shared machine can SEE that revocation happened, not infer it.
+//      with Sign-in-again CTA + "← Back to cjipro.com" escape. The
+//      outcome of the lifecycle is shown as a compact status line so a
+//      partner who has just demoed on a shared machine can SEE that
+//      revocation happened, not infer it.
 //
 // CSP-clean: server-rendered, no inline JS, no event handlers.
+// Back affordances are real anchor links (not history.back()) because
+// the strict CSP forbids inline JS, and because /logout/* is reached
+// via 302 chains where browser-history "back" would re-fire the flow.
 
 import { FONTS_BLOCK } from "../../fonts_block/src/fonts_block.generated";
 import type { LogoutOutcome } from "./logout";
@@ -56,6 +61,17 @@ const CSS = `
   footer.foot { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--hairline);
     font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* MIL-162 — page-level back affordance. Anchored top-left of <main>,
+     above the heading, so it reads as "escape this flow" rather than
+     "primary action". Underline-on-hover for affordance, never the
+     default state. */
+  .back-link { display: inline-block; margin-bottom: 1.4rem;
+    font-family: var(--sans); font-size: 0.85rem; color: var(--muted);
+    text-decoration: none; border-bottom: 1px solid transparent; }
+  .back-link:hover, .back-link:focus-visible {
+    color: var(--accent); border-bottom-color: var(--accent); }
+  .back-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 `;
 
 function escapeHtml(s: string): string {
@@ -86,6 +102,7 @@ ${FONTS_BLOCK}
 </head>
 <body>
 <main>
+<a class="back-link" href="${escapeHtml(cancelHref)}">&larr; Back</a>
 <h1>Sign out of CJI?</h1>
 <p>This will end your current session, revoke the access token at WorkOS, and clear your sign-in cookie across <code>cjipro.com</code>.</p>
 <p>If you're on a shared machine, sign out before you walk away.</p>
@@ -118,6 +135,7 @@ ${FONTS_BLOCK}
 </head>
 <body>
 <main>
+<a class="back-link" href="https://cjipro.com/">&larr; Back to cjipro.com</a>
 <h1>You're signed out.</h1>
 <p>Your session has been ended. Sign in again whenever you need to.</p>
 ${status}
@@ -147,6 +165,7 @@ ${FONTS_BLOCK}
 </head>
 <body>
 <main>
+<a class="back-link" href="https://app.cjipro.com/portal">&larr; Back to portal</a>
 <h1>Couldn't complete sign out.</h1>
 <p>Your session may have changed in another tab, or this page expired before you confirmed.</p>
 <div class="actions">

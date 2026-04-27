@@ -131,18 +131,39 @@ function base64UrlEncode(bytes: Uint8Array): string {
 //
 // The cure is to send the browser through AuthKit's own logout URL.
 // AuthKit clears its session cookies on its domain, then 302s back to
-// `return_to`. Documented WorkOS pattern: GET on the AuthKit host with
-// `session_id` (so AuthKit knows which session to terminate) and
-// `return_to` (where to land after).
+// the application's configured Homepage URL.
+//
+// Endpoint shape (verified 2026-04-27 via chrome-devtools probe against
+// ideal-log-65-staging.authkit.app):
+//   • Path is `/api/logout`. The earlier-shipped path
+//     `/user_management/sessions/logout` returns 404 — it is a WorkOS
+//     API path, not an AuthKit path, and was a guess.
+//   • Query: `session_id=<sid>` (so AuthKit knows which session to
+//     terminate). If `sid` is missing, AuthKit clears whatever session
+//     cookie it finds for this browser.
+//   • AuthKit IGNORES `return_to`, `post_logout_redirect_uri`, and
+//     similar OIDC-style params. Passing `redirect_uri` is actively
+//     dangerous — AuthKit treats it as a sign-in flow start, not a
+//     post-logout target.
+//   • Post-logout landing is governed by the WorkOS application's
+//     Homepage URL — set it in WorkOS Dashboard → Application →
+//     Configuration → Branded URLs to `https://login.cjipro.com/logout/done`.
+//     If unset, the user lands on
+//     `error.workos.com/user_management/app-homepage-url-not-found`
+//     after the cookie clear (cookie clear still happens, only UX is
+//     broken).
+//
+// `returnTo` is retained in the signature so callers can pass our
+// done-page URL for documentation / future-fallback purposes, but it
+// is not appended to the URL.
 //
 // Defensive: if `authKitHost` is unset we return null and the caller
-// should fall back to rendering the done page directly. If `sid` is
-// missing we still return a URL — AuthKit will fall back to clearing
-// any session cookie it finds for this browser.
+// should fall back to rendering the done page directly.
 export function buildAuthkitLogoutUrl(
   authKitHost: string | undefined,
   sid: string | undefined,
-  returnTo: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _returnTo: string,
 ): string | null {
   if (!authKitHost) return null;
   // authKitHost in env is the bare domain (`ideal-log-65-staging.authkit.app`);
@@ -150,8 +171,8 @@ export function buildAuthkitLogoutUrl(
   const host = authKitHost.replace(/^https?:\/\//, "").replace(/\/$/, "");
   const params = new URLSearchParams();
   if (sid) params.set("session_id", sid);
-  params.set("return_to", returnTo);
-  return `https://${host}/user_management/sessions/logout?${params.toString()}`;
+  const qs = params.toString();
+  return `https://${host}/api/logout${qs ? "?" + qs : ""}`;
 }
 
 // WorkOS session revocation.

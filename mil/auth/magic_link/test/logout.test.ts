@@ -301,7 +301,7 @@ describe("performLogout", () => {
 // ── AuthKit front-channel logout URL ───────────────────────────────
 
 describe("buildAuthkitLogoutUrl", () => {
-  test("builds full URL with sid + return_to on the AuthKit domain", () => {
+  test("builds /api/logout URL with sid on the AuthKit domain", () => {
     const url = buildAuthkitLogoutUrl(
       "ideal-log-65-staging.authkit.app",
       "session_01ABC",
@@ -309,11 +309,28 @@ describe("buildAuthkitLogoutUrl", () => {
     );
     expect(url).not.toBeNull();
     expect(url).toContain("https://ideal-log-65-staging.authkit.app/");
-    expect(url).toContain("/user_management/sessions/logout");
+    expect(url).toContain("/api/logout");
     expect(url).toContain("session_id=session_01ABC");
-    expect(url).toContain(
-      "return_to=https%3A%2F%2Flogin.cjipro.com%2Flogout%2Fdone",
+  });
+
+  test("does NOT append return_to / post_logout_redirect_uri / redirect_uri (AuthKit ignores or mis-handles these — see source comment)", () => {
+    const url = buildAuthkitLogoutUrl(
+      "ideal-log-65-staging.authkit.app",
+      "session_01ABC",
+      "https://login.cjipro.com/logout/done",
     );
+    expect(url).not.toContain("return_to");
+    expect(url).not.toContain("post_logout_redirect_uri");
+    expect(url).not.toContain("redirect_uri");
+  });
+
+  test("does NOT use the legacy /user_management/sessions/logout path (404 against AuthKit)", () => {
+    const url = buildAuthkitLogoutUrl(
+      "ideal-log-65-staging.authkit.app",
+      "session_01ABC",
+      "https://login.cjipro.com/logout/done",
+    );
+    expect(url).not.toContain("/user_management/sessions/logout");
   });
 
   test("strips https:// prefix if env value carries one (defensive)", () => {
@@ -335,7 +352,7 @@ describe("buildAuthkitLogoutUrl", () => {
     expect(url).not.toContain(".app//");
   });
 
-  test("omits session_id when sid is undefined (still useful — clears any cookie AuthKit finds)", () => {
+  test("omits session_id when sid is undefined (still useful — clears any cookie AuthKit finds), and produces a clean URL with no '?' when no params", () => {
     const url = buildAuthkitLogoutUrl(
       "ideal-log-65-staging.authkit.app",
       undefined,
@@ -343,7 +360,7 @@ describe("buildAuthkitLogoutUrl", () => {
     );
     expect(url).not.toBeNull();
     expect(url).not.toContain("session_id");
-    expect(url).toContain("return_to=");
+    expect(url).toBe("https://ideal-log-65-staging.authkit.app/api/logout");
   });
 
   test("returns null when authKitHost is missing (caller falls back to direct render)", () => {
