@@ -25,6 +25,11 @@ import type { AuthEventInput, AuthEventType } from "../../audit/src/types";
 import { isApproved } from "../../approvals/src/approvals";
 import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
 import { isPending } from "../../approvals/src/signups";
+import {
+  FONTS_BLOCK,
+  FONT_STACK_SANS,
+  FONT_STACK_SERIF,
+} from "../../fonts_block/src/fonts_block.generated";
 
 export interface Env {
   ENFORCE: string;
@@ -245,12 +250,16 @@ function buildAuditInput(
 
 // Shared chrome — both deny variants + the legacy fallback render
 // over the same minimal page shell. Inlined to avoid a build step.
+// MIL-158 — body uses Inter, h1 uses Source Serif 4. FONTS_BLOCK is
+// injected separately into each page's <head>.
 const DENY_PAGE_STYLES = `
-  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; }
+  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C;
+    --serif: ${FONT_STACK_SERIF};
+    --sans: ${FONT_STACK_SANS}; }
   html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
-    font:16px/1.55 ui-serif,Georgia,serif; }
+    font: 16px/1.55 var(--sans); }
   main { max-width:32rem; margin:6rem auto; padding:2rem; }
-  h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
+  h1 { font-family: var(--serif); font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
   p { margin:0.5rem 0; color:var(--muted); }
   a { color:var(--accent); }
   .cta { display:inline-block; margin-top:1rem; padding:0.6rem 1.1rem;
@@ -286,6 +295,7 @@ function renderInQueue(email: string | undefined, requestedAt: string | undefine
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Request being reviewed · CJI</title>
+${FONTS_BLOCK}
 <style>${DENY_PAGE_STYLES}</style>
 </head>
 <body>
@@ -320,6 +330,7 @@ function renderNotOnAllowlist(email: string | undefined): Response {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Access not yet provisioned · CJI</title>
+${FONTS_BLOCK}
 <style>${DENY_PAGE_STYLES}</style>
 </head>
 <body>
@@ -352,6 +363,7 @@ function buildDenyResponse(): Response {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Access pending · CJI</title>
+${FONTS_BLOCK}
 <style>${DENY_PAGE_STYLES}</style>
 </head>
 <body>

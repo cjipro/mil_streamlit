@@ -17,6 +17,7 @@
 
 import { renderReckonerHtml, mvpSnapshot, type ReckonerMode } from "./reckoner";
 import { apiAskHandler, type ApiAskEnv, type ApiAskCallerIdentity } from "./api_ask";
+import { FONTS_BLOCK, FONT_STACK_SANS, FONT_STACK_SERIF } from "../../fonts_block/src/fonts_block.generated";
 
 export type RouteHandler = (request: Request) => Response | Promise<Response>;
 
@@ -36,9 +37,10 @@ function notFoundResponse(pathname: string): Response {
   const html = `<!DOCTYPE html>
 <html lang="en-GB"><head><meta charset="utf-8"><title>Not found · CJI</title>
 <meta name="robots" content="noindex,nofollow">
-<style>body{font:16px/1.55 Georgia,serif;color:#0A1E2A;background:#FAFAF7;
+${FONTS_BLOCK}
+<style>body{font:16px/1.55 ${FONT_STACK_SANS};color:#0A1E2A;background:#FAFAF7;
 margin:0;padding:0}main{max-width:32rem;margin:6rem auto;padding:2rem}
-h1{font-weight:600;font-size:1.4rem;margin:0 0 0.75rem}
+h1{font-family:${FONT_STACK_SERIF};font-weight:600;font-size:1.4rem;margin:0 0 0.75rem}
 p{color:#6B7A85}a{color:#003A5C}</style></head>
 <body><main><h1>Not found</h1>
 <p>No surface lives at <code>${pathname.replace(/[<>&"']/g, "")}</code> on this domain.</p>

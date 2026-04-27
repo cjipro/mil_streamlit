@@ -24,6 +24,7 @@ import {
 import { lookupSessionEmail } from "../../approvals/src/sessions";
 import { isAdmin } from "../../approvals/src/admin";
 import { resolveFirm, type ResolvedFirm } from "./firm_resolution";
+import { FONTS_BLOCK } from "../../fonts_block/src/fonts_block.generated";
 
 export interface PortalIdentity {
   sub: string;
@@ -56,8 +57,8 @@ const CSS = `
     --navy:       #00273D;
     --accent:     #003A5C;
     --accent-soft:#E8F0F5;
-    --serif:      Georgia, "Times New Roman", "DejaVu Serif", serif;
-    --sans:       -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --serif:      "Source Serif 4", Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:       Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     --mono:       "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   }
   * { box-sizing: border-box; }
@@ -172,6 +173,7 @@ export function renderPortal(opts: PortalRenderOptions): string {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Portal · CJI</title>
+${FONTS_BLOCK}
 <style>${CSS}</style>
 </head>
 <body>

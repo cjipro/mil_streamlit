@@ -25,6 +25,8 @@
 // mil/outputs/mil_findings and benchmark_history via a daily build
 // step or D1 sync.
 
+import { FONTS_BLOCK } from "../../fonts_block/src/fonts_block.generated";
+
 export type ClarkTier = "CLARK-0" | "CLARK-1" | "CLARK-2" | "CLARK-3";
 export type Trend = "WORSENING" | "STABLE" | "IMPROVING";
 
@@ -79,8 +81,8 @@ const CSS = `
     --worsening:  #B0341A;
     --improving:  #1F7A4C;
     --stable:     #6B7A85;
-    --serif:      Georgia, "Times New Roman", "DejaVu Serif", serif;
-    --sans:       -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --serif:      "Source Serif 4", Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:       Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     --mono:       "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   }
   * { box-sizing: border-box; }
@@ -672,9 +674,11 @@ export function renderReckonerHtml(
   // Ask mode needs to run a small inline submit handler. Default mode
   // stays on the strictest script-src 'none' since it has no scripts.
   const scriptSrc = mode === "ask" ? "'self' 'unsafe-inline'" : "'none'";
+  // MIL-158 — font-src adds https://cjipro.com so the Worker response can
+  // pull self-hosted Source Serif 4 + Inter from the canonical origin.
   const csp =
     `default-src 'self'; style-src 'self' 'unsafe-inline'; script-src ${scriptSrc}; ` +
-    `img-src 'self' data:; font-src 'self' data:; connect-src 'self'; ` +
+    `img-src 'self' data:; font-src 'self' data: https://cjipro.com; connect-src 'self'; ` +
     `frame-ancestors 'none'; base-uri 'self'; form-action 'self'`;
 
   return `<!DOCTYPE html>
@@ -688,6 +692,7 @@ export function renderReckonerHtml(
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
 <meta name="robots" content="noindex,nofollow">
+${FONTS_BLOCK}
 <style>${CSS}</style>
 </head>
 <body>

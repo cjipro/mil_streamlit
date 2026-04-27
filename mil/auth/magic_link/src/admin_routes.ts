@@ -26,14 +26,21 @@ import {
   exportAuditForOrg,
   type ExportFormat,
 } from "../../approvals/src/audit_export";
+import {
+  FONTS_BLOCK,
+  FONT_STACK_SANS,
+  FONT_STACK_SERIF,
+} from "../../fonts_block/src/fonts_block.generated";
 
 const STYLES = `
-  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --line:#e0e4e7; }
+  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --line:#e0e4e7;
+    --serif: ${FONT_STACK_SERIF};
+    --sans: ${FONT_STACK_SANS}; }
   html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
-    font:15px/1.5 ui-sans-serif,-apple-system,Segoe UI,system-ui,sans-serif; }
+    font: 15px/1.5 var(--sans); }
   main { max-width:64rem; margin:2.5rem auto; padding:0 1.5rem; }
-  h1 { font:600 1.45rem/1.2 ui-serif,Georgia,serif; margin:0 0 1.25rem; }
-  h2 { font:600 1.05rem/1.2 ui-sans-serif,-apple-system,Segoe UI,system-ui,sans-serif;
+  h1 { font: 600 1.45rem/1.2 var(--serif); margin:0 0 1.25rem; }
+  h2 { font: 600 1.05rem/1.2 var(--sans);
     margin:2rem 0 0.5rem; color:var(--ink); }
   p.sub { color:var(--muted); margin:0 0 1.5rem; font-size:0.88rem; }
   table { width:100%; border-collapse:collapse; font-size:0.89rem; }
@@ -64,6 +71,7 @@ export function renderDashboard(adminEmail: string): Response {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Access admin · CJI</title>
+${FONTS_BLOCK}
 <style>${STYLES}</style>
 </head>
 <body>

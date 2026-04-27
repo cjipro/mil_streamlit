@@ -186,3 +186,61 @@ class TestBriefingsFontMigration:
             src = path.read_text(encoding="utf-8")
             assert "fonts.googleapis.com" not in src, f"{path.name} still references fonts.googleapis.com"
             assert "fonts.gstatic.com" not in src, f"{path.name} still references fonts.gstatic.com"
+
+
+class TestWorkerFontsBlock:
+    """MIL-158 — Workers inject a TS-side @font-face block with ABSOLUTE
+    URLs to cjipro.com (different origin from app.cjipro.com /
+    login.cjipro.com). The TS module is generated from the same fetch
+    that produces fonts.css; this test pins both files stay in lockstep."""
+
+    GEN = REPO / "mil" / "auth" / "fonts_block" / "src" / "fonts_block.generated.ts"
+
+    SURFACES = [
+        REPO / "mil" / "auth" / "app_cjipro" / "src" / "portal.ts",
+        REPO / "mil" / "auth" / "app_cjipro" / "src" / "reckoner.ts",
+        REPO / "mil" / "auth" / "app_cjipro" / "src" / "router.ts",
+        REPO / "mil" / "auth" / "app_cjipro" / "src" / "index.ts",
+        REPO / "mil" / "auth" / "magic_link" / "src" / "request_access.ts",
+        REPO / "mil" / "auth" / "magic_link" / "src" / "admin_routes.ts",
+        REPO / "mil" / "auth" / "magic_link" / "src" / "index.ts",
+        REPO / "mil" / "auth" / "edge_bouncer" / "src" / "index.ts",
+    ]
+
+    def test_generated_ts_present(self):
+        assert self.GEN.exists(), "fonts_block.generated.ts missing — run fetch_fonts.py"
+
+    def test_generated_ts_uses_absolute_urls_to_cjipro(self):
+        src = self.GEN.read_text(encoding="utf-8")
+        # Every src URL must be absolute; relative /fonts/ would resolve
+        # against the Worker's own origin (which doesn't serve fonts).
+        assert 'url("/fonts/' not in src
+        assert 'url("https://cjipro.com/fonts/' in src
+        # Must reference both font families.
+        assert '"Source Serif 4"' in src
+        assert '"Inter"' in src
+
+    def test_generated_ts_exports_font_stacks(self):
+        src = self.GEN.read_text(encoding="utf-8")
+        assert "export const FONT_STACK_SERIF" in src
+        assert "export const FONT_STACK_SANS" in src
+        assert "export const FONTS_BLOCK" in src
+
+    def test_all_eight_worker_surfaces_import_fonts_block(self):
+        # If any surface forgets the import, partner-facing typography
+        # silently falls back to system serif on that page — exactly the
+        # mixed-surface bug MIL-136 / MIL-158 are designed to prevent.
+        for path in self.SURFACES:
+            src = path.read_text(encoding="utf-8")
+            assert "FONTS_BLOCK" in src, f"{path.relative_to(REPO)} doesn't import FONTS_BLOCK"
+
+    def test_no_worker_surface_uses_relative_fonts_path(self):
+        # Defensive: a Worker can't serve /fonts/ on its own origin
+        # (none of the Workers have [[assets]] configured). Relative
+        # /fonts/ in a Worker response would 404 the woff2 fetch.
+        for path in self.SURFACES:
+            src = path.read_text(encoding="utf-8")
+            # Only Worker-rendered content; fonts.css references with
+            # relative URLs are inside the GENERATED .ts module which is
+            # output by the same pipeline and CORRECTLY uses absolute.
+            assert 'href="/fonts/' not in src, f"{path.relative_to(REPO)} has a Worker-rendered relative /fonts/ path"

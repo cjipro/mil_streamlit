@@ -15,6 +15,11 @@ import {
   checkAndIncrement,
   DEFAULT_RATE_LIMIT,
 } from "../../approvals/src/rate_limit";
+import {
+  FONTS_BLOCK,
+  FONT_STACK_SANS,
+  FONT_STACK_SERIF,
+} from "../../fonts_block/src/fonts_block.generated";
 
 // MIL-147 — accept ?email=foo@bar.com URL param to pre-fill the email
 // field. This closes the forwarded-recipient loop (a partner shares a
@@ -38,12 +43,18 @@ export function readEmailParam(url: URL): string | undefined {
 // MIL-139 — visible focus rings (WCAG 2.2 AA SC 2.4.7) and explicit
 // :focus-visible style on inputs/buttons/links. No outline:none reset
 // anywhere; keyboard traversal must always show where the focus is.
+// MIL-158 — body/h1 stacks switched to Inter / Source Serif 4. Same
+// stacks Workers' other surfaces use; loaded via FONTS_BLOCK.
 const PAGE_STYLES = `
-  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --error:#b00020; }
+  :root {
+    --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --error:#b00020;
+    --serif: ${FONT_STACK_SERIF};
+    --sans: ${FONT_STACK_SANS};
+  }
   html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
-    font:16px/1.55 ui-serif,Georgia,serif; }
+    font: 16px/1.55 var(--sans); }
   main { max-width:32rem; margin:6rem auto; padding:2rem; }
-  h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
+  h1 { font-family: var(--serif); font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
   p { margin:0.5rem 0; color:var(--muted); }
   label { display:block; margin:1rem 0 0.25rem; color:var(--ink); font-size:0.92rem; }
   input, textarea { width:100%; padding:0.5rem 0.65rem; font:inherit;
@@ -90,6 +101,7 @@ export function renderRequestForm(opts: { error?: string; email?: string } = {})
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Request access · CJI</title>
+${FONTS_BLOCK}
 <style>${PAGE_STYLES}</style>
 </head>
 <body>
@@ -142,6 +154,7 @@ function renderThanks(outcome: SubmitOutcome): Response {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Request received · CJI</title>
+${FONTS_BLOCK}
 <style>${PAGE_STYLES}</style>
 </head>
 <body>
@@ -160,6 +173,7 @@ ${body}
 function rateLimited(): Response {
   const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Slow down · CJI</title>
+${FONTS_BLOCK}
 <style>${PAGE_STYLES}</style></head>
 <body><main>
 <h1>Slow down</h1>

@@ -33,6 +33,11 @@ import { isApproved } from "../../approvals/src/approvals";
 import { lookupSessionEmail, recordActivity } from "../../approvals/src/sessions";
 import { dispatch } from "./router";
 import { handleGetPortal, handlePostConfirm } from "./portal";
+import {
+  FONTS_BLOCK,
+  FONT_STACK_SANS,
+  FONT_STACK_SERIF,
+} from "../../fonts_block/src/fonts_block.generated";
 
 export interface Env {
   ENFORCE: string;
@@ -94,12 +99,15 @@ function buildDenyResponse(): Response {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Access pending · CJI</title>
+${FONTS_BLOCK}
 <style>
-  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; }
+  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7;
+    --serif: ${FONT_STACK_SERIF};
+    --sans: ${FONT_STACK_SANS}; }
   html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
-    font:16px/1.55 ui-serif,Georgia,serif; }
+    font: 16px/1.55 var(--sans); }
   main { max-width:32rem; margin:6rem auto; padding:2rem; }
-  h1 { font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
+  h1 { font-family: var(--serif); font-weight:600; font-size:1.4rem; margin:0 0 0.75rem; }
   p { margin:0.5rem 0; color:var(--muted); }
   a { color:#003A5C; }
 </style>
