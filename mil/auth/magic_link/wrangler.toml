@@ -29,7 +29,7 @@ REDIRECT_URI           = "https://login.cjipro.com/callback"
 # gives up with ERR_TOO_MANY_REDIRECTS. User-supplied return_to values
 # are still path-scoped by isValidReturnTo; only the admin default is
 # trusted to be an absolute URL.
-DEFAULT_RETURN_TO      = "https://cjipro.com/briefing-v4/"
+DEFAULT_RETURN_TO      = "https://app.cjipro.com/portal"
 COOKIE_NAME            = "__Secure-cjipro-session"
 COOKIE_DOMAIN          = ".cjipro.com"
 COOKIE_MAX_AGE_SECONDS = "3600"
