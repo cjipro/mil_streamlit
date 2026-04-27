@@ -124,14 +124,23 @@ def write_text_lf(path: Path, content: str, encoding: str = "utf-8") -> None:
 
 class PublishAdapter(ABC):
     @abstractmethod
-    def publish(self, relative_path: str, content: str) -> tuple[bool, str]:
-        """Publish `content` at `relative_path`. Returns (ok, message)."""
+    def publish(self, relative_path: str, content: str | bytes) -> tuple[bool, str]:
+        """Publish `content` at `relative_path`. Returns (ok, message).
+
+        `content` is `str` for HTML/CSS/text and `bytes` for binary
+        assets (woff2, images). Adapters MUST handle both — text writes
+        get LF normalisation; bytes are written unchanged.
+        """
+
+
+def _is_binary(content: str | bytes) -> bool:
+    return isinstance(content, (bytes, bytearray))
 
 
 # ── Null (no-op) ──────────────────────────────────────────────────────────────
 
 class NullAdapter(PublishAdapter):
-    def publish(self, relative_path: str, content: str) -> tuple[bool, str]:
+    def publish(self, relative_path: str, content: str | bytes) -> tuple[bool, str]:
         logger.info("[publish] NullAdapter — would publish %d bytes to %s",
                     len(content), relative_path)
         return True, f"null: {relative_path} ({len(content)} bytes)"
@@ -143,10 +152,13 @@ class LocalAdapter(PublishAdapter):
     def __init__(self, root_dir: str | Path):
         self.root = Path(root_dir).expanduser().resolve()
 
-    def publish(self, relative_path: str, content: str) -> tuple[bool, str]:
+    def publish(self, relative_path: str, content: str | bytes) -> tuple[bool, str]:
         dest = self.root / relative_path
         dest.parent.mkdir(parents=True, exist_ok=True)
-        write_text_lf(dest, content)
+        if _is_binary(content):
+            dest.write_bytes(content)
+        else:
+            write_text_lf(dest, content)
         logger.info("[publish] LocalAdapter wrote %d bytes to %s",
                     len(content), dest)
         return True, f"local: {dest}"
@@ -183,7 +195,7 @@ class GitHubPagesAdapter(PublishAdapter):
     def _scrub(self, text: str) -> str:
         return text.replace(self._token, "***") if text else text
 
-    def publish(self, relative_path: str, content: str) -> tuple[bool, str]:
+    def publish(self, relative_path: str, content: str | bytes) -> tuple[bool, str]:
         # MIL-110 — fail closed on sensitive paths. Pages repo is public.
         assert_publishable(relative_path)
 
@@ -204,7 +216,10 @@ class GitHubPagesAdapter(PublishAdapter):
 
             dest = clone_dir / relative_path
             dest.parent.mkdir(parents=True, exist_ok=True)
-            write_text_lf(dest, content)
+            if _is_binary(content):
+                dest.write_bytes(content)
+            else:
+                write_text_lf(dest, content)
 
             for cmd in (
                 ["git", "-C", str(clone_dir), "config", "user.email", self._email],

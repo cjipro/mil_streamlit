@@ -74,6 +74,7 @@ from mil.publish.adapters import get_adapter
 logger = logging.getLogger(__name__)
 
 _SITE_DIR = Path(__file__).parent / "site"
+_FONTS_DIR = _SITE_DIR / "fonts"
 
 # MIL-148 — placeholder substitution at publish time. The source HTML keeps
 # `{{ lang }}` and `{{ compliance_notices_html }}` literals; the publisher
@@ -131,25 +132,43 @@ _FILES: list[tuple[str, str]] = [
 ]
 
 
-def _load(source: str) -> str:
+# MIL-136 — self-hosted Source Serif 4 + Inter. Bundled WOFF2 files in
+# mil/publish/site/fonts/ ship to cjipro.com/fonts/<filename>. Manifest is
+# discovered at publish-time so adding a weight is a single fetch + redeploy.
+def _font_files() -> list[tuple[str, str]]:
+    if not _FONTS_DIR.exists():
+        return []
+    out: list[tuple[str, str]] = []
+    for p in sorted(_FONTS_DIR.iterdir()):
+        if p.is_file():
+            out.append((f"fonts/{p.name}", f"fonts/{p.name}"))
+    return out
+
+
+def _load(source: str) -> str | bytes:
     if source == "":
         return ""
     path = _SITE_DIR / source
+    # Binary fonts bypass templating — read as bytes.
+    if path.suffix.lower() == ".woff2":
+        return path.read_bytes()
     return _render(path.read_text(encoding="utf-8"))
 
 
 def publish_all(dry_run: bool = False) -> int:
     adapter = get_adapter()
     failures = 0
-    for source, dest in _FILES:
+    files: list[tuple[str, str]] = list(_FILES) + _font_files()
+    for source, dest in files:
         content = _load(source)
         label = source or "(empty)"
+        size = len(content) if isinstance(content, (str, bytes)) else 0
         if dry_run:
-            print(f"  [DRY] {label:20s} -> {dest:32s} ({len(content)} bytes)")
+            print(f"  [DRY] {label:36s} -> {dest:36s} ({size} bytes)")
             continue
         ok, msg = adapter.publish(dest, content)
         status = "OK  " if ok else "FAIL"
-        print(f"  [{status}] {label:20s} -> {dest:32s} {msg}")
+        print(f"  [{status}] {label:36s} -> {dest:36s} {msg}")
         if not ok:
             failures += 1
     return failures

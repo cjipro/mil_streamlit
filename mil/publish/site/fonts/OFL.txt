@@ -1,0 +1,8 @@
+Both Source Serif 4 and Inter are licensed under the SIL Open Font Licence
+(OFL) version 1.1. The full licence text is at https://openfontlicense.org.
+
+Source Serif 4 © Adobe, contributors. https://github.com/adobe-fonts/source-serif
+Inter           © Rasmus Andersson, contributors. https://github.com/rsms/inter
+
+Redistribution of the unmodified font binaries (as bundled here, fetched
+from Google Fonts CDN at build time) is explicitly permitted by the OFL.

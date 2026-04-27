@@ -17,6 +17,11 @@
 <!-- form still works for direct-link visitors, just not crawled. -->
 <meta name="robots" content="noindex,nofollow">
 <meta name="author" content="CJI">
+<!-- MIL-136 — self-hosted Source Serif 4 + Inter (OFL). -->
+<link rel="preload" href="/fonts/source-serif-4-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+
 <link rel="canonical" href="https://cjipro.com/products/reckoner/trial/">
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 <link rel="privacy-policy" href="/privacy/">
@@ -56,8 +61,8 @@
     --navy:      #00273D;
     --accent:    #003A5C;
     --warn:      #B07A1F;
-    --serif:     Georgia, "Times New Roman", "DejaVu Serif", serif;
-    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --serif:     "Source Serif 4", Georgia, "Times New Roman", "DejaVu Serif", serif;
+    --sans:      Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     --mono:      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   }
   * { box-sizing: border-box; }
