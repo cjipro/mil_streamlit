@@ -89,3 +89,60 @@ describe("renderRequestForm — email pre-fill", () => {
     expect(html).toContain('name="robots" content="noindex,nofollow"');
   });
 });
+
+describe("renderRequestForm — MIL-139 a11y contract", () => {
+  test("email input is programmatically labelled and described", async () => {
+    const res = renderRequestForm();
+    const html = await res.text();
+    // <label for="email"> + <input id="email"> association
+    expect(html).toMatch(/<label for="email">/);
+    expect(html).toMatch(/<input id="email"/);
+    // Email field describes its purpose via aria-describedby → #email-help
+    expect(html).toContain('aria-describedby="email-help"');
+    expect(html).toContain('id="email-help"');
+  });
+
+  test("error renders inside role=alert live region with id linked from input", async () => {
+    const res = renderRequestForm({ error: "Bad email", email: "x" });
+    const html = await res.text();
+    // Error gets its own id and lives in a role=alert region for SR announcement
+    expect(html).toContain('id="email-err"');
+    expect(html).toContain('role="alert"');
+    // Input now describes BOTH help text AND error
+    expect(html).toContain('aria-describedby="email-help email-err"');
+    // Visible error styling cue is also wired via aria-invalid
+    expect(html).toContain('aria-invalid="true"');
+  });
+
+  test("aria-invalid omitted from <input> when no error — clean state on first paint", async () => {
+    const res = renderRequestForm();
+    const html = await res.text();
+    // The CSS contains `input[aria-invalid="true"]` as a selector; we
+    // care that the input ELEMENT doesn't carry the attribute on first
+    // paint, not that the substring is absent globally.
+    const inputTag = html.match(/<input id="email"[\s\S]*?>/);
+    expect(inputTag).not.toBeNull();
+    expect(inputTag![0]).not.toContain("aria-invalid");
+  });
+
+  test("focus-visible CSS rules present (no outline:none reset anywhere)", async () => {
+    const res = renderRequestForm();
+    const html = await res.text();
+    expect(html).toContain(":focus-visible");
+    expect(html).not.toMatch(/outline\s*:\s*none/);
+  });
+
+  test("inputmode=email + spellcheck=false on email input (mobile keyboard hint)", async () => {
+    const res = renderRequestForm();
+    const html = await res.text();
+    expect(html).toContain('inputmode="email"');
+    expect(html).toContain('spellcheck="false"');
+  });
+
+  test("form has novalidate so we own the error UX (matches role=alert path)", async () => {
+    const res = renderRequestForm();
+    const html = await res.text();
+    // Browser-default tooltip would steal SR focus from our role=alert.
+    expect(html).toContain('novalidate');
+  });
+});

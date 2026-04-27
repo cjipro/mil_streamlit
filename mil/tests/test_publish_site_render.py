@@ -138,3 +138,55 @@ class TestSignInPagePasskeyCTA:
         passkey_region = src[start:end]
         assert "<script" not in passkey_region
         assert "onclick=" not in passkey_region
+
+
+class TestSignInPageA11y:
+    """MIL-139 — WCAG 2.2 AA polish on cjipro.com/sign-in/.
+
+    Code-input paste handler is deferred to MIL-149 (the form doesn't
+    exist on our domain today — WorkOS AuthKit hosts the passcode page).
+    What's actionable now: programmatic label + describedby + visible
+    focus rings + form novalidate so we own error UX."""
+
+    SITE_DIR = Path(__file__).resolve().parent.parent / "publish" / "site"
+
+    def _src(self) -> str:
+        return (self.SITE_DIR / "sign_in.html").read_text(encoding="utf-8")
+
+    def test_label_for_id_association(self):
+        src = self._src()
+        assert '<label for="email">' in src
+        assert 'id="email"' in src
+
+    def test_aria_describedby_threads_to_help_text(self):
+        src = self._src()
+        assert 'aria-describedby="signin-help"' in src
+        assert 'id="signin-help"' in src
+
+    def test_email_input_inputmode_and_spellcheck(self):
+        src = self._src()
+        assert 'inputmode="email"' in src
+        assert 'spellcheck="false"' in src
+
+    def test_autocomplete_email_for_password_managers(self):
+        # Saves a partner three keystrokes — and bank IT teams notice
+        # when the autofill dropdown does the right thing.
+        assert 'autocomplete="email"' in self._src()
+
+    def test_focus_visible_no_outline_none_reset(self):
+        src = self._src()
+        assert ":focus-visible" in src
+        # Hard rule: no `outline: none` anywhere — that's how a11y dies.
+        import re
+        assert not re.search(r"outline\s*:\s*none", src)
+
+    def test_form_has_novalidate(self):
+        # We render help text + (eventually) errors with our own copy —
+        # browser-default validation tooltips would conflict.
+        assert "novalidate" in self._src()
+
+    def test_passkey_button_aria_label_explains_disabled_state(self):
+        # Sighted users see the tooltip on hover; SR users get the same
+        # info from aria-label without needing a hover gesture.
+        src = self._src()
+        assert 'aria-label="Sign in with passkey (currently unavailable)"' in src

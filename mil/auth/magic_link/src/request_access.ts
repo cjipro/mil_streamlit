@@ -35,8 +35,11 @@ export function readEmailParam(url: URL): string | undefined {
   return trimmed;
 }
 
+// MIL-139 — visible focus rings (WCAG 2.2 AA SC 2.4.7) and explicit
+// :focus-visible style on inputs/buttons/links. No outline:none reset
+// anywhere; keyboard traversal must always show where the focus is.
 const PAGE_STYLES = `
-  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; }
+  :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; --error:#b00020; }
   html,body { margin:0; padding:0; background:var(--paper); color:var(--ink);
     font:16px/1.55 ui-serif,Georgia,serif; }
   main { max-width:32rem; margin:6rem auto; padding:2rem; }
@@ -45,21 +48,40 @@ const PAGE_STYLES = `
   label { display:block; margin:1rem 0 0.25rem; color:var(--ink); font-size:0.92rem; }
   input, textarea { width:100%; padding:0.5rem 0.65rem; font:inherit;
     border:1px solid #ccd5dc; border-radius:3px; background:#fff; box-sizing:border-box; }
+  input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent);
+  }
+  input[aria-invalid="true"] { border-color: var(--error); }
   textarea { min-height:5rem; resize:vertical; }
   button { margin-top:1.25rem; padding:0.6rem 1.2rem; font:inherit; cursor:pointer;
     background:var(--accent); color:#fff; border:0; border-radius:3px; }
   button:hover { background:#002a44; }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   a { color:var(--accent); }
-  .err { color:#b00020; font-size:0.88rem; margin:0.35rem 0 0; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  .err { color:var(--error); font-size:0.88rem; margin:0.35rem 0 0; }
+  .help { color:var(--muted); font-size:0.82rem; margin:0.3rem 0 0; }
   .ok { color:#1d6e3a; font-size:0.95rem; }
   .meta { font-size:0.86rem; color:var(--muted); border-left:3px solid var(--accent);
     padding:0.35rem 0 0.35rem 0.75rem; margin:1.25rem 0 0; }
+  /* WCAG 2.2 AA — utility .visually-hidden for sr-only text without display:none */
+  .visually-hidden {
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
 `;
 
 export function renderRequestForm(opts: { error?: string; email?: string } = {}): Response {
-  const errHtml = opts.error
-    ? `<p class="err">${escapeHtml(opts.error)}</p>`
+  // MIL-139 — error message is in a role="alert" live region so screen
+  // readers announce it on render; aria-describedby threads it to the
+  // input it concerns. aria-invalid lights up only when an error is
+  // actually present so unfilled forms aren't styled as broken on load.
+  const hasError = Boolean(opts.error);
+  const errHtml = hasError
+    ? `<p class="err" id="email-err" role="alert">${escapeHtml(opts.error!)}</p>`
     : "";
+  const emailDescribedBy = hasError ? "email-help email-err" : "email-help";
+  const emailAriaInvalid = hasError ? ' aria-invalid="true"' : "";
   const emailVal = opts.email ? escapeHtml(opts.email) : "";
   const html = `<!DOCTYPE html>
 <html lang="en-GB">
@@ -76,13 +98,18 @@ export function renderRequestForm(opts: { error?: string; email?: string } = {})
 <p>CJI is in private alpha. Enter your work email and a short note
 about why you'd like access — we'll review and get back to you.</p>
 <p class="meta">We review every request personally. Corporate email preferred but not required.</p>
-<form method="post" action="/request-access">
+<form method="post" action="/request-access" novalidate>
   <label for="email">Work email</label>
   <input id="email" name="email" type="email" required autocomplete="email"
+         inputmode="email" spellcheck="false"
+         aria-describedby="${emailDescribedBy}"${emailAriaInvalid}
          value="${emailVal}">
-  <label for="note">Note (optional)</label>
+  <p class="help" id="email-help">We'll only use this to confirm your access request.</p>
+  <label for="note">Note <span class="help" style="display:inline">(optional)</span></label>
   <textarea id="note" name="note" maxlength="500"
+            aria-describedby="note-help"
             placeholder="Team, what you'd like to see, etc."></textarea>
+  <p class="help" id="note-help">Up to 500 characters. Plain text — no formatting.</p>
   ${errHtml}
   <button type="submit">Request access</button>
 </form>
@@ -91,7 +118,7 @@ about why you'd like access — we'll review and get back to you.</p>
 </body>
 </html>`;
   return new Response(html, {
-    status: opts.error ? 400 : 200,
+    status: hasError ? 400 : 200,
     headers: { "content-type": "text/html; charset=utf-8" },
   });
 }

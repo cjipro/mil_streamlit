@@ -90,10 +90,18 @@
     border-radius: 3px;
     background: var(--paper);
   }
-  input[type="email"]:focus {
+  input[type="email"]:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 0;
     border-color: var(--accent);
+  }
+  /* MIL-139 — short help text under the input, programmatically associated
+     via aria-describedby. Same colour as the trust strip; one-line. */
+  .help {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
   }
   button {
     margin-top: 1.5rem;
@@ -109,6 +117,8 @@
     cursor: pointer;
   }
   button:hover { background: var(--navy); }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 
   /* MIL-140 — divider + passkey CTA below magic-link form. Defuses
      "where's the second factor?" at first IT-review touch. */
@@ -222,10 +232,12 @@
       Enter your work email. We'll send you a one-time sign-in link.
     </p>
 
-    <form method="get" action="https://login.cjipro.com/">
+    <form method="get" action="https://login.cjipro.com/" novalidate>
       <label for="email">Work email</label>
       <input id="email" name="email" type="email" required autocomplete="email"
-             autofocus inputmode="email" spellcheck="false">
+             autofocus inputmode="email" spellcheck="false"
+             aria-describedby="signin-help">
+      <p class="help" id="signin-help">We'll email a one-time sign-in link to this address.</p>
       <button type="submit">Send sign-in link</button>
     </form>
 
