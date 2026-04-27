@@ -23,6 +23,7 @@ import type { AuthEventInput } from "../../audit/src/types";
 import { checkAdmin, type AdminGateConfig } from "./admin_gate";
 import {
   handleRequestAccessPost,
+  readEmailParam,
   renderRequestForm,
 } from "./request_access";
 import {
@@ -320,7 +321,10 @@ export default {
 
     // --- MIL-66b: self-service signup + admin dashboard ---
     if (path === "/request-access") {
-      if (method === "GET") return renderRequestForm();
+      if (method === "GET") {
+        const prefilledEmail = readEmailParam(url);
+        return renderRequestForm({ email: prefilledEmail });
+      }
       // POST
       const salt = await currentSalt(env, new Date());
       const res = await handleRequestAccessPost(request, env.AUDIT_DB, salt);

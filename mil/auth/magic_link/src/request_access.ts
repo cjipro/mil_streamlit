@@ -6,11 +6,34 @@
 // form-driven flow for end users.
 
 import { sha256Hex } from "../../audit/src/hash";
-import { submitRequest, type SubmitOutcome } from "../../approvals/src/signups";
+import {
+  isPlausibleEmail,
+  submitRequest,
+  type SubmitOutcome,
+} from "../../approvals/src/signups";
 import {
   checkAndIncrement,
   DEFAULT_RATE_LIMIT,
 } from "../../approvals/src/rate_limit";
+
+// MIL-147 — accept ?email=foo@bar.com URL param to pre-fill the email
+// field. This closes the forwarded-recipient loop (a partner shares a
+// link, the recipient lands here with their email already in the form).
+// Validation guards against XSS via the existing escapeHtml call AND
+// against arbitrary text — invalid values fall through to a blank field.
+//
+// Hua Li enumeration guard: do NOT pre-fill ANY firm-related field
+// from URL. The submit-time domain inference (admin dashboard) is
+// fine — leaking a corporate-email-implies-firm hint at form-render
+// time is not.
+export function readEmailParam(url: URL): string | undefined {
+  const raw = url.searchParams.get("email");
+  if (!raw) return undefined;
+  const trimmed = raw.trim();
+  if (trimmed.length === 0 || trimmed.length > 254) return undefined;
+  if (!isPlausibleEmail(trimmed)) return undefined;
+  return trimmed;
+}
 
 const PAGE_STYLES = `
   :root { --ink:#0A1E2A; --muted:#6B7A85; --paper:#FAFAF7; --accent:#003A5C; }
@@ -29,6 +52,8 @@ const PAGE_STYLES = `
   a { color:var(--accent); }
   .err { color:#b00020; font-size:0.88rem; margin:0.35rem 0 0; }
   .ok { color:#1d6e3a; font-size:0.95rem; }
+  .meta { font-size:0.86rem; color:var(--muted); border-left:3px solid var(--accent);
+    padding:0.35rem 0 0.35rem 0.75rem; margin:1.25rem 0 0; }
 `;
 
 export function renderRequestForm(opts: { error?: string; email?: string } = {}): Response {
@@ -50,6 +75,7 @@ export function renderRequestForm(opts: { error?: string; email?: string } = {})
 <h1>Request access</h1>
 <p>CJI is in private alpha. Enter your work email and a short note
 about why you'd like access — we'll review and get back to you.</p>
+<p class="meta">We review every request personally. Corporate email preferred but not required.</p>
 <form method="post" action="/request-access">
   <label for="email">Work email</label>
   <input id="email" name="email" type="email" required autocomplete="email"

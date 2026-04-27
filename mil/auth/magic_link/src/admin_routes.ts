@@ -12,6 +12,7 @@ import {
   listByStatus,
   revokeApproval,
 } from "../../approvals/src/signups";
+import { isPersonalEmail } from "./personal_email";
 import {
   forceSignout,
   listApprovedWithSessions,
@@ -48,6 +49,11 @@ const STYLES = `
   .empty { color:var(--muted); font-style:italic; padding:0.75rem 0; }
   .err   { color:#b00020; margin:0.5rem 0; }
   code { background:#fff; padding:0.08em 0.3em; border-radius:3px; font-size:0.86em; }
+  /* MIL-147 — personal-email amber badge */
+  .badge-personal { display:inline-block; margin-left:0.4rem; padding:0.05rem 0.4rem;
+    font-size:0.65rem; text-transform:uppercase; letter-spacing:0.08em;
+    color:#7a4f00; background:#fff3d9; border:1px solid #e0b35e; border-radius:2px;
+    vertical-align:middle; }
 `;
 
 export function renderDashboard(adminEmail: string): Response {
@@ -138,8 +144,14 @@ function renderPending(rows) {
   }
   let html = '<table><thead><tr><th>Email</th><th>Requested</th><th>Note</th><th>Country</th><th></th></tr></thead><tbody>';
   for (const r of rows) {
+    // MIL-147 — amber Personal badge for extra-scrutiny triage. The
+    // submission is NOT auto-rejected; the admin still reviews and
+    // approves or denies on the merits.
+    const personalBadge = r.personal_email
+      ? ' <span class="badge-personal" title="Personal email domain — review the why field carefully">Personal</span>'
+      : '';
     html += '<tr>'
-      + '<td>' + esc(r.email) + '</td>'
+      + '<td>' + esc(r.email) + personalBadge + '</td>'
       + '<td>' + esc(r.requested_at).slice(0,16).replace("T"," ") + '</td>'
       + '<td>' + esc(r.note || "") + '</td>'
       + '<td>' + esc(r.country || "") + '</td>'
@@ -332,7 +344,14 @@ export async function handleApiSignups(
     listByStatus(db, "pending"),
     listApprovedWithSessions(db),
   ]);
-  return json({ pending, approved });
+  // MIL-147 — enrich pending rows with a personal-email flag so the
+  // admin dashboard can render the amber extra-scrutiny badge. Computed
+  // server-side so the domain list stays in one place.
+  const pendingTagged = pending.map((row) => ({
+    ...row,
+    personal_email: isPersonalEmail(row.email),
+  }));
+  return json({ pending: pendingTagged, approved });
 }
 
 async function readJson<T>(request: Request): Promise<T | null> {
