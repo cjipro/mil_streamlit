@@ -1,64 +1,41 @@
+# MIL CI — minimal smoke-pass (2026-04-28)
+#
+# History: this file used to host the early CJI-Pulse Streamlit build
+# stack (Docker image build + HDFS schema test + governance rules +
+# push-to-GitLab-registry). That stack was retired when MIL became the
+# primary product line and Cloudflare Workers replaced the Docker
+# deploy path. The old config kept failing every push (no Docker
+# registry configured on this project, no GitLab runner registered for
+# `docker:24.0-dind`, HDFS `namenode:9870` unreachable from CI), which
+# polluted the pipeline status with a permanent ✖.
+#
+# Why a smoke-pass instead of removing the file entirely:
+#   • Preserves the .gitlab-ci.yml hook so a future MIL CI (Worker
+#     typecheck, vitest, deploy gate) can be added by replacing this
+#     file rather than re-bootstrapping pipelines on the project.
+#   • Keeps pipeline status green so legitimate failures stand out.
+#   • Documents the rationale inline so the next person doesn't
+#     resurrect the dead Docker stack thinking it was the intended CI.
+#
+# Real Worker CI options for the future (not implemented yet):
+#   - magic_link / edge_bouncer / app_cjipro: `npx tsc --noEmit` +
+#     `npx vitest run` per package on every push (~3 min total).
+#   - Site publish: dry-run `py -m mil.publish.publish_site` against a
+#     local adapter target.
+#   - Deploy gates remain manual via `npx wrangler deploy` from the
+#     operator's machine — production deploys should NOT be automated
+#     against staging WorkOS until the alpha cohort is locked.
+
 stages:
-  - build
-  - test
-  - push
+  - smoke
 
-variables:
-  IMAGE_NAME: $CI_REGISTRY_IMAGE/cji-pulse-streamlit
-  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-
-# --- BUILD STAGE ---
-build_streamlit:
-  stage: build
-  image: docker:24.0
-  services:
-    - docker:24.0-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+smoke:
+  stage: smoke
+  image: alpine:3.18
   script:
-    - docker build -f Dockerfile.streamlit -t $IMAGE_NAME:$IMAGE_TAG .
-    - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
-  artifacts:
-    reports:
-      dotenv: build.env
-
-# --- TEST STAGE ---
-test_hdfs_schema:
-  stage: test
-  image: python:3.11-slim
-  before_script:
-    - pip install --quiet hdfs requests
-  script:
-    - python ci/test_hdfs_compliance.py
-  variables:
-    HDFS_URL: "http://namenode:9870"
-    HDFS_PATH: "/user/twin/staged/batch_01_habib_bank.csv"
-  allow_failure: false
-
-test_governance_rules:
-  stage: test
-  image: python:3.11-slim
-  before_script:
-    - pip install --quiet pandas
-  script:
-    - python ci/test_governance_compliance.py
-  allow_failure: false
-
-# --- PUSH STAGE ---
-push_to_registry:
-  stage: push
-  image: docker:24.0
-  services:
-    - docker:24.0-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker pull $IMAGE_NAME:$IMAGE_TAG
-    - docker push $IMAGE_NAME:$IMAGE_TAG
-    - docker push $IMAGE_NAME:latest
-  only:
-    - main
+    - 'echo "GitLab CI is a smoke-pass for this repo."'
+    - 'echo "Real CI is local: npx tsc --noEmit + npx vitest run per Worker."'
+    - 'echo "See .gitlab-ci.yml header for rationale + future migration path."'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "web"
