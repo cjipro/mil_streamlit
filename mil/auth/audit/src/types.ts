@@ -81,7 +81,21 @@ export type AuthEventType =
   // already-approved / invalid-email / rate-limited). Inviter's session
   // sub is the session_sub on the row; recipient email isn't logged
   // here — it's already in pending_signups, dedup-able by ipHash there.
-  | "portal.share_invite_sent";
+  | "portal.share_invite_sent"
+  // MIL-149 — direct WorkOS Magic Auth on login.cjipro.com. Six event
+  // types cover the email-entry → code-entry → signed-in flow.
+  // code_sent fires when WorkOS returned 2xx on /magic_auth/send;
+  // success fires after /authenticate returns an access_token. The
+  // _failed variants split provider 4xx/5xx from user-visible
+  // invalid-email / invalid-code. state_expired is the HMAC-state
+  // age check (10-min TTL).
+  | "magic_link.signin.code_sent"
+  | "magic_link.signin.invalid_email"
+  | "magic_link.signin.send_failed"
+  | "magic_link.signin.verify_failed"
+  | "magic_link.signin.success"
+  | "magic_link.signin.invalid_code"
+  | "magic_link.signin.state_expired";
 
 // Input passed to logAuthEvent. The lib is responsible for turning
 // the raw `ip` / `user_agent` / `session_sub` into salted hashes

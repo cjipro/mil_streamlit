@@ -100,13 +100,11 @@ describe("GET /logout (MIL-161)", () => {
   // only cleared on POST. This closes the CSRF gap (an `<img src="/logout">`
   // embedded on any open-web page would have signed the user out).
 
-  test("no cookie → renders 'Signed out' done page (idempotent)", async () => {
+  test("no cookie → 302 to cjipro.com (idempotent, MIL-149 cleanup)", async () => {
     const res = await worker.fetch(get("/logout"), ENV, testCtx());
-    expect(res.status).toBe(200);
-    const body = await res.text();
-    expect(body).toContain("You're signed out");
-    // Crucially: NO Set-Cookie on the cookie-less GET. We never touch
-    // headers when there's nothing to revoke.
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe("https://cjipro.com/");
+    // No Set-Cookie on the cookie-less GET — there was nothing to clear.
     expect(res.headers.get("set-cookie")).toBeNull();
   });
 
@@ -141,16 +139,17 @@ describe("GET /logout (MIL-161)", () => {
   });
 });
 
-describe("POST /logout (MIL-161)", () => {
-  test("missing cookie → idempotent done page (no audit lifecycle)", async () => {
+describe("POST /logout (MIL-161 + MIL-149 cleanup 2026-04-28)", () => {
+  test("missing cookie → 302 to cjipro.com (idempotent, no lifecycle)", async () => {
     const req = new Request("https://login.cjipro.com/logout", {
       method: "POST",
       body: new URLSearchParams({ csrf: "v1.whatever" }),
     });
     const res = await worker.fetch(req, ENV, testCtx());
-    expect(res.status).toBe(200);
-    const body = await res.text();
-    expect(body).toContain("You're signed out");
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe("https://cjipro.com/");
+    // No cookie clear when there was no cookie to begin with.
+    expect(res.headers.get("set-cookie")).toBeNull();
   });
 
   test("missing CSRF token → 400 csrf-failed page", async () => {
@@ -178,17 +177,20 @@ describe("POST /logout (MIL-161)", () => {
   });
 });
 
-describe("POST /logout AuthKit front-channel redirect (MIL-161 v2)", () => {
-  // Server-side revoke alone left the AuthKit-domain cookie alive and
-  // produced silent-auth on the next /authorize. The fix sends the
-  // browser through AuthKit's logout endpoint so AuthKit clears its
-  // own cookie before redirecting back to /logout/done.
+describe("POST /logout direct redirect (MIL-149 cleanup 2026-04-28)", () => {
+  // Replaces the MIL-161 v2 AuthKit front-channel hop. Rationale:
+  //   • DIRECT_SIGNIN=true routes all sign-ins through Magic Auth API
+  //     (server-to-server JSON), so AuthKit never sets a session
+  //     cookie in the user agent. There's nothing for /api/logout to
+  //     clear.
+  //   • WorkOS's /api/logout silently drops return_to and falls back
+  //     to a dashboard-configured Homepage URL with poor discoverability.
+  //     Users who hit /logout were landing on error.workos.com instead
+  //     of cjipro.com.
+  //   • Owning the post-logout hop ourselves removes the dashboard
+  //     dependency entirely.
 
-  test("valid POST with sid → 302 to AuthKit logout, cookie cleared", async () => {
-    // Build a JWT with both sub and sid claims, then build a matching
-    // CSRF token so the POST passes verification.
-    const { signState } = await import("../src/state");
-    void signState; // keep import resolved
+  test("valid POST with sid → 302 to cjipro.com, cookie cleared, Clear-Site-Data set", async () => {
     const { buildCsrfToken } = await import("../src/logout");
 
     const b64url = (s: string) =>
@@ -203,26 +205,30 @@ describe("POST /logout AuthKit front-channel redirect (MIL-161 v2)", () => {
     });
     const res = await worker.fetch(req, ENV, testCtx());
     expect(res.status).toBe(302);
-    const loc = res.headers.get("location") ?? "";
-    expect(loc).toContain("ideal-log-65-staging.authkit.app");
-    expect(loc).toContain("/api/logout");
-    expect(loc).toContain("session_id=sess_77");
-    // AuthKit ignores return_to / post_logout_redirect_uri / redirect_uri
-    // on /api/logout. Post-logout landing is governed by the WorkOS
-    // application's Homepage URL setting (admin config). See
-    // buildAuthkitLogoutUrl source comment for details.
-    expect(loc).not.toContain("return_to");
-    expect(loc).not.toContain("post_logout_redirect_uri");
-    expect(loc).not.toContain("redirect_uri");
-    // Cookie clear MUST be on the same response — once AuthKit redirects
-    // to the configured Homepage URL, our cookie is already gone and a
-    // fresh bouncer hit denies.
+    expect(res.headers.get("location")).toBe("https://cjipro.com/");
+
+    // Cookie clear on the same response — bouncer denies on the next
+    // request to any *.cjipro.com surface.
     const sc = res.headers.get("set-cookie");
     expect(sc).toContain("__Secure-cjipro-session=");
     expect(sc).toContain("Max-Age=0");
+
+    // Defence-in-depth: cookies + storage only. No "cache" (would nuke
+    // back-button + shared briefing URLs). No "executionContexts"
+    // (kills any future BroadcastChannel('auth') sign-out fan-out).
+    const csd = res.headers.get("clear-site-data") ?? "";
+    expect(csd).toContain('"cookies"');
+    expect(csd).toContain('"storage"');
+    expect(csd).not.toContain("cache");
+    expect(csd).not.toContain("executionContexts");
+
+    // No AuthKit domain in the response chain — the front-channel hop
+    // is gone.
+    expect(res.headers.get("location")).not.toContain("authkit.app");
+    expect(res.headers.get("location")).not.toContain("/api/logout");
   });
 
-  test("valid POST without sid → still 302s (AuthKit clears any cookie it finds)", async () => {
+  test("valid POST without sid → same 302 (AuthKit hop removed entirely)", async () => {
     const { buildCsrfToken } = await import("../src/logout");
     const b64url = (s: string) =>
       btoa(s).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
@@ -236,24 +242,22 @@ describe("POST /logout AuthKit front-channel redirect (MIL-161 v2)", () => {
     });
     const res = await worker.fetch(req, ENV, testCtx());
     expect(res.status).toBe(302);
-    const loc = res.headers.get("location") ?? "";
-    expect(loc).toContain("ideal-log-65-staging.authkit.app");
-    expect(loc).toContain("/api/logout");
-    // No session_id param when sid was missing from the JWT.
-    expect(loc).not.toContain("session_id=");
-    // No return_to either — AuthKit ignores post-logout redirect params.
-    expect(loc).not.toContain("return_to");
+    expect(res.headers.get("location")).toBe("https://cjipro.com/");
+    expect(res.headers.get("location")).not.toContain("authkit.app");
   });
 });
 
-describe("GET /logout/done (MIL-161 + MIL-162)", () => {
-  test("renders done page after AuthKit redirect", async () => {
+describe("GET /logout/done (MIL-161 + MIL-162 + MIL-149 cleanup)", () => {
+  // 2026-04-28 — replaced the rendered "You're signed out" page with a
+  // 302 to cjipro.com. The bare confirmation page on login.cjipro.com
+  // was a dead-end terminal state; the public homepage is a better
+  // landing for users who just signed out (and obviates the MIL-162
+  // ← Back affordance — there's nothing to go back to). The audit row
+  // still carries the lifecycle outcome.
+  test("302 to cjipro.com homepage", async () => {
     const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
-    expect(res.status).toBe(200);
-    const body = await res.text();
-    expect(body).toContain("You're signed out");
-    // Public landing — no auth required, but never indexed.
-    expect(body).toContain("noindex");
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe("https://cjipro.com/");
   });
 
   test("does not Set-Cookie (the original POST already cleared it)", async () => {
@@ -261,16 +265,9 @@ describe("GET /logout/done (MIL-161 + MIL-162)", () => {
     expect(res.headers.get("set-cookie")).toBeNull();
   });
 
-  // MIL-162 — explicit ← Back affordance so users aren't stranded if
-  // they reached this page by accident or after the AuthKit cookie
-  // clear. The back-link points to cjipro.com so it's a real escape
-  // route from the auth surface, not a loop back through login.
-  test("renders MIL-162 back-link to cjipro.com", async () => {
+  test("cache-control: no-store on the redirect", async () => {
     const res = await worker.fetch(get("/logout/done"), ENV, testCtx());
-    const body = await res.text();
-    expect(body).toContain('class="back-link"');
-    expect(body).toContain('href="https://cjipro.com/"');
-    expect(body).toContain("&larr; Back to cjipro.com");
+    expect(res.headers.get("cache-control")).toBe("no-store");
   });
 });
 
@@ -410,5 +407,137 @@ describe("admin.cjipro.com host routing (MIL-83)", () => {
     const res = renderDenied({ kind: "no-session" }, loginReq);
     expect(res.status).toBe(302);
     expect(res.headers.get("location")).toBe("/?return_to=/admin");
+  });
+});
+
+// MIL-149 — direct WorkOS Magic Auth on login.cjipro.com.
+// Smoke tests at the HTTP layer. The unit tests in sign_in.test.ts
+// cover the WorkOS API integration with a fetchImpl stub; here we
+// exercise the routes themselves end-to-end without touching the
+// network (only the paths that don't make WorkOS calls — invalid
+// email short-circuits, bad state short-circuits, GET-only renders).
+describe("MIL-149 /sign-in/ routes", () => {
+  test("GET /sign-in/ → 200 with email form", async () => {
+    const res = await worker.fetch(get("/sign-in/"), ENV, testCtx());
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Sign in");
+    expect(html).toContain('action="/sign-in/email"');
+    expect(html).toContain('name="email"');
+    expect(res.headers.get("content-type")).toContain("text/html");
+  });
+
+  test("GET /sign-in (no trailing slash) → 301 /sign-in/", async () => {
+    const res = await worker.fetch(get("/sign-in"), ENV, testCtx());
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe("/sign-in/");
+  });
+
+  test("GET /sign-in/?return_to=/briefing-v4/ keeps return_to in form", async () => {
+    const res = await worker.fetch(
+      get("/sign-in/?return_to=/briefing-v4/"),
+      ENV,
+      testCtx(),
+    );
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain('name="return_to"');
+    expect(html).toContain('value="/briefing-v4/"');
+  });
+
+  test("GET /sign-in/?return_to=https://evil.example.com/ drops invalid return_to", async () => {
+    const res = await worker.fetch(
+      get("/sign-in/?return_to=https://evil.example.com/"),
+      ENV,
+      testCtx(),
+    );
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    // No hidden return_to input rendered when the value is rejected.
+    expect(html).not.toContain('name="return_to"');
+    expect(html).not.toContain("evil.example.com");
+  });
+
+  test("POST /sign-in/email with malformed email → 400 + re-rendered form with error", async () => {
+    const body = new URLSearchParams({ email: "not-an-email" }).toString();
+    const req = new Request("https://login.cjipro.com/sign-in/email", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body,
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(400);
+    const html = await res.text();
+    // escapeHtml encodes the apostrophe in "doesn't" → "doesn&#39;t",
+    // so assert on the apostrophe-free portion of the message.
+    expect(html).toContain("look like a valid email");
+    expect(html).toContain('id="email-err" role="alert"');
+    expect(html).toContain('aria-invalid="true"');
+    // Email value preserved in the field for re-entry.
+    expect(html).toContain('value="not-an-email"');
+  });
+
+  test("POST /sign-in/code with garbage state → 400 expired page", async () => {
+    const body = new URLSearchParams({
+      code: "123456",
+      state: "garbage-not-a-real-state-token",
+    }).toString();
+    const req = new Request("https://login.cjipro.com/sign-in/code", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body,
+    });
+    const res = await worker.fetch(req, ENV, testCtx());
+    expect(res.status).toBe(400);
+    const html = await res.text();
+    expect(html).toContain("Sign-in expired");
+  });
+
+  test("GET /sign-in/email → 404 (POST-only handler, falls through)", async () => {
+    // The global method gate only 405s non-GET-non-POST methods;
+    // GETs always pass through and fall to 404 if no matching path
+    // handler exists. This mirrors how /request-access GETs reach
+    // their renderer and /webhooks/workos GETs 404. Documenting it
+    // here so a future "rationalise method handling" change knows
+    // this was the intended behaviour, not an oversight.
+    const res = await worker.fetch(get("/sign-in/email"), ENV, testCtx());
+    expect(res.status).toBe(404);
+  });
+
+  test("DIRECT_SIGNIN=true: GET / 302s to /sign-in/ (not AuthKit)", async () => {
+    const directEnv: Env = { ...ENV, DIRECT_SIGNIN: "true" };
+    const res = await worker.fetch(
+      get("/?return_to=/briefing-v4/"),
+      directEnv,
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("location")!;
+    expect(loc.startsWith("/sign-in/")).toBe(true);
+    expect(loc).toContain("return_to=");
+    expect(loc).toContain(encodeURIComponent("/briefing-v4/"));
+  });
+
+  test("DIRECT_SIGNIN=false (default): GET / still 302s to AuthKit (no behaviour change)", async () => {
+    // Same env as the existing GET / authorize test above. Asserting
+    // explicitly here so a future flag flip can't silently regress
+    // the AuthKit path while DIRECT_SIGNIN is off.
+    const res = await worker.fetch(get("/"), ENV, testCtx());
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("location")!;
+    expect(loc).toContain("api.workos.com/user_management/authorize");
+  });
+
+  test("DIRECT_SIGNIN=true with invalid return_to drops the param (no open redirect)", async () => {
+    const directEnv: Env = { ...ENV, DIRECT_SIGNIN: "true" };
+    const res = await worker.fetch(
+      get("/?return_to=https://evil.example.com/"),
+      directEnv,
+      testCtx(),
+    );
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("location")!;
+    expect(loc).toBe("/sign-in/");
+    expect(loc).not.toContain("evil.example.com");
   });
 });

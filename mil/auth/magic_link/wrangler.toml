@@ -47,6 +47,15 @@ EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
 EXPECTED_ISS           = "https://api.workos.com/user_management/client_01KPY7CA07ZD1WG3DMQE1FZQE1"
 JWKS_CACHE_TTL_SECONDS = "3600"
 
+# MIL-149 — direct WorkOS Magic Auth on login.cjipro.com.
+# Default "false" — GET / keeps the AuthKit-domain 302 so the existing
+# flow stays authoritative during cutover. The /sign-in/ routes are
+# wired regardless of this flag so they're testable before flipping.
+# Flip to "true" only after browser-verifying the new flow on a corp
+# proxy that previously blocked *.authkit.app (the original failure
+# mode this ticket addresses).
+DIRECT_SIGNIN          = "true"
+
 # Rollback: comment out the route below, redeploy this Worker, then
 # reattach login.cjipro.com to login-cjipro in the Cloudflare dashboard
 # (Workers → login-cjipro → Settings → Custom Domains → Add

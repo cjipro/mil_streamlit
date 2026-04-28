@@ -35,4 +35,12 @@ export interface Env {
   //   wrangler secret put WORKOS_WEBHOOK_SECRET
   // after creating the webhook in the WorkOS dashboard.
   WORKOS_WEBHOOK_SECRET?: string;
+
+  // MIL-149 — when "true", GET / 302s to /sign-in/ (direct WorkOS
+  // Magic Auth on login.cjipro.com, no AuthKit-domain hop). When
+  // "false" (default during cutover), GET / preserves the AuthKit
+  // redirect so the existing flow is the authoritative path.
+  // The /sign-in/ routes are always available regardless of this flag
+  // so they can be tested side-by-side before the cutover.
+  DIRECT_SIGNIN?: string;
 }

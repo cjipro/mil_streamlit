@@ -16,14 +16,16 @@
 // endpoint. cjipro.com (apex) retains the public landing page.
 
 import { buildAuthorizeUrl } from "./authorize";
-import { buildClearCookie, type CookieConfig } from "./cookie";
+import {
+  buildClearCookie,
+  buildSessionCookie,
+  type CookieConfig,
+} from "./cookie";
 import { handleCallback, type CallbackConfig } from "./callback";
 import type { Env } from "./env";
 import { isValidReturnTo, signState } from "./state";
 import {
-  buildAuthkitLogoutUrl,
   buildCsrfToken,
-  extractJwtSid,
   outcomeToAuditDetail,
   performLogout,
   verifyCsrfToken,
@@ -31,7 +33,6 @@ import {
 import {
   renderLogoutConfirm,
   renderLogoutCsrfFailed,
-  renderLogoutDone,
 } from "./logout_pages";
 import { extractCookie } from "../../edge_bouncer/src/session";
 import {
@@ -47,6 +48,18 @@ import {
   readEmailParam,
   renderRequestForm,
 } from "./request_access";
+import {
+  isPlausibleEmail,
+  sendMagicAuthCode,
+  signSignInState,
+  verifyMagicAuthCode,
+  verifySignInState,
+} from "./sign_in";
+import {
+  renderSignInCodeForm,
+  renderSignInEmailForm,
+  renderSignInExpired,
+} from "./sign_in_pages";
 import {
   handleApiApprove,
   handleApiAuditExport,
@@ -126,14 +139,14 @@ async function handleAuthorize(
 async function handleLogoutGet(request: Request, env: Env): Promise<Response> {
   const jwt = extractCookie(request.headers.get("cookie"), env.COOKIE_NAME);
   if (!jwt) {
-    // Already signed out (or never signed in). Render the done page
-    // with no outcome block — there's nothing to report.
-    return new Response(renderLogoutDone(null), {
-      status: 200,
+    // Already signed out (or never signed in). 302 to cjipro.com —
+    // matches the post-logout UX so a stale GET /logout from history
+    // or shared link still lands users on the public site.
+    return new Response(null, {
+      status: 302,
       headers: {
-        "content-type": "text/html; charset=utf-8",
+        location: "https://cjipro.com/",
         "cache-control": "no-store",
-        "x-content-type-options": "nosniff",
       },
     });
   }
@@ -161,14 +174,15 @@ async function handleLogoutPost(
 ): Promise<{ response: Response; outcome: import("./logout").LogoutOutcome | null }> {
   const jwt = extractCookie(request.headers.get("cookie"), env.COOKIE_NAME);
   // No cookie on POST → nothing to do. Treat as success (idempotent).
+  // Same destination as the success path so the user always lands on
+  // the public homepage after sign-out.
   if (!jwt) {
     return {
-      response: new Response(renderLogoutDone(null), {
-        status: 200,
+      response: new Response(null, {
+        status: 302,
         headers: {
-          "content-type": "text/html; charset=utf-8",
+          location: "https://cjipro.com/",
           "cache-control": "no-store",
-          "x-content-type-options": "nosniff",
         },
       }),
       outcome: null,
@@ -204,39 +218,43 @@ async function handleLogoutPost(
   });
   const setCookie = buildClearCookie(cookieConfigFromEnv(env));
 
-  // MIL-161 v2 — server-side revoke alone leaves the AuthKit-domain
-  // cookie alive in the browser, so the next /authorize hit silent-
-  // auths the user back in. Send the browser through AuthKit's
-  // front-channel logout URL so it clears its own cookie, then back
-  // to /logout/done. If authKitHost is unset (e.g. test envs), fall
-  // back to rendering the done page directly.
-  const sid = extractJwtSid(jwt);
-  const authkitLogoutUrl = buildAuthkitLogoutUrl(
-    env.AUTHKIT_HOST,
-    sid,
-    "https://login.cjipro.com/logout/done",
-  );
-  if (authkitLogoutUrl) {
-    return {
-      response: new Response(null, {
-        status: 302,
-        headers: {
-          location: authkitLogoutUrl,
-          "cache-control": "no-store",
-          "set-cookie": setCookie,
-        },
-      }),
-      outcome,
-    };
-  }
+  // MIL-149 cleanup (2026-04-28) — skip the AuthKit /api/logout
+  // front-channel hop entirely.
+  //
+  // Why this is safe in the post-MIL-149 architecture:
+  //   • DIRECT_SIGNIN=true routes all sign-ins through /sign-in/
+  //     which uses WorkOS Magic Auth API (server-to-server JSON).
+  //     No browser visit to ideal-log-65-staging.authkit.app means
+  //     no AuthKit session cookie is ever set in our user agent.
+  //   • The only reason MIL-161 v2 introduced the AuthKit redirect
+  //     was to clear that cookie. With no cookie to clear, the hop
+  //     is dead weight.
+  //   • Server-side revoke (performLogout above) and our local
+  //     cookie clear (setCookie below) cover the meaningful state.
+  //
+  // Why we removed it now: WorkOS's /api/logout silently drops
+  // return_to and falls back to a dashboard-configured Homepage URL.
+  // That Homepage URL field sits on a different config surface from
+  // the obvious "Sign-out redirect" UI, so users hit a confusing
+  // error.workos.com landing page when it isn't set. Rather than
+  // depend on a dashboard knob with poor discoverability, we own
+  // the post-logout hop ourselves.
+  //
+  // Defence-in-depth: Clear-Site-Data on the response. Cookies +
+  // storage only — NOT cache (would nuke back-button + shared
+  // briefing URLs) and NOT executionContexts (kills any future
+  // BroadcastChannel('auth') sign-out fan-out per panel 3).
+  //
+  // Rollback: revert this commit. The previous code path through
+  // AuthKit /api/logout is in git history.
   return {
-    response: new Response(renderLogoutDone(outcome), {
-      status: 200,
+    response: new Response(null, {
+      status: 302,
       headers: {
-        "content-type": "text/html; charset=utf-8",
+        location: "https://cjipro.com/",
         "cache-control": "no-store",
-        "x-content-type-options": "nosniff",
         "set-cookie": setCookie,
+        "clear-site-data": '"cookies", "storage"',
       },
     }),
     outcome,
@@ -387,12 +405,15 @@ export default {
       }
     }
 
-    // MIL-66b/67a/161 — routes that accept POST: /request-access,
-    // /admin/api/*, /webhooks/workos, /logout. Others are GET-only.
+    // MIL-66b/67a/149/161 — routes that accept POST: /request-access,
+    // /admin/api/*, /webhooks/workos, /logout, /sign-in/email,
+    // /sign-in/code. Others are GET-only.
     const isPostPath =
       path === "/request-access" ||
       path === "/webhooks/workos" ||
       path === "/logout" ||
+      path === "/sign-in/email" ||
+      path === "/sign-in/code" ||
       path.startsWith("/admin/api/");
     if (method !== "GET" && !(isPostPath && method === "POST")) {
       return new Response("method not allowed", {
@@ -675,15 +696,20 @@ export default {
     if (path === "/logout/done") {
       // MIL-161 v2 — AuthKit redirects here after clearing its own
       // session cookie. By this point our cookie was already cleared
-      // on the original POST /logout response. Stateless render — no
-      // outcome detail (it didn't survive the AuthKit redirect; the
-      // audit row carries the full lifecycle record).
-      return new Response(renderLogoutDone(null), {
-        status: 200,
+      // on the original POST /logout response.
+      //
+      // Final hop: 302 to the public site (cjipro.com) so the user
+      // lands on a marketing surface rather than a bare "signed out"
+      // confirmation page on login.cjipro.com. The audit row carries
+      // the full lifecycle record; the user-facing terminal state is
+      // the public homepage. cache-control: no-store keeps a refresh
+      // off the redirect (so it doesn't trigger another logout flow
+      // or get cached intermediates).
+      return new Response(null, {
+        status: 302,
         headers: {
-          "content-type": "text/html; charset=utf-8",
+          location: "https://cjipro.com/",
           "cache-control": "no-store",
-          "x-content-type-options": "nosniff",
         },
       });
     }
@@ -720,11 +746,215 @@ export default {
       });
     }
 
+    // --- MIL-149: direct Magic Auth flow on login.cjipro.com ---
+    // Three routes form the email → code → cookie chain. Each is
+    // guarded by isPlausibleEmail / verifySignInState / WorkOS API
+    // failure handling. Side effects on success mirror /callback:
+    // sessions row write + ensureProfile.
+    if (path === "/sign-in/" || path === "/sign-in") {
+      // Trailing-slash normalisation: GET /sign-in 301s to /sign-in/
+      // so links + bookmarks settle on a single canonical form.
+      if (path === "/sign-in") {
+        return new Response(null, {
+          status: 301,
+          headers: { location: "/sign-in/" },
+        });
+      }
+      const rawReturnTo =
+        url.searchParams.get(env.RETURN_TO_PARAM) ?? undefined;
+      const returnTo =
+        rawReturnTo && isValidReturnTo(rawReturnTo) ? rawReturnTo : undefined;
+      return renderSignInEmailForm({ returnTo });
+    }
+
+    if (path === "/sign-in/email" && method === "POST") {
+      const form = await request.formData();
+      const rawEmail = (form.get("email") ?? "").toString().trim();
+      const rawReturn = (form.get("return_to") ?? "").toString();
+      const returnTo = isValidReturnTo(rawReturn)
+        ? rawReturn
+        : env.DEFAULT_RETURN_TO;
+
+      if (!isPlausibleEmail(rawEmail)) {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "magic_link.signin.invalid_email",
+        });
+        return renderSignInEmailForm({
+          email: rawEmail,
+          error: "That doesn't look like a valid email.",
+          returnTo,
+        });
+      }
+
+      const result = await sendMagicAuthCode(
+        rawEmail,
+        env.WORKOS_CLIENT_SECRET,
+      );
+      if (!result.ok) {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "magic_link.signin.send_failed",
+          reason: result.reason,
+          detail: result.detail,
+        });
+        // Generic message — don't leak whether the email exists or
+        // whether WorkOS is upstream-failing. The audit row carries
+        // the precise reason for diagnostics.
+        return renderSignInEmailForm({
+          email: rawEmail,
+          error: "We couldn't send a code. Try again, or contact hello@cjipro.com.",
+          returnTo,
+        });
+      }
+
+      audit(env, ctx, {
+        ...baseAuditInput(request, path),
+        event_type: "magic_link.signin.code_sent",
+      });
+      const state = await signSignInState(
+        {
+          kind: "signin",
+          email: rawEmail,
+          returnTo,
+          ts: Date.now(),
+        },
+        env.STATE_SIGNING_KEY,
+      );
+      return renderSignInCodeForm({ email: rawEmail, state });
+    }
+
+    if (path === "/sign-in/code" && method === "POST") {
+      const form = await request.formData();
+      const rawCode = (form.get("code") ?? "").toString().trim();
+      const rawState = (form.get("state") ?? "").toString();
+
+      const verified = await verifySignInState(
+        rawState,
+        env.STATE_SIGNING_KEY,
+        Date.now(),
+      );
+      if (!verified.ok) {
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "magic_link.signin.state_expired",
+          reason: verified.reason,
+        });
+        return renderSignInExpired();
+      }
+
+      const { email, returnTo } = verified.payload;
+
+      const verify = await verifyMagicAuthCode(email, rawCode, {
+        clientId: env.CLIENT_ID,
+        clientSecret: env.WORKOS_CLIENT_SECRET,
+      });
+      if (!verify.ok) {
+        // MIL-149 — surface the WorkOS failure shape in wrangler tail
+        // for diagnosis. Audit rows carry the same info but tail is
+        // immediate; D1 query is the historical record.
+        console.log(
+          JSON.stringify({
+            ts: new Date().toISOString(),
+            route: "/sign-in/code",
+            error: verify.reason,
+            status: verify.status,
+            detail: verify.detail,
+          }),
+        );
+        if (verify.reason === "invalid-code") {
+          audit(env, ctx, {
+            ...baseAuditInput(request, path),
+            event_type: "magic_link.signin.invalid_code",
+          });
+          return renderSignInCodeForm({
+            email,
+            state: rawState,
+            error: "That code didn't match. Try again, or use a different email.",
+          });
+        }
+        audit(env, ctx, {
+          ...baseAuditInput(request, path),
+          event_type: "magic_link.signin.verify_failed",
+          reason: verify.reason,
+          detail: verify.detail,
+        });
+        return renderErrorPage(verify.status || 502, "auth-error");
+      }
+
+      // Success — set the session cookie + replicate the /callback
+      // side effects so this flow produces the same downstream state
+      // (sessions row + partner_profiles row, both keyed off sub).
+      const cookieHeader = buildSessionCookie(
+        verify.accessToken,
+        cookieConfigFromEnv(env),
+      );
+      const sub = verify.userId ?? extractJwtSub(verify.accessToken);
+      if (env.AUDIT_DB && sub && verify.userEmail) {
+        const db = env.AUDIT_DB;
+        ctx.waitUntil(
+          writeSession(
+            db,
+            sub,
+            verify.userEmail,
+            verify.organizationId,
+          ).catch((err) => {
+            console.log(
+              JSON.stringify({
+                ts: new Date().toISOString(),
+                session_write_error:
+                  err instanceof Error ? err.message : String(err),
+              }),
+            );
+          }),
+        );
+        ctx.waitUntil(
+          ensureProfile(db, sub, verify.userEmail).catch((err) => {
+            console.log(
+              JSON.stringify({
+                ts: new Date().toISOString(),
+                partner_profile_write_error:
+                  err instanceof Error ? err.message : String(err),
+              }),
+            );
+          }),
+        );
+      }
+      audit(env, ctx, {
+        ...baseAuditInput(request, path),
+        event_type: "magic_link.signin.success",
+        session_sub: sub,
+      });
+      return new Response(null, {
+        status: 302,
+        headers: {
+          location: returnTo,
+          "set-cookie": cookieHeader,
+        },
+      });
+    }
+
     if (path === "/") {
       audit(env, ctx, {
         ...baseAuditInput(request, path),
         event_type: "magic_link.authorize",
       });
+      // MIL-149 — when DIRECT_SIGNIN is "true", route through our own
+      // /sign-in/ form instead of the AuthKit-domain redirect. The
+      // authorize audit event still fires above so timeline parity is
+      // preserved across the two flows. return_to is forwarded so
+      // the original target survives the form hop.
+      if (env.DIRECT_SIGNIN === "true") {
+        const raw = url.searchParams.get(env.RETURN_TO_PARAM) ?? "";
+        const qs =
+          raw && isValidReturnTo(raw)
+            ? `?${env.RETURN_TO_PARAM}=${encodeURIComponent(raw)}`
+            : "";
+        return new Response(null, {
+          status: 302,
+          headers: { location: `/sign-in/${qs}` },
+        });
+      }
       return handleAuthorize(url, env, Date.now(), request);
     }
 

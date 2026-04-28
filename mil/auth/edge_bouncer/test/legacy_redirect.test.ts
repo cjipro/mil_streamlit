@@ -43,7 +43,7 @@ function envWith(enforce: boolean): Env {
     JWKS_URL: "https://ideal-log-65-staging.authkit.app/oauth2/jwks",
     EXPECTED_AUD: "client_x",
     EXPECTED_ISS: "https://ideal-log-65-staging.authkit.app",
-    LOGIN_URL: "https://login.cjipro.com/",
+    LOGIN_URL: "https://login.cjipro.com/sign-in/",
     RETURN_TO_PARAM: "return_to",
     JWKS_CACHE_TTL_SECONDS: "3600",
     PUBLIC_PATHS: "=/,=/privacy",
