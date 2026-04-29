@@ -37,6 +37,7 @@ import smtplib
 from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formataddr
 from pathlib import Path
 
 import yaml
@@ -978,7 +979,8 @@ def send_briefing_notification(run_entry: dict) -> dict:
     port = int(os.getenv("SMTP_PORT", "587") or 587)
     user = os.getenv("SMTP_USER", "").strip()
     pwd  = os.getenv("SMTP_APP_PASSWORD", "").strip()
-    from_addr = (os.getenv("SMTP_FROM") or user).strip()
+    from_addr   = "hello@cjipro.com"
+    from_header = formataddr(("CJI Briefing", from_addr))
     if not (host and user and pwd):
         logger.info("[briefing_email] SMTP creds missing — skipping distribution")
         return result
@@ -1000,8 +1002,9 @@ def send_briefing_notification(run_entry: dict) -> dict:
         try:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = _SUBJECT_LINE
-            msg["From"]    = from_addr
-            msg["To"]      = addr
+            msg["From"]     = from_header
+            msg["Reply-To"] = from_addr
+            msg["To"]       = addr
             msg.attach(MIMEText(_build_plaintext(r, headline, lede, date, quotes), "plain", "utf-8"))
             msg.attach(MIMEText(_build_html(r, headline, lede, quotes),             "html",  "utf-8"))
             with smtplib.SMTP(host, port, timeout=15) as server:
