@@ -1,10 +1,19 @@
 # Credentials — never commit
 .env
 *.env
+!.env.minimal.example
+!.env.publish.example
+!.env.full.example
 secrets/
 **/workos_signing_secret*.txt
 **/workos_webhook_secret*.txt
 *.secret
+
+# MIL-112 — gitleaks/scanner outputs that contain UNREDACTED secrets
+# (use --redact to commit redacted reports under ops/security_audit/)
+**/*_unredacted.json
+**/*_unredacted.txt
+ops/security_audit/*_unredacted.*
 
 # Large data files
 data/*.parquet
