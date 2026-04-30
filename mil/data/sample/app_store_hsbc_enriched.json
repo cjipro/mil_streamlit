@@ -1,0 +1,87 @@
+{
+  "source": "app_store",
+  "competitor": "hsbc",
+  "enriched_count": 6,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 1,
+      "title": "Review 001",
+      "review": "Available balance does not match my actual money.",
+      "version": "8.20.1",
+      "date": "2026-04-30T00:00:00+00:00",
+      "author": "Frequent User 000",
+      "issue_type": "Incorrect Balance",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Displayed balance does not match actual balance."
+    },
+    {
+      "rating": 2,
+      "title": "Review 002",
+      "review": "Recent payment is not showing.",
+      "version": "8.20.1",
+      "date": "2026-04-28T16:47:00+00:00",
+      "author": "Daily Banker 001",
+      "issue_type": "Missing Transaction",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "A recent transaction is missing from the feed."
+    },
+    {
+      "rating": 2,
+      "title": "Review 003",
+      "review": "Bot keeps looping me back to the same menu.",
+      "version": "8.20.1",
+      "date": "2026-04-27T09:34:00+00:00",
+      "author": "Frequent User 002",
+      "issue_type": "Customer Service",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.6,
+      "severity_class": "P1",
+      "reasoning": "Could not reach a human agent for a real problem."
+    },
+    {
+      "rating": 1,
+      "title": "Review 004",
+      "review": "Everything is buried under three menus.",
+      "version": "8.20.1",
+      "date": "2026-04-26T02:21:00+00:00",
+      "author": "Banking Test 003",
+      "issue_type": "UI Confusing",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.2,
+      "severity_class": "P2",
+      "reasoning": "Recent UI redesign is confusing to navigate."
+    },
+    {
+      "rating": 2,
+      "title": "Review 005",
+      "review": "Notifications arrive hours late.",
+      "version": "8.20.1",
+      "date": "2026-04-25T19:08:00+00:00",
+      "author": "Frequent User 004",
+      "issue_type": "Notification Issue",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.3,
+      "severity_class": "P2",
+      "reasoning": "Push notifications arrive late or not at all."
+    },
+    {
+      "rating": 2,
+      "title": "Review 006",
+      "review": "Fingerprint login fails every time.",
+      "version": "8.20.1",
+      "date": "2026-04-24T12:55:00+00:00",
+      "author": "Mobile Tester 005",
+      "issue_type": "Biometric / Face ID",
+      "customer_journey": "Login",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "Biometric login fails repeatedly."
+    }
+  ]
+}

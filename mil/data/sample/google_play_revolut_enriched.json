@@ -1,0 +1,87 @@
+{
+  "source": "google_play",
+  "competitor": "revolut",
+  "enriched_count": 6,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 2,
+      "content": "A transaction from yesterday is missing.",
+      "at": "2026-04-30T00:00:00",
+      "userName": "Anon Reviewer 000",
+      "thumbsUpCount": 1,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Missing Transaction",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "A recent transaction is missing from the feed."
+    },
+    {
+      "rating": 1,
+      "content": "Money disappeared during a transfer.",
+      "at": "2026-04-28T16:47:00",
+      "userName": "App Reviewer 001",
+      "thumbsUpCount": 3,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Transfer Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Transfer to another account failed silently."
+    },
+    {
+      "rating": 2,
+      "content": "Money disappeared during a transfer.",
+      "at": "2026-04-27T09:34:00",
+      "userName": "Anon Reviewer 002",
+      "thumbsUpCount": 2,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Transfer Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Transfer to another account failed silently."
+    },
+    {
+      "rating": 2,
+      "content": "Fingerprint login fails every time.",
+      "at": "2026-04-26T02:21:00",
+      "userName": "Sample Customer 003",
+      "thumbsUpCount": 2,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Biometric / Face ID",
+      "customer_journey": "Login",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "Biometric login fails repeatedly."
+    },
+    {
+      "rating": 2,
+      "content": "Statements feature is broken since the update.",
+      "at": "2026-04-25T19:08:00",
+      "userName": "Banking Test 004",
+      "thumbsUpCount": 1,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Feature Broken",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "A specific feature stopped working after the update."
+    },
+    {
+      "rating": 3,
+      "content": "Cannot make any payments since the update.",
+      "at": "2026-04-24T12:55:00",
+      "userName": "Sample Customer 005",
+      "thumbsUpCount": 2,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Payment Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Payment did not go through and money was held."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "source": "google_play",
+  "competitor": "monzo",
+  "enriched_count": 6,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 1,
+      "content": "Cannot find the simple options any more.",
+      "at": "2026-04-30T00:00:00",
+      "userName": "Daily Banker 000",
+      "thumbsUpCount": 3,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "UI Confusing",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.2,
+      "severity_class": "P2",
+      "reasoning": "Recent UI redesign is confusing to navigate."
+    },
+    {
+      "rating": 5,
+      "content": "Smooth and reliable for everyday banking.",
+      "at": "2026-04-28T16:47:00",
+      "userName": "Frequent User 001",
+      "thumbsUpCount": 2,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Positive Feedback",
+      "customer_journey": "General App Use",
+      "sentiment_score": 0.8,
+      "severity_class": "P2",
+      "reasoning": "Generally pleased with the app \u2014 works well."
+    },
+    {
+      "rating": 1,
+      "content": "Transfer to another bank failed silently.",
+      "at": "2026-04-27T09:34:00",
+      "userName": "Mobile Tester 002",
+      "thumbsUpCount": 1,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Transfer Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Transfer to another account failed silently."
+    },
+    {
+      "rating": 2,
+      "content": "The savings feature stopped working.",
+      "at": "2026-04-26T02:21:00",
+      "userName": "Banking Test 003",
+      "thumbsUpCount": 1,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Feature Broken",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "A specific feature stopped working after the update."
+    },
+    {
+      "rating": 3,
+      "content": "Account locked with no reason given.",
+      "at": "2026-04-25T19:08:00",
+      "userName": "Frequent User 004",
+      "thumbsUpCount": 0,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Account Locked",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Account locked with no clear reason or recovery path."
+    },
+    {
+      "rating": 3,
+      "content": "Takes forever to load every screen.",
+      "at": "2026-04-24T12:55:00",
+      "userName": "Mobile Tester 005",
+      "thumbsUpCount": 2,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Slow Performance",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "App takes a long time to load each screen."
+    }
+  ]
+}

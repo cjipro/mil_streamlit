@@ -1,0 +1,87 @@
+{
+  "source": "app_store",
+  "competitor": "monzo",
+  "enriched_count": 6,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 2,
+      "title": "Review 001",
+      "review": "Each tap takes seconds to register.",
+      "version": "8.20.1",
+      "date": "2026-04-30T00:00:00+00:00",
+      "author": "Anon Reviewer 000",
+      "issue_type": "Slow Performance",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "App takes a long time to load each screen."
+    },
+    {
+      "rating": 2,
+      "title": "Review 002",
+      "review": "Bot keeps looping me back to the same menu.",
+      "version": "8.20.1",
+      "date": "2026-04-28T16:47:00+00:00",
+      "author": "Banking Test 001",
+      "issue_type": "Customer Service",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.6,
+      "severity_class": "P1",
+      "reasoning": "Could not reach a human agent for a real problem."
+    },
+    {
+      "rating": 1,
+      "title": "Review 003",
+      "review": "Three days waiting for a callback.",
+      "version": "8.20.1",
+      "date": "2026-04-27T09:34:00+00:00",
+      "author": "Anon Reviewer 002",
+      "issue_type": "Customer Service",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.6,
+      "severity_class": "P1",
+      "reasoning": "Could not reach a human agent for a real problem."
+    },
+    {
+      "rating": 3,
+      "title": "Review 004",
+      "review": "Three days waiting for a callback.",
+      "version": "8.20.1",
+      "date": "2026-04-26T02:21:00+00:00",
+      "author": "Anon Reviewer 003",
+      "issue_type": "Customer Service",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.6,
+      "severity_class": "P1",
+      "reasoning": "Could not reach a human agent for a real problem."
+    },
+    {
+      "rating": 2,
+      "title": "Review 005",
+      "review": "Each tap takes seconds to register.",
+      "version": "8.20.1",
+      "date": "2026-04-25T19:08:00+00:00",
+      "author": "Sample Customer 004",
+      "issue_type": "Slow Performance",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "App takes a long time to load each screen."
+    },
+    {
+      "rating": 2,
+      "title": "Review 006",
+      "review": "Three days waiting for a callback.",
+      "version": "8.20.1",
+      "date": "2026-04-24T12:55:00+00:00",
+      "author": "App Reviewer 005",
+      "issue_type": "Customer Service",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.6,
+      "severity_class": "P1",
+      "reasoning": "Could not reach a human agent for a real problem."
+    }
+  ]
+}

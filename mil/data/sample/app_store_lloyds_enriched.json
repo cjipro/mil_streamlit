@@ -1,0 +1,113 @@
+{
+  "source": "app_store",
+  "competitor": "lloyds",
+  "enriched_count": 8,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 3,
+      "title": "Review 001",
+      "review": "Takes forever to load every screen.",
+      "version": "8.20.1",
+      "date": "2026-04-30T00:00:00+00:00",
+      "author": "Sample User 000",
+      "issue_type": "Slow Performance",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "App takes a long time to load each screen."
+    },
+    {
+      "rating": 1,
+      "title": "Review 002",
+      "review": "The savings feature stopped working.",
+      "version": "8.20.1",
+      "date": "2026-04-28T16:47:00+00:00",
+      "author": "App Reviewer 001",
+      "issue_type": "Feature Broken",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "A specific feature stopped working after the update."
+    },
+    {
+      "rating": 1,
+      "title": "Review 003",
+      "review": "Fingerprint login fails every time.",
+      "version": "8.20.1",
+      "date": "2026-04-27T09:34:00+00:00",
+      "author": "App Reviewer 002",
+      "issue_type": "Biometric / Face ID",
+      "customer_journey": "Login",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "Biometric login fails repeatedly."
+    },
+    {
+      "rating": 2,
+      "title": "Review 004",
+      "review": "Account suspended without warning.",
+      "version": "8.20.1",
+      "date": "2026-04-26T02:21:00+00:00",
+      "author": "Frequent User 003",
+      "issue_type": "Account Locked",
+      "customer_journey": "Account Service",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Account locked with no clear reason or recovery path."
+    },
+    {
+      "rating": 2,
+      "title": "Review 005",
+      "review": "Money disappeared during a transfer.",
+      "version": "8.20.1",
+      "date": "2026-04-25T19:08:00+00:00",
+      "author": "Mobile Tester 004",
+      "issue_type": "Transfer Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Transfer to another account failed silently."
+    },
+    {
+      "rating": 1,
+      "title": "Review 006",
+      "review": "Available balance does not match my actual money.",
+      "version": "8.20.1",
+      "date": "2026-04-24T12:55:00+00:00",
+      "author": "Frequent User 005",
+      "issue_type": "Incorrect Balance",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Displayed balance does not match actual balance."
+    },
+    {
+      "rating": 1,
+      "title": "Review 007",
+      "review": "Fingerprint login fails every time.",
+      "version": "8.20.1",
+      "date": "2026-04-23T05:42:00+00:00",
+      "author": "Daily Banker 006",
+      "issue_type": "Biometric / Face ID",
+      "customer_journey": "Login",
+      "sentiment_score": -0.5,
+      "severity_class": "P1",
+      "reasoning": "Biometric login fails repeatedly."
+    },
+    {
+      "rating": 1,
+      "title": "Review 008",
+      "review": "Redesign made things worse.",
+      "version": "8.20.1",
+      "date": "2026-04-22T22:29:00+00:00",
+      "author": "Sample Customer 007",
+      "issue_type": "UI Confusing",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.2,
+      "severity_class": "P2",
+      "reasoning": "Recent UI redesign is confusing to navigate."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "source": "google_play",
+  "competitor": "hsbc",
+  "enriched_count": 6,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 2,
+      "content": "Cannot make any payments since the update.",
+      "at": "2026-04-30T00:00:00",
+      "userName": "Sample Customer 000",
+      "thumbsUpCount": 3,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Payment Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Payment did not go through and money was held."
+    },
+    {
+      "rating": 2,
+      "content": "Click the icon and nothing happens.",
+      "at": "2026-04-28T16:47:00",
+      "userName": "Frequent User 001",
+      "thumbsUpCount": 1,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "App Not Opening",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.9,
+      "severity_class": "P0",
+      "reasoning": "App refuses to open after the latest update."
+    },
+    {
+      "rating": 5,
+      "content": "Smooth and reliable for everyday banking.",
+      "at": "2026-04-27T09:34:00",
+      "userName": "Mobile Tester 002",
+      "thumbsUpCount": 2,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Positive Feedback",
+      "customer_journey": "General App Use",
+      "sentiment_score": 0.8,
+      "severity_class": "P2",
+      "reasoning": "Generally pleased with the app \u2014 works well."
+    },
+    {
+      "rating": 1,
+      "content": "Cannot send money to anyone any more.",
+      "at": "2026-04-26T02:21:00",
+      "userName": "Banking Test 003",
+      "thumbsUpCount": 3,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Transfer Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Transfer to another account failed silently."
+    },
+    {
+      "rating": 1,
+      "content": "Payment failed but the money was still taken.",
+      "at": "2026-04-25T19:08:00",
+      "userName": "Mobile Tester 004",
+      "thumbsUpCount": 1,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Payment Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Payment did not go through and money was held."
+    },
+    {
+      "rating": 1,
+      "content": "A few small issues but mostly fine.",
+      "at": "2026-04-24T12:55:00",
+      "userName": "Sample User 005",
+      "thumbsUpCount": 3,
+      "reviewCreatedVersion": "8.20.1",
+      "issue_type": "Other",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.1,
+      "severity_class": "P2",
+      "reasoning": "Mixed feedback covering several minor topics."
+    }
+  ]
+}

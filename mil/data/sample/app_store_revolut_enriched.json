@@ -1,0 +1,87 @@
+{
+  "source": "app_store",
+  "competitor": "revolut",
+  "enriched_count": 6,
+  "model": "sample-corpus-v1",
+  "schema_version": "v3",
+  "records": [
+    {
+      "rating": 3,
+      "title": "Review 001",
+      "review": "Cannot make any payments since the update.",
+      "version": "8.20.1",
+      "date": "2026-04-30T00:00:00+00:00",
+      "author": "Mobile Tester 000",
+      "issue_type": "Payment Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Payment did not go through and money was held."
+    },
+    {
+      "rating": 2,
+      "title": "Review 002",
+      "review": "Cannot find the simple options any more.",
+      "version": "8.20.1",
+      "date": "2026-04-28T16:47:00+00:00",
+      "author": "Sample Customer 001",
+      "issue_type": "UI Confusing",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.2,
+      "severity_class": "P2",
+      "reasoning": "Recent UI redesign is confusing to navigate."
+    },
+    {
+      "rating": 1,
+      "title": "Review 003",
+      "review": "Payment failed but the money was still taken.",
+      "version": "8.20.1",
+      "date": "2026-04-27T09:34:00+00:00",
+      "author": "App Reviewer 002",
+      "issue_type": "Payment Failed",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.8,
+      "severity_class": "P0",
+      "reasoning": "Payment did not go through and money was held."
+    },
+    {
+      "rating": 3,
+      "title": "Review 004",
+      "review": "Displayed total is hundreds off.",
+      "version": "8.20.1",
+      "date": "2026-04-26T02:21:00+00:00",
+      "author": "Sample Customer 003",
+      "issue_type": "Incorrect Balance",
+      "customer_journey": "Payments",
+      "sentiment_score": -0.7,
+      "severity_class": "P0",
+      "reasoning": "Displayed balance does not match actual balance."
+    },
+    {
+      "rating": 2,
+      "title": "Review 005",
+      "review": "Cannot find the simple options any more.",
+      "version": "8.20.1",
+      "date": "2026-04-25T19:08:00+00:00",
+      "author": "Mobile Tester 004",
+      "issue_type": "UI Confusing",
+      "customer_journey": "General App Use",
+      "sentiment_score": -0.2,
+      "severity_class": "P2",
+      "reasoning": "Recent UI redesign is confusing to navigate."
+    },
+    {
+      "rating": 5,
+      "title": "Review 006",
+      "review": "Best banking app I have used.",
+      "version": "8.20.1",
+      "date": "2026-04-24T12:55:00+00:00",
+      "author": "Mobile Tester 005",
+      "issue_type": "Positive Feedback",
+      "customer_journey": "General App Use",
+      "sentiment_score": 0.8,
+      "severity_class": "P2",
+      "reasoning": "Generally pleased with the app \u2014 works well."
+    }
+  ]
+}
