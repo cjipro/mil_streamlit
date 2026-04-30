@@ -358,6 +358,78 @@ def check_hdfs_namenode() -> Result:
         )
 
 
+def check_gitlab_token() -> Result:
+    """Optional GitLab read-mirror credential. Skipped silently if .env
+    doesn't carry GITLAB_TOKEN — fork operators without a GitLab mirror
+    don't need this. When set, verifies the token can reach the API."""
+    token = (os.environ.get("GITLAB_TOKEN") or "").strip()
+    base = (os.environ.get("GITLAB_BASE_URL") or "").strip()
+    pid = (os.environ.get("GITLAB_PROJECT_ID") or "").strip()
+
+    if not token:
+        # Try .env file directly
+        env_path = REPO_ROOT / ".env"
+        if env_path.exists():
+            for line in env_path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line.startswith("GITLAB_TOKEN=") and "REPLACE" not in line:
+                    token = line.split("=", 1)[1].strip().strip('"').strip("'")
+                if line.startswith("GITLAB_BASE_URL="):
+                    base = line.split("=", 1)[1].strip().strip('"').strip("'")
+                if line.startswith("GITLAB_PROJECT_ID="):
+                    pid = line.split("=", 1)[1].strip().strip('"').strip("'")
+
+    if not token:
+        return _ok("gitlab_token", "not configured (GitLab mirror disabled)")
+
+    if not base or not pid:
+        return _warn(
+            "gitlab_token",
+            "GITLAB_TOKEN set but GITLAB_BASE_URL or GITLAB_PROJECT_ID missing",
+            "Set both in .env — see .env.full.example",
+        )
+
+    # Verify the token reaches the API
+    import urllib.request
+    import urllib.error
+    import json as _json
+    try:
+        req = urllib.request.Request(
+            f"{base.rstrip('/')}/api/v4/projects/{pid}",
+            headers={"PRIVATE-TOKEN": token},
+        )
+        with urllib.request.urlopen(req, timeout=5) as r:
+            body = _json.loads(r.read().decode("utf-8"))
+        return _ok(
+            "gitlab_token",
+            f"reaches project {body.get('path_with_namespace', pid)}",
+        )
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            return _fail(
+                "gitlab_token",
+                "401 Unauthorized — token revoked or invalid",
+                "See ops/runbooks/gitlab_token_rotation.md",
+            )
+        if e.code == 403:
+            return _fail(
+                "gitlab_token",
+                "403 Forbidden — token lacks api scope or Maintainer role",
+                "Regenerate with api + write_repository scopes (see ops/runbooks/gitlab_token_rotation.md)",
+            )
+        return _warn(
+            "gitlab_token",
+            f"HTTP {e.code} from GitLab API",
+            "Check GITLAB_BASE_URL + GITLAB_PROJECT_ID values",
+        )
+    except (urllib.error.URLError, OSError) as e:
+        return _warn(
+            "gitlab_token",
+            f"network error: {e}",
+            "GitLab unreachable from this network — token check skipped",
+        )
+
+
 # ── Runner ────────────────────────────────────────────────────────────────────
 
 CHECKS = [
@@ -376,6 +448,7 @@ CHECKS = [
     check_publish_config,
     check_run_daily_importable,
     check_hdfs_namenode,
+    check_gitlab_token,
 ]
 
 
