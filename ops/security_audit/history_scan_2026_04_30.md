@@ -28,25 +28,35 @@ The Slack webhook leak from 2026-04-20 is no longer present in history (resolved
 | 7 | curl-auth-user | `conductor/.claude/settings.local.json:18` | **Pre-rotated** — `admin:admin` curl against `localhost:11434` (local Ollama, never exposed to internet) | None — well-known default, local-only port |
 | 8 | jwt | `conductor/.claude/settings.local.json:7` | **Real finding — Astronomer.io JWT** (auth_connection token from a Claude Code session in the `conductor/` sub-project) | **Rotate** if still live |
 
-## Real finding — Astronomer.io JWT in conductor settings
+## Real finding — Astronomer.io JWT in conductor settings — RESOLVED
 
 **File:** `conductor/.claude/settings.local.json` (a Claude Code per-project settings file from a nested sub-project)
 **Commit:** `bcee05c3351052164ade57364e1ca399b96ce1f9`
 **Date:** 2026-03-18
 **Author:** Hussain
-**Issue type:** Auth token committed alongside an unrelated PULSE-migration sync commit.
+**Issue type:** Browser-session JWT committed alongside an unrelated PULSE-migration sync commit.
 
-**Current state:**
-- `.gitignore` already excludes `.claude/` — this can't recur on a fresh commit, only the historical commit retains the value.
-- The token's expiry is unknown. JWTs typically have a finite `exp` claim; a 6-week-old token may already be dead. Decoding here was deliberately avoided to prevent re-leaking.
+**Resolution (2026-04-30):**
 
-**Remediation options:**
+Decoded the JWT locally — confirmed it was a short-lived browser-session token:
 
-1. **Rotate the Astronomer credential** in your Astronomer dashboard, regardless of expiry status. This invalidates the leaked token even if it hasn't naturally expired. Recommended.
-2. **Confirm expiry** by decoding the JWT locally (`echo "<token>" | cut -d. -f2 | base64 -d | jq .exp`) — if the `exp` claim is in the past, the token is already dead.
-3. **(Optional) Rewrite history** to remove the file from `bcee05c`. This requires `git filter-repo` or `git filter-branch`, the same surgery done for the Slack webhook in 2026-04-20. Coordinate the rewrite with any GitLab mirror force-push.
+| Claim | Value |
+|---|---|
+| `iss` | `https://auth.astronomer.io/` |
+| `aud` | `[astronomer-ee, https://astronomer-prod.us.auth0.com/userinfo]` |
+| `iat` | 2026-03-13 23:40:05 UTC |
+| `exp` | 2026-03-14 00:40:05 UTC |
+| Lifetime | **1 hour** |
+| Status as of audit | **EXPIRED 47 days ago** |
 
-The minimum action that closes this finding is option 1 (rotate). Option 3 is a hardening step for the open-source release, where a public-repo audit would re-flag this file.
+Astronomer's session JWTs are short-lived by design (1-hour TTL via Auth0). There are no long-lived API tokens in the user's Astronomer account. The leaked credential was dead before this audit ran.
+
+**Action taken:**
+- Token tail `gCbGf33e45vg` added to `KNOWN_ROTATED` in `scripts/scan_history_secrets.py` so future scans demote this hit to INFO.
+- `.gitignore` already excludes `.claude/` — recurrence is structurally prevented.
+
+**Remaining hardening (optional, deferred to open-source release prep):**
+- **History rewrite** to remove `conductor/.claude/settings.local.json` from `bcee05c` via `git filter-repo`. Same surgery as the Slack webhook scrub in 2026-04-20. Audit hygiene benefit for a public repo; not a live security exposure.
 
 ## Process additions for next-time
 

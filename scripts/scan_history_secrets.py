@@ -84,6 +84,13 @@ KNOWN_ROTATED: list[str] = [
     # tenant prefix that survive are dead — rotation logged in CLAUDE.md.
     # The webhook prefix "T0..." is the historical Slack workspace; if we
     # see a hit on hooks.slack.com from before that date, it's the rotated one.
+
+    # 2026-04-30 — Astronomer.io browser-session JWT in commit bcee05c
+    # (conductor/.claude/settings.local.json:7). 1-hour lifetime, issued
+    # 2026-03-13 23:40 UTC, expired 2026-03-14 00:40 UTC. Confirmed dead
+    # 47 days before the MIL-112 audit. No live rotation needed; .claude/
+    # is now gitignored so this can't recur.
+    "gCbGf33e45vg",
 ]
 
 
