@@ -1,5 +1,18 @@
 # MIL-110 Runbook — Make `cjipro/mil_streamlit` private
 
+> **⚠ SUPERSEDED 2026-04-30.** Original direction (privatise the code
+> repo to hide the auth attack surface) inverts under the open-source /
+> Hodos vision (locked 2026-04-29 in memory `feedback_open_source_vision.md`;
+> architecturally ratified 2026-04-30 in MIL-167). Engine code should be
+> PUBLIC in the future `cjipro/hodos` repo, not hidden. CJI-private
+> content (CHRONICLE entries, tenant data, brand surface) gets
+> defense-in-depth via expanded `SENSITIVE_PATH_PATTERNS` in
+> `mil/publish/adapters.py` and a new `PRIVATE_PATHS.md` at repo root —
+> see MIL-110's rewritten ticket description for current scope. The
+> pre-flip / post-flip checklist below is preserved for historical
+> reference; do NOT execute the visibility flip without a fresh
+> architectural decision.
+
 **Source:** Tavis Ormandy panel review, 2026-04-25 — top finding.
 **Threat:** Public code repo exposes the auth stack (edge-bouncer + magic-link Worker source, JWKS URLs, cookie name, D1 table names, runbook contents, Worker version IDs, scheduled trigger IDs) — enough material to script a pixel-perfect AuthKit phishing email.
 **Fix:** flip `cjipro/mil_streamlit` to private. The Pages repo `cjipro/mil-briefing` (where rendered HTML is served from) stays public — it has no sensitive content (verified by `scripts/check_public_repo_hygiene.py`).

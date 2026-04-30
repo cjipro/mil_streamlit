@@ -76,6 +76,15 @@ SENSITIVE_CONTENT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
     ("WORKOS_WEBHOOK_SECRET",      re.compile(r"WORKOS_WEBHOOK_SECRET\s*[:=]", re.IGNORECASE)),
     ("SMTP_APP_PASSWORD literal",  re.compile(r"SMTP_APP_PASSWORD\s*[:=]", re.IGNORECASE)),
     ("CLOUDFLARE_API_TOKEN ref",   re.compile(r"CLOUDFLARE_API_TOKEN\s*[:=]", re.IGNORECASE)),
+    # ── CJI-private content (added 2026-04-30 — MIL-110 rewrite under CJI/Hodos split) ──
+    # NB: chronicle_id references in rendered Inference Cards (e.g., V4
+    # Provenance Chain showing "anchor: CHR-007") are LEGITIMATE and appear
+    # in published briefings. These three patterns target the structured
+    # form CHRONICLE entries take in source files (markdown headers, YAML
+    # keys), which would only appear if a leak smuggled an entry into Pages.
+    ("CHRONICLE entry header (markdown)",  re.compile(r"^##\s+CHR-\d{3}\s*[—:\-]", re.MULTILINE)),
+    ("CHRONICLE entry YAML key",           re.compile(r"^chronicle_id:\s*CHR-\d{3}", re.MULTILINE)),
+    ("CHRONICLE failure_mode YAML key",    re.compile(r"^failure_mode:\s*['\"]?[A-Za-z]", re.MULTILINE)),
 )
 
 

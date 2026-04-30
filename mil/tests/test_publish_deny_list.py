@@ -92,6 +92,16 @@ SENSITIVE_PATHS = [
     "mil/chat/pipeline.py",
     "scripts/check_public_repo_hygiene.py",
     "run_daily.py",
+    # CJI-private content (MIL-110 rewrite under CJI/Hodos split, 2026-04-30)
+    "mil/CHRONICLE.md",
+    "mil/chronicle/entries/CHR-001.yaml",
+    "mil/data/historical/enriched/app_store_barclays_enriched.json",
+    "mil/data/daily_run_log.jsonl",
+    "mil/vault/mil_vault.db",
+    "mil/outputs/mil_findings.json",
+    "mil/config/tenant.yaml",
+    "mil/config/clients.yaml",
+    "mil/publish/site/home.html",
 ]
 
 

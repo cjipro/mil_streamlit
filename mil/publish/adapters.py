@@ -76,6 +76,30 @@ SENSITIVE_PATH_PATTERNS: tuple[re.Pattern, ...] = (
     re.compile(r"\.py$",                  re.IGNORECASE),
     re.compile(r"\.ts$",                  re.IGNORECASE),
     re.compile(r"\.tsx$",                 re.IGNORECASE),
+
+    # ── CJI-private content (added 2026-04-30 — MIL-110 rewrite under CJI/Hodos split, MIL-167) ──
+    # The patterns above block engine code + internal docs + secrets from
+    # reaching the public Pages repo (engine code is Hodos-bound elsewhere
+    # but Pages serves rendered output only). The patterns below add the
+    # CJI-product-private categories that should never ship publicly:
+    # CHRONICLE entries, tenant data, brand-surface sources. See
+    # PRIVATE_PATHS.md at repo root for the full categorisation.
+
+    # CHRONICLE ledger — CJI's curated banking incident analyses.
+    re.compile(r"(^|/)mil/CHRONICLE\.md$",                   re.IGNORECASE),
+    re.compile(r"(^|/)mil/chronicle(/|$)",                   re.IGNORECASE),
+    # Tenant data — partner-confidential record corpus, run logs, vault, findings.
+    re.compile(r"(^|/)mil/data/historical(/|$)",             re.IGNORECASE),
+    re.compile(r"(^|/)mil/data/[A-Za-z0-9_]+_log\.jsonl$",   re.IGNORECASE),
+    re.compile(r"(^|/)mil/vault(/|$)",                       re.IGNORECASE),
+    re.compile(r"(^|/)mil/outputs(/|$)",                     re.IGNORECASE),
+    # Tenant identity + partner identities — real cjipro.com / partner values.
+    re.compile(r"(^|/)mil/config/tenant\.yaml$",             re.IGNORECASE),
+    re.compile(r"(^|/)mil/config/clients\.yaml$",            re.IGNORECASE),
+    # CJI brand surface sources — protected per Mozilla-style trademark policy.
+    # (Rendered output goes to Pages via publish_site.py; the source files
+    # themselves stay in the CJI repo and never publish as source.)
+    re.compile(r"(^|/)mil/publish/site(/|$)",                re.IGNORECASE),
 )
 
 
