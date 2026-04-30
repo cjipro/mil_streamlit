@@ -42,6 +42,8 @@ from pathlib import Path
 
 import yaml
 
+from mil.config import tenant_loader
+
 logger = logging.getLogger(__name__)
 
 _MIL_ROOT          = Path(__file__).parent.parent
@@ -51,7 +53,7 @@ _LEDE_CACHE        = _MIL_ROOT / "data" / "email_lede_log.jsonl"
 _COMMENTARY_LOG    = _MIL_ROOT / "data" / "commentary_log.jsonl"
 _BOX3_PRIORITY     = _MIL_ROOT / "data" / "box3_priority.json"
 _ENRICHED_DIR      = _MIL_ROOT / "data" / "historical" / "enriched"
-_BRIEFING_URL      = "https://app.cjipro.com/sonar/barclays/"
+_BRIEFING_URL      = tenant_loader.sonar_briefing_url("barclays")
 
 # Locked constant — Teams rules depend on byte-for-byte identity.
 _SUBJECT_LINE = "Voice of the Customer: Barclays App Experience (Open Sources)"
@@ -868,9 +870,10 @@ def _build_html(recipient: dict, headline: str, lede: str,
     ]
     if absent:
         footer_parts.append(f"No directly matching reports from: {', '.join(absent)}.")
+    _briefing_link_label = _BRIEFING_URL.replace("https://", "").replace("http://", "").rstrip("/")
     footer_parts.append(
         f'Full evidence trail: <a href="{_BRIEFING_URL}" '
-        f'style="color:{_ACCENT};text-decoration:underline;">app.cjipro.com/sonar/barclays</a>'
+        f'style="color:{_ACCENT};text-decoration:underline;">{_briefing_link_label}</a>'
     )
     footer_html = (
         f'<p style="margin:28px 0 0 0;font-family:{_SANS};font-size:11px;'
@@ -979,8 +982,8 @@ def send_briefing_notification(run_entry: dict) -> dict:
     port = int(os.getenv("SMTP_PORT", "587") or 587)
     user = os.getenv("SMTP_USER", "").strip()
     pwd  = os.getenv("SMTP_APP_PASSWORD", "").strip()
-    from_addr   = "hello@cjipro.com"
-    from_header = formataddr(("CJI Briefing", from_addr))
+    from_addr   = tenant_loader.organisation_contact_email()
+    from_header = formataddr((tenant_loader.organisation_display_name(), from_addr))
     if not (host and user and pwd):
         logger.info("[briefing_email] SMTP creds missing — skipping distribution")
         return result

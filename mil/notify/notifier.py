@@ -24,6 +24,8 @@ from pathlib import Path
 
 import yaml
 
+from mil.config import tenant_loader
+
 logger = logging.getLogger(__name__)
 
 _MIL_ROOT   = Path(__file__).parent.parent
@@ -241,7 +243,7 @@ def notify_clark3(finding: dict, synthesis: str = "") -> bool:
     ]
     if synthesis:
         lines += ["", "Opus synthesis:", synthesis]
-    lines += ["", "Review at: cjipro.com/briefing-v3"]
+    lines += ["", f"Review at: {tenant_loader.domain_apex()}/briefing-v3"]
     body = "\n".join(lines)
     return notifier._safe_send(subject, body)
 
@@ -313,6 +315,6 @@ def notify_run_complete(
     ]
     if failed_steps:
         lines += ["", f"Failed steps: {', '.join(failed_steps)}"]
-    lines += ["", "Briefing: cjipro.com/briefing-v3"]
+    lines += ["", f"Briefing: {tenant_loader.domain_apex()}/briefing-v3"]
     body = "\n".join(lines)
     return notifier._safe_send(subject, body)

@@ -1,36 +1,66 @@
-# mil/config/tenant.yaml — locale + jurisdiction-specific scaffolding (MIL-148).
+# mil/config/tenant.yaml — single source of truth for tenant-level identity.
 #
-# Source of truth for two presentation-level values that change when a
-# new locale or jurisdiction lands (APAC partner, EU explicit-consent
-# notice, China ICP filing). Read at publish time by mil/publish/publish_site.py
-# and substituted into the public site's HTML output.
+# A "tenant" is one CJI deployment — the cjipro.com hosted reference is one
+# tenant; a fork running its own brand on its own domains is another tenant.
 #
-# Schema:
-#   schema_version: int (required, currently 1)
-#   lang:           str (required, BCP-47 tag — "en-GB" today; "zh-CN", "ja-JP"
-#                   are zero-cost flips when the cohort lands).
-#                   Becomes the value of <html lang="..."> on every public page.
-#   compliance_notices: list[str] (required, may be empty). Each entry renders as
-#                   a <p class="compliance-notice-line">…</p> inside the
-#                   .compliance-notice slot in the page footer.
-#                   Empty list → slot stays present but visually empty
-#                   (zero visual drift on production today).
-#                   Plain text only — do NOT inline HTML; the publisher escapes
-#                   the value to neutralise injection.
+# The four sections below carry every value that would change between
+# deployments. Edit this file (not Python source) when retargeting a fork.
 #
-# Why a separate file (not clients.yaml): clients.yaml is per-firm; tenant.yaml
-# is per-deployment. A future multi-tenant CJI deploy (cjipro.cn / cjipro.eu)
-# would copy this file with different values, while clients.yaml stays cohort-
-# scoped. Splitting them now keeps both files simple.
+# Schema versions:
+#   1 — locale + compliance only (MIL-148, 2026-04-27)
+#   2 — adds organisation / domains / urls / committer / harvester (MIL-119, 2026-04-30)
+#
+# A tenant.yaml at schema_version:1 still loads — the v2 fields fall back to
+# the cjipro.com reference defaults baked into tenant_loader.py. A fork
+# operator should bump this to 2 and replace every cjipro.com value.
 
-schema_version: 1
+schema_version: 2
 
-# Default locale for the cjipro.com deployment.
+# ── MIL-148 — locale + jurisdiction ──────────────────────────────────────────
+
+# Default locale for HTML output.
 lang: en-GB
 
-# Empty by design today — the slot is reserved scaffolding, not active notices.
-# Reserve future entries here when:
-#   • China deployment goes live → "ICP备XXXXXXXX号"
-#   • EU partner needs explicit-consent footer text
-#   • UK firm wants ICO registration number visible
+# Empty by design today — reserved for future deployments needing
+# jurisdiction-specific footer text (China ICP, EU explicit-consent, etc.)
 compliance_notices: []
+
+# ── MIL-119 — tenant identity ────────────────────────────────────────────────
+
+# The organisation operating this CJI deployment. Surfaces in email senders,
+# trust footers, partner-facing copy.
+organisation:
+  name: "CJI"
+  display_name: "CJI Briefing"
+  contact_email: "hello@cjipro.com"
+
+# Domains the deployment serves. The four below are the canonical CJI split:
+#   apex   — marketing site, public-facing
+#   app    — auth-fenced product surface (Reckoner, Sonar, etc.)
+#   login  — magic-link host
+#   admin  — admin dashboard
+domains:
+  apex: "cjipro.com"
+  app: "app.cjipro.com"
+  login: "login.cjipro.com"
+  admin: "admin.cjipro.com"
+
+# Default Sonar PDB URL template. {slug} substituted at email-send time with
+# the recipient firm's slug from clients.yaml.
+sonar_briefing_url_template: "https://app.cjipro.com/sonar/{slug}/"
+
+# Static fonts host. The fonts pipeline (mil/publish/fonts_pipeline/fetch_fonts.py)
+# reads this to emit a Worker-side TS module that inlines @font-face rules
+# with absolute URLs — necessary because Workers on app./login./admin. cannot
+# resolve relative /fonts/ paths to the apex.
+fonts_base_url: "https://cjipro.com/fonts"
+
+# Git committer identity for pushed briefings. Read by GitHubPagesAdapter
+# in mil/publish/adapters.py.
+git_committer:
+  name: "MIL Sonar Publisher"
+  email: "sonar-publish@cjipro.com"
+
+# User-Agent contact used by public-source harvesters (Reddit, etc.) so the
+# upstream service can reach a human if our fetcher misbehaves.
+harvester_contact_email: "mil@cjipro.com"

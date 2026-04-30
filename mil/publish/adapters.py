@@ -42,6 +42,8 @@ from pathlib import Path
 
 import yaml
 
+from mil.config import tenant_loader
+
 
 # ── MIL-110 — sensitive-content patterns (deny-list) ─────────────────────────
 #
@@ -171,8 +173,12 @@ class GitHubPagesAdapter(PublishAdapter):
     def __init__(self, repo_url: str, token: str,
                  branch: str = "main",
                  commit_subject_fmt: str = _DEFAULT_COMMIT_SUBJECT,
-                 committer_email: str = "sonar-publish@cjipro.com",
-                 committer_name: str  = "Sonar Publisher"):
+                 committer_email: str | None = None,
+                 committer_name: str | None  = None):
+        if committer_email is None:
+            committer_email = tenant_loader.git_committer_email()
+        if committer_name is None:
+            committer_name = tenant_loader.git_committer_name()
         if not repo_url:
             raise ValueError("GitHubPagesAdapter: repo_url is required")
         if not token:
@@ -299,8 +305,8 @@ def get_adapter(override_config: dict | None = None) -> PublishAdapter:
             token              = token,
             branch             = gh.get("branch", "main"),
             commit_subject_fmt = gh.get("commit_subject", _DEFAULT_COMMIT_SUBJECT),
-            committer_email    = gh.get("committer_email", "sonar-publish@cjipro.com"),
-            committer_name     = gh.get("committer_name", "Sonar Publisher"),
+            committer_email    = gh.get("committer_email") or tenant_loader.git_committer_email(),
+            committer_name     = gh.get("committer_name") or tenant_loader.git_committer_name(),
         )
 
     if adapter_type == "local":

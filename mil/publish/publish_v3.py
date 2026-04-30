@@ -30,6 +30,7 @@ sys.path.insert(0, str(MIL_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 
 from mil.publish.adapters import write_text_lf  # LF-only HTML writes
+from mil.config import tenant_loader as _tenant_loader  # MIL-119
 
 from mil.command.components.clark_protocol import active_clark_summary
 from mil.command.components.inference_cards import load_findings
@@ -1092,8 +1093,8 @@ def publish_v3(html_content: str) -> tuple[bool, str]:
         print(f"  Written to {dest}")
 
         for cmd in [
-            ["git", "-C", str(clone_dir), "config", "user.email", "sonar-publish@cjipro.com"],
-            ["git", "-C", str(clone_dir), "config", "user.name",  "Sonar Publisher"],
+            ["git", "-C", str(clone_dir), "config", "user.email", _tenant_loader.git_committer_email()],
+            ["git", "-C", str(clone_dir), "config", "user.name",  _tenant_loader.git_committer_name()],
         ]:
             subprocess.run(cmd, capture_output=True)
 

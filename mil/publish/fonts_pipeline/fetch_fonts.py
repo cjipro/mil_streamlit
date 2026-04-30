@@ -133,14 +133,19 @@ def _local_filename(family: str, weight: int, subset: str) -> str:
 
 
 # MIL-158 — destination for the Worker-side TS module. Workers live on
-# app.cjipro.com / login.cjipro.com / admin.cjipro.com — different origins
-# from cjipro.com — so relative `/fonts/` paths don't resolve. The TS
-# module inlines @font-face rules with ABSOLUTE URLs to cjipro.com so the
+# app.<apex> / login.<apex> / admin.<apex> — different origins from the
+# apex — so relative `/fonts/` paths don't resolve. The TS module inlines
+# @font-face rules with ABSOLUTE URLs (read from tenant.yaml) so the
 # browser fetches the woff2 cross-origin from the same Pages origin.
 WORKERS_FONTS_BLOCK_DEST = (
     REPO / "mil" / "auth" / "fonts_block" / "src" / "fonts_block.generated.ts"
 )
-ABSOLUTE_FONTS_BASE = "https://cjipro.com/fonts"
+# MIL-119 — read absolute fonts host from tenant.yaml. The constant is kept
+# for back-compat with anything that imports it; it's resolved at module
+# import time, not at call time, so a fork that wants to swap fonts hosts
+# without restarting Python should call tenant_loader.fonts_base_url() directly.
+from mil.config import tenant_loader as _tenant_loader
+ABSOLUTE_FONTS_BASE = _tenant_loader.fonts_base_url()
 
 
 def _build_css(blocks: list[dict], header_comment: str) -> str:

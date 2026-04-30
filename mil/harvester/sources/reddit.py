@@ -18,6 +18,7 @@ import requests
 import yaml
 
 from .base import SignalSource, RawSignal
+from mil.config import tenant_loader
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ TRUST_WEIGHT = 0.85
 REQUEST_DELAY = 2.0   # seconds between requests (Reddit rate limit: ~1 req/sec)
 
 HEADERS = {
-    "User-Agent": "MIL-Harvester/1.0 (public market intelligence; contact: mil@cjipro.com)",
+    "User-Agent": f"MIL-Harvester/1.0 (public market intelligence; contact: {tenant_loader.harvester_contact_email()})",
     "Accept": "application/json",
 }
 

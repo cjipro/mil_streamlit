@@ -30,6 +30,7 @@ if str(_MIL_DIR_FOR_IMPORT) not in sys.path:
     sys.path.insert(0, str(_MIL_DIR_FOR_IMPORT))
 
 from adapters import write_text_lf  # LF-only HTML writes
+from config import tenant_loader as _tenant_loader  # MIL-119
 try:
     from briefing_data import get_briefing_data as _get_briefing_data
     _BRIEFING_DATA_AVAILABLE = True
@@ -1973,11 +1974,11 @@ def publish_to_github_pages(html_content: str, env: dict) -> tuple[bool, str]:
 
         # git config (required in CI environments)
         subprocess.run(
-            ["git", "-C", str(clone_dir), "config", "user.email", "sonar-publish@cjipro.com"],
+            ["git", "-C", str(clone_dir), "config", "user.email", _tenant_loader.git_committer_email()],
             capture_output=True
         )
         subprocess.run(
-            ["git", "-C", str(clone_dir), "config", "user.name", "Sonar Publisher"],
+            ["git", "-C", str(clone_dir), "config", "user.name", _tenant_loader.git_committer_name()],
             capture_output=True
         )
 

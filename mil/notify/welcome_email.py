@@ -18,11 +18,13 @@ from email.mime.text import MIMEText
 from email.utils import formataddr
 from pathlib import Path
 
+from mil.config import tenant_loader
+
 logger = logging.getLogger(__name__)
 
 SUBJECT = "Welcome to CJI Briefing"
-FROM_ADDR = "hello@cjipro.com"
-FROM_NAME = "CJI Briefing"
+FROM_ADDR = tenant_loader.organisation_contact_email()
+FROM_NAME = tenant_loader.organisation_display_name()
 
 CREAM = "#F5F2EC"
 INK   = "#1a1a1a"
@@ -50,7 +52,7 @@ CJI platform.
 
 ─── HOW TO SIGN IN ───
 
-  1.  Visit cjipro.com
+  1.  Visit {apex_host}
       ─────────────────────────────────────────────────
   2.  Click "Partner sign-in" in the top-right corner
       ─────────────────────────────────────────────────
@@ -70,7 +72,7 @@ this message.
 
       Anecdote → Aggregate → Awareness → Action
 
-CJI · cjipro.com · hello@cjipro.com
+{org_name} · {apex_host} · {contact_email}
 """
 
 
@@ -146,7 +148,7 @@ HTML_TEMPLATE = """<!doctype html>
 
                 <tr><td style="padding:14px 0;">
                   <span style="display:inline-block;width:32px;font-family:'Source Serif 4',Georgia,serif;font-style:italic;color:{navy};font-size:18px;">1.</span>
-                  Visit <a href="https://cjipro.com" style="color:{navy};text-decoration:underline;">cjipro.com</a>
+                  Visit <a href="{apex_url}" style="color:{navy};text-decoration:underline;">{apex_host}</a>
                 </td></tr>
                 <tr><td style="border-top:1px solid #E6E1D8;line-height:1px;font-size:1px;">&nbsp;</td></tr>
 
@@ -194,8 +196,8 @@ HTML_TEMPLATE = """<!doctype html>
           </tr>
           <tr>
             <td style="padding:14px 8px 8px;text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:{muted};letter-spacing:0.08em;line-height:1.7;">
-              <div style="color:{navy};font-weight:600;letter-spacing:0.32em;text-transform:uppercase;margin-bottom:6px;">CJI</div>
-              <div><a href="https://cjipro.com" style="color:{muted};text-decoration:none;">cjipro.com</a> &middot; <a href="mailto:hello@cjipro.com" style="color:{muted};text-decoration:none;">hello@cjipro.com</a></div>
+              <div style="color:{navy};font-weight:600;letter-spacing:0.32em;text-transform:uppercase;margin-bottom:6px;">{org_name}</div>
+              <div><a href="{apex_url}" style="color:{muted};text-decoration:none;">{apex_host}</a> &middot; <a href="mailto:{contact_email}" style="color:{muted};text-decoration:none;">{contact_email}</a></div>
             </td>
           </tr>
 
@@ -215,13 +217,26 @@ def _dateline() -> str:
 
 def _render() -> tuple[str, str]:
     dateline = _dateline()
-    plain = PLAIN_TEMPLATE.format(dateline=dateline)
+    apex_host = tenant_loader.domain_apex()
+    apex_url = tenant_loader.apex_url()
+    contact_email = tenant_loader.organisation_contact_email()
+    org_name = tenant_loader.organisation_name()
+    plain = PLAIN_TEMPLATE.format(
+        dateline=dateline,
+        apex_host=apex_host,
+        contact_email=contact_email,
+        org_name=org_name,
+    )
     html = HTML_TEMPLATE.format(
         dateline=dateline,
         cream=CREAM,
         ink=INK,
         navy=NAVY,
         muted=MUTED,
+        apex_host=apex_host,
+        apex_url=apex_url,
+        contact_email=contact_email,
+        org_name=org_name,
     )
     return plain, html
 
