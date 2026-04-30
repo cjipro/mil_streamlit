@@ -36,6 +36,30 @@ Underlying asset: **CJI Chronicle** — public failure ledger (CHR-001..019, exp
 
 Full canonical reference: memory `project_brand_spine.md`. Website rebuild ticket map: memory `project_website_rebuild_plan.md` (MIL-75..108). Workflow rule: memory `feedback_no_phases_jira_tickets.md` (no phases, no timelines).
 
+## Hodos / CJI Architecture (LOCKED 2026-04-30 — canonical)
+
+**Two products, one lineage:**
+- **CJI** — closed product. cjipro.com hosted instance, the CHRONICLE (CHR-001..019+), CJI brand marks, alpha partner contracts. The specific application; UK retail banking today, additional verticals possible.
+- **Hodos** — codename for the open-source engine. The general framework that powers CJI; runnable by anyone. Apache 2.0. No CJI brand surface, no CHRONICLE entries, no partner data.
+
+**Direction of travel:** Hodos is being distilled out of CJI as we build. Once CJI is proven (alpha cohort productive, banking patterns stabilised), CJI's reusable patterns get cloned into Hodos as the seed; Hodos becomes the engine that can produce systems like CJI for any vertical.
+
+**Public narrative:** *"CJI is powered by Hodos."* Earned not declared (per architecture panel 2026-04-30). The inversion will read naturally once Hodos has its own docs, its own example application, its own contributor base — plan ~year of work.
+
+**Operational rule for every CJI engineering decision:** ask **"what's the general pattern here that should land in Hodos?"** Every fix, refactor, new feature, or interface change in CJI is also a candidate Hodos contribution. Don't pre-abstract (DHH); do mark patterns as they stabilise. Tag the Jira ticket with `hodos` label if it touches generalisable patterns.
+
+**Boundary discipline:**
+- Real proprietary content (banking incident analyses, partner identities, customer feedback) is CJI-only. Never lands in `hodos/`.
+- Engine code, taxonomy infrastructure, schema, sample/synthetic data, interface contracts → Hodos candidates. Refactor with both audiences in mind. MIL-35 PublishAdapter is the gold-standard interface model; apply that pattern to harvester plugins, inference, CHRONICLE schema, publishing, chat (Vogels: API discipline at the boundary).
+- The `mil/publish/adapters.py` `SENSITIVE_PATH_PATTERNS` deny-list is the file-level enforcement of this boundary (see MIL-110 rewrite for current state).
+
+**Today's structure** (transition state):
+- Monorepo `cjipro/mil_streamlit` (currently public, flips private under MIL-110-rewrite) holds everything.
+- `hodos/` subdirectory carries the legibility docs (LICENSE / NOTICE / TRADEMARK.md / CONTRIBUTING.md / GOVERNANCE.md / HODOS_NAMING.md). Staging area for the eventual `cjipro/hodos` public Apache-2.0 repo.
+- HODOS Jira project deferred until ~15 hodos-tagged tickets accumulate or external contributors arrive (patio11). Use `hodos` label on existing MIL Jira until then.
+
+Full canonical reference: memory `project_hodos_cji_architecture.md`. Lock context: MIL-167.
+
 ## Environment Rules
 
 - Windows machine — always use `py` not `python`

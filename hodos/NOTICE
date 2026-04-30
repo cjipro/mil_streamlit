@@ -1,0 +1,22 @@
+Hodos — open-source customer journey intelligence engine
+Copyright 2026 Hussain Ahmed
+
+This product is licensed under the Apache License, Version 2.0.
+See the LICENSE file at the root of this repository for the full text.
+
+The name "Hodos" is the project name for this open-source engine and
+is a trademark of Hussain Ahmed. See TRADEMARK.md for the trademark
+policy that governs use of the Hodos name in forks and derivative works.
+
+The CJI brand marks (CJI, CJI Briefing, CJI Reckoner, CJI Sonar,
+CJI Pulse, CJI Lever, CJI Chronicle) are NOT licensed under the
+Apache License, are NOT covered by this NOTICE, and are held
+separately by Hussain Ahmed. CJI is a closed product built on top
+of Hodos. The CJI marks are not present in this repository. Forks
+of Hodos must not introduce CJI references in their own derivatives,
+advertising, or branding without separate written permission. See
+TRADEMARK.md for details.
+
+Contributions to this project are accepted under the Developer
+Certificate of Origin (DCO). See CONTRIBUTING.md for the sign-off
+procedure.
