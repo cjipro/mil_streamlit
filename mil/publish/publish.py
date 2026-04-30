@@ -25,9 +25,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # ── MIL-sibling import: briefing_data.py is sovereign MIL code, not a pulse/ module ──
+# MIL-119 fix: also add the repo root so `from mil.config import tenant_loader`
+# resolves inside imported modules (adapters.py). publish.py runs as a
+# subprocess from run_daily.py with cwd=REPO_ROOT but cwd is not auto-added
+# to sys.path. Mirrors the V2/V3/V4 pattern.
 _MIL_DIR_FOR_IMPORT = Path(__file__).resolve().parent.parent
+_REPO_ROOT_FOR_IMPORT = _MIL_DIR_FOR_IMPORT.parent
 if str(_MIL_DIR_FOR_IMPORT) not in sys.path:
     sys.path.insert(0, str(_MIL_DIR_FOR_IMPORT))
+if str(_REPO_ROOT_FOR_IMPORT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT_FOR_IMPORT))
 
 from adapters import write_text_lf  # LF-only HTML writes
 from config import tenant_loader as _tenant_loader  # MIL-119
