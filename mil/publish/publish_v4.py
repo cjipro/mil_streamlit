@@ -51,6 +51,7 @@ sys.path.insert(0, str(MIL_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 
 from adapters import write_text_lf  # LF-only HTML writes
+from mil.config import tenant_loader as _tenant_loader  # MIL-116
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -63,12 +64,15 @@ from mil.publish.box3_selector import (
 
 TEMPLATE_NAME = "briefing_v4.html.j2"
 
-# Canonical bank ordering — preserves the historical hardcoded order from
-# publish_v3 (natwest/lloyds/hsbc/monzo/revolut). When subject_slug is
-# filtered out, the remaining sequence is the canonical peer order. Don't
-# substitute legacy.COMP_LABELS.keys() here — its dict-insertion order
-# differs (hsbc is last) and the diff-gate flags it as a structural drift.
-_ALL_BANK_SLUGS = ["barclays", "natwest", "lloyds", "hsbc", "monzo", "revolut"]
+# Subject default + cohort. MIL-116 sources both from tenant.yaml. The
+# `_DEFAULT_SUBJECT` literal is captured at module-load time so default-arg
+# evaluation in the section builders below resolves once per process —
+# tests that need a non-default subject pass it explicitly. The combined
+# `_ALL_BANK_SLUGS` preserves the historical [subject] + peers order so the
+# V3 diff-gate sees byte-identical output (legacy.COMP_LABELS.keys() has
+# different dict-insertion order — don't substitute it here).
+_DEFAULT_SUBJECT = _tenant_loader.subject_default()
+_ALL_BANK_SLUGS = [_DEFAULT_SUBJECT] + list(_tenant_loader.peer_slugs())
 
 
 def _peer_slugs(subject_slug: str) -> list[str]:
@@ -95,7 +99,7 @@ def _render_block(block_name: str, ctx: dict) -> str:
 
 
 # ── Box 3 (Intelligence Brief) context builder ───────────────────────────────
-def _box3_context(benchmark_result: dict, boxes: list[dict], subject_slug: str = "barclays") -> dict:
+def _box3_context(benchmark_result: dict, boxes: list[dict], subject_slug: str = _DEFAULT_SUBJECT) -> dict:
     """
     Shape Box 3 inputs from benchmark + commentary results. Mirrors the
     data-prep in legacy._build_exec_summary_box so diffs isolate to HTML
@@ -224,12 +228,12 @@ def _box3_context(benchmark_result: dict, boxes: list[dict], subject_slug: str =
     }
 
 
-def _build_exec_summary_box_jinja(benchmark_result: dict, boxes: list[dict], subject_slug: str = "barclays") -> str:
+def _build_exec_summary_box_jinja(benchmark_result: dict, boxes: list[dict], subject_slug: str = _DEFAULT_SUBJECT) -> str:
     return _render_block("box3_intelligence_brief", _box3_context(benchmark_result, boxes, subject_slug))
 
 
 # ── Commentary context builder ───────────────────────────────────────────────
-def _commentary_context(boxes: list[dict], subject_slug: str = "barclays") -> dict:
+def _commentary_context(boxes: list[dict], subject_slug: str = _DEFAULT_SUBJECT) -> dict:
     cards = []
     for box in boxes:
         btype   = box["type"]
@@ -263,7 +267,7 @@ def _commentary_context(boxes: list[dict], subject_slug: str = "barclays") -> di
     }
 
 
-def _build_commentary_section_jinja(boxes: list[dict], subject_slug: str = "barclays") -> str:
+def _build_commentary_section_jinja(boxes: list[dict], subject_slug: str = _DEFAULT_SUBJECT) -> str:
     if not boxes:
         return ""
     return _render_block("analyst_commentary", _commentary_context(boxes, subject_slug))
@@ -275,7 +279,7 @@ _BENCH_SEV_COL = {"P0": "#CC0000", "P1": "#F5A623", "P2": "#4A9BD4"}
 
 def _benchmark_context(category: str, category_label: str,
                        benchmark: dict, persistence_map: dict,
-                       subject_slug: str = "barclays") -> dict:
+                       subject_slug: str = _DEFAULT_SUBJECT) -> dict:
     subj_rates = benchmark.get("competitors", {}).get(subject_slug, {}).get(category, {})
     peer_avg   = benchmark.get("peer_avg", {}).get(category, {})
 
@@ -329,7 +333,7 @@ def _benchmark_context(category: str, category_label: str,
 
 def _build_benchmark_section_jinja(category: str, category_label: str,
                                    benchmark: dict, persistence_map: dict,
-                                   subject_slug: str = "barclays") -> str:
+                                   subject_slug: str = _DEFAULT_SUBJECT) -> str:
     section_ctx = _benchmark_context(category, category_label, benchmark, persistence_map, subject_slug)
     if not section_ctx["rows"]:
         return ""
@@ -394,14 +398,14 @@ def _findings_context(findings: list[dict], render_provenance: bool) -> dict:
     }
 
 
-def _render_findings_block(render_provenance: bool, subject_slug: str = "barclays") -> str:
+def _render_findings_block(render_provenance: bool, subject_slug: str = _DEFAULT_SUBJECT) -> str:
     findings = legacy.load_findings(competitor=subject_slug, limit=8)
     if not findings:
         return ""
     return _render_block("intelligence_findings", _findings_context(findings, render_provenance))
 
 
-def _build_findings_section_jinja(subject_slug: str = "barclays") -> str:
+def _build_findings_section_jinja(subject_slug: str = _DEFAULT_SUBJECT) -> str:
     """Production renders always include the FCA four-field Provenance Chain."""
     return _render_findings_block(render_provenance=True, subject_slug=subject_slug)
 
@@ -411,7 +415,7 @@ _CLARK_TIER_STRIP = ["CLARK-3", "CLARK-2", "CLARK-1", "CLARK-0"]
 _CLARK_ROW_ORDER  = {"CLARK-3": 0, "CLARK-2": 1, "CLARK-1": 2}
 
 
-def _clark_context(subject_slug: str = "barclays") -> dict:
+def _clark_context(subject_slug: str = _DEFAULT_SUBJECT) -> dict:
     summary = legacy.active_clark_summary()
     active  = [e for e in summary.get("active", []) if e.get("competitor") == subject_slug]
 
@@ -443,7 +447,7 @@ def _clark_context(subject_slug: str = "barclays") -> dict:
     return {"clark": {"tiles": tiles, "rows": rows}}
 
 
-def _build_clark_section_jinja(subject_slug: str = "barclays") -> str:
+def _build_clark_section_jinja(subject_slug: str = _DEFAULT_SUBJECT) -> str:
     return _render_block("clark_protocol", _clark_context(subject_slug))
 
 
@@ -463,7 +467,7 @@ def _jinja_overrides(subject_slug: str) -> dict:
     }
 
 
-def generate_v4_html(v1_html: str, subject_slug: str = "barclays") -> str:
+def generate_v4_html(v1_html: str, subject_slug: str = _DEFAULT_SUBJECT) -> str:
     """
     Build V4 HTML by monkeypatching legacy's six section builders to render
     via the Jinja2 template, then delegating to legacy.generate_v3_html for
@@ -471,9 +475,10 @@ def generate_v4_html(v1_html: str, subject_slug: str = "barclays") -> str:
     Patches are restored on exit — legacy V3 output is unaffected.
 
     `subject_slug` selects which client the briefing is generated FOR.
-    Default is "barclays" (today's only subject per clients.yaml). Note:
-    `v1_html` must be the V1 render for the same subject — V1 is the
-    Box 1 source of truth and is currently barclays-only.
+    Default is the tenant subject (cjipro.com → "barclays") per
+    mil/config/tenant.yaml. Note: `v1_html` must be the V1 render for the
+    same subject — V1 is the Box 1 source of truth and is currently
+    subject-default-only.
     """
     overrides = _jinja_overrides(subject_slug)
     saved = {name: getattr(legacy, name) for name in overrides}
@@ -659,7 +664,7 @@ def main() -> int:
     if "--diff-gate" in args:
         return diff_gate()
 
-    subject_slug = _parse_cli_arg(args, "--subject", "barclays")
+    subject_slug = _parse_cli_arg(args, "--subject", _DEFAULT_SUBJECT)
     target_path  = _parse_cli_arg(args, "--target-path", DEFAULT_TARGET_PATH)
 
     v1_path = OUTPUT_DIR / "index.html"
@@ -672,9 +677,9 @@ def main() -> int:
     print(f"  Subject:        {subject_slug}")
     print(f"  Target path:    {target_path}")
     print(f"  V1 source:      {v1_path} ({len(v1_html)//1024}KB)")
-    if subject_slug != "barclays":
-        print(f"  [WARNING] V1 is currently barclays-only — Box 1 will reflect "
-              f"barclays even though subject={subject_slug}.")
+    if subject_slug != _DEFAULT_SUBJECT:
+        print(f"  [WARNING] V1 is currently {_DEFAULT_SUBJECT}-only — Box 1 will reflect "
+              f"{_DEFAULT_SUBJECT} even though subject={subject_slug}.")
 
     print("\n[1/3] Building V4 sections (Jinja2 + FCA Provenance Chain) ...")
     v4_html = generate_v4_html(v1_html, subject_slug=subject_slug)

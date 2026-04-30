@@ -60,10 +60,16 @@ SERVICE_ISSUES     = _service_issues()
 ALL_TRACKED_ISSUES = TECHNICAL_ISSUES | SERVICE_ISSUES
 EXCLUDE_FROM_RATES = _exclude_from_rates() | {""}  # empty string guard retained
 
-# Competitor peer groups (excludes Barclays)
-PEERS            = ["natwest", "lloyds", "hsbc", "monzo", "revolut"]
-INCUMBENT_PEERS  = ["natwest", "lloyds", "hsbc"]   # Barclays' real competitive set
-NEOBANK_PEERS    = ["monzo", "revolut"]
+# Competitor peer groups (excludes the tenant subject).
+# Source of truth for the cohort is mil/config/tenant.yaml subjects.peers
+# (MIL-116). The incumbent / neobank split below is editorial — incumbent =
+# 4-clearing-bank UK retail, neobank = challenger-only — and is kept here
+# as the rule-of-thumb taxonomy under default cjipro.com config. A fork
+# whose cohort breaks this two-way split should override these locally.
+from mil.config import tenant_loader as _tenant_loader  # MIL-116
+PEERS            = list(_tenant_loader.peer_slugs())
+INCUMBENT_PEERS  = [p for p in ("natwest", "lloyds", "hsbc") if p in PEERS]
+NEOBANK_PEERS    = [p for p in ("monzo", "revolut") if p in PEERS]
 STORE_SOURCES    = {"app_store", "google_play"}
 
 # Churn score weights
@@ -178,7 +184,7 @@ def compute_benchmark(
     all_rates: dict[str, dict] = {}
     all_records: dict[str, list] = {}
 
-    competitors = ["barclays"] + PEERS
+    competitors = [_tenant_loader.subject_default()] + PEERS
     for comp in competitors:
         recs = load_competitor_records(comp, max_date=max_date, min_date=min_date)
         all_records[comp] = recs
@@ -387,10 +393,11 @@ def run_daily() -> dict:
 
     # Compute benchmark over rolling 90-day window
     bm = compute_benchmark(min_date=window_start)
-    barclays_records = load_competitor_records("barclays", min_date=window_start)
+    _subject = _tenant_loader.subject_default()
+    barclays_records = load_competitor_records(_subject, min_date=window_start)
     barclays_rates: dict[str, float] = {}
     for cat in ("technical", "service"):
-        barclays_rates.update(bm["competitors"]["barclays"][cat])
+        barclays_rates.update(bm["competitors"][_subject][cat])
 
     peer_avg: dict[str, float] = {}
     for cat in ("technical", "service"):
@@ -475,10 +482,11 @@ def run_backfill() -> None:
         # Compute benchmark with records up to this date
         bm = compute_benchmark(max_date=run_date)
 
-        barclays_records = load_competitor_records("barclays", max_date=run_date)
+        _subject = _tenant_loader.subject_default()
+        barclays_records = load_competitor_records(_subject, max_date=run_date)
         barclays_rates: dict[str, float] = {}
         for cat in ("technical", "service"):
-            barclays_rates.update(bm["competitors"]["barclays"][cat])
+            barclays_rates.update(bm["competitors"][_subject][cat])
 
         peer_avg: dict[str, float] = {}
         for cat in ("technical", "service"):

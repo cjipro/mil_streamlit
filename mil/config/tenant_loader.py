@@ -37,6 +37,15 @@ Public API:
     # Harvester (MIL-119, schema v2)
     harvester_contact_email()       -> str
 
+    # Subjects (MIL-116, schema v2)
+    subject_default()               -> str
+    subject_default_label()         -> str
+    briefing_subject_label()        -> str
+    peer_slugs()                    -> tuple[str, ...]
+    peer_labels()                   -> tuple[str, ...]
+    subject_label_map()             -> dict[str, str]
+    all_subject_slugs()             -> tuple[str, ...]    # default + peers
+
 A tenant.yaml at schema_version:1 (locale-only) still loads — every v2
 accessor falls back to cjipro.com reference defaults so the engine
 behaves identically to pre-MIL-119 if the new sections are absent.
@@ -77,6 +86,17 @@ _DEFAULT_COMMITTER_NAME = "MIL Sonar Publisher"
 _DEFAULT_COMMITTER_EMAIL = "sonar-publish@cjipro.com"
 
 _DEFAULT_HARVESTER_CONTACT = "mil@cjipro.com"
+
+_DEFAULT_SUBJECT_SLUG = "barclays"
+_DEFAULT_SUBJECT_LABEL = "Barclays"
+_DEFAULT_BRIEFING_SUBJECT_LABEL = "Barclays App Experience"
+_DEFAULT_PEERS: tuple[tuple[str, str], ...] = (
+    ("natwest", "NatWest"),
+    ("lloyds",  "Lloyds"),
+    ("hsbc",    "HSBC"),
+    ("monzo",   "Monzo"),
+    ("revolut", "Revolut"),
+)
 
 
 # ── Loading ───────────────────────────────────────────────────────────────────
@@ -284,6 +304,87 @@ def harvester_contact_email() -> str:
     )
 
 
+# ── Subjects + peers (MIL-116, schema v2) ────────────────────────────────────
+
+_VALID_SLUG_RE = __import__("re").compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def _subjects() -> dict:
+    raw = _load()
+    s = raw.get("subjects") or {}
+    if not isinstance(s, dict):
+        raise ValueError(f"tenant.yaml subjects must be a mapping, got {type(s).__name__}")
+    return s
+
+
+def _validate_slug(val: str, *, field: str) -> str:
+    """Slugs are lowercase a-z0-9- only, must start with alphanumeric."""
+    if not _VALID_SLUG_RE.match(val):
+        raise ValueError(f"tenant.yaml {field} must match [a-z0-9][a-z0-9-]*, got {val!r}")
+    return val
+
+
+def subject_default() -> str:
+    val = _require_str(_subjects().get("default"), field="subjects.default", default=_DEFAULT_SUBJECT_SLUG)
+    return _validate_slug(val, field="subjects.default")
+
+
+def subject_default_label() -> str:
+    return _require_str(_subjects().get("default_label"), field="subjects.default_label", default=_DEFAULT_SUBJECT_LABEL)
+
+
+def briefing_subject_label() -> str:
+    return _require_str(
+        _subjects().get("briefing_subject_label"),
+        field="subjects.briefing_subject_label",
+        default=_DEFAULT_BRIEFING_SUBJECT_LABEL,
+    )
+
+
+def _peer_records() -> tuple[tuple[str, str], ...]:
+    """Resolve peer list. Returns tuple of (slug, label) pairs."""
+    s = _subjects()
+    raw_peers = s.get("peers")
+    if raw_peers is None:
+        return _DEFAULT_PEERS
+    if not isinstance(raw_peers, list):
+        raise ValueError(f"tenant.yaml subjects.peers must be a list, got {type(raw_peers).__name__}")
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for i, entry in enumerate(raw_peers):
+        if not isinstance(entry, dict):
+            raise ValueError(f"tenant.yaml subjects.peers[{i}] must be a mapping with slug+label, got {type(entry).__name__}")
+        slug = _require_nonempty_str(entry.get("slug"), field=f"subjects.peers[{i}].slug")
+        slug = _validate_slug(slug, field=f"subjects.peers[{i}].slug")
+        label = _require_nonempty_str(entry.get("label"), field=f"subjects.peers[{i}].label")
+        if slug in seen:
+            raise ValueError(f"tenant.yaml subjects.peers[{i}] duplicates slug {slug!r}")
+        seen.add(slug)
+        out.append((slug, label))
+    return tuple(out)
+
+
+def peer_slugs() -> tuple[str, ...]:
+    return tuple(slug for slug, _ in _peer_records())
+
+
+def peer_labels() -> tuple[str, ...]:
+    return tuple(label for _, label in _peer_records())
+
+
+def subject_label_map() -> dict[str, str]:
+    """Combined slug→label map covering subject + all peers. Useful when
+    building cohort label dicts (replaces per-file COMP_LABELS literals)."""
+    out = {subject_default(): subject_default_label()}
+    out.update(dict(_peer_records()))
+    return out
+
+
+def all_subject_slugs() -> tuple[str, ...]:
+    """Subject default first, then peers in declared order."""
+    return (subject_default(),) + peer_slugs()
+
+
 # ── CLI smoke ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -310,3 +411,9 @@ if __name__ == "__main__":
     print("=== Git + harvester ===")
     print(f"  committer:           {git_committer_name()!r} <{git_committer_email()}>")
     print(f"  harvester contact:   {harvester_contact_email()!r}")
+    print()
+    print("=== Subjects + peers ===")
+    print(f"  default:             {subject_default()!r} ({subject_default_label()!r})")
+    print(f"  briefing label:      {briefing_subject_label()!r}")
+    print(f"  peer slugs:          {peer_slugs()}")
+    print(f"  label map:           {subject_label_map()}")

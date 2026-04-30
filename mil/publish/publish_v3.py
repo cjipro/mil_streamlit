@@ -401,7 +401,7 @@ def _bench_row(issue: str, barcl_rate: float, peer_avg: float, over_indexed: boo
 def _build_benchmark_section(category: str, category_label: str,
                               benchmark: dict, persistence_map: dict) -> str:
     """Build a benchmark table for one category (technical or service)."""
-    barcl_rates = benchmark.get("competitors", {}).get("barclays", {}).get(category, {})
+    barcl_rates = benchmark.get("competitors", {}).get(_tenant_loader.subject_default(), {}).get(category, {})
     peer_avg    = benchmark.get("peer_avg", {}).get(category, {})
 
     if not barcl_rates:
@@ -462,7 +462,7 @@ def _build_benchmark_section(category: str, category_label: str,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _build_findings_section() -> str:
-    findings = load_findings(competitor="barclays", limit=8)
+    findings = load_findings(competitor=_tenant_loader.subject_default(), limit=8)
     if not findings:
         return ""
 
@@ -532,7 +532,7 @@ def _build_findings_section() -> str:
 
 def _build_clark_section() -> str:
     summary = active_clark_summary()
-    active  = [e for e in summary.get("active", []) if e.get("competitor") == "barclays"]
+    active  = [e for e in summary.get("active", []) if e.get("competitor") == _tenant_loader.subject_default()]
     by_tier = {}
     for e in active:
         t = e.get("clark_tier", "CLARK-0")
@@ -845,18 +845,20 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
         benchmark_raw = benchmark_result.get("benchmark", {})
         cat = selected.get("category", "technical")
         peer_rates: dict[str, float] = {}
-        for comp in ["natwest", "lloyds", "hsbc", "monzo", "revolut"]:
+        for comp in _tenant_loader.peer_slugs():
             comp_data = benchmark_raw.get("competitors", {}).get(comp, {})
             rate = comp_data.get(cat, {}).get(issue_name)
             if rate is not None:
                 peer_rates[COMP_LABELS.get(comp, comp)] = rate
 
         if peer_rates:
-            all_rates = {**peer_rates, COMP_LABELS.get("barclays", "Barclays"): b_rate}
+            _subject = _tenant_loader.subject_default()
+            _subject_label = COMP_LABELS.get(_subject, _tenant_loader.subject_default_label())
+            all_rates = {**peer_rates, _subject_label: b_rate}
             ranked = sorted(all_rates.items(), key=lambda kv: kv[1])
             pos = next(
                 (i + 1 for i, (name, _) in enumerate(ranked)
-                 if name == COMP_LABELS.get("barclays", "Barclays")),
+                 if name == _subject_label),
                 len(ranked),
             )
             if 10 <= pos % 100 <= 20:
@@ -890,7 +892,7 @@ def _build_exec_summary_box(benchmark_result: dict, boxes: list[dict]) -> str:
     if top_tier == "CLARK-0":
         try:
             active_clark = [e for e in clark_summary.get("active", [])
-                            if e.get("competitor") == "barclays"]
+                            if e.get("competitor") == _tenant_loader.subject_default()]
             for t in ["CLARK-3", "CLARK-2", "CLARK-1"]:
                 if any(e.get("clark_tier") == t for e in active_clark):
                     top_tier = t

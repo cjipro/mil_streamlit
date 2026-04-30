@@ -94,8 +94,10 @@ def _build_vane_section() -> str:
             marker=dict(size=4), connectgaps=False, opacity=0.75,
         ))
 
-    # Barclays — thick + fill
-    barcl = vane_data.get("barclays", {})
+    # Subject (default Barclays for cjipro.com tenant) — thick + fill.
+    # MIL-116: only the lookup key is parameterised; the cohort colour/label
+    # map is still hardcoded, pending follow-up cohort.yaml migration.
+    barcl = vane_data.get(_tenant_loader.subject_default(), {})
     y_b = [barcl.get(d) for d in all_dates]
     fig.add_trace(go.Scatter(
         x=x_labels, y=y_b, name="Barclays",
@@ -138,9 +140,9 @@ def _build_vane_section() -> str:
 
 
 def _build_inference_section() -> str:
-    """Top 10 Barclays inference cards by CAC score."""
+    """Top 10 inference cards by CAC score for the tenant subject."""
     summary = findings_summary()
-    findings = load_findings(competitor="barclays", limit=10)
+    findings = load_findings(competitor=_tenant_loader.subject_default(), limit=10)
     if not findings:
         return ""
 
@@ -215,7 +217,7 @@ def _build_inference_section() -> str:
 def _build_clark_section() -> str:
     """Clark Protocol escalation status."""
     summary = active_clark_summary()
-    active  = [e for e in summary.get("active", []) if e.get("competitor") == "barclays"]
+    active  = [e for e in summary.get("active", []) if e.get("competitor") == _tenant_loader.subject_default()]
     by_tier = {}
     for e in active:
         t = e.get("clark_tier", "CLARK-0")

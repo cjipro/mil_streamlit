@@ -322,3 +322,127 @@ compliance_notices: []
         assert tl.domain_apex() == "cjipro.com"
         assert tl.git_committer_email() == "sonar-publish@cjipro.com"
         assert tl.fonts_base_url() == "https://cjipro.com/fonts"
+        assert tl.subject_default() == "barclays"
+        assert tl.peer_slugs() == ("natwest", "lloyds", "hsbc", "monzo", "revolut")
+
+
+# ── MIL-116 — subjects + peers ──────────────────────────────────────────────
+
+class TestSubjectsLive:
+    """Live cjipro.com tenant — subject + peer cohort."""
+
+    def test_subject_default(self):
+        assert tl.subject_default() == "barclays"
+        assert tl.subject_default_label() == "Barclays"
+
+    def test_briefing_subject_label(self):
+        # Byte-equal to the historical Sonar PDB subject-line component.
+        assert tl.briefing_subject_label() == "Barclays App Experience"
+
+    def test_peer_slugs_order_preserved(self):
+        # MIL-86 / MIL-116 — ordering matters for the V3/V4 diff-gate.
+        assert tl.peer_slugs() == ("natwest", "lloyds", "hsbc", "monzo", "revolut")
+
+    def test_peer_labels_order_preserved(self):
+        assert tl.peer_labels() == ("NatWest", "Lloyds", "HSBC", "Monzo", "Revolut")
+
+    def test_subject_label_map_complete(self):
+        m = tl.subject_label_map()
+        assert m["barclays"] == "Barclays"
+        assert m["natwest"]  == "NatWest"
+        assert m["lloyds"]   == "Lloyds"
+        assert m["hsbc"]     == "HSBC"
+        assert m["monzo"]    == "Monzo"
+        assert m["revolut"]  == "Revolut"
+        assert len(m) == 6  # subject + 5 peers, no extras
+
+    def test_all_subject_slugs_default_first(self):
+        all_slugs = tl.all_subject_slugs()
+        assert all_slugs[0] == "barclays"
+        assert set(all_slugs[1:]) == {"natwest", "lloyds", "hsbc", "monzo", "revolut"}
+
+
+class TestSubjectsOverride:
+    def test_explicit_subject(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, """
+schema_version: 2
+subjects:
+  default: "acme"
+  default_label: "Acme Corp"
+  briefing_subject_label: "Acme Acquirer Experience"
+  peers:
+    - { slug: "globex",   label: "Globex" }
+    - { slug: "initech",  label: "Initech" }
+""")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        assert tl.subject_default() == "acme"
+        assert tl.subject_default_label() == "Acme Corp"
+        assert tl.briefing_subject_label() == "Acme Acquirer Experience"
+        assert tl.peer_slugs() == ("globex", "initech")
+        assert tl.peer_labels() == ("Globex", "Initech")
+        assert tl.subject_label_map() == {
+            "acme": "Acme Corp",
+            "globex": "Globex",
+            "initech": "Initech",
+        }
+        assert tl.all_subject_slugs() == ("acme", "globex", "initech")
+
+    def test_uppercase_slug_rejected(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, """
+schema_version: 2
+subjects:
+  default: "Barclays"
+""")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        with pytest.raises(ValueError, match=r"\[a-z0-9\]\[a-z0-9-\]\*"):
+            tl.subject_default()
+
+    def test_peers_must_be_list(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, """
+schema_version: 2
+subjects:
+  peers: "not a list"
+""")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        with pytest.raises(ValueError, match="must be a list"):
+            tl.peer_slugs()
+
+    def test_peer_entry_must_be_mapping(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, """
+schema_version: 2
+subjects:
+  peers:
+    - "natwest"
+""")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        with pytest.raises(ValueError, match="must be a mapping"):
+            tl.peer_slugs()
+
+    def test_peer_must_have_slug_and_label(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, """
+schema_version: 2
+subjects:
+  peers:
+    - { slug: "natwest" }
+""")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        with pytest.raises(ValueError, match="label"):
+            tl.peer_slugs()
+
+    def test_duplicate_peer_slugs_rejected(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, """
+schema_version: 2
+subjects:
+  peers:
+    - { slug: "natwest", label: "NatWest" }
+    - { slug: "natwest", label: "Natwest 2" }
+""")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        with pytest.raises(ValueError, match="duplicates slug"):
+            tl.peer_slugs()
+
+    def test_missing_subjects_section_falls_back(self, tmp_path, monkeypatch):
+        p = _write_yaml(tmp_path, "schema_version: 2\n")
+        monkeypatch.setattr(tl, "_CONFIG_PATH", p)
+        assert tl.subject_default() == "barclays"
+        assert tl.peer_slugs() == ("natwest", "lloyds", "hsbc", "monzo", "revolut")

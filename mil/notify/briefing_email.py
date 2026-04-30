@@ -53,12 +53,15 @@ _LEDE_CACHE        = _MIL_ROOT / "data" / "email_lede_log.jsonl"
 _COMMENTARY_LOG    = _MIL_ROOT / "data" / "commentary_log.jsonl"
 _BOX3_PRIORITY     = _MIL_ROOT / "data" / "box3_priority.json"
 _ENRICHED_DIR      = _MIL_ROOT / "data" / "historical" / "enriched"
-_BRIEFING_URL      = tenant_loader.sonar_briefing_url("barclays")
+_SUBJECT_SLUG      = tenant_loader.subject_default()
+_BRIEFING_URL      = tenant_loader.sonar_briefing_url(_SUBJECT_SLUG)
 
-# Locked constant — Teams rules depend on byte-for-byte identity.
-_SUBJECT_LINE = "Voice of the Customer: Barclays App Experience (Open Sources)"
+# Subject line is byte-locked at the cjipro.com tenant — Teams inbox rules
+# depend on identity. Forks set tenant.yaml subjects.briefing_subject_label
+# to drive their own subject; the surrounding string is a stable template.
+_SUBJECT_LINE = f"Voice of the Customer: {tenant_loader.briefing_subject_label()} (Open Sources)"
 
-_COHORT_PEERS = ["NatWest", "Lloyds", "HSBC", "Monzo", "Revolut"]
+_COHORT_PEERS = list(tenant_loader.peer_labels())
 
 # Silent-day thresholds (principle 9)
 _MIN_DAYS_ACTIVE = 3
@@ -68,12 +71,14 @@ _QUALIFYING_SEVERITIES = {"P0", "P1"}
 # Sources for verbatim quote selection. Order matters: App Store and Google
 # Play are preferred for the first two slots; the third slot draws from any
 # non-store source that has a matching quote.
+# Filenames are derived from the tenant subject slug (was hardcoded "barclays"
+# pre-MIL-116). The five source kinds below are the active harvester set.
 _SOURCES: list[tuple[str, str, str, str]] = [
-    ("App Store",    "app_store_barclays_enriched.json",    "review",  "date"),
-    ("Google Play",  "google_play_barclays_enriched.json",  "content", "at"),
-    ("Reddit",       "reddit_barclays_enriched.json",       "body",    "date"),
-    ("YouTube",      "youtube_barclays_enriched.json",      "review",  "date"),
-    ("DownDetector", "downdetector_barclays_enriched.json", "review",  "date"),
+    ("App Store",    f"app_store_{_SUBJECT_SLUG}_enriched.json",    "review",  "date"),
+    ("Google Play",  f"google_play_{_SUBJECT_SLUG}_enriched.json",  "content", "at"),
+    ("Reddit",       f"reddit_{_SUBJECT_SLUG}_enriched.json",       "body",    "date"),
+    ("YouTube",      f"youtube_{_SUBJECT_SLUG}_enriched.json",      "review",  "date"),
+    ("DownDetector", f"downdetector_{_SUBJECT_SLUG}_enriched.json", "review",  "date"),
 ]
 
 # Internal-code scrubber (principle 6).

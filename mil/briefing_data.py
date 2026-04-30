@@ -30,6 +30,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
+from mil.config import tenant_loader as _tenant_loader  # MIL-116
+
 logger = logging.getLogger(__name__)
 
 MIL_ROOT      = Path(__file__).parent
@@ -307,7 +309,9 @@ _CHRONICLE_TEACHERS = {
 }
 
 
-def _chronicle_match_from_findings(findings: list, subject_slug: str = "barclays") -> tuple:
+def _chronicle_match_from_findings(findings: list, subject_slug: str | None = None) -> tuple:
+    if subject_slug is None:
+        subject_slug = _tenant_loader.subject_default()
     """
     Returns (chronicle_id, sentence) driven by the top subject finding's
     actual chronicle_match from mil_findings.json — not a static keyword overlap.
@@ -336,7 +340,9 @@ def _chronicle_match_from_findings(findings: list, subject_slug: str = "barclays
     return cid, sentence
 
 
-def _teacher_from_findings(findings: list, subject_slug: str = "barclays") -> tuple:
+def _teacher_from_findings(findings: list, subject_slug: str | None = None) -> tuple:
+    if subject_slug is None:
+        subject_slug = _tenant_loader.subject_default()
     """
     Returns (chr_id, bank, year, lesson) for the most relevant teacher CHR.
 
@@ -517,7 +523,7 @@ def _verdict(journey: str, trend: str, p0: int, p1: int, p2: int) -> str:
 # MAIN
 # ============================================================
 
-def get_briefing_data(window_days: int = WINDOW_DAYS, subject_slug: str = "barclays") -> dict:
+def get_briefing_data(window_days: int = WINDOW_DAYS, subject_slug: str | None = None) -> dict:
     """
     Compute and return the full MIL briefing data dictionary.
 
@@ -525,11 +531,13 @@ def get_briefing_data(window_days: int = WINDOW_DAYS, subject_slug: str = "barcl
     from Refuel enrichment. No remapping, no hardcoded list.
 
     `subject_slug` selects which client the briefing is generated FOR.
-    Default is "barclays" (today's only subject per clients.yaml). All
+    Default is the tenant subject (cjipro.com → "barclays"). All
     Box 1/2/3 filtering, executive alert, teacher CHR selection and
     chronicle anchoring run against this slug. Peer/competitor data
     (the ticker) still spans every monitored bank.
     """
+    if subject_slug is None:
+        subject_slug = _tenant_loader.subject_default()
     today    = _today()
     cutoff   = today - timedelta(days=window_days)
     records  = _load_enriched_records(window_days)

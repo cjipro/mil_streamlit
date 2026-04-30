@@ -64,3 +64,29 @@ git_committer:
 # User-Agent contact used by public-source harvesters (Reddit, etc.) so the
 # upstream service can reach a human if our fetcher misbehaves.
 harvester_contact_email: "mil@cjipro.com"
+
+# ── MIL-116 — subject + peer cohort ──────────────────────────────────────────
+#
+# The "subject" is the firm whose customer experience this CJI deployment
+# focuses on (Sonar PDB, Box 1/2/3, Inference Cards Barclays-scope). For the
+# cjipro.com hosted reference instance the default subject is barclays — that
+# is who the alpha cohort cares about. A fork wanting to monitor a different
+# firm sets `default` here and updates `clients.yaml` accordingly.
+#
+# `peers` is the comparison cohort. The subject is NOT in this list; it sits
+# alongside via the rate calculations in benchmark_engine.py.
+#
+# `briefing_subject_label` is the human-readable phrase used in the locked
+# Sonar PDB email subject line. Note the cjipro.com tenant has the subject
+# line locked byte-for-byte (Teams rules depend on it) — change here only
+# if you understand the consequences for partner inbox filtering.
+subjects:
+  default: "barclays"
+  default_label: "Barclays"
+  briefing_subject_label: "Barclays App Experience"
+  peers:
+    - { slug: "natwest", label: "NatWest" }
+    - { slug: "lloyds",  label: "Lloyds" }
+    - { slug: "hsbc",    label: "HSBC" }
+    - { slug: "monzo",   label: "Monzo" }
+    - { slug: "revolut", label: "Revolut" }
