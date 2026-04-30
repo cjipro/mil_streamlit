@@ -60,6 +60,31 @@ Full canonical reference: memory `project_brand_spine.md`. Website rebuild ticke
 
 Full canonical reference: memory `project_hodos_cji_architecture.md`. Lock context: MIL-167.
 
+## Build Focus (LOCKED 2026-04-30 PM — canonical)
+
+**Build focus:** PULSE.
+**MIL:** serviced (operational care, no new large workstreams).
+
+Set after MIL build-phase reached maturity inflection (Sonar firing daily on cron, 3 alpha partners onboarded 2026-04-29, MIL-167 + MIL-110 closed 2026-04-30 PM, no large code workstreams remaining except Hodos engine extraction which is explicitly deferred per architecture panel). Day 90 vision is PULSE-shaped (internal customer-journey intelligence with PII at TAQ Bank); new build attention belongs there.
+
+**Service MIL means:**
+- Bug fixes, small enhancements, data quality calibration — YES
+- Partner-feedback-driven small features — YES
+- Operational triage (cron failures, enrichment regressions, briefing email content drift) — YES
+- Hard-gated tickets unblocking (MIL-73 / 74 / 163 / 164 etc.) — case-by-case, default-defer unless they're operational not build
+- New large workstreams (Hodos engine extraction, new product surfaces, additional verticals) — NO unless explicitly de-locked
+
+**Build focus PULSE means:**
+- Net new code, schema, infrastructure work happens on PULSE Jira board
+- PULSE-11 unblock is the first critical-path item (Hussain populates 6 pending tables in `data_dictionary_master.yaml`)
+- Day 90 vision deliverables: customer-journey detection on Loans data, vulnerability segmentation, real-time signal pipeline
+
+**Operational rule for ticket selection:** when picking next work autonomously, default to PULSE backlog. Pick up MIL only for service-class work (defined above) or explicit human direction.
+
+**De-lock conditions** (revisit only if): PULSE delivers Day 90 vision; OR PULSE blocks for >2 weeks on Hussain-only data work AND no parallel Claude work can land; OR a partner explicitly asks for a specific MIL feature requiring new build. In any case, de-lock requires explicit Hussain direction — Claude should not auto-de-lock.
+
+Full canonical reference: memory `feedback_build_focus_pulse_service_mil.md`. Lock context: MIL-168.
+
 ## Environment Rules
 
 - Windows machine — always use `py` not `python`
