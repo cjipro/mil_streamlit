@@ -36,35 +36,24 @@ py -m pip install -r mil/requirements.txt
 
 ## Environment
 
-Create `.env` at the repo root. The reference setup uses these keys; a fork can drop anything it does not need.
+Three template files at the repo root cover three operational tiers, strictly additive. Pick one, copy to `.env`, fill in the placeholders.
+
+| Tier | Template | When to use |
+|---|---|---|
+| **Minimal** | `.env.minimal.example` | Local-only — run the pipeline, render briefings to `mil/publish/output/`, never push to the public internet. Just `ANTHROPIC_API_KEY`. |
+| **Publish** | `.env.publish.example` | Adds GitHub Pages push (`GITHUB_TOKEN` + `PUBLISH_REPO`). The minimum for sharing briefings. |
+| **Full** | `.env.full.example` | Everything: Slack heartbeat, partner PDB email (SMTP), WorkOS auth, Cloudflare DNS / Email / Workers, GitLab read-mirror, YouTube source. The cjipro.com hosted reference configuration. |
 
 ```bash
-# LLM access (the engine is provider-aware via mil/config/model_routing.yaml)
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Optional — local model routes
-# OLLAMA_BASE_URL=http://127.0.0.1:11434
-
-# Output destination — the engine writes briefings here
-GITHUB_TOKEN=ghp_...                # for the GitHub Pages adapter
-PUBLISH_REPO=org/your-pages-repo
-
-# Optional — partner email distribution (MIL-49)
-# SMTP_HOST=smtp.gmail.com
-# SMTP_PORT=587
-# SMTP_USER=hello@yourdomain
-# SMTP_APP_PASSWORD=...
-# SMTP_FROM=Briefings <hello@yourdomain>
-
-# Optional — operator heartbeat
-# SLACK_WEBHOOK_URL=...
-
-# Optional — hosted-reference auth stack only
-# WORKOS_API_KEY=sk_test_...
-# CLOUDFLARE_API_TOKEN=...
+# Pick the tier you need:
+cp .env.minimal.example .env       # local only
+cp .env.publish.example .env       # local + GitHub Pages
+cp .env.full.example    .env       # everything
 ```
 
-The reference instance reads its API tokens from `.env` and never from YAML — credentials never enter version control.
+Every Tier 3 value is **optional** — its absence degrades a specific surface (Slack pings stop, partner email skips, etc.) but never blocks the daily pipeline. The pipeline status in `daily_run_log.jsonl` downgrades to `PARTIAL` when an optional step fails; `CLEAN` means every configured surface succeeded.
+
+The reference instance reads its API tokens from `.env` and never from YAML — credentials never enter version control. `.env` itself is gitignored; only the `*.example` templates are tracked.
 
 ---
 
