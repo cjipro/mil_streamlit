@@ -17,7 +17,12 @@ name = "magic-link"
 main = "src/index.ts"
 compatibility_date = "2025-10-15"
 
-# Staging WorkOS values — match mil/config/workos.yaml
+# Staging WorkOS values. CLIENT_ID / AUTHKIT_HOST / JWKS_URL / EXPECTED_AUD /
+# EXPECTED_ISS below MUST match the staging env in mil/config/workos.yaml —
+# verified by `py mil/auth/scripts/check_workos_drift.py` (also runs in CI via
+# mil/tests/test_workos_drift.py). A fork operator who edits one without
+# updating workos.yaml (or vice versa) gets a test failure at PR time, not
+# a broken auth flow at deploy time.
 [vars]
 AUTHKIT_HOST           = "ideal-log-65-staging.authkit.app"
 CLIENT_ID              = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"

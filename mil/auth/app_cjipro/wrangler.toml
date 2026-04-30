@@ -38,8 +38,12 @@ API_ENFORCE            = "true"
 ASK_BACKEND_URL        = "https://chat-backend.cjipro.com/api/ask"
 ASK_BACKEND_SCOPE      = "reckoner"
 SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
-# Same JWKS / iss / aud as edge-bouncer + magic-link. Single source
-# of truth: the AuthKit domain's /.well-known/openid-configuration.
+# Same JWKS / iss / aud as edge-bouncer + magic-link. JWKS_URL / EXPECTED_AUD /
+# EXPECTED_ISS below MUST match the staging env in mil/config/workos.yaml —
+# verified by `py mil/auth/scripts/check_workos_drift.py` (also runs in CI via
+# mil/tests/test_workos_drift.py). A fork operator who edits one without
+# updating workos.yaml (or vice versa) gets a test failure at PR time, not
+# a broken auth flow at deploy time.
 JWKS_URL               = "https://ideal-log-65-staging.authkit.app/oauth2/jwks"
 EXPECTED_AUD           = "client_01KPY7CA07ZD1WG3DMQE1FZQE1"
 EXPECTED_ISS           = "https://api.workos.com/user_management/client_01KPY7CA07ZD1WG3DMQE1FZQE1"

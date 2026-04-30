@@ -51,8 +51,12 @@ pattern    = "cjipro.com/briefing-v4*"
 zone_name  = "cjipro.com"
 
 [vars]
-# Non-secret, public identifiers. Match mil/config/workos.yaml
-# (staging env).
+# Non-secret, public identifiers. WorkOS values below MUST match the
+# staging env in mil/config/workos.yaml — verified by
+# `py mil/auth/scripts/check_workos_drift.py` (also runs in CI via
+# mil/tests/test_workos_drift.py). A fork operator who edits one of
+# these without updating workos.yaml (or vice versa) gets a test failure
+# at PR time, not a broken auth flow at deploy time.
 ENFORCE                = "true"
 SESSION_COOKIE_NAME    = "__Secure-cjipro-session"
 # JWKS and issuer sourced from the AuthKit domain's OpenID config:
