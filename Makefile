@@ -7,11 +7,12 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help demo setup sample run clean test drift-check
+.PHONY: help demo setup sample run clean test drift-check doctor
 
 help:
 	@echo "while-sleeping / CJI engine — make targets"
 	@echo ""
+	@echo "  make doctor       Run preflight checks (Python + deps + tenant/workos/chronicle)"
 	@echo "  make demo         Full bootstrap: venv + deps + sample corpus + pipeline run"
 	@echo "  make setup        Just create venv and install requirements"
 	@echo "  make sample       Just copy frozen sample corpus → mil/data/historical/enriched"
@@ -21,7 +22,7 @@ help:
 	@echo "  make test         Run the pytest suite (config + publish + chat scope)"
 	@echo "  make drift-check  Run the WorkOS config drift checker (MIL-120)"
 	@echo ""
-	@echo "First-time fork: run \`make demo\` and open mil/publish/output/index_v4.html"
+	@echo "First-time fork: run \`make doctor\` (verify state) then \`make demo\` and open mil/publish/output/index_v4.html"
 
 demo:
 	@./bootstrap.sh demo
@@ -46,3 +47,7 @@ test:
 drift-check:
 	@. .venv/Scripts/activate 2>/dev/null || . .venv/bin/activate || true; \
 		py mil/auth/scripts/check_workos_drift.py
+
+doctor:
+	@. .venv/Scripts/activate 2>/dev/null || . .venv/bin/activate || true; \
+		py scripts/clone_doctor.py
