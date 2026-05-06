@@ -76,7 +76,7 @@ Set after MIL build-phase reached maturity inflection (Sonar firing daily on cro
 
 **Build focus PULSE means:**
 - Net new code, schema, infrastructure work happens on PULSE Jira board
-- PULSE-11 unblock is the first critical-path item (Hussain populates 6 pending tables in `data_dictionary_master.yaml`)
+- PULSE-2 unblock is the first critical-path item (Hussain populates 6 pending tables in `data_dictionary_master.yaml`)
 - Day 90 vision deliverables: customer-journey detection on Loans data, vulnerability segmentation, real-time signal pipeline
 
 **Operational rule for ticket selection:** when picking next work autonomously, default to PULSE backlog. Pick up MIL only for service-class work (defined above) or explicit human direction.
@@ -102,6 +102,8 @@ Tickets: PULSE-1 through PULSE-83 (current)
 Next ticket: PULSE-84
 Board: Scrum
 Scope: Internal customer journey intelligence only. PII present. Highly governed.
+
+**Numbering note (2026-05-06, PULSE-84):** Numbering migrated from KAN-* to PULSE-* in 2026-03 with a fresh sequential allocation (not 1:1). Validators in `scripts/` retain `validate_KAN-NNN.py` filenames as historical artefacts. Mapping: KAN-001 → PULSE-1 (GitLab repo), KAN-011 → PULSE-2 (Living Data Dictionary), KAN-1G → PULSE-20 (graduated trust tiers), KAN-1H → PULSE-21 (hypothesis library). Full audit in `manifests/pulse_jira_reconciliation.md`.
 
 ### MIL Project — MIL sovereign system only
 Site: cjipro.atlassian.net
@@ -139,18 +141,18 @@ Dual closure rule applies to both projects: validator passes AND Hussain closes 
 ## Current Sprint Status
 
 ### Sprint 1 — CJI Pulse Foundation
-- PULSE-10: GitLab repo (BUILT)
+- PULSE-1: GitLab repo (BUILT)
 - PULSE-17: system_manifest.yaml (BUILT, commit 377a4be)
 - PULSE-19: telemetry_spec.yaml (BUILT, commit 021a8a9)
-- PULSE-1G: graduated_trust_tiers.yaml (BUILT, commit d630986)
-- PULSE-1H: hypothesis_library.yaml (BUILT, commit dd89e32) — **28 hypotheses** (16 APPROVED + 5 NPS APPROVED + 7 PENDING H_RES)
+- PULSE-20: graduated_trust_tiers.yaml (BUILT, commit d630986)
+- PULSE-21: hypothesis_library.yaml (BUILT, commit dd89e32) — **28 hypotheses** (16 APPROVED + 5 NPS APPROVED + 7 PENDING H_RES)
 - PULSE-13: audit_findings.yaml (BUILT, commit fe492e2)
 - PULSE-18: build_from_manifest.py (BUILT, commit bb47a21)
 - PULSE-12: Docker environment (BUILT)
-- PULSE-11: Living Data Dictionary (IN_PROGRESS — tracks A–G complete, awaiting master dict field population from Hussain)
+- PULSE-2: Living Data Dictionary (IN_PROGRESS — tracks A–G complete, awaiting master dict field population from Hussain)
 
-**In progress:** PULSE-11 v2.0 — blocked on Hussain populating 6 pending tables in data_dictionary_master.yaml.
-**Next after PULSE-11:** PULSE-16 — Create all Jira tickets
+**In progress:** PULSE-2 v2.0 — blocked on Hussain populating 6 pending tables in data_dictionary_master.yaml.
+**Next after PULSE-2:** PULSE-16 — Create all Jira tickets
 
 ### Sprint 2 — MIL Phase 0 + Phase 1 (COMPLETE — 2026-04-05)
 
@@ -909,13 +911,13 @@ Files: `mil/publish/site/{home,privacy,robots,sitemap,security}.html|txt|xml` (t
 
 - **Apr 25 DONE (token-audit diagnostic scaffolding)**: commit `90f41c1` on origin/main. `ops/token_audit_helper.md` + `ops/token_audit.jsonl` shipped. Helper has cost formulas (Opus 4.7: input $5/M, cache_write $6.25/M, cache_read $0.50/M, output $25/M), per-turn / per-session-start / per-session-summary record formats, and the stopping rule (turn-2 cache hit ≥80% short-circuits to single-session diagnosis). Audit log seeded with s1 baseline: claude_md_bytes=126663, session_hook_bytes=12126, session_hook_sha256=`4bbc62b7da2c092dceecfd360b9c9a916be45a3c16f63e08b6c9e47984337a93`. Plan file: `C:\Users\hussa\.claude\plans\token-optimzation-quirky-blossom.md`. Diagnostic-review agent armed: `trig_01PaRqHCwdYbPDJeg42XZ1Ag` fires 2026-04-28T10:00Z, reads jsonl, computes metrics, writes `ops/token_audit_results.md`, returns recommendation (PROCEED / PIVOT / INVESTIGATE / STOP / INSUFFICIENT_DATA). **CLAUDE.md slim is user-gated** — even on PROCEED, do not edit CLAUDE.md without explicit Hussain go (memory: `feedback_claude_md_slim_gated.md`). 5-seat panel (Karpathy / Simon / Hamel / Jason / Anthropic) recommended diagnostic-first because the proposal "CLAUDE.md is too big" was unmeasured — likely culprit may instead be SessionStart hook drift across sessions.
 
-- **Apr 28 (current autonomy target)**: Task Scheduler fires `run_daily.py` at 06:30 UTC automatically. Scheduled `trig_01CrXvZ4GyPxok1ojbZz6kZS` agent at 08:00 UTC reports run status. Also: `trig_01PaRqHCwdYbPDJeg42XZ1Ag` fires at 10:00 UTC for token-audit review. **Next steps requiring Hussain**: (a) ~~Disable cloud-cron `trig_01N83PFF2ifNTjFnqd1X3hWf`~~ DONE 2026-04-26 evening. (b) ~~Flip `ENFORCE=true` on edge-bouncer~~ DONE 2026-04-26 evening Phase A + C — both edge-bouncer AND app-cjipro now ENFORCE'd. (c) MIL-62 corp-proxy matrix superseded by lightweight 1-partner smoke runbook (`ops/runbooks/mil62_lightweight_smoke.md`) — run with first real alpha partner during onboarding, not before. (d) MIL-48 partner provisioning (alpha cohort decisions). (e) MIL-52 Gmail Send-as for hello@cjipro.com. (f) MIL-51 remaining URL-filter vendor submissions (4 still pending: Zscaler / Palo Alto / Forcepoint / Symantec). (g) Optional cleanups: `wrangler delete login-cjipro` to retire the placeholder; remove the stale `magic-link.hussain-marketing.workers.dev/callback` redirect URI from WorkOS. (h) **Convene web-experts panel before implementing login button + partner portal UX** — see `project_next_session_login_ux.md` memory. Alternative pivot: CJI Pulse PULSE-11 unblock (populate 6 pending tables).
+- **Apr 28 (current autonomy target)**: Task Scheduler fires `run_daily.py` at 06:30 UTC automatically. Scheduled `trig_01CrXvZ4GyPxok1ojbZz6kZS` agent at 08:00 UTC reports run status. Also: `trig_01PaRqHCwdYbPDJeg42XZ1Ag` fires at 10:00 UTC for token-audit review. **Next steps requiring Hussain**: (a) ~~Disable cloud-cron `trig_01N83PFF2ifNTjFnqd1X3hWf`~~ DONE 2026-04-26 evening. (b) ~~Flip `ENFORCE=true` on edge-bouncer~~ DONE 2026-04-26 evening Phase A + C — both edge-bouncer AND app-cjipro now ENFORCE'd. (c) MIL-62 corp-proxy matrix superseded by lightweight 1-partner smoke runbook (`ops/runbooks/mil62_lightweight_smoke.md`) — run with first real alpha partner during onboarding, not before. (d) MIL-48 partner provisioning (alpha cohort decisions). (e) MIL-52 Gmail Send-as for hello@cjipro.com. (f) MIL-51 remaining URL-filter vendor submissions (4 still pending: Zscaler / Palo Alto / Forcepoint / Symantec). (g) Optional cleanups: `wrangler delete login-cjipro` to retire the placeholder; remove the stale `magic-link.hussain-marketing.workers.dev/callback` redirect URI from WorkOS. (h) **Convene web-experts panel before implementing login button + partner portal UX** — see `project_next_session_login_ux.md` memory. Alternative pivot: CJI Pulse PULSE-2 unblock (populate 6 pending tables).
 - **Apr 30 (MIL-56 data health review)**: 7 days after MIL-56 shipped. Check `mil/data/email_log.jsonl` for ≥5 clean `status=ok` records with intact audit block. Count `text_sha256` repeats across dates within the same priority_issue. If repeats exist → start MIL-57 slot-aware rotation. If corpus is thin → extend observation window or reconsider MIL-57 scope. This is the gate the 2026-04-23 commentary-specialist panel baked into MIL-57's ticket body.
 - **Fortnightly calibration**: Fill in `mil/data/calibration_notes.md` — check 3 prior Clark findings against observable outcomes. Next due 2026-05-02. Anomaly alert threshold to be set after Run #47 (14+ normalized churn scores accumulated).
 - **Monthly**: Run `py mil/tests/enrichment_spot_check.py --sample 50`, label file, score with `--score`
 - CHR-003: confirm HSBC root cause if source becomes available
 - Cloudflare: purge cache after each briefing deploy if changes not visible
-- **CJI Pulse PULSE-11 unblock**: populate 6 pending tables in data_dictionary_master.yaml — critical path to Day 90 vision
+- **CJI Pulse PULSE-2 unblock**: populate 6 pending tables in data_dictionary_master.yaml — critical path to Day 90 vision
 
 ## MIL — Market Intelligence Layer
 
@@ -941,7 +943,7 @@ Sovereign Early Warning System built on 100% public market signals. Air-gapped f
 **Strategic positioning** (for Council / buyers):
 - *"Forensic Reasoning Pipeline"* — every claim carries an evidence link
 - *"Calibration product, not fluency product"* — banking needs receipts, not charm
-- *"Public Signal Specialist"* in v1 → *"Banking Journey Intelligence"* in v2 when PULSE-11 unblocks and a separate Ask CJI Pulse chat becomes fundable
+- *"Public Signal Specialist"* in v1 → *"Banking Journey Intelligence"* in v2 when PULSE-2 unblocks and a separate Ask CJI Pulse chat becomes fundable
 
 **Scope boundary — HARD:**
 - MIL chat = MIL data only (app reviews, DownDetector, City A.M., Reddit, YouTube). Public signals. No PII.
@@ -1018,13 +1020,13 @@ MIL pages register as pages 07+ in the existing Streamlit app (port 8501). Thin 
 
 ## CJI Pulse — Previous Session Notes
 
-PULSE-11 v2.0 tracks complete (2026-03-12):
+PULSE-2 v2.0 tracks complete (2026-03-12):
 - Track A: data_strategy_v2.md (commit 846a306)
 - Track B: governance_principles.yaml v2.0 (commit ba19e96)
 - Track C: data_dictionary_master.yaml — 23 tables, 17 with fields, 6 pending access
 - Track D: system_manifest.yaml (commit 6e0cf82)
 - Track E: CLAUDE.md (this file)
-- Track F: validate_PULSE-11.py v2.0 — 16/16 PASS (commit cce12bd)
+- Track F: `scripts/validate_KAN-011.py` v2.0 — 16/16 PASS (commit cce12bd) (filename historical from KAN-* numbering)
 - Track G: system_manifest.yaml final sync + HANDOVER.md
 
 Session 5 Part 2 (2026-03-12):
@@ -1057,9 +1059,9 @@ Session 5 Part 2 (2026-03-12):
 | `manifests/telemetry_spec.yaml` | Error spec — all pipelines must use |
 | `manifests/graduated_trust_tiers.yaml` | Trust model, `law_for: narrative-agent, governance-agent` |
 | `manifests/hypothesis_library.yaml` | **28 hypotheses** — 21 APPROVED (incl. 5 NPS), 7 PENDING H_RES |
-| `manifests/data_strategy_v2.md` | PULSE-11 v2.0 — complete data strategy |
+| `manifests/data_strategy_v2.md` | PULSE-3 — Data Strategy v2.0 |
 | `manifests/governance_principles.yaml` | 21 constitutional principles v2.0 |
-| `manifests/data_dictionary_master.yaml` | PULSE-11 — master source, never read directly |
+| `manifests/data_dictionary_master.yaml` | PULSE-2 — master source, never read directly |
 | `CHRONICLE.md` | **Operational Lessons Learned** — port conflicts, HDFS lessons, Airflow 3.x rules |
 | `mil/CHRONICLE.md` | **MIL banking failure ledger** — CHR-001 TSB 2018, CHR-002 Lloyds 2025, CHR-003 HSBC 2025, CHR-004 Barclays 2026, CHR-005 to CHR-016 competitor incidents (2026-04-16), CHR-017/018/019 Barclays J_SERVICE_01 depth (2026-04-16), ARCH-001, ARCH-002 |
 

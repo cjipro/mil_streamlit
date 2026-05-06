@@ -847,6 +847,7 @@ mil_hdfs:
 # RULE: No PULSE ticket for MIL work. No MIL ticket for PULSE work.
 # Board: cjipro.atlassian.net/jira/software/projects/MIL/boards/35
 
+mil_components:
   - id: MIL-1
     jira_key: MIL-1
     name: "Constitutional Documents — CHRONICLE.md, MIL_SCHEMA.yaml, SOVEREIGN_BRIEF.md"
