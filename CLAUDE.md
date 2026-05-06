@@ -56,7 +56,7 @@ Full canonical reference: memory `project_brand_spine.md`. Website rebuild ticke
 **Today's structure** (transition state):
 - Monorepo `cjipro/mil_streamlit` (currently public, flips private under MIL-110-rewrite) holds everything.
 - `hodos/` subdirectory carries the legibility docs (LICENSE / NOTICE / TRADEMARK.md / CONTRIBUTING.md / GOVERNANCE.md / HODOS_NAMING.md). Staging area for the eventual `cjipro/hodos` public Apache-2.0 repo.
-- HODOS Jira project deferred until ~15 hodos-tagged tickets accumulate or external contributors arrive (patio11). Use `hodos` label on existing MIL Jira until then.
+- HODOS Jira project created 2026-05-06 (cjipro.atlassian.net/jira/software/projects/HODOS, board ID 68). Earlier than the patio11 "wait for ~15 tagged tickets" criterion because HODOS-1 (five strategic decisions) is foundational and doesn't fit on MIL board cleanly. New rule: file all Hodos work on the HODOS board going forward. Visibility is PRIVATE; opens to public when all five HODOS-1 decisions resolved AND public narrative locked.
 
 Full canonical reference: memory `project_hodos_cji_architecture.md`. Lock context: MIL-167.
 
@@ -93,7 +93,7 @@ Full canonical reference: memory `feedback_build_focus_pulse_service_mil.md`. Lo
 - Repo: `C:\Users\hussa\while-sleeping`
 - Cloudflare API token: lives in `.env` as `CLOUDFLARE_API_TOKEN`, named `cjipro-mil-cli` / "final token" in CF dashboard. CLI wrapper at `ops/cloudflare/cf.py` covers DNS / Email Routing / Workers Routes / cache purge. **When new scope or rotation is needed, ask Hussain to update the existing token in place — never ask him to create a new one.** See `feedback_cloudflare_token_rotate.md` in memory.
 
-## JIRA PROJECTS — TWO SEPARATE SYSTEMS
+## JIRA PROJECTS — THREE SEPARATE SYSTEMS
 
 ### PULSE Project — CJI Pulse only
 Site: cjipro.atlassian.net
@@ -123,12 +123,29 @@ Repo host: **GitHub canonical, GitLab read-mirror via dual-push on `origin`** (F
 - `drift_monitor.py` labels itself MIL-48 in code/docs but Jira's MIL-48 is now "Ask CJI Pro alpha rollout."
 - Historical drift — cleanup requires backfill tickets in a different number range. Not urgent.
 
+### HODOS Project — Hodos open-source engine only
+Site: cjipro.atlassian.net
+Key: HODOS
+Cloud ID: d9b829b8-66af-42de-bc53-a79515365742 (same Atlassian site as PULSE/MIL)
+Project ID: 10100
+Tickets: HODOS-1 created 2026-05-06 (foundational strategic-decisions session — license / trademark / CHRONICLE split / partner model / hosted-vs-fork).
+Next ticket: HODOS-2
+Board: Kanban (next-gen / simplified)
+URL: cjipro.atlassian.net/jira/software/projects/HODOS/boards/68
+Visibility: PRIVATE until (a) all five strategic decisions in HODOS-1 are resolved AND (b) public narrative locked (Hodos landing page live, README on public repo). Open-the-board trigger: both conditions held.
+Scope: Hodos open-source engine only — Apache 2.0, sovereign, fork-and-customise. License / trademark / CHRONICLE-split / partner-model / hosted-vs-fork decisions; engine extraction (deferred per DHH — wait for patterns to stabilise via MIL-35 PublishAdapter model); contributor governance; public launch sequencing.
+
+Project created 2026-05-06 — earlier than patio11's "wait for ~15 hodos-tagged tickets" criterion because the strategic-decisions work (HODOS-1) is foundational and doesn't fit on MIL board cleanly. Existing `hodos`-labelled work on MIL board (MIL-167 Phase 1 legibility, MIL-110 deny-list rewrite) stays as historical record; new Hodos tickets land on HODOS board.
+
 ### Hard Rule
-Never create a PULSE ticket for MIL work.
-Never create a MIL ticket for CJI Pulse work.
-Claude Code creates MIL Jira tickets programmatically when instructed.
+Never cross-file between PULSE / MIL / HODOS — each project has scoped work only:
+- **PULSE:** internal customer journey intelligence (TAQ Bank, PII present, highly governed)
+- **MIL:** public market intelligence (no PII, open governance, sovereign)
+- **HODOS:** open-source engine (Apache 2.0, fork-and-customise, decisions parked at HODOS-1)
+
+Claude Code creates Jira tickets programmatically when instructed.
 Hussain closes all tickets manually in Jira UI — never programmatically.
-Dual closure rule applies to both projects: validator passes AND Hussain closes in UI.
+Dual closure rule applies to all three projects: validator passes AND Hussain closes in UI.
 
 ## Build Rules
 
