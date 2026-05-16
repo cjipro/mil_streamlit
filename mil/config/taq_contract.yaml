@@ -1,0 +1,36 @@
+# Crossing contract: TAQ App → CJI Pulse (PULSE-side mirror)
+#
+# This file is the PULSE-side mirror of taq-app/contracts/cji_pulse_telemetry.yaml.
+# THE TWO FILES MUST MATCH (CLAUDE.md hard rule #5). Drift between them is a bug.
+#
+# Validation:
+#   - taq-app side script: `npm run ci:contract-parity` (in taq-app repo)
+#     hashes both files and fails on drift.
+#
+# Status: PLACEHOLDER 2026-05-09 — to be filled in under TAQ-1 (strategic decisions)
+# Owner side: TAQ writes; PULSE reads.
+
+contract:
+  name: TAQ App → CJI Pulse telemetry
+  version: 0.0.0  # bump on every shape change
+  status: placeholder
+
+# Decisions that this file is currently parking for TAQ-1:
+parked_decisions:
+  - shape (event-per-action vs session-rollup vs journey-graph)
+  - cadence (real-time stream vs batch/hourly vs daily)
+  - landing place (DuckDB / D1 / Postgres / file / API)
+  - identifier strategy (synthetic_customer_id, session_id, journey_id, step_id)
+  - PII rules (synthetic but should still avoid real-looking identifiers? — design call)
+  - schema-evolution policy (additive-only? major-version semantics?)
+  - retention (how long does PULSE keep TAQ telemetry?)
+
+# Once TAQ-1 lands, fill in below. Stub fields kept here so PULSE side can see the shape:
+events: []
+sessions: []
+journeys: []
+
+# Validation contract (when both files are real):
+#   - taq-app side validator: ensure every event written by TAQ matches this schema
+#   - while-sleeping side validator: ensure mil/config/taq_contract.yaml is byte-equal
+#     (or at least semantically equivalent) to this file at the corresponding version
