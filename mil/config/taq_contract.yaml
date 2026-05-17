@@ -1,10 +1,13 @@
-# SUPERSEDED 2026-05-17 by PULSE-87.
+# SUPERSEDED 2026-05-17 by PULSE-87; tree migrated 2026-05-17 by PULSE-91.
 #
-# The canonical Pulse-side TAQ adapter contract now lives at:
+# The canonical Pulse-side TAQ adapter contract now lives in the sister
+# repo cjipro/holter at:
 #   pulse/contracts/taq_contract.yaml
+# Local path on dev machine:
+#   C:\Users\hussa\holter\pulse\contracts\taq_contract.yaml
 #
 # This file is retained as a redirect because CLAUDE.md and TAQ-72 still
-# reference this path. New work should target the pulse/ tree.
+# reference this path. New Pulse work should target the cjipro/holter tree.
 #
 # The TAQ-side crossing-contract counterpart is still:
 #   taq-app/contracts/cji_pulse_telemetry.yaml
@@ -13,6 +16,7 @@
 contract:
   name: TAQ App → CJI Pulse telemetry
   status: superseded
-  superseded_by: pulse/contracts/taq_contract.yaml
+  superseded_by: cjipro/holter:pulse/contracts/taq_contract.yaml
   superseded_on: 2026-05-17
   superseded_by_ticket: PULSE-87
+  migrated_under_ticket: PULSE-91
