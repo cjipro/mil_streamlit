@@ -171,6 +171,14 @@ Full canonical reference: memory `project_pulse_design_direction.md`. Session th
 - Repo: `C:\Users\hussa\while-sleeping`
 - Cloudflare API token: lives in `.env` as `CLOUDFLARE_API_TOKEN`, named `cjipro-mil-cli` / "final token" in CF dashboard. CLI wrapper at `ops/cloudflare/cf.py` covers DNS / Email Routing / Workers Routes / cache purge. **When new scope or rotation is needed, ask Hussain to update the existing token in place — never ask him to create a new one.** See `feedback_cloudflare_token_rotate.md` in memory.
 
+## Approved Python Libraries (bank env)
+
+Python is locked to **3.11**. Every Python dependency added to this repo MUST be on the bank-env list at [`APPROVED_LIBRARIES.md`](APPROVED_LIBRARIES.md). If a package you want isn't on the list, find a substitute that is — or file a Jira ticket proposing it before adding.
+
+The list is mirrored verbatim in `cjipro/holter` at `APPROVED_LIBRARIES.md`. Edit both copies together — drift between them is a bug.
+
+Scope: applies to all CJI / Pulse / MIL code intended to run inside the bank. Sister concerns running outside the bank (TAQ App on Cloudflare, hosted-reference instances on cjipro.com, OSS Hodos reference deployments) have their own dependency boundaries and are not bound by this list.
+
 ## JIRA PROJECTS — FIVE SEPARATE SYSTEMS
 
 ### PULSE Project — CJI Pulse engine only
