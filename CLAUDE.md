@@ -171,15 +171,17 @@ Full canonical reference: memory `project_pulse_design_direction.md`. Session th
 - Repo: `C:\Users\hussa\while-sleeping`
 - Cloudflare API token: lives in `.env` as `CLOUDFLARE_API_TOKEN`, named `cjipro-mil-cli` / "final token" in CF dashboard. CLI wrapper at `ops/cloudflare/cf.py` covers DNS / Email Routing / Workers Routes / cache purge. **When new scope or rotation is needed, ask Hussain to update the existing token in place — never ask him to create a new one.** See `feedback_cloudflare_token_rotate.md` in memory.
 
-## JIRA PROJECTS — FOUR SEPARATE SYSTEMS
+## JIRA PROJECTS — FIVE SEPARATE SYSTEMS
 
-### PULSE Project — CJI Pulse only
+### PULSE Project — CJI Pulse engine only
 Site: cjipro.atlassian.net
 Key: PULSE
-Tickets: PULSE-1 through PULSE-89 (current; PULSE-84/85/86 filed 2026-05-06 — board reconciliation / manifest audit / AlloyDB Omni spike; PULSE-87/88/89 filed 2026-05-17 as the **v1 design spine**: schema contract / FrictionBench v0.1 / lineage + audit + SynthesisProvider interface). Round 4 DeepSeek critique applied as comments on PULSE-88 + PULSE-89.
-Next ticket: PULSE-90
+Tickets: PULSE-1 through PULSE-91 (current; PULSE-84/85/86 filed 2026-05-06 — board reconciliation / manifest audit / AlloyDB Omni spike; PULSE-87/88/89 filed 2026-05-17 as the **v1 design spine**: schema contract / FrictionBench v0.1 / lineage + audit + SynthesisProvider interface; PULSE-90 = Holter codename + scaffolding; PULSE-91 = pulse/ engine tree migrated to cjipro/holter). Round 4 DeepSeek critique applied as comments on PULSE-88 + PULSE-89.
+Next ticket: PULSE-92
 Board: Scrum
-Scope: Internal customer journey intelligence only. PII present. Highly governed.
+Scope: **Pulse engine work only** — canonical schema, source adapters (TAQ, real_bank), scoring algorithms (FrictionBench), lineage + audit chain, SynthesisProvider interface, decision-pack metadata, convergence + fairness methods, 7 question classes. The platform offering — what engine licensees consume.
+
+**Scope split with HOL** (per scrum-master panel 2026-05-17 Cagan / Poppendieck / Cutler): engine work goes here; build / UI / interface / hosted-instance ops work goes to HOL. Engine work is what a Tableau-integration buyer pulls; HOL work is what a full-product buyer experiences. PULSE-90/91 stay closed here as historical record of how Holter came to be.
 
 **Numbering note (2026-05-06, PULSE-84):** Numbering migrated from KAN-* to PULSE-* in 2026-03 with a fresh sequential allocation (not 1:1). Validators in `scripts/` retain `validate_KAN-NNN.py` filenames as historical artefacts. Mapping: KAN-001 → PULSE-1 (GitLab repo), KAN-011 → PULSE-2 (Living Data Dictionary), KAN-1G → PULSE-20 (graduated trust tiers), KAN-1H → PULSE-21 (hypothesis library). Full audit in `manifests/pulse_jira_reconciliation.md`.
 
@@ -232,14 +234,37 @@ Scope: Synthetic banking application only — UI + bot crawler fleet + autonomou
 
 Code lives at `C:\Users\hussa\taq-app\` (separate repo, sister concern of `cjipro/while-sleeping`). See "## TAQ App (sister concern, separate repo)" section below.
 
+### HOL Project — Holter build / UI / product offering
+Site: cjipro.atlassian.net
+Key: HOL (3-char abbreviation; full name "Holter")
+Cloud ID: d9b829b8-66af-42de-bc53-a79515365742 (same Atlassian site as PULSE/MIL/HODOS/TAQ)
+URL: cjipro.atlassian.net/jira/software/projects/HOL/boards/134
+Board ID: 134
+Board: Kanban (per scrum-master panel 2026-05-17 — low initial volume; Scrum ceremony at 3 tickets would be performative)
+Tickets: HOL-1 filed 2026-05-17 (UI framework decision panel — first foundational ticket).
+Next ticket: HOL-2
+Project created 2026-05-17 — scoped after Hussain's commercial pushback on the original "no HOL project needed" recommendation. Real argument: engine and product are two value streams with two buyer profiles (engine licensees who want Pulse to power their Tableau / Looker / internal dashboards vs full-product customers who want our sleek UI). Tracking them in one project guarantees mis-prioritisation.
+Scope: **Build / UI / interface / product-experience work only.** Code lives in `cjipro/holter` (sister-concern of while-sleeping); engine code (Python package `pulse`) was migrated under PULSE-91. HOL tracks: UI framework, three-altitude single-surface design (Bank / Journey / Signal), sleek visual identity, deployment + CI/CD, hosted instance ops, partner trial flows, billing / subscription, customer-facing docs. The product offering — what full-product customers experience.
+
+**Naming distinction (clarification):**
+- **Pulse** = the public PRODUCT brand (one of four CJI products)
+- **`pulse`** = the Python ENGINE package (`import pulse`) — engineering identity preserved across repo moves
+- **Holter** = the BUILD codename / `cjipro/holter` repo / `C:\Users\hussa\holter\` local dir — named after Norman Holter (inventor of the wearable continuous ECG monitor, 1949)
+- **HOL** = the Jira PROJECT key for build/UI work
+- **PULSE** = the Jira PROJECT key for engine work
+- Both PULSE and HOL contribute commits to the **same repo** (`cjipro/holter`) — the split is at the work-tracking level, not the codebase level
+
 ### Hard Rule
-Never cross-file between PULSE / MIL / HODOS / TAQ — each project has scoped work only:
-- **PULSE:** internal customer journey intelligence (TAQ Bank as client, PII present, highly governed)
+Never cross-file between PULSE / MIL / HODOS / TAQ / HOL — each project has scoped work only:
+- **PULSE:** Pulse engine work (schemas, adapters, scoring, lineage, synthesis interface, FrictionBench). The platform offering — engine licensees consume this.
 - **MIL:** public market intelligence (no PII, open governance, sovereign)
 - **HODOS:** open-source engine (Apache 2.0, fork-and-customise, decisions parked at HODOS-1)
 - **TAQ:** synthetic banking environment (closed, private, never public, factory for PULSE + canvas for Lever)
+- **HOL:** Holter build / UI / interface / product-experience work. The product offering — full-product customers experience this.
 
-**Important naming distinction:** "TAQ Bank" (the PULSE client, real bank with real PII) ≠ "TAQ App" (the synthetic environment in the new TAQ project). PULSE work refers to TAQ Bank; TAQ project work refers to TAQ App / the synthetic environment.
+**PULSE ↔ HOL scope split rule of thumb:** if the ticket is about engine API stability, schema evolution, scoring algorithms, or anything an engine-licensee (Tableau-integration) buyer cares about → PULSE. If the ticket is about UI, design, deployment, hosted ops, partner onboarding, or anything a full-product customer experiences → HOL. Both contribute commits to `cjipro/holter` repo; the scope split is at the ticket-tracking level only.
+
+**Important naming distinction:** "TAQ Bank" (the PULSE client, real bank with real PII) ≠ "TAQ App" (the synthetic environment in the TAQ Jira project). PULSE work refers to TAQ Bank; TAQ project work refers to TAQ App / the synthetic environment.
 
 Claude Code creates Jira tickets programmatically when instructed.
 Hussain closes all tickets manually in Jira UI — never programmatically.
