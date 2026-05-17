@@ -1,0 +1,101 @@
+# FrictionBench v0.1 — submission manifest schema.
+#
+# Submitters write a submission_manifest.yaml conforming to this schema.
+# Validator: pulse.frictionbench.submission.validate_manifest.
+#
+# Filed under PULSE-88.
+
+version: 0.1.0
+
+required_fields:
+
+  system_name:
+    type: string
+    description: Stable identifier for the leaderboard row (e.g. "pulse-v1", "acme-friction-1.2").
+
+  system_version:
+    type: semver
+    description: Submitter-declared version of the system being submitted.
+
+  track:
+    type: enum
+    values: [deterministic, llm_augmented]
+    description: Which architectural track this submission competes in. See leaderboard/tracks.yaml.
+
+  benchmark_version:
+    type: semver
+    description: Which FrictionBench version this submission targets (e.g. "0.1.0").
+
+  runtime_architecture_summary:
+    type: string
+    max_length: 2000  # ~300 words
+    description: |
+      Short description of how the system detects friction. Public on the leaderboard.
+
+  pipeline_versions:
+    type: object
+    description: Map of stage -> semver. Stages include ingest, analyse, synthesise, etc.
+
+  license:
+    type: string
+    description: SPDX identifier for the submitted system code.
+
+  contact:
+    type: object
+    description: How to reach the submitter for verification / re-run requests.
+    fields:
+      name: {type: string}
+      email: {type: string}
+
+  docker_image:
+    type: string
+    description: Full registry reference (e.g. "ghcr.io/acme/friction:1.2.0"). Must be publicly pullable.
+
+  real_set_reporting:
+    type: object
+    description: |
+      Synthetic-to-real transfer report. Even submissions with no real set must
+      declare a status here.
+    fields:
+      status:
+        type: enum
+        values: [reported, unavailable]
+      real_set_accuracy:
+        type: float
+        required_if: {status: reported}
+      synthetic_real_gap:
+        type: float
+        required_if: {status: reported}
+
+llm_augmented_track_required_fields:
+  # Only required when track == llm_augmented.
+
+  llm_provider:
+    type: string
+    description: e.g. "anthropic", "openai", "local-ollama".
+
+  llm_model:
+    type: string
+    description: Exact model identifier (e.g. "claude-opus-4-7", "gpt-5", "qwen3:14b").
+
+  llm_model_version:
+    type: string
+    description: Model version string at submission time.
+
+  cost_per_investigation_usd:
+    type: float
+    description: USD per scored investigation. Reported on leaderboard.
+
+  latency_per_investigation_ms_median:
+    type: integer
+    description: Median latency per investigation in milliseconds.
+
+  latency_per_investigation_ms_p95:
+    type: integer
+    description: p95 latency per investigation in milliseconds.
+
+optional_fields:
+
+  notes:
+    type: string
+    description: Free-form maintainer notes (changelog, caveats).

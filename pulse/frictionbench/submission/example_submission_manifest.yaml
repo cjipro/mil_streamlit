@@ -1,0 +1,42 @@
+# Reference submission manifest for the Pulse v1 engine.
+# Used as a test fixture; also the exemplar for other submitters.
+# Filed under PULSE-88.
+
+system_name: pulse
+system_version: 1.0.0
+track: deterministic
+benchmark_version: 0.1.0
+
+runtime_architecture_summary: |
+  Pulse v1 runs the deterministic track: classical statistics + Pandas + DuckDB
+  + Jinja2 template synthesis. Zero LLM inference in the runtime path.
+  Detection lifecycle: canonical event ingest (PULSE-87) -> 3 active signature
+  matchers (dwell_after_error / multi_back_press / abandon_before_submit)
+  evaluated per session under the LIGO first-detection model -> hit triggers
+  multi-path analysis (chi-squared + demographic-parity if convergence_required)
+  -> TemplateSynthesisProvider renders the brief -> lineage row stamped per
+  PULSE-89.
+
+pipeline_versions:
+  ingest: 0.1.0
+  analyse: 0.2.0
+  synthesise: 0.2.0
+  publish: 0.1.0
+
+license: Apache-2.0
+
+contact:
+  name: CJI
+  email: pulse@cjipro.com
+
+docker_image: ghcr.io/cjipro/pulse:1.0.0
+
+real_set_reporting:
+  status: unavailable
+  # Real set is contract-gated at v0.1 (see transfer/TRANSFER_EVALUATION.md).
+  # Pulse will report against it as soon as TAQ Bank side acceptance lands.
+
+notes: |
+  v1 reference submission. Engine substrate per ML-Ops panel consensus
+  (Pandas + DuckDB; no PySpark). Synthesis mode immutably deterministic at v1
+  per PULSE-89 decision-pack constraint.
