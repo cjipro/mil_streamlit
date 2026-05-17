@@ -85,6 +85,84 @@ Set after MIL build-phase reached maturity inflection (Sonar firing daily on cro
 
 Full canonical reference: memory `feedback_build_focus_pulse_service_mil.md`. Lock context: MIL-168.
 
+## Build Posture (DE-PAUSED 2026-05-17 — originally LOCKED 2026-05-08, see history below)
+
+**Posture UPDATED 2026-05-17: DE-PAUSED per explicit Hussain direction.** Compliance issue resolved — 1-2-1 with Amos on 2026-05-11 did not raise Compliance/Sonar/OBI; manager has not escalated in the 6 days since. Build work on PULSE / MIL / HODOS resumed at this session. Of the original 4 de-pause conditions, only #2 (1-2-1 landed cleanly) was technically met; conditions #1 (OBI filed), #3 (4-6 weeks stable), #4 (clear manager/union/HR signal) were waived on Hussain explicit direction. The Amos interaction pattern caution from memory `project_amos_interaction_pattern.md` (silence ≠ absolution; raises hot → forgets) remains a watchword going forward — anchor substantive work in writing same day.
+
+**Historical posture (LOCKED 2026-05-08 — kept for record):** PAUSE on external surface. No new build, expansion, or feature work on cjipro.com / Hodos / MIL until current workplace situation stabilises. **TAQ App was carved out** (see below).
+
+**Hobby framing canonical:** cjipro.com / Hodos / MIL = unpaid personal-development hobby project. No commercial activity. No revenue. No entity. No alpha partner programme. Personal time, personal equipment, public data sources only. Used for personal portfolio + internal Barclays career mobility.
+
+Set 2026-05-08 morning after line manager (Amos) sent Teams message 2026-05-07 threatening Compliance escalation re: the hobby project. Hussain consulted Unite the Union (rep Derrick Brown — `derrick.brown@unitetheunion.org`); 1-2-1 meeting with manager 2026-05-08 at 3pm; formal Outside Activities declaration in progress per union advice. Procurement panel synthesis 2026-05-07 had already concluded commercial sale-into-banks was the wrong path; this lock makes it formal.
+
+**Pause means:**
+- No new code commits to cjipro/while-sleeping
+- No new tickets across PULSE / MIL / HODOS for build-class work
+- No demos to anyone in/outside Barclays without explicit Hussain instruction
+- No new public website surface; no alpha partner activity; Sonar PDB email cron paused
+- Existing infrastructure stays as-is — don't take down (looks like consciousness of guilt) and don't expand
+- Existing daily automation may continue if already running uneventfully
+
+**TAQ App carve-out (added 2026-05-09):** TAQ App development continues during the pause. Its risk profile is materially different from cjipro.com / Hodos / MIL: TAQ is a *closed synthetic environment* — never published, never demoed, never connected to external networks, no real customers, no PII, no commercial framing. It exists as private internal R&D infrastructure that unblocks CJI Pulse (synthetic telemetry source) and CJI Lever (autonomous-intervention canvas). It lives in a separate repo `cjipro/taq-app` at `C:\Users\hussa\taq-app\`, completely outside the while-sleeping tree. Sister concern only — shares `.env` and Atlassian site, but separate code, separate git history, separate GitHub repo. See "## TAQ App (sister concern, separate repo)" section below for the full boundary.
+
+**Allowed during pause:**
+- Reading, design notes on paper/whiteboard, technical-writing on existing OSS work for legibility
+- Documentation work explicitly defensive (clarity for union/Compliance) or hobby-framed personal-development
+- Performance / capacity / underutilisation documentation (for review protection)
+- Internal mobility conversations through proper Barclays channels (HR business partner, internal mobility process)
+- Maintaining existing automation that's already running
+
+**Strategic priority going forward:** stay at Barclays, internal mobility, portfolio credibility — NOT engineering investment, NOT commercial path, NOT new product surface.
+
+**De-pause conditions** (revisit only if): Outside Activities filed and acknowledged AND 1-2-1 with manager landed cleanly AND 4-6 weeks of stable no-incident operation AND clear signal from manager / union / HR about acceptable scope. **De-pause requires explicit Hussain direction — do not auto-resume.**
+
+**Two-CV strategy unchanged** (`project_cv_strategy.md`): external job search separate track, not active yet.
+
+**No public commercial language:** anything saying "alpha partners", "trial", "venture", "sale", "monetization", "commercial" anywhere in cjipro.com surface or repos to be reviewed and removed at next opportunity (after situation stabilises — not during pause).
+
+**1-2-1 status (as of 2026-05-09):** Friday 2026-05-08 1-2-1 with line manager was postponed at 16:07 to Monday 2026-05-11 (manager in unrelated app refresh project meeting at scheduled time). Saturday 2026-05-09 was a full advisory processing day. Documentary record reconstructed verbatim — see `project_compliance_threat_chain.md`. OBI declaration drafted, held in HR system, NOT submitted — strategy is to let manager direct filing in Monday meeting and comply same-day (file post-meeting either way). Union briefed (Derrick Brown / Unite). Next session pickup: read `project_next_session_monday_meeting.md` first for the canonical Monday plan.
+
+Full canonical references: memory `feedback_hobby_framing_locked.md` + `feedback_no_expand_during_compliance_situation.md` + `project_session_2026_05_08.md` + `project_session_2026_05_09.md` + `project_next_session_monday_meeting.md` + `project_compliance_threat_chain.md` + `project_union_unite_derrick_brown.md`.
+
+## Pulse Design Direction (LOCKED 2026-05-17 — canonical)
+
+**Status:** v1 design spine landed as PULSE-87 (schema contract) / PULSE-88 (FrictionBench v0.1) / PULSE-89 (lineage + audit + SynthesisProvider). Round 4 DeepSeek critique applied. Ready to start implementation next session.
+
+**Pulse positioning:** live insight, almost-real-time, observation NOT intervention. One of four CJI products (*Sonar listens. Reckoner reckons. Pulse senses. Lever moves.*). Target user spans CEO → BA → analyst. Anti-positioning: *"Decisions, not dashboards."*
+
+**Architectural locks:**
+
+- **Non-LLM runtime.** Classical ML + statistics + Jinja2 template-driven synthesis. AI is dev-time only (Opus 4.7 / DeepSeek V4 Pro / qwen3:14b). Procurement-passable for regulated UK banks; no peer in this architectural tribe.
+- **LLM-placeholder approach.** `SynthesisProvider` interface exists; only `TemplateSynthesisProvider` ships in v1. No `LLMSynthesisProvider` stub, no scaffold, no placeholder file. Enabling LLM v2+ requires shipping a new implementation AND a new decision-pack declaring `synthesis_mode: llm_augmented` AND explicit governance review.
+- **Engine + content + registry split:** Hodos (engine, Apache 2.0) / investigation templates (content — formerly "decision-packs" externally; renamed per DeepSeek Round 4: registry is moat, not content) / CJI (registry + brand + CHRONICLE).
+- **Three durable CJI assets:** Hodos engine + CHRONICLE failure ledger + FrictionBench public benchmark.
+- **Three-altitude single-surface design:** Bank / Journey / Signal — same investigation, multiple renderings; no role-gated screens. Core insight: *"any altitude can answer any question — the CEO's headline is the same investigation as the analyst's full panel, just compressed."*
+- **Seven question classes** (Scope / Time / Cause / Verbatim / Comparison / Persistence / Action) backed by classical-ML pipelines; closed library at v1, free-text embedding-mapping hybrid at v2.
+- **Multi-path convergence with mandatory fairness methods** for high-stakes investigations (regulatory escalation, vulnerability disparity claims, CHRONICLE-candidate entries). Statistical power paths (chi-squared / Fisher's / PSM) + ≥1 fairness-aware path (demographic parity / equalised odds / calibration-by-cohort).
+- **Eight borrowed design patterns:** AlphaFold (public-DB-as-moat) / GraphCast (faster+cheaper+more-accurate displaces classical) / DeepVariant+IDx-DR (regulated-deployment playbook) / Two Sigma (signal decay + walk-forward validation) / Kedro (pipelines as code) / Waymo (defense-in-depth) / Recursion (industrial-scale autonomous hypothesis generation) / SWE-bench (operational pattern for FrictionBench — Docker + endpoint + continuous leaderboard).
+
+**Naming discipline (LOCKED):** `taq` (synthetic) and `real_bank` (production) — never the actual bank's name in OSS code, GitHub, or any travelling artifact. Mirrors MIL P5. See memory `feedback_pulse_naming_discipline.md`.
+
+**Pulse deploys in two contexts:**
+- **OSS / CJI hosted reference:** TAQ App synthetic telemetry (sister-concern at `C:\Users\hussa\taq-app\`).
+- **Day-job / production:** real bank journey telemetry on Hussain's work machine (detached). Day-job task is identifying journeys with friction → demand failure → chat-AI introduction prioritisation. OSS engine code flows public → private; findings flow back to enrich CHRONICLE.
+
+**v1 scope — the 12-cell problem:** 3 active TAQ signatures (`dwell_after_error`, `multi_back_press`, `abandon_before_submit`) × 4 v1 friction-target screens (`loans.apply.step3`, `international.beneficiary.setup`, `cards.credit.apply.eligibility`, `investments.premier.portfolio.overview`). v1 success criterion: detect on those 4, produce ~zero false positives on the other 754 screens. v1 CASP-equivalent benchmark.
+
+**Round 4 DeepSeek critique deltas (applied as comments on tickets):**
+- Adopt SWE-bench operational pattern verbatim (don't reinvent submission protocol)
+- TOST with epsilon=0.05 for synthetic-to-real transfer eval (not arbitrary 20% gap)
+- `superseded_by` field on lineage records (for backfilled corrections / cohort redefinition / model rollback)
+- `min_sample_size` field per question class manifest (refuses statistically meaningless investigations)
+- Hot-reload deferred to v2 (panel item 2 was wrong; code-release-per-pipeline-change fine at solo+single-customer scale)
+- "Decision-packs" → "investigation templates" externally (Sisu / Outlier / Anodot all failed at vendor-supplied content distribution; registry is moat)
+
+**Pulse repo (codename Holter, scaffolded 2026-05-17 under PULSE-90):** `cjipro/holter` at `C:\Users\hussa\holter\`. Sister-concern of while-sleeping, mirrors TAQ App pattern. Codename chosen by 3-voice panel (Placek / Beard / Wiggins) — see PULSE-90 ticket for full rationale. Named after Norman Holter (inventor of the wearable continuous ECG monitor, 1949) — the direct medical analog of what Pulse does for journey friction. Python package stays `pulse` (engine identity preserved). Status: scaffolding files (`MANIFEST.yaml`, `CLAUDE.md`, `README.md`, `LICENSE`, `.gitignore`, `pyproject.toml`) written; `cjipro/holter` GitHub repo creation pending Hussain admin step (~5 min); `pulse/` tree migration from while-sleeping pending separate ticket.
+
+**Build pause status:** DE-PAUSED 2026-05-17 per explicit Hussain direction (1-2-1 with Amos 2026-05-11 landed cleanly; Compliance/Sonar/OBI not raised; no escalation in 6 days since). Amos interaction pattern watchword retained (silence ≠ absolution).
+
+Full canonical reference: memory `project_pulse_design_direction.md`. Session that locked it: `project_session_2026_05_17.md`. Next-session pickup: `project_next_session_pulse_v1.md`.
+
 ## Environment Rules
 
 - Windows machine — always use `py` not `python`
@@ -93,13 +171,13 @@ Full canonical reference: memory `feedback_build_focus_pulse_service_mil.md`. Lo
 - Repo: `C:\Users\hussa\while-sleeping`
 - Cloudflare API token: lives in `.env` as `CLOUDFLARE_API_TOKEN`, named `cjipro-mil-cli` / "final token" in CF dashboard. CLI wrapper at `ops/cloudflare/cf.py` covers DNS / Email Routing / Workers Routes / cache purge. **When new scope or rotation is needed, ask Hussain to update the existing token in place — never ask him to create a new one.** See `feedback_cloudflare_token_rotate.md` in memory.
 
-## JIRA PROJECTS — THREE SEPARATE SYSTEMS
+## JIRA PROJECTS — FOUR SEPARATE SYSTEMS
 
 ### PULSE Project — CJI Pulse only
 Site: cjipro.atlassian.net
 Key: PULSE
-Tickets: PULSE-1 through PULSE-83 (current)
-Next ticket: PULSE-84
+Tickets: PULSE-1 through PULSE-89 (current; PULSE-84/85/86 filed 2026-05-06 — board reconciliation / manifest audit / AlloyDB Omni spike; PULSE-87/88/89 filed 2026-05-17 as the **v1 design spine**: schema contract / FrictionBench v0.1 / lineage + audit + SynthesisProvider interface). Round 4 DeepSeek critique applied as comments on PULSE-88 + PULSE-89.
+Next ticket: PULSE-90
 Board: Scrum
 Scope: Internal customer journey intelligence only. PII present. Highly governed.
 
@@ -137,15 +215,67 @@ Scope: Hodos open-source engine only — Apache 2.0, sovereign, fork-and-customi
 
 Project created 2026-05-06 — earlier than patio11's "wait for ~15 hodos-tagged tickets" criterion because the strategic-decisions work (HODOS-1) is foundational and doesn't fit on MIL board cleanly. Existing `hodos`-labelled work on MIL board (MIL-167 Phase 1 legibility, MIL-110 deny-list rewrite) stays as historical record; new Hodos tickets land on HODOS board.
 
+### TAQ Project — TAQ App synthetic banking environment only
+Site: cjipro.atlassian.net
+Key: TAQ
+Cloud ID: d9b829b8-66af-42de-bc53-a79515365742 (same Atlassian site as PULSE/MIL/HODOS)
+Project ID: 10133
+Project entity UUID: 1152de3e-ec9a-4add-b11a-48a558f69566
+URL: cjipro.atlassian.net/jira/software/projects/TAQ/boards/101
+Board ID: 101
+Style: next-gen (team-managed)
+Tickets: TAQ-1 filed 2026-05-09 — Story, "Strategic decisions + architecture scoping panel" (8 decisions: stack / tech / journey scope for v1 / bot crawler architecture / telemetry contract with Pulse / intervention contract with Lever / Hodos relationship / scale path). Status: To Do. URL: cjipro.atlassian.net/browse/TAQ-1
+Next ticket: TAQ-2
+Board: Scrum (matches PULSE — application projects with v1 scope, demos, sprint cadence). Confirmed via API: `Story` issue type present (Kanban next-gen lacks Story by default).
+Visibility: Login-walled (cjipro.atlassian.net requires authentication; no public access). API field `isPrivate: false` is Jira's *within-site* visibility — meaningful only if a second user is ever added to the site. Hussain is sole user 2026-05-09, so this is moot in practice. Optional belt-and-braces hardening if a collaborator is ever invited: Project settings → Access → Private (project-member-only access within the site).
+Scope: Synthetic banking application only — UI + bot crawler fleet + autonomous-intervention machinery. No real customer data, no PII, no public surface, no demos to anyone in/outside Barclays. Closed-loop demo of CJI Pulse (friction detection on synthetic telemetry) + CJI Lever (autonomous UX intervention). *Friction-solved-live* narrative.
+
+Code lives at `C:\Users\hussa\taq-app\` (separate repo, sister concern of `cjipro/while-sleeping`). See "## TAQ App (sister concern, separate repo)" section below.
+
 ### Hard Rule
-Never cross-file between PULSE / MIL / HODOS — each project has scoped work only:
-- **PULSE:** internal customer journey intelligence (TAQ Bank, PII present, highly governed)
+Never cross-file between PULSE / MIL / HODOS / TAQ — each project has scoped work only:
+- **PULSE:** internal customer journey intelligence (TAQ Bank as client, PII present, highly governed)
 - **MIL:** public market intelligence (no PII, open governance, sovereign)
 - **HODOS:** open-source engine (Apache 2.0, fork-and-customise, decisions parked at HODOS-1)
+- **TAQ:** synthetic banking environment (closed, private, never public, factory for PULSE + canvas for Lever)
+
+**Important naming distinction:** "TAQ Bank" (the PULSE client, real bank with real PII) ≠ "TAQ App" (the synthetic environment in the new TAQ project). PULSE work refers to TAQ Bank; TAQ project work refers to TAQ App / the synthetic environment.
 
 Claude Code creates Jira tickets programmatically when instructed.
 Hussain closes all tickets manually in Jira UI — never programmatically.
-Dual closure rule applies to all three projects: validator passes AND Hussain closes in UI.
+Dual closure rule applies to all four projects: validator passes AND Hussain closes in UI.
+
+## TAQ App (sister concern, separate repo)
+
+**Repo:** `cjipro/taq-app` (private, never public, never demoed externally)
+**Path:** `C:\Users\hussa\taq-app\` — completely outside the while-sleeping tree
+**Created:** 2026-05-09 (scoping); earlier discussion 2026-05-07 evening as "Hodos Android reference application", reframed 2026-05-09 as web-based synthetic banking app
+
+**What it is:** A synthetic banking application running locally, populated by ~12M synthetic customers, driven by bot crawlers generating ~400M sessions/month at full scale. Banking-grade security posture (faithful proxy for a real bank). No real customers, no PII, no public surface ever. v1 starts with one journey (Loans) and a few hundred bot sessions.
+
+**Why it exists:** TAQ is the **factory for CJI Pulse** and the **canvas for CJI Lever**. PULSE has been blocked on real bank data (PULSE-2 living data dictionary, PULSE-28..33 / 39 / 62..66 all gating on synthetic MA_D); TAQ produces journey telemetry at scale that PULSE consumes. CJI Lever's autonomous-mode product (changes UX in real-time based on detected friction) needs a live target; TAQ is that target. The closed-loop demo narrative is *"friction solved live"* — bot population hits friction on Loans Step 3 → Pulse detects within seconds → Lever fires autonomous intervention → next bot sees changed UI → friction signature drops. Visible end-to-end on the demo screen.
+
+**Why it's a separate repo (not a subfolder of while-sleeping):**
+1. **Three different products, three different visibility postures.** Hodos is going public OSS; CJI is mixed (private code, public Pages output); TAQ is closed forever. These cannot sensibly share a tree without continuous deny-list defense.
+2. **MIL Zero Entanglement is the proven pattern.** Physical boundaries beat convention. TAQ ↔ PULSE crossing is via documented schemas, not shared imports.
+3. **Compliance optics.** A separate private repo for synthetic R&D infrastructure reads cleanly: *"public OSS engine here, private synthetic environment there, schema between them."* Mixed-tree reads ambiguous.
+
+**Sister concern means:**
+- Shared `.env` from `C:\Users\hussa\while-sleeping\.env` — TAQ scripts read it via relative path `../while-sleeping/.env`
+- Shared Atlassian site (cjipro.atlassian.net), shared GitHub org (cjipro)
+- Shared Cloudflare API token, shared LLM provider keys (where applicable)
+- Separate git repo, separate `CLAUDE.md`, separate memory directory, separate dependency tree
+- Two-way crossing only via documented contracts (see below)
+
+**Crossing contracts (the only files that conceptually live in both worlds):**
+- TAQ side: `C:\Users\hussa\taq-app\contracts\cji_pulse_telemetry.yaml` — what TAQ produces
+- PULSE/MIL side: `C:\Users\hussa\while-sleeping\mil\config\taq_contract.yaml` — what PULSE expects
+- These two files MUST match. Validator on each side enforces the match. Drift between them = bug.
+- Same pattern for the intervention return path: TAQ `contracts/cji_lever_intervention.yaml` ↔ while-sleeping side TBD when Lever lands.
+
+**Build Posture interaction:** TAQ is exempt from the 2026-05-08 build pause because its risk profile is structurally different (closed synthetic, no public surface, no demos, internal R&D only). See Build Posture section above for the carve-out language. **The carve-out is narrow** — it permits TAQ engineering work; it does NOT permit demoing TAQ to anyone in/outside Barclays, does NOT permit a public TAQ surface, does NOT permit alpha-partner activity on or via TAQ. If any of those become tempting, that's a re-lock conversation, not autonomous action.
+
+Full canonical reference: memory `project_taq_app_scope.md`. Sister-repo manifest: `C:\Users\hussa\taq-app\MANIFEST.yaml`.
 
 ## Build Rules
 
