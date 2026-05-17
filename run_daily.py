@@ -19,8 +19,10 @@ Usage:
 MIL Zero Entanglement: no imports from pulse/, poc/, app/, dags/
 """
 import argparse
+import atexit
 import json
 import logging
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -52,6 +54,67 @@ ENRICHED_DIR = HIST_BASE / "enriched"
 
 sys.path.insert(0, str(MIL_ROOT))
 sys.path.insert(0, str(REPO_ROOT))
+
+
+# MIL-171: single-instance guard. Prevents Scheduler catch-up (StartWhenAvailable)
+# from racing a manual fire — the 2026-05-17 PARTIAL was caused by two pipelines
+# reaching the analytics step concurrently and dropping the DuckDB file-lock.
+_LOCK_PATH = MIL_ROOT / "data" / "run_daily.lock"
+
+
+def _pid_is_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def _release_lock() -> None:
+    try:
+        if _LOCK_PATH.exists():
+            data = json.loads(_LOCK_PATH.read_text(encoding="utf-8"))
+            if data.get("pid") == os.getpid():
+                _LOCK_PATH.unlink()
+    except Exception:
+        pass
+
+
+def _acquire_single_instance_lock(mode: str) -> bool:
+    """Return True if lock acquired, False if another run is in progress."""
+    _LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if _LOCK_PATH.exists():
+        try:
+            owner = json.loads(_LOCK_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            owner = {}
+        owner_pid = int(owner.get("pid", 0) or 0)
+        if _pid_is_alive(owner_pid):
+            logger.warning(
+                "[lock] another run_daily.py is in progress (pid=%d started=%s mode=%s) — exiting 0",
+                owner_pid, owner.get("started_at", "?"), owner.get("mode", "?"),
+            )
+            return False
+        logger.warning(
+            "[lock] stale lock from pid=%d started=%s — taking over",
+            owner_pid, owner.get("started_at", "?"),
+        )
+    _LOCK_PATH.write_text(
+        json.dumps({
+            "pid": os.getpid(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "mode": mode,
+        }),
+        encoding="utf-8",
+    )
+    atexit.register(_release_lock)
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -707,6 +770,10 @@ def main() -> None:
         if bad:
             parser.error(f"Unknown step IDs: {sorted(bad)}. Valid: {sorted(_VALID_STEPS)}")
         selected = requested
+
+    _mode = "step" if selected is not None else ("dry-run" if args.dry_run else ("skip-fetch" if args.skip_fetch else "full"))
+    if not _acquire_single_instance_lock(_mode):
+        return
 
     logger.info("=== MIL Daily Refresh — %s ===", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
