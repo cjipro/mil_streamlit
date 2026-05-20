@@ -159,6 +159,7 @@ docker==7.1.0
 docrepr==0.2.0
 docstring-to-markdown==0.11
 docutils==0.18.1
+duckdb  # PROVISIONAL (2026-05-20): confirmed available in bank env (Hussain); exact pin pending — likely 1.1.x. Replace with duckdb==<version> when confirmed.
 en_core_web_sm==3.8.0
 entrypoints==0.4
 et_xmlfile==1.1.0
