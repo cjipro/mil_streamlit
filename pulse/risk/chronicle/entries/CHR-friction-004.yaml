@@ -1,0 +1,48 @@
+# CHR-friction-004 — Lloyds Banking Group, mortgage arrears handling enforcement
+#
+# Multi-year period of failings in fair-treatment of mortgage arrears
+# customers (broadly 2011–2015 period). FCA enforcement landed in 2020.
+# The friction signature is `unclear_remediation_path` on the
+# mortgage_arrears screen class — vulnerable customers facing process
+# friction at exactly the moment they most needed clarity.
+
+chronicle_id: CHR-friction-004
+institution: Lloyds Banking Group plc (Lloyds Bank, Bank of Scotland)
+regulator: FCA
+year: 2020
+incident_year: 2014
+
+friction_pattern:
+  signature_id: unclear_remediation_path
+  journey_category: choke_point
+  screen_class: mortgage_arrears
+  severity: P0
+
+enforcement_action:
+  type: fine
+  fine_gbp: 64046800
+  individual_named: false
+
+remediation_imposed:
+  - redress_scheme
+  - procedural_change
+  - customer_file_review
+
+public_sources:
+  - source: "FCA Final Notice — Lloyds Bank plc (mortgage arrears handling)"
+    date: "2020-06-11"
+
+notes: |
+  Long-running fair-treatment failings in how Lloyds Group handled
+  customers in mortgage arrears. Customers were funnelled through process
+  friction that did not properly account for individual circumstances or
+  vulnerability — the kind of pattern that translates in Pulse's
+  taxonomy to `unclear_remediation_path` on the mortgage_arrears screen.
+  The case is one of the best-documented FCA actions linking process
+  friction directly to vulnerable-cohort harm.
+
+  Curator note: fine amount and exact date warrant re-verification
+  against the FCA Final Notice text before this entry flips to
+  `verified` — figure cited from press coverage at time of authoring.
+
+verification_status: pending_human_review

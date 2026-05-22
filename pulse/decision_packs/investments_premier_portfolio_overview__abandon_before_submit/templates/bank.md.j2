@@ -1,0 +1,20 @@
+## {{ pack.pack_name }} — Bank altitude
+
+**{{ window.label }}.** {{ affected_sessions }} high-intent sessions abandoned
+`{{ screen_id }}` before initiating their inferred intended action
+({{ abandonment_uplift_pct }}% above baseline, p={{ p_value }}).
+{% if primary_intent -%}
+Inferred intended action: `{{ primary_intent.action }}` in {{ primary_intent.share_pct }}% of abandonments.
+{%- endif %}
+{% if primary_cohort -%}
+{{ primary_cohort.label }} bears {{ primary_cohort.share_pct }}% of the affected sessions
+({{ primary_cohort.recall_disparity_x }}× vs the overall population).
+{%- endif %}
+
+**Decision needed:** {{ recommendation_summary }}.
+
+**Estimated opportunity cost:** {{ estimated_revenue_at_risk }} (combining
+forgone trade commission, foregone advisor-mediated revenue, and the
+client-trust cost of unacted-on stated intent).
+
+**Confidence:** {{ confidence_band }} (band: {{ confidence_low }}–{{ confidence_high }}).

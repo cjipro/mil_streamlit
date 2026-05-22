@@ -1,0 +1,54 @@
+# CJI Pulse engine — package config.
+#
+# OWNERSHIP: the Pulse engine is owned by while-sleeping (relocated from holter
+# under PULSE-128, clean copy from holter 4687ffd, 2026-05-22). Holter keeps only
+# its frontend/surfaces and consumes this engine over the FastAPI /friction/* HTTP
+# boundary — never by Python import.
+#
+# This config is intentionally scoped to the pulse/ subtree (not the repo root)
+# so it does NOT hijack pytest discovery away from mil/tests/. The engine runs as
+# the top-level `pulse` package from the while-sleeping repo root (`import pulse...`),
+# and the bank env runs it via `py` directly, so no pip-install build backend is
+# declared here. Dependency list below is the bank-env contract — every entry is on
+# APPROVED_LIBRARIES.md (Python 3.11 lock).
+
+[project]
+name = "pulse"
+version = "0.1.0"
+description = "CJI Pulse engine — almost-real-time decision intelligence for customer-journey friction. Owned by while-sleeping (relocated from holter under PULSE-128)."
+requires-python = ">=3.11,<3.12"
+license = { text = "Apache-2.0" }
+authors = [{ name = "CJI" }]
+keywords = ["decision-intelligence", "customer-journey", "friction-detection", "regtech"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+]
+# Core engine + data-pipeline runtime. All on APPROVED_LIBRARIES.md.
+dependencies = [
+    "PyYAML>=6.0",
+    "duckdb",            # provisional pin in APPROVED_LIBRARIES.md (bank env ~1.1.x)
+    "pyarrow==18.1.0",
+]
+
+[project.optional-dependencies]
+# Classical-ML / stats used by detection, scoring, convergence (all approved).
+analysis = [
+    "numpy>=1.26,<2",
+    "pandas>=2.2,<3",
+    "scipy>=1.13,<2",
+    "scikit-learn>=1.5,<2",
+]
+test = ["pytest>=7.4"]   # bank env ships pytest 7.4.4
+dev = ["pytest>=7.4", "ruff>=0.5"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

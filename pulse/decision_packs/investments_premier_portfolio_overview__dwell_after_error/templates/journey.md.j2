@@ -1,0 +1,64 @@
+## {{ pack.pack_name }} — Journey altitude
+
+### What happened on `{{ screen_id }}`
+
+Across **{{ window.label }}**, {{ candidate_sessions }} of {{ total_sessions }} sessions
+({{ candidate_pct }}%) on the Premier portfolio overview met the naive
+`{{ signature_id }}` trigger: a prior minor event (filter returned no results,
+date range with no data, or transient load hiccup) followed by a dwell of
+{{ dwell_seconds_p50 }}s (median) — {{ dwell_uplift_pct }}% above the screen's
+{{ baseline_window_days }}-day baseline.
+
+**The detector fired on {{ fired_sessions }} of these {{ candidate_sessions }}
+sessions.** The negative-class discriminator suppressed the remaining
+{{ suppressed_sessions }} ({{ suppression_rate_pct }}%) because at least one
+engagement signal was present. This is the cell-10 mechanism: long dwell on a
+Premier portfolio is the *signal* of deliberate review, not friction.
+
+### Suppression-signal distribution (across the {{ candidate_sessions }} candidates)
+
+| Engagement signal | Sessions exhibiting | Share | Threshold | Direction |
+|---|---:|---:|---:|---|
+{% for s in suppression_signal_distribution -%}
+| `{{ s.signal }}` | {{ s.sessions }} | {{ s.share_pct }}% | {{ s.threshold }} | {{ s.direction }} |
+{% endfor %}
+
+Median scroll depth across candidates: **{{ median_scroll_depth_pct }}%**.
+Median chart drilldowns per candidate session: **{{ median_drilldowns }}**.
+7-day return rate across candidates: **{{ return_7d_pct }}%**.
+
+### Cohort split (across all {{ candidate_sessions }} candidates)
+
+| Cohort | Sessions | Share | Suppression rate |
+|---|---:|---:|---:|
+{% for c in cohort_breakdown -%}
+| {{ c.label }} | {{ c.sessions }} | {{ c.share_pct }}% | {{ c.suppression_rate_pct }}% |
+{% endfor %}
+
+{% if fairness_flag -%}
+> **Fairness check triggered.** {{ fairness_flag.label }} —
+> {{ fairness_flag.detail }}. Independent fairness review required before
+> any change to the discriminator thresholds.
+{%- endif %}
+
+### Why this matters
+
+Cell 10 is the FrictionBench load-bearing negative. A detector that fires on
+deliberate-review dwell is *misreading behaviour* — it would recommend
+remediation on a screen the user is choosing to engage with, eroding the
+Premier experience and producing audit findings the bank cannot defend.
+
+The discriminator's `fire_only_if` rule restricts firing to error types
+(`data_load_failed`, `account_authorization_lost`) that genuinely block the
+user from seeing their portfolio. Minor filter and date-range events do not
+qualify.
+
+### Suggested action
+
+{{ remediation_category }} — {{ remediation_rationale }}.
+
+### Confidence
+
+Detector reports **{{ confidence_band }}** ({{ confidence_low }}–{{ confidence_high }},
+bootstrap CI 95%). Brier score on the calibration set: {{ brier_score }}.
+False-positive rate on cell-10 ground truth: {{ false_positive_rate }}.

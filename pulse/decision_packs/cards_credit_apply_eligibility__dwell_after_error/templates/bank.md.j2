@@ -1,0 +1,13 @@
+## {{ pack.pack_name }} — Bank altitude
+
+**{{ window.label }}.** {{ affected_sessions }} sessions on `{{ screen_id }}`
+stalled after an eligibility-check error
+({{ dwell_uplift_pct }}% above baseline, p={{ p_value }}).
+{% if primary_cohort -%}
+{{ primary_cohort.label }} bears {{ primary_cohort.share_pct }}% of the affected sessions
+({{ primary_cohort.recall_disparity_x }}× vs the overall population).
+{%- endif %}
+
+**Decision needed:** {{ recommendation_summary }}.
+
+**Confidence:** {{ confidence_band }} (band: {{ confidence_low }}–{{ confidence_high }}).

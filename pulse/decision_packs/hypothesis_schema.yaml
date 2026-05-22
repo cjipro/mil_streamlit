@@ -1,0 +1,96 @@
+# Pulse decision-pack hypothesis schema — required canvas-completeness fields.
+#
+# Every decision pack ships a hypothesis.yaml per cell-signature pair. The
+# engine loads + validates the hypothesis at pack registration; rejection
+# means the pack does not run.
+#
+# This schema covers the CANVAS-COMPLETENESS slots (declared by the pack
+# author): actors, value_inputs, risk_inputs. The friction-detection
+# analytic fields (cell_id, signature_id, analytic, cohort_axes, etc.)
+# pre-date this schema and are not yet validator-enforced — they will
+# join the validator as the analytic layer stabilises.
+#
+# Filed under PULSE-103.
+
+version: 1.0.0
+
+required_fields:
+
+  actors:
+    type: list[enum]
+    values: [investigation_consumer, ml_engineer, mrm_reviewer, compliance_reviewer]
+    description: |
+      Closed set of consumer roles this pack is built for. At least one
+      required. Drives downstream rendering (which actor's altitude
+      the briefing surface composes for) and access scoping.
+
+  value_inputs:
+    type: object
+    description: What the Value methodology (PULSE-101) needs from this pack.
+    entry_schema:
+      severity_class:
+        type: enum
+        values: [high, medium, low]
+        description: |
+          Pack-author declared severity. Maps to P0/P1/P2 in the methodology:
+          high → P0, medium → P1, low → P2. Engine may override based on
+          runtime telemetry; this is the author's expected class.
+      vulnerable_cohort_sensitivity:
+        type: boolean
+        description: |
+          Does the pack expect friction to disproportionately affect vulnerable
+          cohorts? Feeds the Value methodology's vulnerable_cohort_concentrated
+          adjustment via the engine's measured share at runtime.
+      population_segment_addressed:
+        type: string
+        description: |
+          The customer segment this pack covers (e.g. "uk_retail_credit_applicants").
+          Free-form at v0; will move to a controlled vocabulary in v0.2.
+
+  risk_inputs:
+    type: object
+    description: What the Risk methodology (PULSE-99) needs from this pack.
+    entry_schema:
+      regulatory_taxonomies:
+        type: list[string]
+        description: |
+          Taxonomy codes from pulse/risk/regulatory_taxonomy.yaml that this
+          pack crosses. Validator cross-checks that every code is a known
+          taxonomy at pack-registration time. Empty list is allowed (means:
+          this pack covers a journey class with no published regulatory
+          expectation) but the field must be present.
+      policy_areas:
+        type: list[string]
+        description: |
+          Bank-internal policy-area identifiers (defined per-deployment in
+          pulse/contracts/bank_policy.yaml). NOT validated at pack registration
+          — bank_policy is per-deployment. Empty list is allowed.
+      chronicle_precedents:
+        type: list[string]
+        optional: true
+        description: |
+          Optional pointers to CHR-friction-NNN entries in pulse/risk/chronicle/.
+          Validator checks format (CHR-friction-NNN) if present; does NOT cross-
+          check that the precedent exists in the library (some referenced
+          precedents may be authored later).
+
+# Computed-slot immutability — the engine OWNS these. Pack-authored
+# declaration of either is a rejection. Mirrors the synthesis_mode v1
+# immutability gate in metadata_schema.yaml.
+forbidden_fields:
+
+  value_output:
+    rejection_reason: |
+      Value is a COMPUTED canvas slot. The Value methodology (PULSE-101)
+      derives the tier from pack-declared value_inputs + engine telemetry
+      + bank_policy at runtime. Pack-authored value_output would defeat
+      the reproducibility + per-deployment-relevance posture of the
+      methodology. See pulse/value/VALUE_DESIGN.md.
+
+  risk_output:
+    rejection_reason: |
+      Risk is a COMPUTED canvas slot. The Risk methodology (PULSE-99)
+      derives the tier from pack-declared risk_inputs + engine telemetry
+      + regulatory_taxonomy + bank_policy + Chronicle library at runtime.
+      Pack-authored risk_output would defeat the same posture. See
+      pulse/risk/RISK_DESIGN.md.

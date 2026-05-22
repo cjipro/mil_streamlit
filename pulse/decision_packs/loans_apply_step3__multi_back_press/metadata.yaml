@@ -1,0 +1,26 @@
+# FrictionBench cell 2: loans.apply.step3 × multi_back_press.
+# Engineered positive — repeated back-button presses on the same step is the
+# canonical "user thinks they're on the wrong step" navigation-confusion shape.
+
+pack_name: loans_apply_step3__multi_back_press
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects multi-back-press friction at loan-application step 3. Signature fires
+  when a session contains ≥3 back-navigation events on the same screen within
+  a 5-minute window. Distinguishes "exploring the form" from "lost in the
+  flow" via inter-press interval distribution + step-completion attempts.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 2 of 12 in FrictionBench v0.1 matrix.

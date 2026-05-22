@@ -1,0 +1,95 @@
+# Hypothesis declaration — shape preview, not yet validator-enforced.
+
+cell_id: 12
+screen_id: investments.premier.portfolio.overview
+signature_id: abandon_before_submit
+ground_truth_expectation: positive
+
+question_class: high_intent_drop_off_attribution
+
+analytic:
+  method: terminal_abandonment_detection
+  trigger:
+    requires_entry_intent_signal: true
+    intended_action_inferred_from:
+      - entry_via_push_notification_portfolio_drop
+      - entry_via_advisor_email_deep_link
+      - in_session_holding_search
+      - in_session_chart_drilldown_with_amount_input_focus
+    requires_dwell_above_percentile: 90
+    requires_exit_without_event:
+      - trade_initiated
+      - advisor_message_sent
+      - report_downloaded
+  exclusions:
+    - session_returned_within_seconds: 1800
+      reason: short-window returns suggest tab-park, not abandonment
+    - advised_client_initiated_phone_call_within_24h: true
+      reason: advised clients routing to phone is not abandonment, it's handoff
+
+cohort_axes:
+  - client_tier
+  - advised_vs_self_directed
+  - age_band
+  - portfolio_size_band
+  - entry_intent_class
+  - device_class
+
+evidence_required:
+  - entry_intent_class
+  - inferred_intended_action
+  - time_on_screen
+  - chart_drilldown_count
+  - holding_detail_opens
+  - exit_path
+  - 24h_return_flag
+  - advised_phone_call_24h_flag
+
+remediation_categories:
+  - intent_capture_at_entry
+  - friction_at_trade_initiation
+  - advisor_handoff_affordance
+  - report_download_discoverability
+
+confidence:
+  reporting: brier_calibrated
+  band_method: bootstrap_ci_95
+
+fairness:
+  required_methods:
+    - cohort_demographic_parity_check
+    - cohort_recall_disparity
+    - vulnerable_cohort_overrepresentation_check
+  trigger_independent_review_if:
+    cohort_recall_disparity_above: 0.15
+    vulnerable_cohort_share_above: 0.25
+
+audit:
+  bundle_required_fields:
+    - lineage_chain
+    - analytic_inputs_hash
+    - cohort_split_breakdown
+    - threshold_config_hash
+    - entry_intent_distribution
+    - inferred_action_distribution
+    - 24h_return_rate
+    - advised_phone_handoff_rate
+
+# --- Canvas slots (PULSE-103: actors / value_inputs / risk_inputs) ---
+
+actors:
+  - investigation_consumer
+  - ml_engineer
+
+value_inputs:
+  severity_class: medium
+  vulnerable_cohort_sensitivity: false
+  population_segment_addressed: uk_premier_investments_clients
+
+risk_inputs:
+  regulatory_taxonomies:
+    - fca_consumer_duty.outcome_2_price_value
+    - fca_consumer_duty.outcome_4_consumer_support
+  policy_areas:
+    - premier_advisory_standards
+  chronicle_precedents: []

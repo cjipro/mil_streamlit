@@ -1,0 +1,82 @@
+# Hypothesis declaration — shape preview, not yet validator-enforced.
+# Loaded by the v1 synthesis layer (PULSE-93) to drive analytic + narrative
+# rendering. Schema TBD; the fields here are illustrative of what the engine
+# will need to know to produce a defensible decision pack output.
+
+cell_id: 7
+screen_id: cards.credit.apply.eligibility
+signature_id: dwell_after_error
+ground_truth_expectation: positive
+
+question_class: friction_attribution
+
+analytic:
+  method: dwell_z_score_vs_screen_baseline
+  trigger:
+    requires_prior_event: eligibility_error
+    dwell_window_seconds: 45
+    p_value_threshold: 0.01
+  baseline_source: rolling_28d_same_screen
+  minimum_sessions_for_significance: 200
+
+cohort_axes:
+  - age_band
+  - employment_type
+  - new_to_credit_flag
+  - recent_job_change_flag
+
+evidence_required:
+  - dwell_time_seconds
+  - error_event_count
+  - error_type_distribution
+  - cohort_split_breakdown
+  - prior_step_completion_rate
+
+remediation_categories:
+  - pre_screen_eligibility_indicator
+  - decline_reason_transparency
+  - soft_search_disclosure_clarity
+  - gig_worker_income_proof_alternatives
+
+confidence:
+  reporting: brier_calibrated
+  band_method: bootstrap_ci_95
+
+fairness:
+  required_methods:
+    - cohort_demographic_parity_check
+    - cohort_recall_disparity
+    - vulnerable_cohort_overrepresentation_check
+  trigger_independent_review_if:
+    cohort_recall_disparity_above: 0.15
+    vulnerable_cohort_share_above: 0.25
+
+audit:
+  bundle_required_fields:
+    - lineage_chain
+    - analytic_inputs_hash
+    - cohort_split_breakdown
+    - threshold_config_hash
+
+# --- Canvas slots (PULSE-103: actors / value_inputs / risk_inputs) ---
+
+actors:
+  - investigation_consumer
+  - compliance_reviewer
+
+value_inputs:
+  severity_class: high
+  vulnerable_cohort_sensitivity: true
+  population_segment_addressed: uk_retail_card_applicants
+
+risk_inputs:
+  regulatory_taxonomies:
+    - fca_consumer_duty.outcome_1_products_services
+    - fca_consumer_duty.outcome_3_consumer_understanding
+    - eu_ai_act.high_risk_credit_scoring
+  policy_areas:
+    - credit_card_affordability
+    - vulnerable_customer_handling
+  chronicle_precedents:
+    - CHR-friction-005
+    - CHR-friction-006

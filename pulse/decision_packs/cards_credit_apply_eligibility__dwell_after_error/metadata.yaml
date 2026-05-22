@@ -1,0 +1,32 @@
+# FrictionBench cell 7: cards.credit.apply.eligibility × dwell_after_error.
+# Engineered positive — long dwell following an eligibility-check error is the
+# canonical "user got pre-declined, doesn't understand why or what to do next"
+# friction shape. Pre-decline is a Consumer Duty foreseeable-harm hotspot.
+
+pack_name: cards_credit_apply_eligibility__dwell_after_error
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects dwell-after-error friction on the credit-card eligibility screen.
+  Signature fires when a session shows a validation or pre-decline error
+  followed by a dwell window exceeding the screen's calibrated baseline at
+  p<0.01. Cohort-aware: thin-file (18-24), gig-economy, and recent-job-change
+  cohorts are tracked separately because pre-decline disproportionately
+  affects them, and aggregate latency hides cohort-skewed harm.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 7 of 12 in FrictionBench v0.1 matrix. The eligibility screen is a
+  pre-decline gate; "dwell after error" here often means the user is reading
+  a decline reason they don't know how to act on — making decline-reason
+  transparency a load-bearing remediation lever.

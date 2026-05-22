@@ -66,14 +66,14 @@ def check_mil_imports_internal(violations: list) -> None:
             if module in INTERNAL_MODULES:
                 rel = py_file.relative_to(ROOT)
                 violations.append(
-                    f"VIOLATION [MIL→INTERNAL]: {rel} imports '{module}' — "
+                    f"VIOLATION [MIL->INTERNAL]: {rel} imports '{module}' -- "
                     f"Zero Entanglement breach. mil/ may not import internal modules."
                 )
 
 
 def check_external_imports_mil(violations: list) -> None:
     """Files outside mil/ must not import from mil/ directly."""
-    for search_dir_name in ["app", "poc", "agents", "src", "conductor", "dags", "scripts"]:
+    for search_dir_name in ["app", "poc", "agents", "src", "conductor", "dags", "scripts", "pulse"]:
         search_dir = ROOT / search_dir_name
         if not search_dir.exists():
             continue
@@ -89,7 +89,7 @@ def check_external_imports_mil(violations: list) -> None:
                     # The adapter shim is exempt — it calls mil/command/app.py via subprocess/path
                     # but should not import mil as a Python module
                     violations.append(
-                        f"VIOLATION [EXTERNAL→MIL]: {rel} imports 'mil' — "
+                        f"VIOLATION [EXTERNAL->MIL]: {rel} imports 'mil' -- "
                         f"Zero Entanglement breach. Use mil/outputs/mil_findings.json only."
                     )
 

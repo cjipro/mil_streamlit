@@ -23,6 +23,11 @@ data/*.json
 *.csv
 *.parquet
 
+# Pulse pipeline generated output (MA_D / MA_S / marts + manifests) — regenerated
+# from code via pulse.synthetic.generate_ma_d -> pulse.pipeline.sessionise ->
+# pulse.serving.journey_mart; never committed.
+dist/
+
 # Python
 __pycache__/
 *.pyc

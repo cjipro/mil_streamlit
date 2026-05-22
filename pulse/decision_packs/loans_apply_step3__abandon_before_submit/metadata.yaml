@@ -1,0 +1,30 @@
+# FrictionBench cell 3: loans.apply.step3 × abandon_before_submit.
+# Engineered positive — abandonment at the final friction-target step is the
+# canonical "high-intent user lost at the finish line" shape; the most
+# financially load-bearing of the three signatures on this screen.
+
+pack_name: loans_apply_step3__abandon_before_submit
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects abandonment at the final input step of the loan application.
+  Signature fires when a session reaches step 3, dwells past the screen's
+  90th-percentile baseline, and exits without submission. High-intent
+  cohort: by definition these users completed steps 1 and 2 — abandonment
+  here represents the largest per-session opportunity cost on the journey.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 3 of 12 in FrictionBench v0.1 matrix. Financially load-bearing — a
+  10% reduction in cell-3 abandonment is worth more in funded-loan revenue
+  than the same reduction at any earlier step.

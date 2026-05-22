@@ -1,0 +1,52 @@
+# CHR-friction-009 — Lloyds Banking Group, transaction-data API exposure, 2025
+#
+# An overnight IT update introduced an API defect that caused customers
+# to see other customers' transaction data. Up to 447,936 customers
+# potentially exposed; 114,182 confirmed to have viewed affected data.
+# Defect identified and resolved within the same day. The friction
+# signature is `wrong_customer_data_visible` on the account_management
+# screen class. Regulatory investigations (FCA, ICO) opened; £139,000
+# compensation paid by Lloyds.
+
+chronicle_id: CHR-friction-009
+institution: Lloyds Banking Group plc (Lloyds, Halifax, Bank of Scotland)
+regulator: FCA
+year: 2025
+
+friction_pattern:
+  signature_id: wrong_customer_data_visible
+  journey_category: infrastructure
+  screen_class: account_management
+  severity: P0
+
+enforcement_action:
+  type: voluntary_undertaking
+  fine_gbp: null
+  redress_gbp: 139000
+  individual_named: false
+
+remediation_imposed:
+  - procedural_change
+  - regulator_notified_within_72h
+
+public_sources:
+  - source: "The Register — Lloyds app glitch exposed transactions to almost 500K users"
+    date: "2025-03"
+  - source: "Computer Weekly — MPs ask Lloyds for more information about 'alarming' breach"
+    date: "2025-03"
+  - source: "Treasury Committee correspondence — UK Parliament"
+    date: "2025-03"
+
+notes: |
+  Same-day resolution but exposure had already occurred. £139,000
+  compensation paid to 3,625 customers for distress and inconvenience.
+  FCA notified within 72 hours; ICO opened enquiries. As of authoring,
+  no final FCA/ICO enforcement determination was on public record —
+  the entry will be updated (via a new CHR-friction entry, append-only)
+  if/when a final determination publishes.
+
+  Curator note: matches MIL Sonar CHR-002 (private framing). Useful
+  comparator to CHR-friction-001 (TSB) for incident-to-determination
+  lag tracking.
+
+verification_status: pending_human_review

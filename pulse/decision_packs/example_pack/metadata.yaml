@@ -1,0 +1,25 @@
+# Reference decision-pack metadata — worked example.
+# Used as a fixture by pulse/tests/test_decision_pack_metadata.py.
+# Filed under PULSE-89.
+
+pack_name: journey_friction
+pack_version: 1.0.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Friction detection pack for v1 12-cell scope (3 signatures × 4 friction-target screens).
+  Bundles the dwell_after_error / multi_back_press / abandon_before_submit hypotheses
+  against loans.apply.step3 / international.beneficiary.setup / cards.credit.apply.eligibility /
+  investments.premier.portfolio.overview.
+
+notes: |
+  v1 reference pack. Bumps on signature taxonomy changes or template revisions.

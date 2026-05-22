@@ -1,0 +1,43 @@
+## {{ pack.pack_name }} — Journey altitude
+
+### What happened on `{{ screen_id }}`
+
+Across **{{ window.label }}**, {{ affected_sessions }} of {{ total_sessions }} sessions
+({{ affected_pct }}%) showed the `{{ signature_id }}` pattern: a validation error
+followed by a dwell of {{ dwell_seconds_p50 }}s (median) — {{ dwell_uplift_pct }}%
+above the screen's {{ baseline_window_days }}-day baseline. The cross-border
+error taxonomy is wider than retail forms; users with no prior international-
+sender history have less context to decode the message.
+
+Statistical significance: **p = {{ p_value }}** against the rolling baseline
+(n = {{ baseline_n }}). Above the configured threshold of
+p<{{ p_value_threshold }}.
+
+### Cohort split
+
+| Cohort | Affected sessions | Share | Recall vs overall |
+|---|---:|---:|---:|
+{% for c in cohort_breakdown -%}
+| {{ c.label }} | {{ c.affected }} | {{ c.share_pct }}% | {{ c.recall_x }}× |
+{% endfor %}
+
+{% if fairness_flag -%}
+> **Fairness check triggered.** {{ fairness_flag.label }} —
+> {{ fairness_flag.detail }}. Independent fairness review required before
+> remediation rollout.
+{%- endif %}
+
+### Most-cited error types
+
+{% for e in error_breakdown -%}
+- `{{ e.code }}` — {{ e.count }} occurrences ({{ e.share_pct }}% of errors)
+{% endfor %}
+
+### Suggested remediation category
+
+`{{ remediation_category }}` — {{ remediation_rationale }}.
+
+### Confidence
+
+Detector reports **{{ confidence_band }}** ({{ confidence_low }}–{{ confidence_high }},
+bootstrap CI 95%). Brier score on the calibration set: {{ brier_score }}.

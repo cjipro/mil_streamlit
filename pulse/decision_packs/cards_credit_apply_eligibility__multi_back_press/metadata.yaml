@@ -1,0 +1,32 @@
+# FrictionBench cell 8: cards.credit.apply.eligibility × multi_back_press.
+# Engineered positive — repeated back-button presses on the eligibility screen
+# is the canonical "user is fishing for a different answer" navigation-confusion
+# shape; common around the soft-search consent and income-range fields where
+# users wonder if changing an answer would let them through.
+
+pack_name: cards_credit_apply_eligibility__multi_back_press
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects multi-back-press friction on the credit-card eligibility screen.
+  Signature fires when a session contains ≥3 back-navigation events on the
+  same screen within a 5-minute window. Distinguishes "exploring the form"
+  from "trying to game the answer" via inter-press interval distribution +
+  field-value-change counts on income-range and employment-duration fields.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 8 of 12 in FrictionBench v0.1 matrix. The eligibility screen is the
+  canonical surface for this signature because it's an information-asymmetric
+  decision gate — users don't know what threshold they're being measured
+  against and back-press to retry with different values.

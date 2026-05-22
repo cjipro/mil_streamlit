@@ -1,0 +1,17 @@
+## {{ pack.pack_name }} — Bank altitude
+
+**{{ window.label }}.** {{ candidate_sessions }} sessions on `{{ screen_id }}`
+exceeded the dwell threshold after a minor event; **{{ fired_sessions }} fired**
+({{ suppression_rate_pct }}% suppressed by the engagement-signal discriminator).
+{% if fired_sessions == 0 -%}
+Detector behaving correctly on FrictionBench cell 10 (load-bearing negative):
+long dwell on a Premier portfolio is deliberate review, not friction.
+{%- else -%}
+The {{ fired_sessions }} that fired were not suppressed because no engagement
+signal was present AND the prior event was `{{ unsuppressed_error_type }}`
+(in the discriminator's `fire_only_if` set).
+{%- endif %}
+
+**Decision needed:** {{ recommendation_summary }}.
+
+**Confidence:** {{ confidence_band }} (band: {{ confidence_low }}–{{ confidence_high }}).

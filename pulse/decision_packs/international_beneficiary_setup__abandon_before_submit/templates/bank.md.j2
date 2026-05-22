@@ -1,0 +1,19 @@
+## {{ pack.pack_name }} — Bank altitude
+
+**{{ window.label }}.** {{ affected_sessions }} high-intent sessions abandoned
+`{{ screen_id }}` before initiating payment
+({{ abandonment_uplift_pct }}% above baseline, p={{ p_value }}).
+{% if primary_field -%}
+Final-focused field: `{{ primary_field.name }}` in {{ primary_field.share_pct }}% of abandonments.
+{%- endif %}
+{% if primary_cohort -%}
+{{ primary_cohort.label }} bears {{ primary_cohort.share_pct }}% of the affected sessions
+({{ primary_cohort.recall_disparity_x }}× vs the overall population).
+{%- endif %}
+
+**Decision needed:** {{ recommendation_summary }}.
+
+**Estimated opportunity cost:** {{ estimated_revenue_at_risk }} (assuming
+historical fee + FX-margin conversion rates apply to recovered sessions).
+
+**Confidence:** {{ confidence_band }} (band: {{ confidence_low }}–{{ confidence_high }}).

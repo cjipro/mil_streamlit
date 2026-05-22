@@ -1,0 +1,32 @@
+# FrictionBench cell 11: investments.premier.portfolio.overview × multi_back_press.
+# Engineered positive — repeated back-presses on the portfolio overview signal
+# time-range / filter confusion (user thinks they set 1Y but chart shows YTD).
+
+pack_name: investments_premier_portfolio_overview__multi_back_press
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects multi-back-press friction on the Premier portfolio overview.
+  Signature fires when a session contains ≥3 back-navigation events on the
+  same screen within a 5-minute window, with short inter-press intervals
+  indicating confusion (not deliberate review). On this screen the canonical
+  failure mode is time-range / filter mismatch: the user thinks they set 1Y
+  but the chart is still showing YTD, or a filter from a prior session has
+  persisted unexpectedly.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 11 of 12 in FrictionBench v0.1 matrix. Positive cell on a screen
+  whose cell-10 sibling is the load-bearing negative; the discriminator
+  used here (short inter-press intervals) is what separates real confusion
+  from the deliberate-review behaviour cell 10 suppresses.

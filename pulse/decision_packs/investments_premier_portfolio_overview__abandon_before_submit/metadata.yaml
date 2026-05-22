@@ -1,0 +1,34 @@
+# FrictionBench cell 12: investments.premier.portfolio.overview × abandon_before_submit.
+# Engineered positive — high-intent session reaches the portfolio overview
+# (entry intent suggests a trade, advisor message, or report download was
+# planned) and exits without initiating that action.
+
+pack_name: investments_premier_portfolio_overview__abandon_before_submit
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects abandonment before intended action on the Premier portfolio
+  overview. "Submit" is not the right verb here — the meaningful actions are
+  trade_initiated, advisor_message_sent, and report_downloaded. The signature
+  fires when a session enters with a high-intent signal (push-notification
+  origin about a portfolio drop, deep-link from an advisor email, or
+  in-session search for a specific holding) and exits without initiating the
+  inferred intended action. Skews self_directed: advised clients tend to
+  call their advisor rather than abandon silently.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 12 of 12 in FrictionBench v0.1 matrix. The financially load-bearing
+  positive on this screen: an abandoned trade-intent or advisor-handoff is
+  a measurable opportunity cost to both the client (action not taken when
+  they intended) and the bank (revenue forgone).

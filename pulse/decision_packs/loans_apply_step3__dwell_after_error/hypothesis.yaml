@@ -1,0 +1,77 @@
+# Hypothesis declaration — shape preview, not yet validator-enforced.
+# Loaded by the v1 synthesis layer (PULSE-93) to drive analytic + narrative
+# rendering. Schema TBD; the fields here are illustrative of what the engine
+# will need to know to produce a defensible decision pack output.
+
+cell_id: 1
+screen_id: loans.apply.step3
+signature_id: dwell_after_error
+ground_truth_expectation: positive
+
+question_class: friction_attribution
+
+analytic:
+  method: dwell_z_score_vs_screen_baseline
+  trigger:
+    requires_prior_event: validation_error
+    dwell_window_seconds: 60
+    p_value_threshold: 0.01
+  baseline_source: rolling_28d_same_screen
+  minimum_sessions_for_significance: 200
+
+cohort_axes:
+  - age_band
+  - device_class
+  - first_time_visitor
+
+evidence_required:
+  - dwell_time_seconds
+  - error_event_count
+  - error_type_distribution
+  - cohort_split_breakdown
+  - prior_step_completion_rate
+
+remediation_categories:
+  - template_fix
+  - validation_message_clarity
+  - cohort_specific_routing
+
+confidence:
+  reporting: brier_calibrated
+  band_method: bootstrap_ci_95
+
+fairness:
+  required_methods:
+    - cohort_demographic_parity_check
+    - cohort_recall_disparity
+  trigger_independent_review_if:
+    cohort_recall_disparity_above: 0.15
+
+audit:
+  bundle_required_fields:
+    - lineage_chain
+    - analytic_inputs_hash
+    - cohort_split_breakdown
+    - threshold_config_hash
+
+# --- Canvas slots (PULSE-103: actors / value_inputs / risk_inputs) ---
+
+actors:
+  - investigation_consumer
+  - compliance_reviewer
+
+value_inputs:
+  severity_class: high
+  vulnerable_cohort_sensitivity: true
+  population_segment_addressed: uk_retail_credit_applicants
+
+risk_inputs:
+  regulatory_taxonomies:
+    - fca_consumer_duty.outcome_1_products_services
+    - fca_consumer_duty.outcome_3_consumer_understanding
+    - eu_ai_act.high_risk_credit_scoring
+  policy_areas:
+    - affordability_review
+    - vulnerable_customer_handling
+  chronicle_precedents:
+    - CHR-friction-005

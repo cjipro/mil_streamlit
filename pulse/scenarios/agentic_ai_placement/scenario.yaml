@@ -1,0 +1,240 @@
+# Agentic AI placement scenario — input fixtures (PULSE-106).
+#
+# Each entry corresponds to one (journey × signature) cell in the
+# 4-journey × 3-signature seed batch. The numbers are illustrative
+# fixtures — they exercise every cell of the placement matrix
+# (Diagnosis × Risk × Value combinations) so the worked example
+# demonstrates the full output space, not a single dominant outcome.
+#
+# Real-deployment scenario inputs would be derived from the
+# bank's telemetry pipeline rather than declared here.
+#
+# Schema per entry:
+#
+#   journey_id:        the journey under analysis
+#   screen_class:      the screen class from the regulatory_taxonomy applicable list
+#   signature_id:      the friction signature
+#   pack_dir:          the corresponding pulse/decision_packs/<dir>/ subdir
+#
+#   diagnosis_inputs:
+#     assistance_arm:
+#       n_sessions, success_rate
+#     no_assistance_arm:
+#       n_sessions, success_rate
+#
+#   risk_inputs:
+#     impact_metrics:
+#       affected_customers_7d, vulnerable_cohort_overrep_ratio
+#
+#   value_inputs:
+#     metrics:
+#       affected_customers_7d, avg_events_per_affected_user,
+#       vulnerable_cohort_share, counterfactual_baseline_pct
+
+bank_policy:
+  # Used by both Risk and Value scoring. Same shape as
+  # pulse/contracts/bank_policy.yaml after strict validation.
+  version: "0.1.0"
+  deployment_id: "deploy-scenario-agentic-ai-placement"
+  escalation_thresholds:
+    affected_customers_7d_window: 500
+    vulnerable_cohort_overrep_floor: 1.25
+  policy_areas:
+    - internal_name: "Affordability Review"
+      regulatory_taxonomy: fca_consumer_duty_2.0
+      regulatory_section: "PRIN 12"
+  vulnerable_cohort_extensions: []
+  # Per-journey-category ARPU (£/customer/month), used by Value
+  # methodology v0.2 (PULSE-107) to size the COMMERCIAL-OPPORTUNITY signal.
+  # Illustrative values for the worked-example scenario — choke_point
+  # (credit applications) is set highest as those drive lending revenue
+  # at higher £/customer than navigation friction on marketing pages.
+  arpu_per_journey:
+    choke_point: 42.0
+    infrastructure: 18.0
+    context_loss: 26.0
+    behavioural_noise: 6.0
+
+cells:
+
+  # --- loans_apply_step3 journey ----------------------------------------
+
+  - journey_id: loans_apply_step3
+    screen_class: credit_application
+    signature_id: dwell_after_error
+    pack_dir: loans_apply_step3__dwell_after_error
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 540, success_rate: 0.58 }
+      no_assistance_arm: { n_sessions: 2400, success_rate: 0.92 }
+    risk_impact: { affected_customers_7d: 1850, vulnerable_cohort_overrep_ratio: 1.42 }
+    value_metrics:
+      affected_customers_7d: 1850
+      avg_events_per_affected_user: 2.1
+      vulnerable_cohort_share: 0.46
+      counterfactual_baseline_pct: 0.34
+
+  - journey_id: loans_apply_step3
+    screen_class: credit_application
+    signature_id: multi_back_press
+    pack_dir: loans_apply_step3__multi_back_press
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 380, success_rate: 0.71 }
+      no_assistance_arm: { n_sessions: 2400, success_rate: 0.78 }
+    risk_impact: { affected_customers_7d: 420, vulnerable_cohort_overrep_ratio: 1.15 }
+    value_metrics:
+      affected_customers_7d: 420
+      avg_events_per_affected_user: 3.4
+      vulnerable_cohort_share: 0.31
+      counterfactual_baseline_pct: 0.18
+
+  - journey_id: loans_apply_step3
+    screen_class: credit_application
+    signature_id: abandon_before_submit
+    pack_dir: loans_apply_step3__abandon_before_submit
+    # Tuned to produce JOURNEY_PROBLEM diagnosis: both arms fail at
+    # similar (low) rates. AI assistance can't fix this — the journey
+    # itself is broken.
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 290, success_rate: 0.30 }
+      no_assistance_arm: { n_sessions: 2400, success_rate: 0.32 }
+    risk_impact: { affected_customers_7d: 1100, vulnerable_cohort_overrep_ratio: 1.38 }
+    value_metrics:
+      affected_customers_7d: 1100
+      avg_events_per_affected_user: 1.2
+      vulnerable_cohort_share: 0.51
+      counterfactual_baseline_pct: 0.28
+
+  # --- international_beneficiary_setup journey --------------------------
+
+  - journey_id: international_beneficiary_setup
+    screen_class: payment_initiation
+    signature_id: dwell_after_error
+    pack_dir: international_beneficiary_setup__dwell_after_error
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 410, success_rate: 0.62 }
+      no_assistance_arm: { n_sessions: 1900, success_rate: 0.81 }
+    risk_impact: { affected_customers_7d: 720, vulnerable_cohort_overrep_ratio: 1.20 }
+    value_metrics:
+      affected_customers_7d: 720
+      avg_events_per_affected_user: 2.5
+      vulnerable_cohort_share: 0.28
+      counterfactual_baseline_pct: 0.22
+
+  - journey_id: international_beneficiary_setup
+    screen_class: payment_initiation
+    signature_id: multi_back_press
+    pack_dir: international_beneficiary_setup__multi_back_press
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 220, success_rate: 0.68 }
+      no_assistance_arm: { n_sessions: 1900, success_rate: 0.72 }
+    risk_impact: { affected_customers_7d: 300, vulnerable_cohort_overrep_ratio: 1.10 }
+    value_metrics:
+      affected_customers_7d: 300
+      avg_events_per_affected_user: 3.8
+      vulnerable_cohort_share: 0.18
+      counterfactual_baseline_pct: 0.14
+
+  - journey_id: international_beneficiary_setup
+    screen_class: payment_initiation
+    signature_id: abandon_before_submit
+    pack_dir: international_beneficiary_setup__abandon_before_submit
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 180, success_rate: 0.41 }
+      no_assistance_arm: { n_sessions: 1900, success_rate: 0.48 }
+    risk_impact: { affected_customers_7d: 540, vulnerable_cohort_overrep_ratio: 1.31 }
+    value_metrics:
+      affected_customers_7d: 540
+      avg_events_per_affected_user: 1.1
+      vulnerable_cohort_share: 0.33
+      counterfactual_baseline_pct: 0.19
+
+  # --- cards_credit_apply_eligibility journey ---------------------------
+
+  - journey_id: cards_credit_apply_eligibility
+    screen_class: credit_application
+    signature_id: dwell_after_error
+    pack_dir: cards_credit_apply_eligibility__dwell_after_error
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 620, success_rate: 0.55 }
+      no_assistance_arm: { n_sessions: 3100, success_rate: 0.89 }
+    risk_impact: { affected_customers_7d: 2100, vulnerable_cohort_overrep_ratio: 1.50 }
+    value_metrics:
+      affected_customers_7d: 2100
+      avg_events_per_affected_user: 2.6
+      vulnerable_cohort_share: 0.49
+      counterfactual_baseline_pct: 0.38
+
+  - journey_id: cards_credit_apply_eligibility
+    screen_class: credit_application
+    signature_id: multi_back_press
+    pack_dir: cards_credit_apply_eligibility__multi_back_press
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 480, success_rate: 0.67 }
+      no_assistance_arm: { n_sessions: 3100, success_rate: 0.74 }
+    risk_impact: { affected_customers_7d: 510, vulnerable_cohort_overrep_ratio: 1.18 }
+    value_metrics:
+      affected_customers_7d: 510
+      avg_events_per_affected_user: 4.2
+      vulnerable_cohort_share: 0.27
+      counterfactual_baseline_pct: 0.21
+
+  - journey_id: cards_credit_apply_eligibility
+    screen_class: credit_application
+    signature_id: abandon_before_submit
+    pack_dir: cards_credit_apply_eligibility__abandon_before_submit
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 340, success_rate: 0.32 }
+      no_assistance_arm: { n_sessions: 3100, success_rate: 0.38 }
+    risk_impact: { affected_customers_7d: 1280, vulnerable_cohort_overrep_ratio: 1.44 }
+    value_metrics:
+      affected_customers_7d: 1280
+      avg_events_per_affected_user: 1.3
+      vulnerable_cohort_share: 0.55
+      counterfactual_baseline_pct: 0.31
+
+  # --- investments_premier_portfolio_overview journey -------------------
+  # (cell 10 is the FrictionBench negative — assistance-arm n is small
+  # because Premier customers rarely engage assistance for portfolio
+  # overview; this is the INCONCLUSIVE control-arm test in the matrix)
+
+  - journey_id: investments_premier_portfolio_overview
+    screen_class: account_management
+    signature_id: dwell_after_error
+    pack_dir: investments_premier_portfolio_overview__dwell_after_error
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 40, success_rate: 0.85 }
+      no_assistance_arm: { n_sessions: 80, success_rate: 0.93 }
+    risk_impact: { affected_customers_7d: 12, vulnerable_cohort_overrep_ratio: 1.02 }
+    value_metrics:
+      affected_customers_7d: 12
+      avg_events_per_affected_user: 1.1
+      vulnerable_cohort_share: 0.08
+      counterfactual_baseline_pct: 0.05
+
+  - journey_id: investments_premier_portfolio_overview
+    screen_class: account_management
+    signature_id: multi_back_press
+    pack_dir: investments_premier_portfolio_overview__multi_back_press
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 80, success_rate: 0.78 }
+      no_assistance_arm: { n_sessions: 600, success_rate: 0.83 }
+    risk_impact: { affected_customers_7d: 95, vulnerable_cohort_overrep_ratio: 1.05 }
+    value_metrics:
+      affected_customers_7d: 95
+      avg_events_per_affected_user: 3.6
+      vulnerable_cohort_share: 0.12
+      counterfactual_baseline_pct: 0.11
+
+  - journey_id: investments_premier_portfolio_overview
+    screen_class: account_management
+    signature_id: abandon_before_submit
+    pack_dir: investments_premier_portfolio_overview__abandon_before_submit
+    diagnosis_inputs:
+      assistance_arm: { n_sessions: 60, success_rate: 0.45 }
+      no_assistance_arm: { n_sessions: 600, success_rate: 0.52 }
+    risk_impact: { affected_customers_7d: 110, vulnerable_cohort_overrep_ratio: 1.08 }
+    value_metrics:
+      affected_customers_7d: 110
+      avg_events_per_affected_user: 1.4
+      vulnerable_cohort_share: 0.15
+      counterfactual_baseline_pct: 0.16

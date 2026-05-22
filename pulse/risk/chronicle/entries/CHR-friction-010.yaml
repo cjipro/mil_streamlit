@@ -1,0 +1,55 @@
+# CHR-friction-010 — HSBC UK + First Direct, app & online-banking outage, August 2025
+#
+# Five-hour outage on 27 August 2025 left HSBC UK and First Direct (shared
+# infrastructure) customers unable to access accounts. Error code ERR03
+# observed at scale. Service restored same afternoon. No specific FCA/PRA
+# enforcement publicly recorded at time of authoring, but the case sits
+# inside the broader FCA scrutiny of UK retail-banking IT resilience
+# (HSBC accumulated 176 hours of downtime across 32 incidents,
+# January 2023–February 2025, per Treasury Committee data). Mapped to
+# `account_access_unavailable` on the account_login screen.
+
+chronicle_id: CHR-friction-010
+institution: HSBC UK Bank plc (and First Direct)
+regulator: FCA
+year: 2025
+
+friction_pattern:
+  signature_id: account_access_unavailable
+  journey_category: infrastructure
+  screen_class: account_login
+  severity: P0
+
+enforcement_action:
+  type: voluntary_undertaking
+  fine_gbp: null
+  individual_named: false
+
+remediation_imposed:
+  - procedural_change
+  - public_apology_issued
+
+public_sources:
+  - source: "ITV News — HSBC resolves online banking and app outage"
+    date: "2025-08-27"
+  - source: "FStech — Top UK banks accumulate 33 days of IT disruption in 2 years (FCA data)"
+    date: "2025-04"
+  - source: "GlobalData analysis — HSBC outage and legacy infrastructure fragility"
+    date: "2025-08"
+
+notes: |
+  No specific enforcement determination published at time of authoring.
+  Included because the Treasury Committee FCA data establishes a
+  cumulative-downtime base rate for the institution — useful for Pulse
+  Risk to surface "this signature stacks onto an institution already
+  carrying X hours of cumulative IT-resilience exposure." Sister case
+  to CHR-friction-009 (Lloyds API exposure same period) — together
+  they document the 2025 UK retail-banking IT-resilience pattern that
+  is currently under sustained FCA scrutiny.
+
+  Curator note: matches MIL Sonar CHR-003 (private framing) but
+  scoped here to the customer-facing friction signature only. No fine
+  recorded — re-classify the enforcement_type if/when an action
+  publishes.
+
+verification_status: pending_human_review

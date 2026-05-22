@@ -1,0 +1,37 @@
+# FrictionBench cell 9: cards.credit.apply.eligibility × abandon_before_submit.
+# Engineered positive — abandonment before submitting the eligibility check
+# is the canonical "user backed out before letting the bank look at their
+# credit file" pattern. Unlike the loans equivalent, the screen is a
+# pre-decline gate: a meaningful share of abandoners are users who realised
+# they wouldn't pass and chose not to record a soft-search footprint.
+
+pack_name: cards_credit_apply_eligibility__abandon_before_submit
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects abandonment at the eligibility-check submission point. Signature
+  fires when a session completes the eligibility-form input fields, dwells
+  past the screen's 90th-percentile baseline, and exits without clicking
+  "check eligibility". Sub-variation from the loans equivalent: this screen
+  is a pre-decline gate; many abandoners are users who self-assessed as
+  ineligible and don't return — 24h return rate is materially lower than
+  multi-step application abandonment, so save-and-resume affordances bite
+  less hard here than decline-reason transparency and routing to lower-
+  threshold products.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 9 of 12 in FrictionBench v0.1 matrix. Consumer Duty foreseeable-harm
+  surface — sustained low return rates from a specific cohort (e.g. thin-file
+  18–24) are evidence of a closed-door product, which is reportable under
+  outcome-2 (price and value) and outcome-3 (consumer understanding).

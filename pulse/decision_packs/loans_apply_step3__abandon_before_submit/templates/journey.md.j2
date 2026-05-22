@@ -1,0 +1,57 @@
+## {{ pack.pack_name }} — Journey altitude
+
+### What happened on `{{ screen_id }}`
+
+Across **{{ window.label }}**, {{ affected_sessions }} of {{ high_intent_sessions }}
+high-intent sessions ({{ affected_pct }}%) abandoned the loan application at
+step 3 without clicking submit. High intent = both step 1 and step 2 completed
+cleanly; these users reached the final input page and stopped.
+
+Detector required:
+- prior completion of step 1 and step 2
+- dwell on step 3 above the 90th-percentile baseline
+- session exit with no `submit_clicked` event
+- (excluded) sessions that returned within 30 minutes — those are tab-parks,
+  not true abandonments
+
+Statistical significance: **p = {{ p_value }}** against the rolling baseline
+(n = {{ baseline_n }}).
+
+### Final-field focus distribution
+
+The field the user was looking at when they left:
+
+| Field | Sessions | Share |
+|---|---:|---:|
+{% for f in final_field_breakdown -%}
+| `{{ f.name }}` | {{ f.count }} | {{ f.share_pct }}% |
+{% endfor %}
+
+### Cohort split
+
+| Cohort | Affected sessions | Share | Recall vs overall |
+|---|---:|---:|---:|
+{% for c in cohort_breakdown -%}
+| {{ c.label }} | {{ c.affected }} | {{ c.share_pct }}% | {{ c.recall_x }}× |
+{% endfor %}
+
+{% if fairness_flag -%}
+> **Fairness check triggered.** {{ fairness_flag.label }} —
+> {{ fairness_flag.detail }}. Independent fairness review required before
+> remediation rollout.
+{%- endif %}
+
+### 24-hour return behaviour
+
+{{ return_24h_pct }}% of abandoning sessions returned to step 3 within
+24 hours — these are recoverable with a save-and-resume affordance or a
+proactive nudge.
+
+### Suggested remediation category
+
+`{{ remediation_category }}` — {{ remediation_rationale }}.
+
+### Confidence
+
+Detector reports **{{ confidence_band }}** ({{ confidence_low }}–{{ confidence_high }},
+bootstrap CI 95%). Brier score on the calibration set: {{ brier_score }}.
