@@ -48,6 +48,13 @@ serve = [
     "fastapi>=0.136,<1",
     "pydantic>=2.13,<3",
 ]
+# Holter front-end (the Streamlit UI in holter/). All on APPROVED_LIBRARIES.md.
+ui = [
+    "streamlit>=1.46,<2",
+    "panel>=1.4,<2",
+    "holoviews>=1.19,<2",
+    "bokeh>=3.4,<4",
+]
 test = ["pytest>=7.4", "httpx>=0.27"]   # bank env ships pytest 7.4.4; httpx backs TestClient
 dev = ["pytest>=7.4", "httpx>=0.27", "ruff>=0.5"]
 
