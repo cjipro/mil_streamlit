@@ -75,6 +75,8 @@ class ValueScore:
     conversion_rate_delta: float | None = None
     confidence_interval: tuple[float, float] | None = None
     arpu_source: str | None = None
+    recoverable_friction_minutes_per_week: int | None = None
+    recoverable_friction_minutes_per_month: int | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -95,6 +97,8 @@ class ValueScore:
                 else None
             ),
             "arpu_source": self.arpu_source,
+            "recoverable_friction_minutes_per_week": self.recoverable_friction_minutes_per_week,
+            "recoverable_friction_minutes_per_month": self.recoverable_friction_minutes_per_month,
         }
 
 
@@ -120,6 +124,10 @@ class ValueMetrics:
     avg_events_per_affected_user: float
     vulnerable_cohort_share: float        # 0..1
     counterfactual_baseline_pct: float    # 0..1
+    # Mean friction-attributable excess seconds per affected session. Drives the
+    # recoverable_friction_minutes signal — value BEYOND recovered completions, for
+    # signatures where customers complete despite the friction. Default 0.0.
+    mean_friction_seconds_per_affected: float = 0.0
 
 
 @functools.lru_cache(maxsize=1)
@@ -166,6 +174,15 @@ def score_value(
     )
     recoverable_month = round(recoverable_week * multiplier)
 
+    # Friction-time signal — value BEYOND recovered completions. For signatures where
+    # customers complete despite the friction (dwell-after-error, multi-back-press)
+    # recoverable_sessions is ~0, but the excess time the friction costs is real and a
+    # fix gives it back. Customer-minutes/week — the bank's own vocabulary, no ARPU.
+    friction_min_week = round(
+        metrics.affected_customers_7d * metrics.mean_friction_seconds_per_affected / 60.0
+    )
+    friction_min_month = round(friction_min_week * multiplier)
+
     # Cost scaffold — SECONDARY. £ derived from the friction-volume × ARPU.
     arpu_used, arpu_source = _resolve_arpu(shape, bank_policy)
     monthly_lift = _compute_monthly_lift(metrics, arpu_used, methodology)
@@ -186,6 +203,8 @@ def score_value(
         conversion_rate_delta=metrics.counterfactual_baseline_pct,
         confidence_interval=None,
         arpu_source=arpu_source,
+        recoverable_friction_minutes_per_week=friction_min_week,
+        recoverable_friction_minutes_per_month=friction_min_month,
     )
 
 
@@ -299,6 +318,7 @@ def _hash_inputs(
             "avg_events_per_affected_user": metrics.avg_events_per_affected_user,
             "vulnerable_cohort_share": metrics.vulnerable_cohort_share,
             "counterfactual_baseline_pct": metrics.counterfactual_baseline_pct,
+            "mean_friction_seconds_per_affected": metrics.mean_friction_seconds_per_affected,
         },
         # Same partial-hashing posture as Risk: cosmetic policy edits
         # don't bust the audit trail.

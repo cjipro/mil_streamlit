@@ -73,13 +73,13 @@ WITH fr AS (
     FROM read_parquet($friction)
 ),
 s AS (
-    SELECT session_id, journey_id, journey_category, outcome, n_events,
+    SELECT session_id, journey_id, journey_category, outcome, n_events, duration_seconds,
            list_contains(cohort_tags, 'vulnerable_flag') AS is_vuln
     FROM read_parquet($ma_s, hive_partitioning = true)
 ),
 j AS (
     SELECT fr.screen_id, fr.target_signature, fr.fired,
-           s.journey_id, s.journey_category, s.outcome, s.n_events, s.is_vuln
+           s.journey_id, s.journey_category, s.outcome, s.n_events, s.duration_seconds, s.is_vuln
     FROM fr JOIN s USING (session_id)
 )
 SELECT
@@ -98,7 +98,9 @@ SELECT
     sum(CASE WHEN is_vuln AND fired THEN 1 ELSE 0 END)                 AS vuln_fired,
     sum(CASE WHEN is_vuln THEN 1 ELSE 0 END)                           AS vuln_total,
     sum(CASE WHEN (NOT is_vuln) AND fired THEN 1 ELSE 0 END)           AS nonvuln_fired,
-    sum(CASE WHEN NOT is_vuln THEN 1 ELSE 0 END)                       AS nonvuln_total
+    sum(CASE WHEN NOT is_vuln THEN 1 ELSE 0 END)                       AS nonvuln_total,
+    coalesce(avg(duration_seconds) FILTER (WHERE fired), 0.0)          AS mean_fired_duration_seconds,
+    coalesce(median(duration_seconds), 0.0)                            AS baseline_duration_seconds
 FROM j
 GROUP BY screen_id, target_signature
 HAVING sum(fired::INT) > 0
@@ -128,6 +130,8 @@ class DecisionRecord:
     value_numeric: int
     recoverable_sessions_per_week: int | None
     recoverable_sessions_per_month: int | None
+    recoverable_friction_minutes_per_week: int | None
+    recoverable_friction_minutes_per_month: int | None
     estimated_monthly_lift_gbp: float | None
     action_tier: str
     diagnosis: str
@@ -163,6 +167,8 @@ class DecisionRecord:
             "value_numeric": self.value_numeric,
             "recoverable_sessions_per_week": self.recoverable_sessions_per_week,
             "recoverable_sessions_per_month": self.recoverable_sessions_per_month,
+            "recoverable_friction_minutes_per_week": self.recoverable_friction_minutes_per_week,
+            "recoverable_friction_minutes_per_month": self.recoverable_friction_minutes_per_month,
             "estimated_monthly_lift_gbp": self.estimated_monthly_lift_gbp,
             "action_tier": self.action_tier,
             "diagnosis": self.diagnosis,
@@ -229,8 +235,15 @@ def _compose_action_tier(risk_tier: str, value_tier: str) -> str:
     return "WATCH"
 
 
-def _recommendation(action_tier: str, recoverable_month: int | None) -> str:
-    vol = f" ~{recoverable_month} recoverable sessions/mo" if recoverable_month else ""
+def _recommendation(
+    action_tier: str, recoverable_month: int | None, friction_minutes_month: int | None
+) -> str:
+    if recoverable_month:
+        vol = f" ~{recoverable_month} recoverable sessions/mo"
+    elif friction_minutes_month:
+        vol = f" ~{friction_minutes_month} friction-minutes/mo recoverable"
+    else:
+        vol = ""
     return {
         "ACUTE": f"Act now — high commercial value + high regulatory exposure.{vol}",
         "REGULATORY-FLAG": "Escalate to compliance — regulatory exposure outweighs commercial upside.",
@@ -299,6 +312,13 @@ def score_findings(
             bank_policy=bank_policy,
             chronicle_library=chronicle_library(),
         )
+        # Friction-attributable excess time per affected session (mean fired-session
+        # duration over the screen's baseline median) — the value signal for findings
+        # that complete despite the friction (recoverable_sessions ~ 0).
+        friction_seconds = max(
+            0.0,
+            round(float(m["mean_fired_duration_seconds"]) - float(m["baseline_duration_seconds"]), 2),
+        )
         value = score_value(
             shape=ValueShape(signature, journey_category, screen_class, severity),
             metrics=ValueMetrics(
@@ -306,6 +326,7 @@ def score_findings(
                 avg_events_per_affected_user=round(float(m["avg_events_affected"]), 2),
                 vulnerable_cohort_share=vuln_share,
                 counterfactual_baseline_pct=counterfactual,
+                mean_friction_seconds_per_affected=friction_seconds,
             ),
             bank_policy=bank_policy,
         )
@@ -329,7 +350,11 @@ def score_findings(
             and fairness.parity_difference is not None
             and abs(fairness.parity_difference) >= _fairness_threshold(screen_id, signature)
         )
-        recommendation = _recommendation(action_tier, value.recoverable_sessions_per_month)
+        recommendation = _recommendation(
+            action_tier,
+            value.recoverable_sessions_per_month,
+            value.recoverable_friction_minutes_per_month,
+        )
         if indep_review:
             recommendation += (
                 " — vulnerable-cohort disparity flagged: independent fairness review triggered."
@@ -357,6 +382,8 @@ def score_findings(
             value_numeric=value.numeric_tier,
             recoverable_sessions_per_week=value.recoverable_sessions_per_week,
             recoverable_sessions_per_month=value.recoverable_sessions_per_month,
+            recoverable_friction_minutes_per_week=value.recoverable_friction_minutes_per_week,
+            recoverable_friction_minutes_per_month=value.recoverable_friction_minutes_per_month,
             estimated_monthly_lift_gbp=value.estimated_monthly_lift_gbp,
             action_tier=action_tier,
             diagnosis=diagnosis,
@@ -412,6 +439,8 @@ _DECISIONS_SCHEMA = pa.schema([
     ("value_tier", pa.string()), ("value_numeric", pa.int64()),
     ("recoverable_sessions_per_week", pa.int64()),
     ("recoverable_sessions_per_month", pa.int64()),
+    ("recoverable_friction_minutes_per_week", pa.int64()),
+    ("recoverable_friction_minutes_per_month", pa.int64()),
     ("estimated_monthly_lift_gbp", pa.float64()),
     ("action_tier", pa.string()), ("diagnosis", pa.string()),
     ("diagnosis_reason", pa.string()), ("recommendation", pa.string()),

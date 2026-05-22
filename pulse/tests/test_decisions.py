@@ -79,3 +79,19 @@ def test_build_decisions_writes_mart(tmp_path):
     assert manifest["row_count"] > 0
     assert manifest["deployment_id"] == "synthetic-taq"
     assert sum(manifest["action_tier_counts"].values()) == manifest["row_count"]
+
+
+def test_completing_friction_carries_friction_time_value(tmp_path):
+    """dwell/back_press sessions complete (recoverable_sessions ~ 0), but the friction
+    time they cost is now surfaced as recoverable_friction_minutes — the value nuance."""
+    decisions = score_findings(ma_s_dir=_build_pipeline(tmp_path))
+    completing = [
+        d for d in decisions
+        if d.signature in ("dwell_after_error", "multi_back_press")
+        and not d.recoverable_sessions_per_month
+    ]
+    assert completing, "expected completing-despite-friction findings"
+    assert any(
+        d.recoverable_friction_minutes_per_month and d.recoverable_friction_minutes_per_month > 0
+        for d in completing
+    )

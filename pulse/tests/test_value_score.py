@@ -520,3 +520,29 @@ def test_shared_affected_population_threshold_with_risk() -> None:
     )
     value_score = score_value(shape=value_shape, metrics=value_metrics, bank_policy=policy)
     assert "large_affected_population" in value_score.adjustments_applied
+
+
+# --- v0.3 friction-time signal (the recoverable=0 nuance) --------------------
+
+
+def test_recoverable_friction_minutes_from_friction_seconds() -> None:
+    """Value BEYOND recovered completions: 200 affected x 90s excess / 60 =
+    300 friction-minutes/week, while recoverable_sessions stays 0 (they complete)."""
+    metrics = ValueMetrics(
+        affected_customers_7d=200,
+        avg_events_per_affected_user=2.0,
+        vulnerable_cohort_share=0.0,
+        counterfactual_baseline_pct=0.0,            # completes despite friction
+        mean_friction_seconds_per_affected=90.0,
+    )
+    score = score_value(shape=_nominal_shape(), metrics=metrics, bank_policy=_good_bank_policy())
+    assert score.recoverable_sessions_per_week == 0
+    assert score.recoverable_friction_minutes_per_week == 300
+    assert score.recoverable_friction_minutes_per_month == round(300 * 4.345)
+
+
+def test_friction_minutes_default_zero_when_unset() -> None:
+    score = score_value(
+        shape=_nominal_shape(), metrics=_quiet_metrics(), bank_policy=_good_bank_policy()
+    )
+    assert score.recoverable_friction_minutes_per_week == 0
