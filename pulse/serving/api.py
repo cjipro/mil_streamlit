@@ -31,6 +31,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
+from pulse.audit import build_audit_bundle
 from pulse.decision import read_decisions, verify_decision_lineage
 from pulse.serving import read
 from pulse.serving.journey_mart import read_daily_journey
@@ -100,6 +101,15 @@ def decisions() -> list[dict]:
 def lineage_verify() -> dict:
     """Verify the decision lineage hash-chain (tamper-evidence audit)."""
     return verify_decision_lineage()
+
+
+@app.get("/audit/{artifact_id}")
+def audit(artifact_id: str) -> dict:
+    """Re-derivation evidence bundle for a decision (artifact_id = its lineage_id)."""
+    bundle = build_audit_bundle(artifact_id)
+    if not bundle.get("found"):
+        raise HTTPException(status_code=404, detail=f"unknown artifact_id: {artifact_id}")
+    return bundle
 
 
 def main() -> None:
