@@ -126,7 +126,7 @@ Full canonical references: memory `feedback_hobby_framing_locked.md` + `feedback
 
 ## Pulse Design Direction (LOCKED 2026-05-17 — canonical)
 
-**Status:** v1 design spine landed as PULSE-87 (schema contract) / PULSE-88 (FrictionBench v0.1) / PULSE-89 (lineage + audit + SynthesisProvider). Round 4 DeepSeek critique applied. Ready to start implementation next session.
+**Status (updated 2026-05-22):** v1 design spine (PULSE-87/88/89) shipped; engine **migrated to holter** (`cjipro/holter:pulse/`, PULSE-91) — **Pulse-engine implementation now happens in holter, not here.** Since the migration, in holter: detection runtime (PULSE-126), DuckDB serving layer (PULSE-127), and the **production front-end** (HOL-65..69 — Streamlit + FastAPI + DuckDB, locked surfaces with live data + interactivity), all on `main` (495 tests). Round 4 DeepSeek critique applied to the design spine.
 
 **Pulse positioning:** live insight, almost-real-time, observation NOT intervention. One of four CJI products (*Sonar listens. Reckoner reckons. Pulse senses. Lever moves.*). Target user spans CEO → BA → analyst. Anti-positioning: *"Decisions, not dashboards."*
 
@@ -158,6 +158,8 @@ Full canonical references: memory `feedback_hobby_framing_locked.md` + `feedback
 - "Decision-packs" → "investigation templates" externally (Sisu / Outlier / Anodot all failed at vendor-supplied content distribution; registry is moat)
 
 **Pulse repo (codename Holter, scaffolded 2026-05-17 under PULSE-90; engine migrated 2026-05-17 under PULSE-91):** `cjipro/holter` at `C:\Users\hussa\holter\`. Sister-concern of while-sleeping, mirrors TAQ App pattern. Codename chosen by 3-voice panel (Placek / Beard / Wiggins) — see PULSE-90 ticket for full rationale. Named after Norman Holter (inventor of the wearable continuous ECG monitor, 1949) — the direct medical analog of what Pulse does for journey friction. Python package stays `pulse` (engine identity preserved across the move). **Status:** repo live (`d639bb2` initial scaffolding; `df51f83` pulse/ tree landed with all 163 tests passing). Engine code no longer lives in `cjipro/mil_streamlit`; for current `pulse/` source see `cjipro/holter:pulse/`. PULSE-87/88/89 commit history preserved in this repo's git log as origin record.
+
+**🎯 Cross-repo data-pipeline + marts focus (set 2026-05-22):** the next build focus across both repos is **data pipelines + marts** (MA_D → MA_S sessionisation → marts). **Home-split (load-bearing):** the Pulse-engine pipeline + marts build in **holter/`pulse/` on DuckDB + PyArrow** (PySpark rejected under the Py-3.11 lock; PULSE-127 serving layer already there); **while-sleeping owns** the legacy data infra it still holds (`mil/` MA_S/mart code, the data dictionary, the data contracts), MIL/Sonar, the Hodos seed, and the shared `.env`; **real-bank ingestion stays on the work machine** (real PII never enters either OSS repo). **Guardrail:** don't rebuild Pulse-engine pipeline pieces here — that re-fragments what PULSE-91 consolidated into holter. Full plan: holter-side memory `project_data_pipeline_marts_plan.md`. Read this repo's WHOLE memory at session start (standing ritual).
 
 **Build pause status:** DE-PAUSED 2026-05-17 per explicit Hussain direction (1-2-1 with Amos 2026-05-11 landed cleanly; Compliance/Sonar/OBI not raised; no escalation in 6 days since). Amos interaction pattern watchword retained (silence ≠ absolution).
 
