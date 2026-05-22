@@ -32,6 +32,9 @@ from pulse.detection.frictionbench_run import (
 REPO = Path(__file__).resolve().parents[2]
 MARTS_DIR = REPO / "dist" / "marts"
 SESSION_FRICTION_PARQUET = MARTS_DIR / "session_friction.parquet"
+# The detection runtime run over the real MA_D->MA_S pipeline sessions writes here
+# (pulse.pipeline.detect_sessions); read.py prefers it over the corpus fixture above.
+PIPELINE_SESSION_FRICTION_PARQUET = MARTS_DIR / "session_friction_pipeline.parquet"
 
 # Human-facing journey labels for the friction-target screens (the surfaces
 # render these; the raw screen_id stays available for joins/drill).

@@ -17,19 +17,28 @@ from typing import Any
 
 import duckdb
 
-from pulse.serving.marts import SESSION_FRICTION_PARQUET, write_session_friction
+from pulse.serving.marts import (
+    PIPELINE_SESSION_FRICTION_PARQUET,
+    SESSION_FRICTION_PARQUET,
+    write_session_friction,
+)
 
 
-def _ensure_marts() -> Path:
-    """Lazily materialise the mart if it isn't on disk yet (dev convenience)."""
+def _active_mart() -> Path:
+    """The friction mart to serve. Prefer the real pipeline-derived mart
+    (pulse.pipeline.detect_sessions, the detection runtime over MA_D->MA_S
+    sessions) when present; otherwise fall back to the detection-corpus fixture,
+    lazily materialised."""
+    if PIPELINE_SESSION_FRICTION_PARQUET.exists():
+        return PIPELINE_SESSION_FRICTION_PARQUET
     if not SESSION_FRICTION_PARQUET.exists():
         write_session_friction()
     return SESSION_FRICTION_PARQUET
 
 
 def _rows(sql: str, params: list[Any] | None = None) -> list[dict]:
-    """Run a query against the friction mart, return list[dict]."""
-    path = _ensure_marts()
+    """Run a query against the active friction mart, return list[dict]."""
+    path = _active_mart()
     con = duckdb.connect(database=":memory:")
     try:
         cur = con.execute(sql.replace("{mart}", "read_parquet(?)"), [str(path), *(params or [])])

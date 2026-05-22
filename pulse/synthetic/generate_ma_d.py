@@ -46,11 +46,15 @@ FRICTION_TARGETS: dict[str, str] = {
 JOURNEY_SCREENS: dict[str, list[str]] = {
     "loans": ["loans.browse", "loans.apply.step1", "loans.apply.step2",
               "loans.apply.step3", "loans.apply.confirm"],
-    "international": ["international.home", "international.beneficiary.setup",
+    # Each friction-target screen sits >=2 steps into its journey so the
+    # abandon_before_submit pack's prior-step precondition (step1+step2) is met.
+    "international": ["international.home", "international.recipient",
+                      "international.beneficiary.setup",
                       "international.amount", "international.review", "international.confirm"],
-    "cards": ["cards.home", "cards.credit.apply.eligibility",
+    "cards": ["cards.home", "cards.credit.select", "cards.credit.apply.eligibility",
               "cards.credit.apply.details", "cards.credit.apply.confirm"],
-    "investments": ["investments.home", "investments.premier.portfolio.overview",
+    "investments": ["investments.home", "investments.premier.select",
+                    "investments.premier.portfolio.overview",
                     "investments.premier.holdings", "investments.premier.trade"],
     "payments": ["payments.home", "payments.payee.select", "payments.amount",
                  "payments.review", "payments.confirm"],

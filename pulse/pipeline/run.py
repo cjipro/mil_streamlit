@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from pulse.pipeline.detect_sessions import build_pipeline_session_friction
 from pulse.pipeline.sessionise import sessionise
 from pulse.serving.journey_mart import build_daily_journey_mart
 from pulse.synthetic.generate_ma_d import GeneratorConfig, generate, write_ma_d
@@ -40,12 +41,14 @@ def run_pipeline(
     ma_d = write_ma_d(events, ma_d_dir)
     ma_s = sessionise(ma_d_dir, ma_s_dir)
     mart = build_daily_journey_mart(ma_s_dir)
+    friction = build_pipeline_session_friction(ma_d_dir)
 
     return {
         "sessions": len(labels),
         "ma_d": ma_d,
         "ma_s": ma_s,
         "daily_journey_mart": mart,
+        "session_friction": friction,
     }
 
 
