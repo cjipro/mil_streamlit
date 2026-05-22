@@ -32,7 +32,11 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 
 from pulse.audit import build_audit_bundle
-from pulse.decision import read_decisions, verify_decision_lineage
+from pulse.decision import (
+    read_chronicle_candidates,
+    read_decisions,
+    verify_decision_lineage,
+)
 from pulse.serving import read
 from pulse.serving.journey_mart import read_daily_journey
 from pulse.serving.marts import PIPELINE_SESSION_FRICTION_PARQUET
@@ -110,6 +114,12 @@ def audit(artifact_id: str) -> dict:
     if not bundle.get("found"):
         raise HTTPException(status_code=404, detail=f"unknown artifact_id: {artifact_id}")
     return bundle
+
+
+@app.get("/chronicle/candidates")
+def chronicle_candidates() -> list[dict]:
+    """CHRONICLE candidates proposed from high-stakes findings (curation work-items)."""
+    return read_chronicle_candidates()
 
 
 def main() -> None:

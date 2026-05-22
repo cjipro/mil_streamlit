@@ -19,6 +19,7 @@ _DERIVED_MARTS = [
     PIPELINE_SESSION_FRICTION_PARQUET,
     MARTS_DIR / "decisions.parquet",
     MARTS_DIR / "decisions_lineage.jsonl",
+    MARTS_DIR / "chronicle_candidates.jsonl",
 ]
 
 

@@ -8,6 +8,10 @@ axes and composed into a CLARK-style Action tier (the Value x Risk 2x2). Diagnos
 Owned by while-sleeping (engine relocated under PULSE-128; scorers PULSE-99/101/105).
 """
 
+from pulse.decision.chronicle import (
+    propose_chronicle_candidates,
+    read_chronicle_candidates,
+)
 from pulse.decision.lineage import build_decision_lineage, verify_decision_lineage
 from pulse.decision.score_findings import (
     DecisionRecord,
@@ -20,6 +24,8 @@ __all__ = [
     "DecisionRecord",
     "build_decision_lineage",
     "build_decisions",
+    "propose_chronicle_candidates",
+    "read_chronicle_candidates",
     "read_decisions",
     "score_findings",
     "verify_decision_lineage",

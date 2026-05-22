@@ -30,6 +30,11 @@ import pyarrow.parquet as pq
 import yaml
 
 from pulse.convergence.fairness import assess_fairness
+from pulse.decision.chronicle import (
+    chronicle_library,
+    is_chronicle_candidate,
+    propose_chronicle_candidates,
+)
 from pulse.decision.lineage import build_decision_lineage
 from pulse.diagnosis import (
     DiagnosisResult,
@@ -135,6 +140,8 @@ class DecisionRecord:
     fairness_disparate_impact: bool
     fairness_independent_review: bool
     fairness_note: str
+    chronicle_matches: tuple[str, ...]
+    chronicle_candidate: bool
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -168,6 +175,8 @@ class DecisionRecord:
             "fairness_disparate_impact": self.fairness_disparate_impact,
             "fairness_independent_review": self.fairness_independent_review,
             "fairness_note": self.fairness_note,
+            "chronicle_matches": list(self.chronicle_matches),
+            "chronicle_candidate": self.chronicle_candidate,
         }
 
 
@@ -288,6 +297,7 @@ def score_findings(
                 vulnerable_cohort_overrep_ratio=overrep,
             ),
             bank_policy=bank_policy,
+            chronicle_library=chronicle_library(),
         )
         value = score_value(
             shape=ValueShape(signature, journey_category, screen_class, severity),
@@ -324,6 +334,9 @@ def score_findings(
             recommendation += (
                 " — vulnerable-cohort disparity flagged: independent fairness review triggered."
             )
+        chronicle_candidate = is_chronicle_candidate(
+            risk_tier=risk.tier, fairness_independent_review=indep_review
+        )
 
         decisions.append(DecisionRecord(
             screen_id=screen_id,
@@ -356,6 +369,8 @@ def score_findings(
             fairness_disparate_impact=bool(fairness and fairness.disparate_impact),
             fairness_independent_review=indep_review,
             fairness_note=(fairness.reason if fairness else "not assessed — low-stakes (Risk not escalated)"),
+            chronicle_matches=risk.chronicle_matches,
+            chronicle_candidate=chronicle_candidate,
         ))
 
     # ACUTE first, then by recoverable volume
@@ -407,6 +422,8 @@ _DECISIONS_SCHEMA = pa.schema([
     ("fairness_disparate_impact", pa.bool_()),
     ("fairness_independent_review", pa.bool_()),
     ("fairness_note", pa.string()),
+    ("chronicle_matches", pa.list_(pa.string())),
+    ("chronicle_candidate", pa.bool_()),
     ("lineage_id", pa.string()), ("lineage_row_hash", pa.string()),
 ])
 
@@ -447,6 +464,10 @@ def build_decisions(
     table = pa.Table.from_pylist(rows, schema=_DECISIONS_SCHEMA)
     pq.write_table(table, DECISIONS_PARQUET)
 
+    chronicle = propose_chronicle_candidates(
+        rows, deployment_id=load_bank_policy().get("deployment_id", "unknown")
+    )
+
     tiers: dict[str, int] = {}
     for d in decisions:
         tiers[d.action_tier] = tiers.get(d.action_tier, 0) + 1
@@ -460,6 +481,8 @@ def build_decisions(
         "lineage_log": lineage["log_path"],
         "lineage_head_row_hash": lineage["head_row_hash"],
         "lineage_verified": lineage["chain_verified"],
+        "chronicle_candidates": chronicle["candidates"],
+        "chronicle_candidates_log": chronicle["log_path"],
     }
     (MARTS_DIR / "decisions._MANIFEST.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
