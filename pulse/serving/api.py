@@ -31,8 +31,10 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
+from pulse.decision import read_decisions
 from pulse.serving import read
 from pulse.serving.journey_mart import read_daily_journey
+from pulse.serving.marts import PIPELINE_SESSION_FRICTION_PARQUET
 
 MA_S_DIR = Path(__file__).resolve().parents[2] / "dist" / "ma_s"
 
@@ -81,6 +83,17 @@ def journeys_daily() -> list[dict]:
             detail="MA_S not built yet — run `py -m pulse.pipeline.run` first.",
         )
     return read_daily_journey()
+
+
+@app.get("/decisions")
+def decisions() -> list[dict]:
+    """Scored findings: Risk + Value + Action tier (Diagnosis when assessable)."""
+    if not (MA_S_DIR / "_MANIFEST.json").exists() or not PIPELINE_SESSION_FRICTION_PARQUET.exists():
+        raise HTTPException(
+            status_code=503,
+            detail="Pipeline not run yet — run `py -m pulse.pipeline.run` first.",
+        )
+    return read_decisions()
 
 
 def main() -> None:

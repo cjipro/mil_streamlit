@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from pulse.decision import build_decisions
 from pulse.pipeline.detect_sessions import build_pipeline_session_friction
 from pulse.pipeline.sessionise import sessionise
 from pulse.serving.journey_mart import build_daily_journey_mart
@@ -42,6 +43,7 @@ def run_pipeline(
     ma_s = sessionise(ma_d_dir, ma_s_dir)
     mart = build_daily_journey_mart(ma_s_dir)
     friction = build_pipeline_session_friction(ma_d_dir)
+    decisions = build_decisions(ma_s_dir=ma_s_dir)
 
     return {
         "sessions": len(labels),
@@ -49,6 +51,7 @@ def run_pipeline(
         "ma_s": ma_s,
         "daily_journey_mart": mart,
         "session_friction": friction,
+        "decisions": decisions,
     }
 
 

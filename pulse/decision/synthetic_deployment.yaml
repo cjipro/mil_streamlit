@@ -1,0 +1,29 @@
+# Concrete bank_policy for the SYNTHETIC pipeline deployment.
+#
+# pulse/contracts/bank_policy.yaml ships as a <TBD> placeholder (the validator
+# refuses to operate the engine on unset thresholds). This file is the concrete
+# per-deployment policy the synthetic MA_D->MA_S pipeline scores against, so the
+# decision layer (Risk + Value) has real numbers to commit to.
+#
+# Naming discipline: deployment_id is an opaque token, never a real bank name.
+# These thresholds/ARPU are illustrative synthetic values — a real deployment
+# sets its own in pulse/contracts/bank_policy.yaml.
+
+version: 0.1.0
+deployment_id: synthetic-taq
+
+escalation_thresholds:
+  affected_customers_7d_window: 30      # synthetic: fired-session counts ~15-90, so larger findings escalate
+  vulnerable_cohort_overrep_floor: 1.25 # regulator informal anchor (25% over-representation)
+
+policy_areas: []
+vulnerable_cohort_extensions: []
+
+# Per journey_category ARPU (GBP/session) for the SECONDARY cost scaffold only.
+# Friction-volume (recoverable sessions) stays the primary commercial unit.
+arpu_per_journey:
+  choke_point: 9.0
+  context_loss: 5.0
+  behavioural_noise: 3.0
+  infrastructure: 2.0
+  regulator: 6.0

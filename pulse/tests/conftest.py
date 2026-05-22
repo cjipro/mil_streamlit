@@ -11,11 +11,17 @@ from __future__ import annotations
 
 import pytest
 
-from pulse.serving.marts import PIPELINE_SESSION_FRICTION_PARQUET
+from pulse.serving.marts import MARTS_DIR, PIPELINE_SESSION_FRICTION_PARQUET
+
+# Shared fixed-path derived marts that a test may build and read.py prefers —
+# clean them around every test so they can't bleed across tests.
+_DERIVED_MARTS = [PIPELINE_SESSION_FRICTION_PARQUET, MARTS_DIR / "decisions.parquet"]
 
 
 @pytest.fixture(autouse=True)
-def _isolate_pipeline_friction_mart():
-    PIPELINE_SESSION_FRICTION_PARQUET.unlink(missing_ok=True)
+def _isolate_pipeline_marts():
+    for p in _DERIVED_MARTS:
+        p.unlink(missing_ok=True)
     yield
-    PIPELINE_SESSION_FRICTION_PARQUET.unlink(missing_ok=True)
+    for p in _DERIVED_MARTS:
+        p.unlink(missing_ok=True)
