@@ -1,0 +1,1545 @@
+"""MLOps Console (HOL-6) — procurement-gate surface for ML eng + MRM.
+
+Per HOL-6 spec (CLAUDE.md surface 4): mandatory before any live bank
+deployment; built BEFORE any LLM_AUGMENTED synthesis is enabled in prod.
+
+Four panes:
+  1. DRIFT MONITORS — per FrictionBench cell × signature; time-series of
+     detection rate / false-positive rate / accuracy gap
+  2. FAIRNESS RE-CHECK — demographic_parity / equalised_odds /
+     calibration_by_cohort over time, per template, per cohort dim
+  3. LINEAGE VERIFIER — hash-chain health, broken-chain alerts,
+     last-verified timestamp per pack
+  4. SYNTHESIS-MODE GOVERNANCE — table of every pack with synthesis_mode
+     (DETERMINISTIC / LLM_AUGMENTED), attestation status, reviewer + date
+
+Critical mitigation — narrative layer (eats own dogfood):
+  Every drift alert + fairness deviation MUST produce a deterministic
+  one-paragraph narrative via the "What changed, for whom, with what
+  evidence, what's the recommended response" template. Engine returns
+  these later via pulse.synthesis.base.TemplateSynthesisProvider; stubbed
+  here for design preview.
+
+Out of scope: NO model training UI, NO notebook env, NO feature store browser.
+
+Output: dist/preview/mlops/index.html
+Serve:  py holter/preview/serve_mlops.py  (port 8506)
+"""
+
+from __future__ import annotations
+
+import datetime as _dt
+import sys
+from dataclasses import dataclass
+from html import escape as _e
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+OUT_DIR = REPO / "dist" / "preview" / "mlops"
+
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+# HOL-35: import primitives from _shared, not from render_holter — so a
+# broken Workspace import doesn't cascade to MLOps Console (Cannon's
+# hand-carry concern). render_holter is no longer in the import path.
+from holter.preview._shared import (  # noqa: E402
+    discover_packs,
+    get_pack_cell,
+    short_hash,
+    sparkline_svg,
+    box_header,
+    box_footer,
+    render_box,
+    body_lines,
+    body_kpi_tiles,
+    body_chip_strip,
+    body_bars,
+    body_action_primary,
+    body_disclosure,
+    body_quality_strip,
+    body_primary_kpi,
+    headline_tier_badge,
+    headline_stat_card,
+    headline_chip_strip,
+    tooltip_token,
+    render_glossary_panel,
+    _ACTION_COLORS,
+    _RISK_COLORS,
+    _VALUE_COLORS,
+    friction_volume_headline,
+    commercial_scaffold,
+)
+
+NOW = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stub data — engine returns these via pulse.frictionbench/convergence/lineage
+# once those contracts are wired. Deterministic per pack-name hash.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def drift_series_n(pack_name: str, n: int) -> list[int]:
+    """Stub N-day detection-rate series. HOL-43 — variable length so the
+    window scrubber can swap [7d][14d][30d] without re-fetching."""
+    h = sum(ord(c) for c in pack_name)
+    baseline = 40 + (h % 30)
+    return [baseline + ((h + i * 5) % 19) - 9 for i in range(n)]
+
+
+def cohort_drift_series_n(pack_name: str, cohort: str, n: int) -> list[int]:
+    """HOL-43 — variable-length cohort series; mirrors cohort_drift_series."""
+    h = sum(ord(c) for c in pack_name) + sum(ord(c) for c in cohort)
+    baseline = 40 + (h % 30)
+    swing = (h % 12) - 6
+    return [baseline + ((h + i * (3 + cohort.count("-"))) % 19) - 9 + swing
+            for i in range(n)]
+
+
+@dataclass(frozen=True)
+class ChainEntry:
+    """HOL-54 — frozen record for one lineage chain hop. Mirrors the eventual
+    pulse.lineage contract shape so the engine can drop in compatible objects."""
+    sha: str
+    pipeline: str
+    dataset: str
+    sealed_at: str
+
+
+@dataclass(frozen=True)
+class CohortSeries:
+    """HOL-54 — bundles label + colour + values for a single cohort line.
+    Replaces the parallel-list signature of multi_sparkline_svg, eliminating
+    silent length-mismatch risk."""
+    label: str
+    color: str
+    values: list[float]
+
+
+def lineage_chain_ancestry(pack_name: str, sha: str) -> list[ChainEntry]:
+    """HOL-43 — stub upstream ancestry chain for a pack's lineage hash.
+    Closes O'Neil's 'hash is a string not a link' + Banin's 'no upstream
+    pointer' R2 critique. Engine returns this via pulse.lineage in prod.
+    HOL-54: returns frozen ChainEntry dataclasses instead of dicts."""
+    h = sum(ord(c) for c in pack_name)
+    depth = 4 + (h % 3)
+    pipelines = [
+        "frictionbench.scoring", "convergence.cohort_split",
+        "lineage.anchor_sealer", "pulse.synthesis.deterministic",
+        "telemetry.taq_adapter", "schema.canonical_v2",
+    ]
+    chain: list[ChainEntry] = []
+    for i in range(depth):
+        ph = (h * 31 + i * 17) % 0xFFFFFFFF
+        ds_suffix = (5 - i + (h % 4)) % 5 + 1
+        chain.append(ChainEntry(
+            sha=f"sha-{ph:08x}_{(ph >> 4) & 0xFFFF:04x}",
+            pipeline=pipelines[(h + i) % len(pipelines)],
+            dataset=f"taq.session_2026{ds_suffix:02d}",
+            sealed_at=f"2026-05-{(19 - i * 3) % 28 + 1:02d}",
+        ))
+    return chain
+
+
+def drift_series(pack_name: str) -> list[int]:
+    """Stub 14-day detection-rate series. Engine returns this via
+    pulse.frictionbench.scoring once the contract is wired."""
+    h = sum(ord(c) for c in pack_name)
+    baseline = 40 + (h % 30)
+    # Walk away from baseline by a tier-coupled drift amount
+    return [baseline + ((h + i * 3) % 17) - 8 for i in range(14)]
+
+
+# HOL-41 — cohort axes for disaggregated drift (O'Neil + Gigerenzer + Hubbard).
+# Engine returns per-cohort series via pulse.frictionbench.scoring.cohort_breakdown
+# once the contract is wired; stubbed deterministically per (pack, cohort).
+_COHORT_LABELS = ["18-24", "25-54", "55+"]
+_COHORT_COLORS = ["var(--red)", "var(--blue)", "var(--green)"]
+
+
+def cohort_drift_series(pack_name: str, cohort: str) -> list[int]:
+    """Stub 14-day detection-rate series per cohort. Different cohorts drift
+    independently — important because cell-aggregated drift can hide a single
+    subgroup bleeding (O'Neil's R1 critique)."""
+    h = sum(ord(c) for c in pack_name) + sum(ord(c) for c in cohort)
+    baseline = 40 + (h % 30)
+    # Each cohort gets its own drift signature
+    swing = (h % 12) - 6
+    return [baseline + ((h + i * (3 + cohort.count("-"))) % 19) - 9 + swing
+            for i in range(14)]
+
+
+def multi_sparkline_svg(cohorts: list[CohortSeries],
+                        width: int = 200, height: int = 36,
+                        baseline: float | None = None,
+                        baseline_color: str = "rgba(180,200,210,0.4)") -> str:
+    """Multi-series sparkline — N overlaid trend lines + optional baseline.
+
+    HOL-41: replaces the single-series sparkline_svg in DRIFT pane to surface
+    cohort-level drift. Each CohortSeries carries its own label/color/values
+    bundled. Baseline renders as a dashed horizontal line (cell-aggregated
+    30-day mean).
+
+    HOL-54: signature reshaped from parallel `series_list / colors / labels`
+    lists to `list[CohortSeries]` (Hettinger PR-panel: silent length-mismatch
+    risk eliminated).
+    """
+    if not cohorts or not cohorts[0].values:
+        return ""
+    # Y-axis range = union of all cohort series + baseline
+    all_y: list[float] = []
+    for c in cohorts:
+        all_y.extend(c.values)
+    if baseline is not None:
+        all_y.append(baseline)
+    vmin, vmax = min(all_y), max(all_y)
+    span = (vmax - vmin) or 1.0
+    n = len(cohorts[0].values)
+    step = width / max(n - 1, 1)
+
+    polylines = []
+    # HOL-43 — tag each polyline with data-cohort so the legend can solo on
+    # hover (CSS-only dim of other lines)
+    for c in cohorts:
+        pts = " ".join(
+            f"{i*step:.1f},{height - ((v - vmin) / span) * height:.1f}"
+            for i, v in enumerate(c.values)
+        )
+        # HOL-52 fix-first (van Rossum) — escape label for the data-cohort attr.
+        polylines.append(
+            f'<polyline class="ms-line" data-cohort="{_e(c.label)}" '
+            f'points="{pts}" fill="none" '
+            f'stroke="{c.color}" stroke-width="1.4" opacity="0.85"/>'
+        )
+
+    baseline_svg = ""
+    if baseline is not None:
+        by = height - ((baseline - vmin) / span) * height
+        baseline_svg = (
+            f'<line x1="0" y1="{by:.1f}" x2="{width}" y2="{by:.1f}" '
+            f'stroke="{baseline_color}" stroke-width="1" stroke-dasharray="2,3"/>'
+        )
+
+    # HOL-43 — invisible day-overlay rectangles carry <title> tooltips
+    # showing per-day per-cohort values. Native browser tooltip; zero JS.
+    day_rects = []
+    if cohorts and cohorts[0].label:
+        for i in range(n):
+            x = max(0, i * step - step / 2)
+            w = step
+            tooltip_lines = [f"day -{n - 1 - i} (D{n - i})"]
+            for c in cohorts:
+                if i < len(c.values):
+                    tooltip_lines.append(f"{c.label}: {c.values[i]:.0f}")
+            tooltip = " · ".join(tooltip_lines)
+            day_rects.append(
+                f'<rect class="ms-day" x="{x:.1f}" y="0" '
+                f'width="{w:.1f}" height="{height}" '
+                f'fill="transparent">'
+                f'<title>{tooltip}</title>'
+                f'</rect>'
+            )
+
+    return (
+        f'<svg class="body-sparkline" viewBox="0 0 {width} {height}" '
+        f'width="100%" height="{height}" preserveAspectRatio="none">'
+        f'{baseline_svg}'
+        f'{"".join(polylines)}'
+        f'{"".join(day_rects)}'
+        f'</svg>'
+    )
+
+
+def fairness_record(pack_name: str) -> dict:
+    """Stub fairness metrics — engine returns via pulse.convergence."""
+    h = sum(ord(c) for c in pack_name)
+    return {
+        "demographic_parity":      0.92 - (h % 11) * 0.01,
+        "equalised_odds":          0.88 - (h % 13) * 0.01,
+        "calibration_by_cohort":   0.94 - (h % 7)  * 0.01,
+        "cohort_dims":             ["age_band", "gender", "ethnicity_band"],
+        "deviation_alert":         (h % 17) > 13,
+    }
+
+
+def lineage_status(pack_name: str, sha: str) -> dict:
+    """Stub lineage verification — engine returns via pulse.lineage."""
+    h = sum(ord(c) for c in pack_name)
+    broken = (h % 19) > 17  # ~10% of packs synthesised as broken
+    return {
+        "chain_status":   "BROKEN" if broken else "VERIFIED",
+        "color":          "var(--red)" if broken else "var(--green)",
+        "last_verified":  "2026-05-19 06:42 UTC" if not broken else "2026-05-17 14:08 UTC",
+        "chain_depth":    4 + (h % 3),
+        "anchor_sha":     sha,
+    }
+
+
+def synthesis_governance(pack_name: str) -> dict:
+    """Stub synthesis-mode + attestation per pack."""
+    h = sum(ord(c) for c in pack_name)
+    is_llm = (h % 23) > 20  # ~13% of packs as LLM_AUGMENTED (gated)
+    if is_llm:
+        mode = "LLM_AUGMENTED"
+        attestation = "self_declared"
+        att_color = "var(--amber)"
+    else:
+        mode = "DETERMINISTIC"
+        # ~20% of deterministic also land in attestation_pending — e.g.
+        # newly-onboarded packs awaiting independent assessment. These
+        # are the second class of rows MRM needs to act on.
+        bucket = h % 3
+        if bucket == 0:
+            attestation = "attestation_pending"
+            att_color = "var(--amber)"
+        elif bucket == 1:
+            attestation = "certified"
+            att_color = "var(--green)"
+        else:
+            attestation = "independently_assessed"
+            att_color = "var(--teal)"
+    return {
+        "synthesis_mode":  mode,
+        "mode_color":      "var(--red)" if is_llm else "var(--green)",
+        "attestation":     attestation,
+        "att_color":       att_color,
+        "reviewer":        "MRM-A · J. Patel" if (h % 3) else "MRM-B · S. Khan",
+        "reviewed_date":   "2026-04-22" if (h % 5) else "2026-05-08",
+        # HOL-42: PENDING rows get inline Attest/Challenge/Defer
+        # affordances. Two flavours of "pending": (a) LLM_AUGMENTED
+        # self_declared, (b) DETERMINISTIC attestation_pending. Rock's
+        # R2 hard-gate fix: governance state needs governance affordance.
+        "is_actionable":   attestation in ("self_declared", "attestation_pending"),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Deterministic narrative layer — "What changed, for whom, with what evidence,
+# what's the recommended response." Engine returns these via
+# pulse.synthesis.base.TemplateSynthesisProvider; stubbed for design preview.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def drift_narrative(pack_name: str, series: list[int]) -> str:
+    """Generate a one-paragraph drift narrative — alert-fatigue mitigation."""
+    today, week_ago = series[-1], series[-8]
+    delta = today - week_ago
+    direction = "rose" if delta > 0 else ("fell" if delta < 0 else "held")
+    return (
+        f"<strong>What changed:</strong> detection rate {direction} "
+        f"{abs(delta)}pp over the last 7 days (now {today}). "
+        f"<strong>For whom:</strong> the {_e(pack_name)[:40]} pack's "
+        f"cell-level detection model. "
+        f"<strong>Evidence:</strong> 14-day sparkline + cohort-weighted "
+        f"baseline comparison. "
+        f"<strong>Response:</strong> "
+        f"{'recalibrate threshold; new bank-altitude check' if abs(delta) > 5 else 'continue monitoring — within bounds'}."
+    )
+
+
+# HOL-40 — severity gradient: 4 tiers control narrative rendering.
+# Materiality thresholds per pane keep narratives information-rich when present.
+
+def render_severity_narrative(severity: str, body_html: str) -> str:
+    """Render a narrative at the right visual weight for its severity.
+
+    NOMINAL  → single status token (no narrative)
+    WATCH    → compact muted summary
+    ESCALATE → full 4-clause block (default; current behaviour)
+    ACUTE    → full block + red rail + ACUTE prefix, non-suppressible
+
+    Raskin's R1 rule: if every state transition generates the same paragraph
+    shape, the medium trains people to ignore it.
+    """
+    sev = severity.lower()
+    if sev == "nominal":
+        return (
+            f'<div class="mlops-narrative mlops-narrative--nominal">'
+            f'▬ NOMINAL · no action required'
+            f'</div>'
+        )
+    cls = {
+        "watch":    "mlops-narrative mlops-narrative--watch",
+        "escalate": "mlops-narrative mlops-narrative--escalate",
+        "acute":    "mlops-narrative mlops-narrative--acute",
+    }.get(sev, "mlops-narrative")
+    return f'<div class="{cls}">{body_html}</div>'
+
+
+def classify_drift_severity(worst_delta: int) -> str:
+    """Materiality thresholds per ticket: |delta| < 2 NOMINAL / 2-5 WATCH /
+    5-10 ESCALATE / >10 ACUTE."""
+    a = abs(worst_delta)
+    if a < 2:   return "NOMINAL"
+    if a <= 5:  return "WATCH"
+    if a <= 10: return "ESCALATE"
+    return "ACUTE"
+
+
+def classify_fairness_severity(n_deviations: int) -> str:
+    if n_deviations == 0: return "NOMINAL"
+    if n_deviations == 1: return "WATCH"
+    if n_deviations <= 3: return "ESCALATE"
+    return "ACUTE"
+
+
+def classify_lineage_severity(n_broken: int) -> str:
+    if n_broken == 0: return "NOMINAL"
+    if n_broken == 1: return "ESCALATE"
+    return "ACUTE"
+
+
+def classify_synthesis_severity(n_llm: int) -> str:
+    """LLM_AUGMENTED in prod is the v1 immutability gate violation —
+    ESCALATE/ACUTE depending on count."""
+    if n_llm == 0: return "NOMINAL"
+    if n_llm == 1: return "ESCALATE"
+    return "ACUTE"
+
+
+def attestation_severity(attestation: str) -> str:
+    """HOL-45 — per-row severity for SYNTHESIS filter. PENDING covers both
+    self_declared and attestation_pending; everything else is NOMINAL."""
+    if attestation in ("self_declared", "attestation_pending"):
+        return "PENDING"
+    return "NOMINAL"
+
+
+# HOL-54 (Hettinger PR-panel) — split monolith into 4 domain-scoped dicts.
+# Each call site reaches for the right one; misses are clear instead of silent.
+# Plain-language so a non-statistician can decode (Gigerenzer R1 + R2 ask).
+
+DRIFT_RULES: dict[str, str] = {
+    "DRIFT_NOMINAL":  "Drift NOMINAL = |delta| < 2pp (no material change)",
+    "DRIFT_WATCH":    "Drift WATCH = 2-5pp delta (observe; no action required)",
+    "DRIFT_ESCALATE": "Drift ESCALATE = 5-10pp delta (review baseline; flag for next cycle)",
+    "DRIFT_ACUTE":    "Drift ACUTE = |delta| >= 10pp (recalibrate threshold; hold deployment)",
+}
+
+LINEAGE_RULES: dict[str, str] = {
+    "LINEAGE_NOMINAL":  "Lineage NOMINAL = 0 broken chains (all hashes verified)",
+    "LINEAGE_ESCALATE": "Lineage ESCALATE = 1 broken chain (re-seal; review anchor source)",
+    "LINEAGE_ACUTE":    "Lineage ACUTE = 2+ broken chains (halt promotions; trace propagation)",
+}
+
+SYNTHESIS_RULES: dict[str, str] = {
+    "SYNTHESIS_NOMINAL":  "Synthesis NOMINAL = 0 LLM_AUGMENTED in prod path",
+    "SYNTHESIS_ESCALATE": "Synthesis ESCALATE = 1 LLM_AUGMENTED pack flagged (v1 gate violation)",
+    "SYNTHESIS_ACUTE":    "Synthesis ACUTE = 2+ LLM_AUGMENTED packs (governance backlog)",
+}
+
+STATUS_RULES: dict[str, str] = {
+    "VERIFIED": "VERIFIED = chain hash matches anchor; no tampering detected",
+    "BROKEN":   "BROKEN = chain hash mismatch; lineage integrity compromised",
+    "STABLE":   "STABLE = chain depth and parents unchanged over last 24h",
+}
+
+ATTESTATION_RULES: dict[str, str] = {
+    "self_declared":          "self_declared = pack author asserted compliance; independent assessment required",
+    "attestation_pending":    "attestation_pending = newly-onboarded pack awaiting MRM sign-off",
+    "independently_assessed": "independently_assessed = second reviewer confirmed; not yet certified",
+    "certified":              "certified = sealed for prod; quarterly recertification due",
+}
+
+FAIRNESS_METRIC_RULES: dict[str, str] = {
+    "demographic_parity":  ("demographic_parity ∈ [0,1]; 1 = perfectly equal selection rates across cohorts. "
+                            "Floor 0.85 = 15pp tolerance. Below floor = ACUTE."),
+    "equalised_odds":      ("equalised_odds ∈ [0,1]; 1 = equal TPR and FPR across cohorts. "
+                            "Floor 0.80 = 20pp tolerance. Below floor = ACUTE."),
+    "calibration_by_cohort": ("calibration_by_cohort ∈ [0,1]; 1 = predicted probability matches observed rate "
+                              "per cohort. Floor 0.90."),
+}
+
+# Aggregated map for the test-suite completeness check + legacy call sites.
+# New code should reach for the domain-scoped dict directly.
+THRESHOLD_RULES: dict[str, str] = {
+    **DRIFT_RULES,
+    **LINEAGE_RULES,
+    **SYNTHESIS_RULES,
+    **STATUS_RULES,
+    **ATTESTATION_RULES,
+    **FAIRNESS_METRIC_RULES,
+}
+
+
+def render_filter_strip(scope: str, options: list[tuple[str, str]],
+                        default: str = "all") -> str:
+    """HOL-45 — pane-scoped severity filter strip. Each button has
+    data-filter-scope=<pane> + data-filter-value=<severity>. JS handler
+    hides rows in the same scope whose data-severity doesn't match."""
+    # NB: active attr computed out-of-string — backslashes inside f-string
+    # expressions are a SyntaxError before Python 3.12 (bank env is 3.11-locked).
+    parts = []
+    for val, label in options:
+        active = 'data-active="true"' if val == default else ""
+        parts.append(
+            f'<button class="pane-filter-btn" data-filter-scope="{scope}" '
+            f'data-filter-value="{val}" '
+            f'{active} '
+            f'type="button">{_e(label)}</button>'
+        )
+    btns = "".join(parts)
+    return (
+        f'<div class="pane-filter-strip" data-filter-scope="{scope}">'
+        f'<span class="pane-filter-label">filter</span>{btns}'
+        f'</div>'
+    )
+
+
+def fairness_narrative(pack_name: str, fair: dict) -> str:
+    """One-paragraph fairness narrative for the deviation alert."""
+    worst_metric, worst_value = min(
+        [("demographic parity", fair["demographic_parity"]),
+         ("equalised odds",     fair["equalised_odds"]),
+         ("calibration",        fair["calibration_by_cohort"])],
+        key=lambda x: x[1],
+    )
+    return (
+        f"<strong>What changed:</strong> {worst_metric} dropped to "
+        f"{worst_value:.2f} (floor 0.85). "
+        f"<strong>For whom:</strong> {_e(' · '.join(fair['cohort_dims']))} cohorts. "
+        f"<strong>Evidence:</strong> sliding-window over last 30 days; "
+        f"deviation persists across re-runs. "
+        f"<strong>Response:</strong> "
+        f"{'hold deployment; MRM re-review' if fair['deviation_alert'] else 'no action — within tolerance'}."
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CSS — MIL briefing aesthetic + a small MLOps-specific addition for the
+# governance table
+# ─────────────────────────────────────────────────────────────────────────────
+
+CSS_EXTRA = (Path(__file__).parent / "mlops.css").read_text(encoding="utf-8")
+# CSS body lives in holter/preview/mlops.css (HOL-53 — van Rossum PR-panel).
+# Inlined at render time; same f-string compatibility as the prior triple-quoted string.
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pane renderers — each pane is one box obeying the 4-layer discipline
+# ─────────────────────────────────────────────────────────────────────────────
+
+# HOL-50 (Metz PR-panel): helper functions extracted from the pane renderers
+# so each pane is orchestration-only. Pure refactor; byte-stable output.
+
+def _render_drift_legend_strip() -> str:
+    """Top-of-DRIFT-pane strip: cohort legend swatches + 30d baseline indicator
+    + HOL-43 window scrubber [7d][14d][30d]. Constant across all renders."""
+    legend_swatches = "".join(
+        f'<span class="drift-legend-swatch" data-cohort="{_e(label)}">'
+        f'<span class="drift-legend-dot" style="background:{c};"></span>'
+        f'<span>{_e(label)}</span>'
+        f'</span>'
+        for label, c in zip(_COHORT_LABELS, _COHORT_COLORS)
+    )
+    scrubber_html = (
+        f'<div class="window-scrubber">'
+        f'<span class="window-scrubber-label">window</span>'
+        f'<button class="window-scrubber-btn" data-window="7d" type="button">7d</button>'
+        f'<button class="window-scrubber-btn" data-window="14d" type="button" '
+        f'data-active="true">14d</button>'
+        f'<button class="window-scrubber-btn" data-window="30d" type="button">30d</button>'
+        f'</div>'
+    )
+    return (
+        f'<div class="drift-legend">'
+        f'<span class="drift-legend-label">age_band</span>'
+        f'{legend_swatches}'
+        f'<span class="drift-legend-baseline">'
+        f'<span class="drift-legend-baseline-line"></span>'
+        f'<span>30-day baseline</span>'
+        f'</span>'
+        f'{scrubber_html}'
+        f'</div>'
+    )
+
+
+def _build_drift_row(p: dict) -> tuple[str, int]:
+    """Render one DRIFT row's HTML + return the row's 7-day delta so the
+    pane orchestrator can find the worst-cell pack for the headline KPI
+    + narrative. Includes the 3 pre-rendered sparkline windows (HOL-43)."""
+    cell_series = drift_series(p["meta"]["pack_name"])
+    today, week_ago = cell_series[-1], cell_series[-8]
+    delta = today - week_ago
+    color = "var(--red)" if abs(delta) > 5 else (
+             "var(--amber)" if abs(delta) > 2 else "var(--green)")
+    h = p["hypothesis"] or {}
+    cell = _e(str(h.get("cell_id", "?")))
+    sig = _e(h.get("signature_id", "—").replace("_", " "))
+
+    # HOL-41 + HOL-43: render 3 sparkline windows; CSS toggles which is visible
+    baseline_30d = sum(cell_series) / len(cell_series)
+    spark_parts = []
+    for win_n, win_label in [(7, "7d"), (14, "14d"), (30, "30d")]:
+        cohorts = [
+            CohortSeries(
+                label=cohort,
+                color=cohort_color,
+                values=cohort_drift_series_n(p["meta"]["pack_name"], cohort, win_n),
+            )
+            for cohort, cohort_color in zip(_COHORT_LABELS, _COHORT_COLORS)
+        ]
+        svg = multi_sparkline_svg(
+            cohorts, width=240, height=28, baseline=baseline_30d,
+        )
+        svg_tagged = svg.replace(
+            '<svg class="body-sparkline"',
+            f'<svg class="body-sparkline" data-window="{win_label}"',
+            1,
+        )
+        spark_parts.append(svg_tagged)
+    spark = "".join(spark_parts)
+
+    # HOL-39 + HOL-45: cell-id link, per-row severity, threshold tooltip
+    row_sev = classify_drift_severity(delta)
+    delta_tooltip = DRIFT_RULES.get(f"DRIFT_{row_sev}", "")
+    row_html = (
+        f'<div class="drift-cell cell-row pane-filterable" '
+        f'data-cell-id="{cell}" data-severity="{row_sev}" '
+        f'data-filter-scope="drift">'
+        f'<span class="drift-cell-label">'
+        f'<a class="cell-link" href="#cell-{cell}" data-cell-id="{cell}">cell {cell}</a>'
+        f' · {sig}</span>'
+        f'<span class="drift-cell-spark">{spark}</span>'
+        f'<span class="drift-cell-val threshold-token" '
+        f'style="color:{color};" title="{_e(delta_tooltip)}">'
+        f'{delta:+d}pp</span>'
+        f'</div>'
+    )
+    return row_html, delta
+
+
+def render_drift_pane(packs: list[dict]) -> str:
+    """Pane 1 — DRIFT MONITORS. Per-cell COHORT-DISAGGREGATED sparklines
+    (HOL-41) — multiple lines per row showing each age-band's trend so
+    O'Neil's single-subgroup-bleeding case is visible at a glance.
+    HOL-50: extracted row builder + legend strip into helpers."""
+    drift_rows: list[str] = []
+    worst_delta = 0
+    worst_pack: dict | None = None
+    for p in packs[:5]:  # 5 rows fit cleanly with the bigger sparkline
+        row_html, delta = _build_drift_row(p)
+        drift_rows.append(row_html)
+        if abs(delta) > abs(worst_delta):
+            worst_delta = delta
+            worst_pack = p
+
+    # HOL-40 — narrative severity gradient driven by worst-cell delta
+    drift_sev = classify_drift_severity(worst_delta)
+    narrative = ""
+    if worst_pack:
+        series = drift_series(worst_pack["meta"]["pack_name"])
+        narrative = render_severity_narrative(
+            drift_sev,
+            drift_narrative(worst_pack["meta"]["pack_name"], series),
+        )
+    elif drift_sev == "NOMINAL":
+        narrative = render_severity_narrative("NOMINAL", "")
+
+    # HOL-45 — pane filter strip
+    drift_filter = render_filter_strip(
+        scope="drift",
+        options=[("all", "ALL"), ("ACUTE", "ACUTE only"),
+                 ("ESCALATE", "≥ESCALATE"), ("WATCH", "≥WATCH")],
+    )
+
+    return render_box(
+        header=box_header("DRIFT MONITORS", "14-day window"),
+        accent_color="var(--blue)",
+        headline=headline_stat_card(
+            label="WORST-CELL DELTA · 7-DAY",
+            value=f"{worst_delta:+d}pp",
+            delta=f"on cell {(worst_pack['hypothesis'] or {}).get('cell_id','?') if worst_pack else '—'}",
+            traj="↗ DRIFTING" if abs(worst_delta) > 5 else "→ STABLE",
+            meta_left=f"{len(packs)} cells monitored",
+            meta_right=NOW,
+            progress_pct=min(100, abs(worst_delta) * 10),
+        ),
+        body=drift_filter + _render_drift_legend_strip() + "".join(drift_rows) + narrative,
+        footer=box_footer(
+            "frictionbench v0.1", NOW, live=True,
+            note="Drift baselines from pulse.frictionbench.scoring",
+        ),
+    )
+
+
+def render_fairness_pane(packs: list[dict]) -> str:
+    """Pane 2 — FAIRNESS RE-CHECK. Per-pack metrics + worst-pack narrative.
+
+    HOL-46 — Raskin's R1+R2 carryover: "FAIRNESS RE-CHECK still leads with
+    three competing numbers at equal visual weight. Pick one." Header now
+    rebuilt with a single dominant primary KPI (worst equalised-odds) and
+    PASS/FAIL counts demoted to supporting annotation. Gigerenzer's "0.85
+    GINI requires a stats card" closed via threshold tooltip on the
+    primary value.
+    """
+    FLOOR = 0.85
+    fair_records = [(p, fairness_record(p["meta"]["pack_name"])) for p in packs]
+    alerts = [(p, f) for p, f in fair_records if f["deviation_alert"]]
+    n_alerts = len(alerts)
+    worst_pack, worst_fair = (alerts[0] if alerts else fair_records[0])
+
+    # Per-metric distribution (count of packs below 0.85 floor)
+    below_dp = sum(1 for _, f in fair_records if f["demographic_parity"] < FLOOR)
+    below_eo = sum(1 for _, f in fair_records if f["equalised_odds"] < FLOOR)
+    below_cc = sum(1 for _, f in fair_records if f["calibration_by_cohort"] < FLOOR)
+
+    # HOL-40 — severity driven by deviation count
+    fair_sev = classify_fairness_severity(n_alerts)
+    narrative = render_severity_narrative(
+        fair_sev,
+        fairness_narrative(worst_pack["meta"]["pack_name"], worst_fair),
+    )
+
+    # HOL-46 — primary KPI = worst pack's equalised-odds (the floor-breach
+    # signal). Single dominant number; PASS/FAIL counts move into meta_left
+    # at the demoted supporting weight provided by headline_stat_card.
+    worst_eo = min(f["equalised_odds"] for _, f in fair_records)
+    n_pass = sum(1 for _, f in fair_records if f["equalised_odds"] >= FLOOR)
+    n_fail = len(fair_records) - n_pass
+    eo_delta = worst_eo - FLOOR  # negative = below floor
+    delta_color = "var(--red)" if eo_delta < 0 else "var(--green)"
+    delta_arrow = "↓" if eo_delta < 0 else "↑"
+    delta_str = (
+        f'<span style="color:{delta_color};" class="threshold-token" '
+        f'title="{_e(FAIRNESS_METRIC_RULES["equalised_odds"])}">'
+        f'{delta_arrow} {eo_delta:+.2f} vs {FLOOR:.2f} floor</span>'
+    )
+    traj_str = "↘ BELOW FLOOR" if eo_delta < 0 else "→ WITHIN FLOOR"
+    meta_left_str = (
+        f'<span style="color:var(--green); font-weight:700;">{n_pass} passing</span>'
+        f' · '
+        f'<span style="color:var(--red); font-weight:700;">{n_fail} fail</span>'
+        f' · across {len(packs)} packs'
+    )
+
+    return render_box(
+        header=box_header("FAIRNESS RE-CHECK", "30-day window"),
+        accent_color="var(--amber)" if n_alerts else "var(--green)",
+        # HOL-46 — primary stat card replaces the 3-chip equal-weight strip
+        headline=headline_stat_card(
+            label="WORST EQUALISED-ODDS",
+            value=f"{worst_eo:.2f}",
+            delta=delta_str,
+            traj=traj_str,
+            meta_left=meta_left_str,
+            meta_right=NOW,
+            progress_pct=int(worst_eo * 100),
+        ),
+        body=body_kpi_tiles([
+            (f"{below_dp}/{len(packs)}", "DEM PARITY",  "below floor",
+             "var(--red)" if below_dp else "var(--green)"),
+            (f"{below_eo}/{len(packs)}", "EQ ODDS",     "below floor",
+             "var(--red)" if below_eo else "var(--green)"),
+            (f"{below_cc}/{len(packs)}", "CALIBRATION", "below floor",
+             "var(--red)" if below_cc else "var(--green)"),
+        ]) + narrative + body_lines([
+            ("Methods registry: pulse.convergence — demographic_parity, "
+             "equalised_odds, calibration_by_cohort", "var(--text-3)"),
+        ]),
+        footer=box_footer(
+            "convergence v0.1", NOW, live=True,
+            note=f"Re-evaluation every 30 days · cohort axes: age_band · gender · ethnicity_band",
+        ),
+    )
+
+
+def _build_lineage_row(p: dict, ls: dict) -> str:
+    """HOL-50: extracted from render_lineage_pane. One LINEAGE row (drift-cell
+    layout) + the collapsible .hash-chain block underneath. Row carries
+    data-cell-id for HOL-39 drill-through and data-severity for HOL-45 filter."""
+    h = p["hypothesis"] or {}
+    cell = _e(str(h.get("cell_id", "?")))
+    sha_short = _e(short_hash(p["sha256"]))
+    # HOL-43: hash is a click-target; expands chain ancestry inline
+    ancestry = lineage_chain_ancestry(p["meta"]["pack_name"], p["sha256"])
+    chain_rows = []
+    for i, anc in enumerate(ancestry):
+        arrow = ('<span class="hash-chain-arrow">↑ parent</span>'
+                 if i < len(ancestry) - 1 else
+                 '<span class="hash-chain-arrow">root</span>')
+        chain_rows.append(
+            f'<div class="hash-chain-row">'
+            f'<span class="hash-chain-sha">{_e(anc.sha)}</span>'
+            f'<span class="hash-chain-pipeline">{_e(anc.pipeline)}</span>'
+            f'<span class="hash-chain-dataset">{_e(anc.dataset)}</span>'
+            f'<span class="hash-chain-date">{_e(anc.sealed_at)}</span>'
+            f'</div>'
+            f'<div class="hash-chain-row">{arrow}</div>'
+        )
+    chain_html = (
+        f'<div class="hash-chain" data-chain-for="{cell}">'
+        f'{"".join(chain_rows)}'
+        f'</div>'
+    )
+    # HOL-45: per-row severity (BROKEN→ACUTE, VERIFIED→NOMINAL) +
+    # threshold tooltip on the chain_status badge
+    row_sev = "ACUTE" if ls["chain_status"] == "BROKEN" else "NOMINAL"
+    status_tip = STATUS_RULES.get(ls["chain_status"], "")
+    return (
+        f'<div class="drift-cell cell-row pane-filterable" '
+        f'data-cell-id="{cell}" data-severity="{row_sev}" '
+        f'data-filter-scope="lineage">'
+        f'<span class="drift-cell-label">'
+        f'<a class="cell-link" href="#cell-{cell}" data-cell-id="{cell}">cell {cell}</a>'
+        f' · <a class="hash-link" href="#" data-chain-toggle="{cell}" '
+        f'title="Expand upstream chain">sha:{sha_short}</a></span>'
+        f'<span class="govern-badge threshold-token" '
+        f'style="color:{ls["color"]};" title="{_e(status_tip)}">'
+        f'{ls["chain_status"]}</span>'
+        f'<span class="drift-cell-val" style="color:var(--text-3); width:auto; '
+        f'text-align:right; font-size:9px;">depth {ls["chain_depth"]}</span>'
+        f'</div>'
+        f'{chain_html}'
+    )
+
+
+def render_lineage_pane(packs: list[dict]) -> str:
+    """Pane 3 — LINEAGE VERIFIER. Hash-chain health + broken alerts.
+    HOL-50: row construction extracted to _build_lineage_row()."""
+    rows = [(p, lineage_status(p["meta"]["pack_name"], p["sha256"])) for p in packs]
+    broken = [(p, ls) for p, ls in rows if ls["chain_status"] == "BROKEN"]
+    n_broken = len(broken)
+    n_verified = len(packs) - n_broken
+    chain_health_pct = int(100 * n_verified / max(len(packs), 1))
+
+    detail_rows = [_build_lineage_row(p, ls) for p, ls in rows[:5]]
+
+    # HOL-45 — pane filter strip
+    lineage_filter = render_filter_strip(
+        scope="lineage",
+        options=[("all", "ALL"), ("ACUTE", "BROKEN only"),
+                 ("NOMINAL", "VERIFIED only")],
+    )
+
+    return render_box(
+        header=box_header("LINEAGE VERIFIER", "hash-chain integrity"),
+        accent_color="var(--red)" if n_broken else "var(--green)",
+        headline=headline_stat_card(
+            label="CHAIN HEALTH",
+            value=f"{n_verified}/{len(packs)}",
+            delta=f"{n_broken} broken" if n_broken else "all chains verified",
+            traj="↘ DEGRADED" if n_broken else "→ STABLE",
+            meta_left="hash-anchored · regulator-defensible",
+            meta_right=NOW,
+            progress_pct=chain_health_pct,
+        ),
+        # HOL-40 — severity driven by BROKEN count (0 → NOMINAL → single-token render)
+        body=lineage_filter + "".join(detail_rows) + render_severity_narrative(
+            classify_lineage_severity(n_broken),
+            (f'<strong>What changed:</strong> {n_broken} pack chain'
+             f'{"s" if n_broken != 1 else ""} reported BROKEN. '
+             f'<strong>For whom:</strong> any reviewer or regulator querying '
+             f'these packs gets a chain-integrity failure. '
+             f'<strong>Evidence:</strong> lineage_verifier.verify() output. '
+             f'<strong>Response:</strong> trace + reseal chain anchors before next promotion.'),
+        ),
+        footer=box_footer(
+            "lineage v0.1", NOW, live=True,
+            note="pulse.lineage verifier · synthesis-pending packs excluded",
+        ),
+    )
+
+
+def _render_synthesis_action_cluster(cell: str) -> str:
+    """HOL-50: extracted from render_synthesis_pane. PENDING-row 3-button
+    cluster [Attest][Challenge][Defer]. HOL-42 governance affordance."""
+    return (
+        f'<td><span class="govern-actions" data-cell-id="{cell}">'
+        f'<button class="govern-action-btn govern-action-btn--attest" '
+        f'data-action="attest" data-cell-id="{cell}" type="button">Attest</button>'
+        f'<button class="govern-action-btn govern-action-btn--challenge" '
+        f'data-action="challenge" data-cell-id="{cell}" type="button">Challenge</button>'
+        f'<button class="govern-action-btn govern-action-btn--defer" '
+        f'data-action="defer" data-cell-id="{cell}" type="button">Defer</button>'
+        f'</span></td>'
+    )
+
+
+def _build_synthesis_row(p: dict, g: dict) -> str:
+    """HOL-50: extracted from render_synthesis_pane. One SYNTHESIS table
+    <tr> with cell link, value tier + mode + attestation badges
+    (threshold-tooltip'd), reviewer + date columns, and the actionable
+    PENDING action cluster (or "—" placeholder for resolved rows).
+    HOL-57: Value tier column added so the reviewer can prioritise
+    high-value packs in the pending queue."""
+    h = p["hypothesis"] or {}
+    cell = _e(str(h.get("cell_id", "?")))
+    # HOL-42: PENDING rows get inline action cluster; resolved rows show "—"
+    if g["is_actionable"]:
+        actions_cell = _render_synthesis_action_cluster(cell)
+    else:
+        actions_cell = '<td><span class="govern-actions-none">—</span></td>'
+    # HOL-39 + HOL-45 row attrs: drill-through + filter + sort + tooltips
+    row_sev = attestation_severity(g["attestation"])
+    att_tip = ATTESTATION_RULES.get(g["attestation"], "")
+    mode_tip = SYNTHESIS_RULES.get(g["synthesis_mode"], "")  # may be empty
+    # HOL-57: pull commercial signal off the engine PlacementCell
+    signal = _commercial_signal_for_pack(p)
+    value_color = _VALUE_COLORS.get(signal["value_tier"], "#5A6E7A")
+    # HOL-57 + no-pound-pandora: friction-volume is the primary unit on the
+    # row; £ scaffold (if any) goes in a tooltip, never as the cell text.
+    volume_text = signal["volume_label"] or '<span class="govern-lift-pending">—</span>'
+    scaffold_tip = signal.get("scaffold") or ""
+    return (
+        f'<tr class="cell-row pane-filterable" data-cell-id="{cell}" '
+        f'data-row-state="pending" data-severity="{row_sev}" '
+        f'data-filter-scope="synthesis" '
+        f'data-sort-cell="{cell}" '
+        f'data-sort-value="{_e(signal["value_tier"])}" '
+        f'data-sort-mode="{_e(g["synthesis_mode"])}" '
+        f'data-sort-attestation="{_e(g["attestation"])}" '
+        f'data-sort-reviewed="{_e(g["reviewed_date"])}">'
+        f'<td><a class="cell-link" href="#cell-{cell}" data-cell-id="{cell}">cell {cell}</a></td>'
+        f'<td><span class="govern-badge govern-badge--value" '
+        f'style="color:{value_color};">{_e(signal["value_tier"])}</span> '
+        f'<span class="govern-lift" title="{_e(scaffold_tip)}">{volume_text}</span></td>'
+        f'<td><span class="govern-badge threshold-token" '
+        f'style="color:{g["mode_color"]};" title="{_e(mode_tip)}">'
+        f'{g["synthesis_mode"]}</span></td>'
+        f'<td><span class="govern-badge threshold-token" '
+        f'style="color:{g["att_color"]};" title="{_e(att_tip)}">'
+        f'{g["attestation"]}</span></td>'
+        f'<td>{_e(g["reviewer"])}</td>'
+        f'<td>{_e(g["reviewed_date"])}</td>'
+        f'{actions_cell}'
+        f'</tr>'
+    )
+
+
+def render_synthesis_pane(packs: list[dict]) -> str:
+    """Pane 4 — SYNTHESIS-MODE GOVERNANCE. Per-pack table of synthesis-mode +
+    attestation status. Critical before any LLM_AUGMENTED prod enable.
+    HOL-50: row + action-cluster construction extracted to helpers."""
+    rows = [(p, synthesis_governance(p["meta"]["pack_name"])) for p in packs]
+    n_llm = sum(1 for _, g in rows if g["synthesis_mode"] == "LLM_AUGMENTED")
+    n_det = len(packs) - n_llm
+    n_certified = sum(1 for _, g in rows if g["attestation"] == "certified")
+
+    n_actionable = sum(1 for _, g in rows[:6] if g["is_actionable"])
+    table_rows = [_build_synthesis_row(p, g) for p, g in rows[:6]]
+    # HOL-45 — sortable column headers; data-sort-key matches the
+    # data-sort-* attrs on rows, JS handler reorders tbody children.
+    table_html = (
+        '<table class="govern-table" data-sortable-table="synthesis">'
+        '<thead><tr>'
+        '<th class="sortable" data-sort-key="cell">cell</th>'
+        '<th class="sortable" data-sort-key="value">value · sessions/wk</th>'
+        '<th class="sortable" data-sort-key="mode">mode</th>'
+        '<th class="sortable" data-sort-key="attestation">attestation</th>'
+        '<th>reviewer</th>'
+        '<th class="sortable" data-sort-key="reviewed">reviewed</th>'
+        '<th>actions</th>'
+        '</tr></thead>'
+        f'<tbody>{"".join(table_rows)}</tbody>'
+        '</table>'
+        # HOL-42: session log tray — JS updates count + last action
+        f'<div class="govern-session-log" id="govern-session-log" '
+        f'data-pending="{n_actionable}">'
+        f'session log · 0 decisions recorded · '
+        f'<span class="govern-session-log-count">{n_actionable}</span> pending'
+        f'</div>'
+    )
+
+    # HOL-40 — severity driven by LLM_AUGMENTED count
+    gate_note = render_severity_narrative(
+        classify_synthesis_severity(n_llm),
+        (f'<strong>v1 immutability gate:</strong> {n_llm} LLM_AUGMENTED pack'
+         f'{"s" if n_llm != 1 else ""} flagged. Per pulse/synthesis/SYNTHESIS_DESIGN.md '
+         f'the v1 gate refuses synthesis_mode: llm_augmented in decision packs. '
+         f'<strong>Response:</strong> '
+         f'hold packs out of prod; route through governance review before enabling.')
+    )
+
+    # HOL-45 — pane filter strip for SYNTHESIS
+    synth_filter = render_filter_strip(
+        scope="synthesis",
+        options=[("all", "ALL"), ("PENDING", "PENDING only")],
+    )
+
+    return render_box(
+        header=box_header("SYNTHESIS GOVERNANCE", "per-pack attestation"),
+        accent_color="var(--green)" if n_llm == 0 else "var(--amber)",
+        headline=headline_chip_strip([
+            (str(n_det),       "DETERMINISTIC", "var(--green)"),
+            (str(n_llm),       "LLM_AUGMENTED", "var(--red)"),
+            (str(n_certified), "CERTIFIED",     "var(--teal)"),
+        ]),
+        body=synth_filter + table_html + gate_note,
+        footer=box_footer(
+            "synthesis v0.1", NOW, live=True,
+            note=f"All packs declare synthesis_mode · attestation pinned per review",
+        ),
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Top nav + masthead (same identity strip as Workspace + Home)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def render_topnav() -> str:
+    return f"""
+<header class="holter-topnav">
+  <span class="brand-logo">CJI&nbsp;PULSE</span>
+  <span class="topnav-spacer"></span>
+  <button class="topnav-icon" type="button" title="Search packs (/)">⌕</button>
+  <button class="topnav-icon" type="button" title="Notifications">🔔</button>
+  <details class="topnav-glossary">
+    <summary class="topnav-icon topnav-glossary-trigger" title="Status glossary (full token dictionary)">Aa</summary>
+    <div class="topnav-glossary-panel">
+      <div class="topnav-glossary-panel-header">STATUS GLOSSARY</div>
+      <div>{render_glossary_panel()}</div>
+    </div>
+  </details>
+  <button class="topnav-icon" type="button" title="Canvas guide">?</button>
+  <button class="topnav-icon" type="button" title="Settings">⚙</button>
+  <button class="topnav-avatar" type="button" title="Hussain Ahmed">HA</button>
+</header>"""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HOL-57 — Commercial signal-back on the decision frame.
+#
+# Surfaces what the MRM reviewer's decision actually clears commercially.
+# Pulls Value tier + sized monthly lift from the engine's PlacementCell
+# (which carries ValueScore per PULSE-107). Renders an "Unblocks:" affordance
+# under the trigger sentence + an enriched APPROVE-FOR-PROD confirmation.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _commercial_signal_for_pack(p: dict) -> dict:
+    """Pull the commercial signal off the engine's PlacementCell for this pack.
+
+    Returns a dict with `value_tier`, `journey_id`, friction-volume signal
+    (`volume_label` — the PRIMARY unit, sessions/wk recoverable) +
+    `sessions_per_week` for sorting, and `scaffold` (the optional SECONDARY
+    £ framing that names its own per-session ARPU assumption). Falls back to
+    defaults when the engine bridge can't resolve the pack (renders PENDING).
+
+    No bare £: per no-pound-pandora, surfaces lead with friction volume."""
+    cell = get_pack_cell(p["meta"]["pack_name"])
+    if cell is None:
+        return {
+            "value_tier": "PENDING",
+            "volume_label": None,
+            "sessions_per_week": 0,
+            "scaffold": None,
+            "journey_id": "—",
+        }
+    return {
+        "value_tier": cell.value.tier,
+        "volume_label": friction_volume_headline(cell.value, period="week"),
+        "sessions_per_week": getattr(
+            cell.value, "recoverable_sessions_per_week", 0) or 0,
+        "scaffold": commercial_scaffold(cell.value),
+        "journey_id": cell.journey_id,
+    }
+
+
+_COMMERCIAL_TIERS = {"COMMERCIAL-OPPORTUNITY", "SIGNIFICANT"}
+
+
+def render_unblocks_strip(packs: list[dict]) -> str:
+    """List the COMMERCIAL-OPPORTUNITY / SIGNIFICANT packs gated by the
+    reviewer's pending workflow, sized lift descending.
+
+    Audit framing: an MRM reviewer can't see the commercial cost of holding
+    a model in committee without this affordance. HOL-57 makes the gate
+    transparent to the reviewer.
+    """
+    signals: list[tuple[dict, dict]] = []
+    for p in packs:
+        sig = _commercial_signal_for_pack(p)
+        if sig["value_tier"] in _COMMERCIAL_TIERS:
+            signals.append((p, sig))
+
+    if not signals:
+        return (
+            '<div class="mlops-unblocks-strip mlops-unblocks-strip--empty">'
+            '<span class="mlops-unblocks-label">UNBLOCKS</span>'
+            '<span class="mlops-unblocks-empty">'
+            'no commercial-tier packs currently gated by this workflow'
+            '</span>'
+            '</div>'
+        )
+
+    # Sort: friction volume (sessions/wk) desc — the primary commercial unit.
+    # No £ in the sort key (no-pound-pandora).
+    signals.sort(
+        key=lambda ps: (
+            -(ps[1]["sessions_per_week"] or 0),
+            ps[0]["meta"]["pack_name"],
+        )
+    )
+
+    # Aggregate friction volume held by the workflow — the headline unit is
+    # sessions/week, NOT £. This is what the reviewer is actually holding
+    # when they route a model to committee.
+    total_sessions = sum(s["sessions_per_week"] for _, s in signals)
+
+    items_html: list[str] = []
+    for p, s in signals[:4]:  # cap at 4 to keep the strip readable
+        tier = s["value_tier"]
+        tier_color = _VALUE_COLORS.get(tier, "#5A6E7A")
+        volume_text = s["volume_label"] or '<span class="mlops-unblocks-pending">vol. pending</span>'
+        # £ scaffold (if any) lives in the title attr — secondary, on hover.
+        scaffold_tip = s.get("scaffold") or ""
+        items_html.append(
+            f'<li class="mlops-unblocks-item" title="{_e(scaffold_tip)}">'
+            f'<span class="mlops-unblocks-tier" style="color:{tier_color};">{tier}</span>'
+            f'<span class="mlops-unblocks-journey">{_e(s["journey_id"])}</span>'
+            f'<span class="mlops-unblocks-lift">{volume_text}</span>'
+            f'</li>'
+        )
+
+    n_more = max(0, len(signals) - 4)
+    more_html = (
+        f'<li class="mlops-unblocks-more">+ {n_more} more</li>' if n_more else ''
+    )
+
+    headline = (
+        f' · <span class="mlops-unblocks-total">~{total_sessions:,} sessions/wk '
+        f'held by this workflow</span>'
+        if total_sessions else ''
+    )
+
+    return (
+        f'<div class="mlops-unblocks-strip">'
+        f'<span class="mlops-unblocks-label">UNBLOCKS</span>'
+        f'<span class="mlops-unblocks-context">{len(signals)} commercial-tier pack'
+        f'{"s" if len(signals) != 1 else ""} gated{headline}</span>'
+        f'<ul class="mlops-unblocks-list">{"".join(items_html)}{more_html}</ul>'
+        f'</div>'
+    )
+
+
+def render_decision_frame(packs: list[dict]) -> str:
+    """HOL-44 — Top-of-page decision frame. Replaces the bare procurement-gate
+    masthead with a Young/Burt/Rock-aligned "why you are here today" framing.
+
+    Composition (matches ticket acceptance):
+      - Trigger sentence — computed from worst-cell drift + flagged count
+      - Unblocks strip (HOL-57) — commercial signal-back; shows what packs
+        are gated by this workflow and total sessions/week held (friction
+        volume, NOT £ — see no-pound-pandora)
+      - Decision frame — 3-button cluster [Approve 14d / Committee / Retrain]
+      - Session badge — reviewer + session start + decisions logged
+    """
+    # Compute trigger from drift (worst-cell pack)
+    worst_delta = 0
+    worst_pack = None
+    for p in packs[:5]:
+        cs = drift_series(p["meta"]["pack_name"])
+        delta = cs[-1] - cs[-8]
+        if abs(delta) > abs(worst_delta):
+            worst_delta = delta
+            worst_pack = p
+
+    sev = classify_drift_severity(worst_delta)  # NOMINAL/WATCH/ESCALATE/ACUTE
+    sev_color = {
+        "ACUTE":    "var(--red)",
+        "ESCALATE": "var(--amber)",
+        "WATCH":    "var(--amber)",
+        "NOMINAL":  "var(--green)",
+    }[sev]
+    frame_mod = f"mlops-decision-frame--{sev.lower()}" if sev in ("ACUTE", "ESCALATE") else ""
+
+    pack_name = worst_pack["meta"]["pack_name"] if worst_pack else "—"
+    cell_id = (worst_pack["hypothesis"] or {}).get("cell_id", "?") if worst_pack else "?"
+
+    # Count cohorts below floor across all packs (matches FAIRNESS pane logic)
+    cohorts_below = 0
+    for p in packs:
+        f_ = fairness_record(p["meta"]["pack_name"])
+        if f_["equalised_odds"] < 0.85:
+            cohorts_below += 1
+
+    trigger = (
+        f'<span class="mlops-decision-trigger-tag" style="color:{sev_color};">{sev}</span>'
+        f'Model <span class="mlops-decision-trigger-pack">{_e(pack_name)}</span> '
+        f'manual re-check flagged <strong>{sev}</strong> — '
+        f'drift {worst_delta:+d}pp on cell {_e(str(cell_id))} · '
+        f'{cohorts_below}/{len(packs)} cohorts below equalised-odds floor.'
+    )
+
+    today = _dt.date.today().strftime("%a · %d %b")
+    session_start = NOW
+
+    # HOL-57 — what this model gates commercially. Surfaced under the trigger
+    # so the reviewer sees the cost-of-hold before pressing a workflow button.
+    unblocks_html = render_unblocks_strip(packs)
+
+    # HOL-57 + no-pound-pandora — APPROVE FOR PROD 14D carries the worst-pack's
+    # friction-volume signal (sessions/wk), NOT £. Christensen's hard-gate:
+    # the regulated-approval audit confirmation must record customer-exposure
+    # units, never a raw £ figure (which would make money the unit-of-record
+    # for a customer-protection decision).
+    worst_pack_signal = (
+        _commercial_signal_for_pack(worst_pack)
+        if worst_pack
+        else {"value_tier": "—", "volume_label": None, "journey_id": "—"}
+    )
+    # Strip the trailing "recoverable" word for the compact button attr.
+    _vol = worst_pack_signal.get("volume_label") or ""
+    approve_volume_attr = _e(_vol.replace(" recoverable", ""), quote=True)
+    approve_journey_attr = _e(worst_pack_signal["journey_id"], quote=True)
+    approve_tier_attr = _e(worst_pack_signal["value_tier"], quote=True)
+
+    return f'''
+<div class="mlops-decision-frame {frame_mod}">
+  <div class="mlops-decision-trigger">{trigger}</div>
+  {unblocks_html}
+  <div class="mlops-decision-actions">
+    <button class="mlops-decision-btn mlops-decision-btn--approve"
+            data-decision="approve_14d"
+            data-pack-journey="{approve_journey_attr}"
+            data-pack-tier="{approve_tier_attr}"
+            data-pack-volume="{approve_volume_attr}"
+            type="button">Approve for prod · 14d</button>
+    <button class="mlops-decision-btn mlops-decision-btn--committee"
+            data-decision="route_committee" type="button">Route to committee</button>
+    <button class="mlops-decision-btn mlops-decision-btn--retrain"
+            data-decision="request_retrain" type="button">Request retraining</button>
+  </div>
+  <div class="mlops-decision-session">
+    <span>reviewer · <span class="mlops-decision-session-reviewer">HA · Hussain Ahmed</span></span>
+    <span>session · {today} · started {session_start}</span>
+    <span>decisions · <span class="mlops-decision-session-count" id="mlops-decision-count">0</span></span>
+    <span class="mlops-decision-session-confirm" id="mlops-decision-confirm"></span>
+  </div>
+</div>
+<div class="mlops-dateline">MLOps Console · {today} · {session_start}</div>'''
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Page composition
+# ─────────────────────────────────────────────────────────────────────────────
+
+def render_page() -> str:
+    packs = discover_packs()
+
+    panes = (
+        render_drift_pane(packs)
+        + render_fairness_pane(packs)
+        + render_lineage_pane(packs)
+        + render_synthesis_pane(packs)
+    )
+
+    # HOL-35: CSS now lives in _shared (was in render_holter). MLOps no
+    # longer imports anything from render_holter — Cannon's condition met.
+    from holter.preview._shared import CSS as WORKSPACE_CSS
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MLOps Console — procurement gate</title>
+<style>{WORKSPACE_CSS}{CSS_EXTRA}</style>
+</head>
+<body>
+{render_topnav()}
+<main class="mlops-page" data-window="14d">
+{render_decision_frame(packs)}
+<div class="mlops-grid">{panes}</div>
+</main>
+<script>
+// HOL-39 — drill-through coupling: clicking a cell-id link toggles
+// .cell-row-highlighted on EVERY .cell-row[data-cell-id="N"] across all
+// 4 panes simultaneously. Vanilla JS, no library, ~15 lines.
+(function () {{
+  function clearAll() {{
+    document.querySelectorAll('.cell-row-highlighted')
+      .forEach(el => el.classList.remove('cell-row-highlighted'));
+  }}
+  function highlight(cellId) {{
+    document.querySelectorAll('.cell-row[data-cell-id="' + cellId + '"]')
+      .forEach(el => el.classList.add('cell-row-highlighted'));
+  }}
+  document.querySelectorAll('.cell-link').forEach(link => {{
+    link.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      const cellId = this.getAttribute('data-cell-id');
+      const wasHighlighted = document.querySelector(
+        '.cell-row.cell-row-highlighted[data-cell-id="' + cellId + '"]'
+      );
+      clearAll();
+      if (!wasHighlighted) highlight(cellId);
+    }});
+  }});
+  // Click anywhere else clears highlight
+  document.addEventListener('click', function (ev) {{
+    if (!ev.target.closest('.cell-link') && !ev.target.closest('.cell-row')) {{
+      clearAll();
+    }}
+  }});
+}})();
+
+// HOL-42 + HOL-44 — In-session event log. HOL-51 (Hickey): both
+// cell-scope (Attest/Challenge/Defer) and model-scope (Approve/Committee/
+// Retrain) writers share a single envelope so the eventual engine
+// consumer doesn't have to demux on scope.
+//
+//   {{ scope: 'cell' | 'model',
+//     target: cell_id | model_name,
+//     action: string,
+//     reason: string | null,
+//     reviewer: string,
+//     timestamp: ISO-8601 }}
+window.holterEventLog = window.holterEventLog || [];
+window.holterRecordEvent = function (scope, target, action, reason) {{
+  const event = {{
+    scope: scope,
+    target: target,
+    action: action,
+    reason: reason || null,
+    reviewer: 'HA',
+    timestamp: new Date().toISOString(),
+  }};
+  window.holterEventLog.push(event);
+  console.log('[holter-event]', event);
+  return event;
+}};
+
+(function () {{
+  function recordAction(cellId, action, reason) {{
+    return window.holterRecordEvent('cell', cellId, action, reason);
+  }}
+
+  function resolveRow(cellId, action) {{
+    const row = document.querySelector(
+      '.govern-table tr.cell-row[data-cell-id="' + cellId + '"]'
+    );
+    if (!row) return;
+    row.setAttribute('data-row-state', action);
+    row.classList.add('govern-row--resolved');
+    const actionsCell = row.querySelector('td:last-child');
+    if (actionsCell) {{
+      actionsCell.innerHTML = '<span class="govern-resolved-badge ' +
+        'govern-resolved-badge--' + action + 'ed">' +
+        action.toUpperCase() + 'ED</span>';
+    }}
+  }}
+
+  function updateSessionLog() {{
+    const log = document.getElementById('govern-session-log');
+    if (!log) return;
+    // HOL-51: count only cell-scope events for the cell-scope tray;
+    // model-scope events are tracked separately by the decision frame.
+    const cellEvents = window.holterEventLog.filter(e => e.scope === 'cell');
+    const n = cellEvents.length;
+    const initialPending = parseInt(log.getAttribute('data-pending'), 10);
+    const stillPending = Math.max(0, initialPending - n);
+    const last = n ? cellEvents[n - 1] : null;
+    if (n === 0) {{
+      log.innerHTML = 'session log · 0 decisions recorded · ' +
+        '<span class="govern-session-log-count">' + initialPending +
+        '</span> pending';
+    }} else {{
+      log.classList.add('govern-session-log--active');
+      log.innerHTML = 'session log · ' +
+        '<span class="govern-session-log-count">' + n + '</span> recorded · ' +
+        stillPending + ' pending · last: cell ' + last.target + ' ' +
+        last.action.toUpperCase() +
+        (last.reason ? ' (' + last.reason.slice(0, 30) + ')' : '');
+    }}
+  }}
+
+  document.querySelectorAll('.govern-action-btn').forEach(btn => {{
+    btn.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const cellId = this.getAttribute('data-cell-id');
+      const action = this.getAttribute('data-action');
+      let reason = null;
+      if (action === 'challenge') {{
+        reason = window.prompt(
+          'Challenge cell ' + cellId + ' — reason (cohort scope + concern):'
+        );
+        if (reason === null) return;  // user cancelled
+      }}
+      recordAction(cellId, action, reason);
+      resolveRow(cellId, action);
+      updateSessionLog();
+    }});
+  }});
+}})();
+
+// HOL-43 — Window scrubber [7d][14d][30d] + lineage hash click-to-expand
+// chain ancestry. Three affordances, one gesture (reach into the data).
+(function () {{
+  // (b) Window scrubber: sets .mlops-page[data-window]; CSS hides/shows
+  // the matching sparkline SVG variant. Default 14d (server-rendered
+  // as an attribute on the <main> tag — JS no longer initialises).
+  // HOL-52 (Hickey) — scoped to .mlops-page not document.body so a
+  // co-mounted surface doesn't inherit our window state.
+  const mlopsPage = document.querySelector('.mlops-page');
+  document.querySelectorAll('.window-scrubber-btn').forEach(btn => {{
+    btn.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      const win = this.getAttribute('data-window');
+      if (mlopsPage) mlopsPage.setAttribute('data-window', win);
+      document.querySelectorAll('.window-scrubber-btn').forEach(b =>
+        b.setAttribute('data-active', b === this ? 'true' : 'false')
+      );
+    }});
+  }});
+
+  // (c) Hash click-to-expand: toggles .hash-chain--open on the matching
+  // chain block. Cell-id key avoids opening the wrong chain in cases
+  // where two rows somehow share a cell.
+  document.querySelectorAll('a.hash-link[data-chain-toggle]').forEach(link => {{
+    link.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const cellId = this.getAttribute('data-chain-toggle');
+      const chain = this.closest('.holter-box').querySelector(
+        '.hash-chain[data-chain-for="' + cellId + '"]'
+      );
+      if (chain) chain.classList.toggle('hash-chain--open');
+    }});
+  }});
+}})();
+
+// HOL-44 — Top-of-page decision frame. Three model-scope decisions:
+// Approve 14d / Route to committee / Request retraining.
+// HOL-51: routes through the unified window.holterRecordEvent writer
+// with scope='model' + target=<model_name>; same envelope as cell-scope.
+(function () {{
+  const countEl = document.getElementById('mlops-decision-count');
+  const confirmEl = document.getElementById('mlops-decision-confirm');
+  const frameEl = document.querySelector('.mlops-decision-frame');
+  const modelName = frameEl
+    ? (frameEl.querySelector('.mlops-decision-trigger-pack')
+        ?.textContent.trim() || 'unknown_model')
+    : 'unknown_model';
+  let modelDecisions = 0;
+
+  function flashConfirm(text) {{
+    if (!confirmEl) return;
+    confirmEl.textContent = '✓ ' + text;
+    confirmEl.classList.add('mlops-decision-session-confirm--shown');
+    setTimeout(() => {{
+      confirmEl.classList.remove('mlops-decision-session-confirm--shown');
+    }}, 2400);
+  }}
+
+  document.querySelectorAll('.mlops-decision-btn').forEach(btn => {{
+    btn.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      // Torvalds PR-panel: double-click guard. Rapid-tap on "Route to
+      // committee" was pushing two events to the log; unacceptable for
+      // a sign-off workbench. data-locked latches on first click.
+      if (this.getAttribute('data-locked') === 'true') return;
+      this.setAttribute('data-locked', 'true');
+      this.disabled = true;
+      const decision = this.getAttribute('data-decision');
+      window.holterRecordEvent('model', modelName, decision, null);
+      modelDecisions += 1;
+      if (countEl) countEl.textContent = modelDecisions;
+      // HOL-57 + no-pound-pandora — APPROVE FOR PROD 14D records the
+      // customer-exposure unit it clears (sessions/wk), NOT £. The audit
+      // confirmation must speak in friction-volume — money is never the
+      // unit-of-record for a customer-protection approval.
+      if (decision === 'approve_14d') {{
+        const journey = this.getAttribute('data-pack-journey') || '';
+        const tier = this.getAttribute('data-pack-tier') || '';
+        const volume = this.getAttribute('data-pack-volume') || '';
+        if (journey && volume) {{
+          flashConfirm('cleared ' + journey + ' for 14d prod · ' + volume + ' (' + tier + ')');
+        }} else if (journey) {{
+          flashConfirm('cleared ' + journey + ' for 14d prod · volume pending');
+        }} else {{
+          flashConfirm('approve 14d');
+        }}
+      }} else {{
+        flashConfirm(decision.replace(/_/g, ' '));
+      }}
+    }});
+  }});
+}})();
+
+// HOL-45 — pane-scoped severity filter + sortable SYNTHESIS columns.
+// Filter: pane-filter-btn click sets active filter for that scope; hides
+//   .pane-filterable[data-filter-scope=X] rows whose data-severity doesn't
+//   pass the rule (ALL passes everything; ESCALATE passes ESCALATE+ACUTE).
+// Sort: click a th.sortable to toggle asc/desc on data-sort-(key) attrs.
+(function () {{
+  const severityRank = {{ NOMINAL: 0, WATCH: 1, ESCALATE: 2, ACUTE: 3, PENDING: 1 }};
+
+  function passesFilter(rowSev, filterVal) {{
+    if (filterVal === 'all') return true;
+    if (filterVal === 'PENDING') return rowSev === 'PENDING';
+    // For severity filters: row passes if its severity is >= filter level
+    const rs = severityRank[rowSev]; const fs = severityRank[filterVal];
+    if (rs === undefined || fs === undefined) return rowSev === filterVal;
+    return rs >= fs;
+  }}
+
+  function applyFilter(scope, filterVal) {{
+    document.querySelectorAll(
+      '.pane-filterable[data-filter-scope="' + scope + '"]'
+    ).forEach(row => {{
+      const rowSev = row.getAttribute('data-severity') || 'NOMINAL';
+      row.classList.toggle('pane-row-hidden', !passesFilter(rowSev, filterVal));
+    }});
+  }}
+
+  document.querySelectorAll('.pane-filter-btn').forEach(btn => {{
+    btn.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      const scope = this.getAttribute('data-filter-scope');
+      const val = this.getAttribute('data-filter-value');
+      // Toggle active state for the scope's button group
+      document.querySelectorAll(
+        '.pane-filter-btn[data-filter-scope="' + scope + '"]'
+      ).forEach(b => b.setAttribute(
+        'data-active', b === this ? 'true' : 'false'
+      ));
+      applyFilter(scope, val);
+    }});
+  }});
+
+  // Sort: synthesis table columns
+  document.querySelectorAll('th.sortable[data-sort-key]').forEach(th => {{
+    th.addEventListener('click', function (ev) {{
+      ev.preventDefault();
+      const table = this.closest('table');
+      const key = this.getAttribute('data-sort-key');
+      const current = this.getAttribute('data-sort');
+      const next = current === 'asc' ? 'desc' : 'asc';
+      // Reset other headers
+      table.querySelectorAll('th.sortable').forEach(t =>
+        t.removeAttribute('data-sort')
+      );
+      this.setAttribute('data-sort', next);
+      // Reorder tbody
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.sort((a, b) => {{
+        const va = a.getAttribute('data-sort-' + key) || '';
+        const vb = b.getAttribute('data-sort-' + key) || '';
+        // Numeric if both parse as numbers
+        const na = parseFloat(va); const nb = parseFloat(vb);
+        const numeric = !isNaN(na) && !isNaN(nb);
+        const cmp = numeric ? (na - nb) : va.localeCompare(vb);
+        return next === 'asc' ? cmp : -cmp;
+      }});
+      rows.forEach(r => tbody.appendChild(r));
+    }});
+  }});
+}})();
+</script>
+</body>
+</html>
+"""
+
+
+def main() -> None:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = OUT_DIR / "index.html"
+    html = render_page()
+    out.write_text(html, encoding="utf-8")
+    print(f"Wrote {out}  ({len(html):,} bytes)")
+
+
+if __name__ == "__main__":
+    main()

@@ -15,12 +15,13 @@ from pulse.serving.api import app
 client = TestClient(app)
 
 
-def test_healthz():
-    r = client.get("/healthz")
+def test_health():
+    r = client.get("/health")
     assert r.status_code == 200
     body = r.json()
     assert body["status"] == "ok"
-    assert body["service"] == "pulse-engine-api"
+    assert "pulse_version" in body
+    assert "synthesis_modes_declared" in body
 
 
 def test_friction_endpoints_self_materialise():

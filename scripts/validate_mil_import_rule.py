@@ -31,6 +31,7 @@ ROOT = Path(__file__).parent.parent
 # Internal modules that mil/ files must never import
 INTERNAL_MODULES = [
     "pulse",
+    "holter",
     "poc",
     "app",
     "dags",
@@ -73,7 +74,7 @@ def check_mil_imports_internal(violations: list) -> None:
 
 def check_external_imports_mil(violations: list) -> None:
     """Files outside mil/ must not import from mil/ directly."""
-    for search_dir_name in ["app", "poc", "agents", "src", "conductor", "dags", "scripts", "pulse"]:
+    for search_dir_name in ["app", "poc", "agents", "src", "conductor", "dags", "scripts", "pulse", "holter"]:
         search_dir = ROOT / search_dir_name
         if not search_dir.exists():
             continue
@@ -93,8 +94,9 @@ def check_external_imports_mil(violations: list) -> None:
                         f"Zero Entanglement breach. Use mil/outputs/mil_findings.json only."
                     )
 
-            # Check for sys.path manipulation to reach mil/
-            if "sys.path" in content and "mil" in content:
+            # Check for sys.path manipulation to reach mil/. Match 'mil' as a path/
+            # module token, not a substring of 'font-family' / 'milestone' / etc.
+            if "sys.path" in content and re.search(r"['\"/\\.\s]mil[/\\.'\"\s]", content):
                 rel = py_file.relative_to(ROOT)
                 # Heuristic only — flag for human review
                 violations.append(
