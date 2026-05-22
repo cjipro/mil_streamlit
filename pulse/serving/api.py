@@ -31,7 +31,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
-from pulse.decision import read_decisions
+from pulse.decision import read_decisions, verify_decision_lineage
 from pulse.serving import read
 from pulse.serving.journey_mart import read_daily_journey
 from pulse.serving.marts import PIPELINE_SESSION_FRICTION_PARQUET
@@ -94,6 +94,12 @@ def decisions() -> list[dict]:
             detail="Pipeline not run yet — run `py -m pulse.pipeline.run` first.",
         )
     return read_decisions()
+
+
+@app.get("/lineage/verify")
+def lineage_verify() -> dict:
+    """Verify the decision lineage hash-chain (tamper-evidence audit)."""
+    return verify_decision_lineage()
 
 
 def main() -> None:

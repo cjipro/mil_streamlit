@@ -15,7 +15,11 @@ from pulse.serving.marts import MARTS_DIR, PIPELINE_SESSION_FRICTION_PARQUET
 
 # Shared fixed-path derived marts that a test may build and read.py prefers —
 # clean them around every test so they can't bleed across tests.
-_DERIVED_MARTS = [PIPELINE_SESSION_FRICTION_PARQUET, MARTS_DIR / "decisions.parquet"]
+_DERIVED_MARTS = [
+    PIPELINE_SESSION_FRICTION_PARQUET,
+    MARTS_DIR / "decisions.parquet",
+    MARTS_DIR / "decisions_lineage.jsonl",
+]
 
 
 @pytest.fixture(autouse=True)

@@ -29,6 +29,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
+from pulse.decision.lineage import build_decision_lineage
 from pulse.diagnosis import (
     DiagnosisResult,
     JourneyArmObservation,
@@ -336,7 +337,14 @@ _DECISIONS_SCHEMA = pa.schema([
     ("estimated_monthly_lift_gbp", pa.float64()),
     ("action_tier", pa.string()), ("diagnosis", pa.string()),
     ("diagnosis_reason", pa.string()), ("recommendation", pa.string()),
+    ("lineage_id", pa.string()), ("lineage_row_hash", pa.string()),
 ])
+
+
+def _read_manifest(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def build_decisions(
@@ -344,10 +352,29 @@ def build_decisions(
     ma_s_dir: str | Path = _DEFAULT_MA_S,
     friction_parquet: Path = PIPELINE_SESSION_FRICTION_PARQUET,
 ) -> dict[str, Any]:
-    """Score findings and write the decisions mart. Returns a manifest."""
+    """Score findings, hash-chain them into the lineage log, write the decisions mart."""
     decisions = score_findings(ma_s_dir=ma_s_dir, friction_parquet=friction_parquet)
+
+    lineage = build_decision_lineage(
+        decisions,
+        ma_s_manifest=_read_manifest(Path(ma_s_dir) / "_MANIFEST.json"),
+        friction_manifest=_read_manifest(
+            friction_parquet.parent / "session_friction_pipeline._MANIFEST.json"
+        ),
+        bank_policy=load_bank_policy(),
+    )
+    anchor = lineage["decision_anchor"]
+
+    rows: list[dict[str, Any]] = []
+    for d in decisions:
+        row = d.as_dict()
+        lineage_id, row_hash = anchor[(d.screen_id, d.signature)]
+        row["lineage_id"] = lineage_id
+        row["lineage_row_hash"] = row_hash
+        rows.append(row)
+
     MARTS_DIR.mkdir(parents=True, exist_ok=True)
-    table = pa.Table.from_pylist([d.as_dict() for d in decisions], schema=_DECISIONS_SCHEMA)
+    table = pa.Table.from_pylist(rows, schema=_DECISIONS_SCHEMA)
     pq.write_table(table, DECISIONS_PARQUET)
 
     tiers: dict[str, int] = {}
@@ -360,6 +387,9 @@ def build_decisions(
         "action_tier_counts": tiers,
         "deployment_id": load_bank_policy().get("deployment_id"),
         "parquet": str(DECISIONS_PARQUET),
+        "lineage_log": lineage["log_path"],
+        "lineage_head_row_hash": lineage["head_row_hash"],
+        "lineage_verified": lineage["chain_verified"],
     }
     (MARTS_DIR / "decisions._MANIFEST.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
