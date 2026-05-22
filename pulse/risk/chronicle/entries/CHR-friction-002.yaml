@@ -1,0 +1,42 @@
+# CHR-friction-002 — TSB Bank, individual SMCR sanction strand of CHR-friction-001
+#
+# Companion to CHR-friction-001. PRA's first-ever individual SMCR conduct
+# enforcement: the former TSB CIO was personally fined for his role in the
+# 2018 migration. The relevance to Pulse is that friction at P0 severity
+# can convert into individual_sanction outcomes, not only corporate fines —
+# a separate Risk-tier consideration for accountable individuals named in
+# the deployment's policy register.
+
+chronicle_id: CHR-friction-002
+institution: TSB Bank plc (former CIO)
+regulator: PRA
+year: 2023
+incident_year: 2018
+
+friction_pattern:
+  signature_id: account_access_locked_out
+  journey_category: choke_point
+  screen_class: account_login
+  severity: P0
+
+enforcement_action:
+  type: individual_sanction
+  fine_gbp: 81620
+  individual_named: true
+
+remediation_imposed:
+  - smcr_prohibition_consideration
+
+public_sources:
+  - source: "PRA Final Notice — Carlos Abarca (former CIO, TSB Bank plc)"
+    date: "2023-04-13"
+
+notes: |
+  The PRA's first individual SMCR conduct enforcement. The friction
+  signature is identical to CHR-friction-001; what makes this entry
+  separately matchable is the `individual_sanction` enforcement_type.
+  Pulse Risk uses this to score named-individual exposure when the
+  deployment's bank_policy.yaml registers a Senior Manager against a
+  policy area that the detected friction signature crosses.
+
+verification_status: pending_human_review

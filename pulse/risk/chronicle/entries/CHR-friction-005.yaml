@@ -1,0 +1,51 @@
+# CHR-friction-005 — Wonga.com, affordability-check failure → 2014 customer redress
+#
+# Wonga.com agreed in October 2014 to write off ~£220M of debt for around
+# 330,000 customers after the FCA found Wonga's affordability checks had
+# been inadequate — customers had been given loans they could not afford
+# to repay. The friction signature is `inadequate_affordability_check` on
+# the credit_application screen class. Wonga subsequently entered
+# administration in 2018 — the case is also a reputational-collapse
+# precedent.
+
+chronicle_id: CHR-friction-005
+institution: WDFC UK Limited (trading as Wonga.com)
+regulator: FCA
+year: 2014
+
+friction_pattern:
+  signature_id: inadequate_affordability_check
+  journey_category: choke_point
+  screen_class: credit_application
+  severity: P0
+
+enforcement_action:
+  type: redress
+  redress_gbp: 220000000
+  individual_named: false
+
+remediation_imposed:
+  - redress_scheme
+  - procedural_change
+  - voluntary_undertaking_signed
+
+public_sources:
+  - source: "FCA — Wonga to make major changes to affordability criteria following discussions with the FCA"
+    date: "2014-10-02"
+  - source: "Press coverage of Wonga write-off (BBC, Guardian, Financial Times)"
+    date: "2014-10"
+
+notes: |
+  The Wonga case is the canonical UK consumer-credit-affordability
+  enforcement precedent. The friction itself was upstream of the loan:
+  the affordability check (a screen-level decision gate) was structured
+  in a way that consistently let through customers who could not afford
+  repayment. Pulse classifies this as `inadequate_affordability_check`
+  on the credit_application screen — a P0 because the harm is
+  irreversible (customers carry the debt).
+
+  Curator note: the £220M write-off figure and 330,000 customer count
+  are widely cited but warrant cross-check against the FCA press
+  release text before this entry flips to `verified`.
+
+verification_status: pending_human_review

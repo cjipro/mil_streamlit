@@ -1,0 +1,102 @@
+# Hypothesis declaration — shape preview, not yet validator-enforced.
+# Cell 10 is the FrictionBench load-bearing negative. The hypothesis here is
+# explicit about WHEN NOT to fire: engagement signals at session level
+# discriminate deliberate-review dwell from friction dwell.
+
+cell_id: 10
+screen_id: investments.premier.portfolio.overview
+signature_id: dwell_after_error
+ground_truth_expectation: negative
+
+question_class: friction_attribution
+
+analytic:
+  method: dwell_z_score_vs_screen_baseline
+  trigger:
+    requires_prior_event: validation_error
+    dwell_window_seconds: 60
+    p_value_threshold: 0.01
+  baseline_source: rolling_28d_same_screen
+  minimum_sessions_for_significance: 200
+
+negative_class_discriminator:
+  rationale: |
+    Long dwell on a Premier portfolio screen typically reflects deliberate
+    review rather than friction. The detector suppresses positive firing
+    when engagement signals are present at session level. This is the
+    cell-10 mechanism that converts a naive "dwell + prior error" hit into
+    a regulator-defensible non-event.
+  suppression_signals:
+    - signal: scroll_depth_pct
+      threshold: 60
+      direction: above
+    - signal: chart_drilldowns_in_session
+      threshold: 2
+      direction: above_or_equal
+    - signal: return_within_7_days
+      threshold: true
+      direction: equals
+  fire_only_if: no_suppression_signal_present AND error_type IN [data_load_failed, account_authorization_lost]
+
+cohort_axes:
+  - client_tier
+  - advised_vs_self_directed
+  - age_band
+  - portfolio_size_band
+  - device_class
+  - time_since_last_login_band
+
+evidence_required:
+  - dwell_time_seconds
+  - error_event_count
+  - error_type_distribution
+  - scroll_depth_pct
+  - chart_drilldowns_in_session
+  - return_within_7_days
+  - suppression_signal_hit_set
+  - cohort_split_breakdown
+
+remediation_categories:
+  - none_expected_at_cell_10
+  - data_load_resilience  # only triggered when discriminator fails to suppress
+  - authorization_reauth_flow  # only triggered when discriminator fails to suppress
+
+confidence:
+  reporting: brier_calibrated
+  band_method: bootstrap_ci_95
+
+fairness:
+  required_methods:
+    - cohort_demographic_parity_check
+    - cohort_recall_disparity
+    - false_positive_rate_by_cohort
+  trigger_independent_review_if:
+    cohort_recall_disparity_above: 0.15
+    false_positive_rate_above: 0.02
+
+audit:
+  bundle_required_fields:
+    - lineage_chain
+    - analytic_inputs_hash
+    - cohort_split_breakdown
+    - threshold_config_hash
+    - suppression_signal_distribution
+    - non_fire_decision_log
+
+# --- Canvas slots (PULSE-103: actors / value_inputs / risk_inputs) ---
+# Cell 10 is the FrictionBench load-bearing negative — these slots declare
+# the calibration role rather than a remediation target.
+
+actors:
+  - investigation_consumer
+  - ml_engineer
+
+value_inputs:
+  severity_class: low
+  vulnerable_cohort_sensitivity: false
+  population_segment_addressed: uk_premier_investments_clients
+
+risk_inputs:
+  regulatory_taxonomies: []
+  policy_areas: []
+  chronicle_precedents: []

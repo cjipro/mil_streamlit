@@ -1,0 +1,37 @@
+# Pulse-side TAQ adapter contract — v1.0.0
+#
+# Maps TAQ App synthetic telemetry into the Pulse canonical schema.
+# Owner side: Pulse reads. TAQ writes the matching crossing-contract YAML at
+# taq-app/contracts/cji_pulse_telemetry.yaml (currently placeholder under TAQ-1).
+#
+# Field-mapping shape: dotted path through the source event as it arrives at
+# the adapter. The ticket's notional shape wraps each event in a top-level
+# `events` container — TAQ will produce that wrapping when it emits to Pulse
+# under the crossing contract.
+#
+# Filed under PULSE-87.
+
+source_name: taq
+source_type: synthetic
+adapter_module: pulse.adapters.taq
+
+version: 1.0.0          # contract version — bump on field-mapping shape change
+adapter_version: 0.1.0  # implementation version — bump on adapter behaviour change
+
+field_mappings:
+  source_event_id: events.event_id
+  session_id: events.session_id
+  subject_id: events.synthetic_customer_id
+  cohort_tags: events.synthetic_cohort_tags
+  journey_id: events.journey_id
+  # journey_category derived via pulse/contracts/journey_taxonomy.yaml lookup on journey_id.
+  journey_category: derived_from_journey_taxonomy
+  screen_id: events.screen_id
+  sequence_no: events.sequence_no
+  event_type: events.event_type
+  event_ts: events.ts
+  payload: events.payload
+
+# TAQ is synthetic — no PII boundary to defend. deny_fields stays empty.
+# (real_bank_contract.yaml carries the real deny-list.)
+deny_fields: []

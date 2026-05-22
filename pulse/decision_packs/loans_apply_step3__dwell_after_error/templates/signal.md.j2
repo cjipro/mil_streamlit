@@ -1,0 +1,45 @@
+## {{ pack.pack_name }} — Signal altitude
+
+### Detector run
+
+- **Pack:** `{{ pack.pack_name }}` v{{ pack.pack_version }}
+- **Synthesis mode:** `{{ pack.synthesis_mode }}`
+- **Engine version:** {{ engine_version }}
+- **Detection emitted at:** `{{ detection_emitted_at }}`
+- **Lineage anchor:** `sha256:{{ lineage_anchor }}`
+
+### Analytic parameters
+
+```yaml
+method: {{ analytic.method }}
+trigger:
+  requires_prior_event: {{ analytic.trigger.requires_prior_event }}
+  dwell_window_seconds: {{ analytic.trigger.dwell_window_seconds }}
+  p_value_threshold: {{ analytic.trigger.p_value_threshold }}
+baseline_source: {{ analytic.baseline_source }}
+baseline_n: {{ baseline_n }}
+```
+
+### Per-session evidence (first {{ evidence_sample_size }} of {{ affected_sessions }})
+
+| session_id | dwell_s | error_code | cohort_tags | p_value |
+|---|---:|---|---|---:|
+{% for s in evidence_sample -%}
+| `{{ s.session_id }}` | {{ s.dwell_seconds }} | `{{ s.error_code }}` | {{ s.cohort_tags | join(", ") }} | {{ s.p_value }} |
+{% endfor %}
+
+### Audit bundle
+
+The following are pinned to the audit bundle stamped at this detection's
+lineage row:
+
+{% for f in audit.bundle_required_fields -%}
+- `{{ f }}`
+{% endfor %}
+
+### Reproducibility
+
+Re-derive this output by replaying the lineage chain from
+`sha256:{{ lineage_anchor }}` against `{{ pack.pack_name }}` v{{ pack.pack_version }}
+on engine {{ engine_version }}. Inputs are pinned by the chain; same inputs
+produce byte-identical output.

@@ -1,0 +1,60 @@
+# Pulse Diagnosis methodology v0 — machine-readable rubric.
+#
+# Source of truth for: tier-word enum, gap thresholds, minimum control-arm
+# sample size, and the methodology_version stamp. Tier-word strings here
+# are mirrored as a frozenset in score.py — both must change together
+# (a test enforces the round-trip).
+#
+# Filed under PULSE-105.
+
+methodology_version: 0.1.0
+
+# Closed enum of Diagnosis tier-words. Ordering is informational only
+# (unlike Risk/Value, Diagnosis tier-words don't form a severity ladder
+# — they label four distinct problem-locus classes).
+tier_words:
+  - SUPPORT_PROBLEM
+  - JOURNEY_PROBLEM
+  - BOTH
+  - INCONCLUSIVE
+
+# Minimum sessions required in the no-assistance (control) arm before
+# a diagnosis can be made. Below this, return INCONCLUSIVE rather than
+# any of the three substantive labels — small-sample baseline rates are
+# unreliable and should not drive the Agentic AI placement decision.
+min_control_sessions: 100
+
+# Gap = success_rate(no_assistance_arm) − success_rate(assistance_arm).
+#
+# A large positive gap means customers who didn't need help succeeded
+# more often than customers who did — the support layer is failing to
+# bring assistance-using customers up to baseline. AI assistance unlocks
+# real deflection.
+#
+# A small or negative gap means the assistance layer is performing close
+# to (or above) the no-assistance baseline — the journey itself is what
+# customers struggle with, regardless of whether they got help.
+thresholds:
+
+  support_problem_gap:
+    description: |
+      Gap at or above this value labels the case SUPPORT_PROBLEM
+      (assuming the JOURNEY_PROBLEM threshold is not also met — see
+      precedence in score.py).
+    value: 0.20
+
+  journey_problem_gap:
+    description: |
+      Gap at or below this value (combined with the assistance-arm
+      success rate being below journey_problem_assistance_success_max)
+      labels the case JOURNEY_PROBLEM. The two-clause test prevents
+      labelling a journey "broken" when both arms succeed at high
+      rates (which is just a healthy journey, not a JOURNEY_PROBLEM).
+    value: 0.05
+
+  journey_problem_assistance_success_max:
+    description: |
+      Maximum assistance-arm success rate for the JOURNEY_PROBLEM label
+      to fire. Above this, even a small gap doesn't indicate a broken
+      journey — both arms are succeeding at acceptable rates.
+    value: 0.5

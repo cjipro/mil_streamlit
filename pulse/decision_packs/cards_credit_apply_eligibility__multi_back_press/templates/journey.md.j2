@@ -1,0 +1,57 @@
+## {{ pack.pack_name }} — Journey altitude
+
+### What happened on `{{ screen_id }}`
+
+Across **{{ window.label }}**, {{ affected_sessions }} of {{ total_sessions }} sessions
+({{ affected_pct }}%) showed the `{{ signature_id }}` pattern: {{ median_back_presses }}+
+back-navigation events within a {{ median_burst_window }}s window, median
+inter-press interval {{ median_interval_seconds }}s.
+
+The discriminator (`inter_press_interval < 20s`) is what separates these from
+deliberate-review sessions. On this screen the pattern is value-fishing —
+users are altering their income or employment-duration answers between
+back-presses to find a combination that lets them through the eligibility
+gate.
+
+Statistical significance: **p = {{ p_value }}** against the rolling baseline
+(n = {{ baseline_n }}).
+
+### Cohort split
+
+| Cohort | Affected sessions | Share | Recall vs overall |
+|---|---:|---:|---:|
+{% for c in cohort_breakdown -%}
+| {{ c.label }} | {{ c.affected }} | {{ c.share_pct }}% | {{ c.recall_x }}× |
+{% endfor %}
+
+{% if fairness_flag -%}
+> **Fairness check triggered.** Cohort recall disparity
+> {{ fairness_flag.disparity }} exceeds the pack's configured trigger of
+> {{ fairness_flag.threshold }}. Independent fairness review required before
+> remediation rollout.
+{%- endif %}
+
+### Field-value change distribution (within burst)
+
+| Field | Sessions changing value | Share |
+|---|---:|---:|
+{% for f in field_change_breakdown -%}
+| `{{ f.name }}` | {{ f.count }} | {{ f.share_pct }}% |
+{% endfor %}
+
+### Outcome distribution
+
+| Exit outcome | Sessions | Share |
+|---|---:|---:|
+{% for o in exit_breakdown -%}
+| {{ o.label }} | {{ o.count }} | {{ o.share_pct }}% |
+{% endfor %}
+
+### Suggested remediation category
+
+`{{ remediation_category }}` — {{ remediation_rationale }}.
+
+### Confidence
+
+Detector reports **{{ confidence_band }}** ({{ confidence_low }}–{{ confidence_high }},
+bootstrap CI 95%). Brier score on the calibration set: {{ brier_score }}.

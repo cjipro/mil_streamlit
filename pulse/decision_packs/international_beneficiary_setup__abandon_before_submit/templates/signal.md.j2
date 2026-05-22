@@ -1,0 +1,45 @@
+## {{ pack.pack_name }} — Signal altitude
+
+### Detector run
+
+- **Pack:** `{{ pack.pack_name }}` v{{ pack.pack_version }}
+- **Synthesis mode:** `{{ pack.synthesis_mode }}`
+- **Engine version:** {{ engine_version }}
+- **Detection emitted at:** `{{ detection_emitted_at }}`
+- **Lineage anchor:** `sha256:{{ lineage_anchor }}`
+
+### Analytic parameters
+
+```yaml
+method: {{ analytic.method }}
+trigger:
+  requires_prior_step_completion: {{ analytic.trigger.requires_prior_step_completion }}
+  requires_dwell_above_percentile: {{ analytic.trigger.requires_dwell_above_percentile }}
+  requires_exit_without_event: {{ analytic.trigger.requires_exit_without_event }}
+exclusions:
+  session_returned_within_seconds: {{ analytic.exclusions[0].session_returned_within_seconds }}
+baseline_n: {{ baseline_n }}
+```
+
+### Per-session evidence (first {{ evidence_sample_size }} of {{ affected_sessions }})
+
+| session_id | time_on_step_s | final_field | field_value_state | prior_errors | 24h_return |
+|---|---:|---|---|---:|---|
+{% for s in evidence_sample -%}
+| `{{ s.session_id }}` | {{ s.time_on_step_s }} | `{{ s.final_field }}` | {{ s.field_value_state }} | {{ s.prior_errors }} | {{ s.returned_24h }} |
+{% endfor %}
+
+### Audit bundle
+
+The following are pinned to the audit bundle stamped at this detection's
+lineage row:
+
+{% for f in audit.bundle_required_fields -%}
+- `{{ f }}`
+{% endfor %}
+
+### Reproducibility
+
+Re-derive this output by replaying the lineage chain from
+`sha256:{{ lineage_anchor }}` against `{{ pack.pack_name }}` v{{ pack.pack_version }}
+on engine {{ engine_version }}. Same inputs → byte-identical output.

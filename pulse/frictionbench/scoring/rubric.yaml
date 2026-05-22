@@ -1,0 +1,92 @@
+# FrictionBench v0.1 — scoring rubric (machine-readable).
+#
+# 5 axes contribute to the per-detection aggregate (equal-weighted at v0.1).
+# Time-to-detect is reported separately and used to rank, not point-score.
+# False-positive penalty applies after cell aggregation.
+#
+# Filed under PULSE-88.
+
+version: 0.1.0
+
+aggregate_weights:
+  # Equal weights at v0.1. Weighting per axis is a v0.2 question once we see
+  # which axes discriminate submissions and which don't.
+  screen: 0.2
+  signature: 0.2
+  cohort: 0.2
+  cause: 0.2
+  calibration: 0.2
+
+axes:
+
+  screen:
+    description: Did the detector identify the correct screen?
+    scoring:
+      - condition: exact screen match
+        score: 1.0
+      - condition: same journey, wrong step
+        score: 0.5
+      - condition: otherwise
+        score: 0.0
+
+  signature:
+    description: Did the detector classify the correct signature?
+    scoring:
+      - condition: exact signature match
+        score: 1.0
+      - condition: same family (per signature_families registry)
+        score: 0.5
+      - condition: otherwise
+        score: 0.0
+
+  cohort:
+    description: Did the detector identify the affected cohort?
+    scoring:
+      - method: f1
+        comparison: detector_cohort_tags vs ground_truth_cohort_tags
+        notes: |
+          Multi-label F1. Each cohort tag is treated independently. Returns 1.0
+          for a perfect cohort match, 0.0 if no overlap.
+
+  cause:
+    description: Did the detector identify the root cause?
+    scoring:
+      - condition: root cause matched (template / release / timing / cohort)
+        score: 1.0
+      - condition: plausible-component (correct family of causes, wrong specific cause)
+        score: 0.5
+      - condition: plausible-but-wrong (named a cause that could fit but isn't correct)
+        score: 0.2
+      - condition: implausible (named a cause that does not fit the evidence)
+        score: 0.0
+
+  calibration:
+    description: How well-calibrated is the declared confidence?
+    scoring:
+      - method: brier_inverse
+        formula: 1.0 - brier_score
+        notes: |
+          Brier score = (predicted_p - actual_outcome)^2, in [0, 1] where 0 is perfect.
+          We report 1 - brier so the axis matches the others (1.0 = perfect, 0.0 = worst).
+
+  time_to_detect:
+    description: How long from first matching session to detection emission?
+    scoring:
+      - method: rank
+        notes: |
+          Seconds-elapsed value carried per detection. Not point-scored at v0.1;
+          contributes to a separate ranking column on the leaderboard. The
+          LIGO first-detection model: detection emitted at the moment the signal
+          first crosses threshold, not on a retrospective sweep.
+
+false_positive_penalty:
+  description: |
+    Each false positive on the 754 negative-screen sessions subtracts a fixed
+    amount from the macro-averaged cell aggregate. Floor at 0.
+  amount_per_fp: 0.05
+  floor: 0.0
+
+# Signature-family relationships. Lets a detector that named a different-but-related
+# signature receive partial credit. Empty at v0.1 (the 3 active signatures don't
+# overlap); future signatures can declare families here.
+signature_families: {}

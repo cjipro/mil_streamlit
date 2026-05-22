@@ -1,0 +1,76 @@
+# Pulse-side bank policy contract — v0.1.0 (PLACEHOLDER)
+#
+# Per-deployment configuration carrying bank-internal escalation thresholds,
+# policy-area mappings onto the regulatory taxonomy, and any bank-specific
+# extensions to the regulator's vulnerable-cohort definitions. Read at
+# startup by the Pulse Risk methodology (PULSE-99) and Value methodology
+# (PULSE-101) before any decision pack runs.
+#
+# Pulse ships NO bank-specific defaults. Every threshold below must be set
+# explicitly on deployment. The validator refuses to start if a required
+# threshold is missing or still carries a `<TBD>` placeholder — silent
+# fallbacks would let a misconfigured bank operate the engine without
+# committing to a stance, which is exactly the failure mode this file
+# exists to prevent.
+#
+# Naming discipline: this file MUST NOT contain the real bank's name.
+# `deployment_id` is an opaque token chosen at deployment time; logs,
+# audit bundles, and any artifact derived from this file inherit that
+# discipline. Mirrors MIL's P5 discipline and the same rule applied in
+# real_bank_contract.yaml.
+#
+# Filed under PULSE-102.
+
+version: 0.1.0
+deployment_id: <TBD — opaque token chosen at deployment, never the bank's name>
+
+escalation_thresholds:
+  # N customers affected within a rolling 7-day window above which the Risk
+  # methodology escalates a friction signature one tier. No default — the
+  # bank must commit to a number; a vague "we'll know it when we see it"
+  # posture is exactly what the engine refuses to accept.
+  affected_customers_7d_window: <TBD>
+
+  # Cohort over-representation floor, expressed as the ratio of a cohort's
+  # harm rate to the baseline population harm rate. Above this floor, the
+  # fairness gate escalates the Risk tier one step. The regulator's
+  # informal anchor sits around 1.25 (25% over-representation), but banks
+  # may commit to a stricter floor. No default — must be set explicitly.
+  vulnerable_cohort_overrep_floor: <TBD>
+
+# Bank-internal policy areas mapped onto regulatory taxonomies Pulse
+# already understands. Risk methodology uses this map to resolve a
+# friction signature onto the bank's own internal policy register, so
+# investigators see "Policy 4.7 — Affordability Review" instead of
+# "fca_consumer_duty_2.0 / PRIN 12" alone.
+#
+# Each entry shape:
+#   - internal_name: <bank's internal policy register name>
+#     regulatory_taxonomy: fca_consumer_duty_2.0   # one of the known taxonomies
+#     regulatory_section: <e.g. PRIN 12>
+policy_areas: []
+
+# Optional bank-specific EXTENSIONS to FCA Consumer Duty vulnerable-cohort
+# definitions. Never replaces the regulator's baseline set — only adds
+# bank-specific cohorts the bank has internally committed to monitor at
+# the same standard. Empty list is valid (means: use regulator baseline
+# only).
+#
+# Each entry shape:
+#   - cohort_id: <bank-defined slug>
+#     description: <one-line description>
+#     rationale: <why this cohort warrants vulnerable-cohort treatment>
+vulnerable_cohort_extensions: []
+
+# Per-deployment ARPU (£/customer/month) by friction journey_category, used
+# by the Value methodology's v0.2 commercial-estimate output (PULSE-107) to
+# compute estimated_monthly_lift_gbp. Omitting the block entirely is valid
+# — categorical Value tier still computes; sized lift surfaces as None on
+# every pack. This keeps the engine deployable before the bank has
+# committed to per-journey commercial baselines.
+#
+# Key is the friction journey_category (e.g. behavioural_noise, context_loss,
+# choke_point). Value is a non-negative number in GBP-per-customer-per-month.
+# v0.3 may refine this to per-journey-id once real_bank delivers
+# segmented revenue baselines.
+arpu_per_journey: {}

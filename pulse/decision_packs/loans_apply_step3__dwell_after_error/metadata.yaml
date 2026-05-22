@@ -1,0 +1,27 @@
+# FrictionBench cell 1: loans.apply.step3 × dwell_after_error.
+# Engineered positive — long dwell following an inline validation error is the
+# canonical "user got blocked, doesn't know what to do next" friction shape.
+
+pack_name: loans_apply_step3__dwell_after_error
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects dwell-after-error friction at loan-application step 3. Signature
+  fires when a session shows a validation error event followed by a dwell
+  window exceeding the screen's calibrated baseline at p<0.01. Cohort-aware:
+  reports which cohorts (age_band / device_class / first_time_visitor) bear
+  the bulk of the dwell, since aggregate latency hides cohort-skewed harm.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 1 of 12 in FrictionBench v0.1 matrix.

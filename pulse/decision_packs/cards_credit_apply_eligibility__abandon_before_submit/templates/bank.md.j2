@@ -1,0 +1,22 @@
+## {{ pack.pack_name }} — Bank altitude
+
+**{{ window.label }}.** {{ affected_sessions }} sessions abandoned
+`{{ screen_id }}` before submitting the eligibility check
+({{ abandonment_uplift_pct }}% above baseline, p={{ p_value }}).
+{% if primary_field -%}
+Final-focused field: `{{ primary_field.name }}` in {{ primary_field.share_pct }}% of abandonments.
+{%- endif %}
+{% if primary_cohort -%}
+{{ primary_cohort.label }} bears {{ primary_cohort.share_pct }}% of the affected sessions
+({{ primary_cohort.recall_disparity_x }}× vs the overall population).
+{%- endif %}
+
+**Decision needed:** {{ recommendation_summary }}.
+
+**Return-rate signal:** {{ return_24h_pct }}% returned within 24h,
+{{ return_7d_pct }}% within 7d — materially lower than the loans-application
+equivalent. Pre-decline gates produce "closed door" abandonment more than
+recoverable abandonment; remediation should prioritise transparency and
+routing over save-and-resume.
+
+**Confidence:** {{ confidence_band }} (band: {{ confidence_low }}–{{ confidence_high }}).

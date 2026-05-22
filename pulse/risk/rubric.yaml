@@ -1,0 +1,63 @@
+# Pulse Risk methodology v0 — machine-readable rubric.
+#
+# Source of truth for: tier-word enum, base-tier-by-severity, escalation
+# adjustments, and the methodology_version stamp. Tier-word strings here
+# are mirrored as a frozenset in score.py — both must change together
+# (a test enforces the round-trip).
+#
+# Filed under PULSE-99.
+
+methodology_version: 0.1.0
+
+# Closed enum of Risk tier-words. Order is severity-ascending — used by
+# score.py to convert numeric tier (0..3) back to a tier-word. Extending
+# this enum is a methodology-version change.
+tier_words:
+  - NOMINAL          # 0
+  - WATCH            # 1
+  - ESCALATE         # 2
+  - REGULATORY-FLAG  # 3
+
+# Base tier (numeric) implied by the friction signature's severity.
+base_tier_by_severity:
+  P0: 2   # ESCALATE
+  P1: 1   # WATCH
+  P2: 0   # NOMINAL
+
+# Tier-escalation adjustments. Each axis can push the tier up by N steps;
+# the final tier is min(REGULATORY-FLAG, base + sum(adjustments)). No
+# adjustment is allowed to push the tier DOWN — Risk is precautionary.
+adjustments:
+  regulatory_match:
+    description: |
+      A regulatory_taxonomy.yaml entry matched the friction signature's
+      journey_category + screen_class. Adds 1 tier — the friction now
+      crosses a published regulatory expectation.
+    delta: 1
+
+  affected_customers_threshold:
+    description: |
+      Detected affected_customers count meets or exceeds the deployment's
+      bank_policy.escalation_thresholds.affected_customers_7d_window.
+      Adds 1 tier.
+    delta: 1
+
+  vulnerable_cohort_overrep:
+    description: |
+      Detected cohort over-representation ratio meets or exceeds the
+      deployment's bank_policy.escalation_thresholds.vulnerable_cohort_overrep_floor.
+      Adds 1 tier. Stacks with regulatory_match — vulnerable-cohort
+      over-representation crossing a regulator-anchored ratio is the
+      load-bearing REGULATORY-FLAG cell.
+    delta: 1
+
+  chronicle_precedent_match:
+    description: |
+      At least one VERIFIED Chronicle entry shares the friction signature's
+      coordinates (signature_id × screen_class × severity). Adds 1 tier —
+      this friction shape has converted to enforcement at a peer
+      institution before.
+    delta: 1
+
+# Maximum numeric tier — clamps the sum. Set to len(tier_words) - 1.
+max_tier: 3

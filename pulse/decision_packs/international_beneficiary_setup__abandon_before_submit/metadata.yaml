@@ -1,0 +1,34 @@
+# FrictionBench cell 6: international.beneficiary.setup × abandon_before_submit.
+# Engineered positive — abandonment at the beneficiary review screen without
+# initiating payment is the canonical "high-intent user lost at the
+# regulatory finish line" shape. Higher per-session value than retail
+# loans-step3 abandonment because international payments carry an FX margin
+# and an interchange fee that compounds per recovered session.
+
+pack_name: international_beneficiary_setup__abandon_before_submit
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects abandonment at the beneficiary review screen of the international
+  payment flow. Signature fires when a session has saved the beneficiary,
+  loaded the review screen, dwelled past the screen's 90th-percentile
+  baseline, and exited without firing `payment_initiated`. High-intent
+  cohort: by definition these users completed corridor selection and
+  beneficiary entry — abandonment at the review step represents the largest
+  per-session opportunity cost on the journey (FX margin + fee).
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 6 of 12 in FrictionBench v0.1 matrix. Financially load-bearing —
+  a 10% reduction in cell-6 abandonment is worth more in fee+FX-margin
+  revenue than the same reduction at corridor-select or beneficiary-entry.

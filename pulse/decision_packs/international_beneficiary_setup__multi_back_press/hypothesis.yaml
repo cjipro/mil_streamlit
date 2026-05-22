@@ -1,0 +1,78 @@
+# Hypothesis declaration — shape preview, not yet validator-enforced.
+
+cell_id: 5
+screen_id: international.beneficiary.setup
+signature_id: multi_back_press
+ground_truth_expectation: positive
+
+question_class: navigation_confusion_attribution
+
+analytic:
+  method: back_press_burst_detection
+  trigger:
+    min_back_press_events: 3
+    window_seconds: 300
+    same_screen_required: true
+  discriminator:
+    rule: inter_press_interval_under_seconds
+    value: 20
+    rationale: |
+      Bursts of back-presses with short intervals indicate confusion;
+      long intervals look like deliberate review of fee / corridor preview
+      and should not fire.
+
+cohort_axes:
+  - first_time_international_sender
+  - business_vs_personal_account
+  - language_preference
+  - corridor_risk_band
+
+evidence_required:
+  - back_press_event_count
+  - inter_press_intervals_seconds
+  - prior_screen_sequence
+  - field_state_preserved_on_return
+  - exit_outcome
+
+remediation_categories:
+  - corridor_fee_inline_summary
+  - multi_step_decomposition
+  - prior_step_summary_visibility
+  - copy_paste_affordance_for_iban
+
+confidence:
+  reporting: brier_calibrated
+  band_method: bootstrap_ci_95
+
+fairness:
+  required_methods:
+    - cohort_demographic_parity_check
+    - cohort_recall_disparity
+  trigger_independent_review_if:
+    cohort_recall_disparity_above: 0.15
+
+audit:
+  bundle_required_fields:
+    - lineage_chain
+    - analytic_inputs_hash
+    - cohort_split_breakdown
+    - threshold_config_hash
+    - inter_press_interval_distribution
+
+# --- Canvas slots (PULSE-103: actors / value_inputs / risk_inputs) ---
+
+actors:
+  - investigation_consumer
+
+value_inputs:
+  severity_class: medium
+  vulnerable_cohort_sensitivity: true
+  population_segment_addressed: uk_retail_international_payment_initiators
+
+risk_inputs:
+  regulatory_taxonomies:
+    - fca_consumer_duty.outcome_3_consumer_understanding
+    - fca_consumer_duty.outcome_4_consumer_support
+  policy_areas:
+    - international_payment_screening
+  chronicle_precedents: []

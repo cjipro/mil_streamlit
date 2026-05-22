@@ -1,0 +1,45 @@
+# CHR-friction-007 — HSBC Bank plc, transaction-monitoring failings → 2021 enforcement
+#
+# £63.9M FCA fine in December 2021 for inadequate transaction-monitoring
+# controls during 2010–2018. The customer-facing friction is the
+# downstream effect: legitimate customers caught by mis-calibrated rule
+# sets (false-positive blocks) and conversely insufficient monitoring of
+# genuine criminal activity. Pulse maps to `false_positive_block_friction`
+# on the payment_initiation screen.
+
+chronicle_id: CHR-friction-007
+institution: HSBC Bank plc
+regulator: FCA
+year: 2021
+incident_year: 2010
+
+friction_pattern:
+  signature_id: false_positive_block_friction
+  journey_category: infrastructure
+  screen_class: payment_initiation
+  severity: P1
+
+enforcement_action:
+  type: fine
+  fine_gbp: 63946800
+  individual_named: false
+
+remediation_imposed:
+  - procedural_change
+  - it_resilience_review
+
+public_sources:
+  - source: "FCA Final Notice — HSBC Bank plc (anti-money-laundering transaction monitoring)"
+    date: "2021-12-17"
+
+notes: |
+  The friction angle on AML / transaction-monitoring enforcement is two-
+  sided: (a) legitimate customers blocked by mis-calibrated rule sets
+  (false positives) and (b) genuine criminal activity not caught
+  (false negatives). Pulse classifies the customer-facing surface as
+  `false_positive_block_friction` because that is what telemetry
+  observes; the underlying control failure is the regulator's concern.
+  Severity P1 because the friction is high-cost-per-incident but
+  low-volume vs total payment traffic — curator can re-tier if needed.
+
+verification_status: pending_human_review

@@ -1,0 +1,49 @@
+# CHR-friction-003 — Royal Bank of Scotland Group, 2012 IT failure → 2014 enforcement
+#
+# A 2012 batch-scheduling failure on RBS's core platform left ~6.5M
+# customers unable to complete payments or check balances for periods of
+# days to weeks. Joint FCA/PRA enforcement landed in November 2014. The
+# friction pattern is `payment_processing_unavailable` on the
+# payment_initiation screen class — a P0 infrastructure-class outage.
+
+chronicle_id: CHR-friction-003
+institution: Royal Bank of Scotland plc, National Westminster Bank Plc, Ulster Bank Ltd
+regulator: FCA
+year: 2014
+incident_year: 2012
+
+friction_pattern:
+  signature_id: payment_processing_unavailable
+  journey_category: infrastructure
+  screen_class: payment_initiation
+  severity: P0
+
+enforcement_action:
+  type: fine
+  fine_gbp: 42000000
+  individual_named: false
+
+remediation_imposed:
+  - it_resilience_review
+  - board_oversight_required
+
+public_sources:
+  - source: "FCA Final Notice — Royal Bank of Scotland Group IT failure"
+    date: "2014-11-20"
+  - source: "PRA Final Notice — RBS Group (parallel action, additional fine)"
+    date: "2014-11-20"
+
+notes: |
+  Batch-scheduling change to the CA-7 job scheduler in June 2012 caused
+  cascading failures across RBS, NatWest, and Ulster Bank core platforms.
+  Customers were unable to complete payments or see accurate balances for
+  extended periods. PRA imposed an additional, separate fine on the same
+  date for related prudential-side failings — captured in a future
+  CHR-friction entry if curator deems the prudential angle distinct.
+
+  Pulse Risk uses this as the canonical case for the
+  `payment_processing_unavailable` signature on the payment_initiation
+  screen class: P0 severity outages on payments convert to ~£40M-class
+  corporate enforcement on a ~2-year timeline.
+
+verification_status: pending_human_review

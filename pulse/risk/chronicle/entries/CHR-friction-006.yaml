@@ -1,0 +1,47 @@
+# CHR-friction-006 — Vanquis Bank, Repayment Option Plan misselling → 2018 enforcement
+#
+# The Vanquis "Repayment Option Plan" (ROP) was sold to credit-card customers
+# via a process that did not adequately disclose its full cost. FCA action in
+# 2018 imposed a fine plus a substantial customer-redress requirement. The
+# friction signature is `unclear_optional_charge_disclosure` on the
+# account_management screen class.
+
+chronicle_id: CHR-friction-006
+institution: Vanquis Bank Limited
+regulator: FCA
+year: 2018
+
+friction_pattern:
+  signature_id: unclear_optional_charge_disclosure
+  journey_category: context_loss
+  screen_class: account_management
+  severity: P1
+
+enforcement_action:
+  type: fine
+  fine_gbp: 1976000
+  redress_gbp: 168781000
+  individual_named: false
+
+remediation_imposed:
+  - redress_scheme
+  - procedural_change
+
+public_sources:
+  - source: "FCA Final Notice — Vanquis Bank Limited (Repayment Option Plan)"
+    date: "2018-02-27"
+
+notes: |
+  ROP was an opt-in repayment add-on whose true cost (including the
+  effect of compounded charges) was not disclosed clearly enough at the
+  point of sale. Pulse maps the friction to
+  `unclear_optional_charge_disclosure` — a context_loss pattern where
+  the customer thinks they are making one decision but the disclosure
+  pattern leaves a meaningfully different decision being made.
+
+  Curator note: redress total cited from press coverage; verify against
+  the FCA Final Notice text. Severity P1 chosen because the friction is
+  one of long-term financial harm via disclosure rather than acute
+  service denial — adjust if curator prefers P0.
+
+verification_status: pending_human_review

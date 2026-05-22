@@ -1,0 +1,80 @@
+# Hypothesis declaration — shape preview, not yet validator-enforced.
+
+cell_id: 8
+screen_id: cards.credit.apply.eligibility
+signature_id: multi_back_press
+ground_truth_expectation: positive
+
+question_class: navigation_confusion_attribution
+
+analytic:
+  method: back_press_burst_detection
+  trigger:
+    min_back_press_events: 3
+    window_seconds: 300
+    same_screen_required: true
+  discriminator:
+    rule: inter_press_interval_under_seconds
+    value: 20
+    rationale: |
+      Bursts of back-presses with short intervals on an eligibility gate
+      indicate value-fishing (changing income or employment-duration answers
+      to find a passing combination); long intervals look like deliberate
+      review and should not fire.
+
+cohort_axes:
+  - employment_type
+  - new_to_credit_flag
+  - time_since_last_application_band
+  - device_class
+
+evidence_required:
+  - back_press_event_count
+  - inter_press_intervals_seconds
+  - field_value_change_counts
+  - step_completion_attempts
+  - exit_outcome
+
+remediation_categories:
+  - pre_screen_eligibility_indicator
+  - soft_search_disclosure_clarity
+  - decline_reason_transparency
+  - assisted_application_offer
+
+confidence:
+  reporting: brier_calibrated
+  band_method: bootstrap_ci_95
+
+fairness:
+  required_methods:
+    - cohort_demographic_parity_check
+    - cohort_recall_disparity
+  trigger_independent_review_if:
+    cohort_recall_disparity_above: 0.15
+
+audit:
+  bundle_required_fields:
+    - lineage_chain
+    - analytic_inputs_hash
+    - cohort_split_breakdown
+    - threshold_config_hash
+    - inter_press_interval_distribution
+    - field_value_change_distribution
+
+# --- Canvas slots (PULSE-103: actors / value_inputs / risk_inputs) ---
+
+actors:
+  - investigation_consumer
+
+value_inputs:
+  severity_class: medium
+  vulnerable_cohort_sensitivity: true
+  population_segment_addressed: uk_retail_card_applicants
+
+risk_inputs:
+  regulatory_taxonomies:
+    - fca_consumer_duty.outcome_3_consumer_understanding
+  policy_areas:
+    - credit_card_affordability
+  chronicle_precedents:
+    - CHR-friction-006

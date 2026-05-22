@@ -1,0 +1,134 @@
+# Pulse Value methodology v0 — machine-readable rubric.
+#
+# Source of truth for: tier-word enum, base-tier-by-severity, adjustment
+# thresholds + deltas, and the methodology_version stamp. Tier-word
+# strings here are mirrored as a frozenset in score.py — both must
+# change together (a test enforces the round-trip).
+#
+# Parallels pulse/risk/rubric.yaml in structure; the input axes differ
+# because Value asks a different question (how much would be unlocked
+# by fixing this friction?) than Risk (how exposed is the bank to
+# regulatory consequence?).
+#
+# Filed under PULSE-101.
+
+methodology_version: 0.3.0
+
+# Closed enum of Value tier-words. Order is severity-ascending — used by
+# score.py to convert numeric tier (0..3) back to a tier-word. Extending
+# this enum is a methodology-version change.
+#
+# Mirrors Risk's NOMINAL/WATCH lower band (shared baseline vocabulary),
+# diverges at the top: Risk peaks at REGULATORY-FLAG (precautionary),
+# Value peaks at COMMERCIAL-OPPORTUNITY (prioritisation signal). The
+# Value × Risk 2×2 produces the CLARK-style Action tier downstream
+# (ACUTE / REGULATORY-FLAG / COMMERCIAL-OPPORTUNITY / WATCH / NOMINAL).
+tier_words:
+  - NOMINAL                  # 0
+  - WATCH                    # 1
+  - SIGNIFICANT              # 2
+  - COMMERCIAL-OPPORTUNITY   # 3
+
+# Base tier (numeric) implied by the friction signature's severity.
+# Symmetric with Risk's base_tier_by_severity for cross-axis consistency.
+base_tier_by_severity:
+  P0: 2   # SIGNIFICANT
+  P1: 1   # WATCH
+  P2: 0   # NOMINAL
+
+# Tier-escalation adjustments. Each axis can push the tier up by N
+# steps; the final tier is min(COMMERCIAL-OPPORTUNITY, base + sum(adjustments)).
+# Adjustments are monotonic — Value scoring never down-shifts a base tier
+# the severity already justified. (Symmetric with Risk's precautionary
+# monotonicity.)
+adjustments:
+
+  large_affected_population:
+    description: |
+      Detected affected_customers count meets or exceeds the deployment's
+      bank_policy.escalation_thresholds.affected_customers_7d_window.
+      Same threshold as Risk's `affected_customers_threshold` — bank
+      commits to ONE population number that escalates BOTH axes.
+    delta: 1
+
+  high_frequency_per_user:
+    description: |
+      Each affected user encounters the friction multiple times in the
+      observation window (avg_events_per_affected_user ≥ threshold).
+      High frequency multiplies the value of a fix — one screen change
+      ends a recurring frustration, not a one-off encounter.
+    threshold_events_per_user: 3
+    delta: 1
+
+  vulnerable_cohort_concentrated:
+    description: |
+      Vulnerable cohorts bear a disproportionate share of the friction
+      (vulnerable_cohort_share ≥ threshold). On the Value axis this
+      raises the priority of fixing it: bank-internal commitments to
+      vulnerable-customer outcomes (FCA Consumer Duty Outcome 4) make
+      vulnerable-cohort wins disproportionately valuable to the bank,
+      separately from the risk angle Risk methodology scores.
+
+      Different question from Risk's `vulnerable_cohort_overrep`:
+      Risk asks "is the cohort over-represented relative to baseline?"
+      (a fairness gate). Value asks "does the friction concentrate on
+      vulnerable cohorts?" (a prioritisation gate). Same underlying
+      cohort data, different threshold semantics.
+    threshold_cohort_share: 0.4
+    delta: 1
+
+  large_counterfactual_baseline:
+    description: |
+      Counterfactual baseline — the estimated share of affected users
+      who WOULD complete the friction-laden journey if the friction
+      were removed — is large (≥ threshold). A large counterfactual
+      means a fix recovers a large absolute volume of completions;
+      a small counterfactual means most users who hit the friction
+      would have churned anyway, and fixing the friction recovers
+      little.
+    threshold_baseline_pct: 0.25
+    delta: 1
+
+# Maximum numeric tier — clamps the sum. Set to len(tier_words) - 1.
+max_tier: 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# v0.2 — Commercial sizing on the Value tier (PULSE-107).
+#
+# The categorical tier above (NOMINAL/WATCH/SIGNIFICANT/COMMERCIAL-OPPORTUNITY)
+# is a prioritisation badge — it doesn't carry magnitude. v0.2 adds a sized
+# commercial estimate (£/month) so HOL renderers can show a CCO/COO what's at
+# stake, not just which packs to pay attention to. The estimate is optional —
+# if the deployment hasn't configured ARPU per journey_category, the engine
+# returns None for the sized output and the categorical tier is unaffected.
+#
+# Formula:
+#   estimated_monthly_lift_gbp
+#     = affected_customers_7d
+#     × weekly_to_monthly_multiplier        # weekly window → monthly equivalent
+#     × counterfactual_baseline_pct         # fraction recoverable if friction removed
+#     × arpu_per_journey[journey_category]  # bank-committed per-customer monthly revenue
+#
+# `weekly_to_monthly_multiplier ≈ 4.345` ≈ 365.25/12/7 (avg days per month
+# divided by days per week).
+commercial_estimate:
+  weekly_to_monthly_multiplier: 4.345
+
+  # v0.3 — friction-volume is the PRIMARY commercial unit. The engine
+  # computes recoverable_sessions_per_week/_month from metrics alone (no
+  # ARPU): affected_customers_7d × counterfactual_baseline_pct, scaled by
+  # the multiplier above for the monthly figure. Surfaces MUST lead with
+  # this unit (it is in the bank's own outcome vocabulary and carries no
+  # monetisation assumption).
+  #
+  # estimated_monthly_lift_gbp remains available as a SECONDARY cost
+  # scaffold (recoverable_sessions_per_month × arpu_per_journey) — renderers
+  # treat it as "≈ £X/mo at £Y/session", never as the lead stat. Surfacing
+  # raw £ as the primary signal is forbidden (opens the assumption
+  # Pandora's box — every figure invites scrutiny on ARPU/baseline rather
+  # than on the friction itself).
+
+  # v0.3 ships point estimate only. Confidence interval is reserved on the
+  # output dataclass but always returns None until the bootstrap fixture from
+  # HOL-48 ships and provides per-input sampling distributions.
+  confidence_interval_method: "v0.3_point_estimate_only"

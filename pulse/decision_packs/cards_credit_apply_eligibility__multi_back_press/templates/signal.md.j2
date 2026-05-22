@@ -1,0 +1,51 @@
+## {{ pack.pack_name }} — Signal altitude
+
+### Detector run
+
+- **Pack:** `{{ pack.pack_name }}` v{{ pack.pack_version }}
+- **Synthesis mode:** `{{ pack.synthesis_mode }}`
+- **Engine version:** {{ engine_version }}
+- **Detection emitted at:** `{{ detection_emitted_at }}`
+- **Lineage anchor:** `sha256:{{ lineage_anchor }}`
+
+### Analytic parameters
+
+```yaml
+method: {{ analytic.method }}
+trigger:
+  min_back_press_events: {{ analytic.trigger.min_back_press_events }}
+  window_seconds: {{ analytic.trigger.window_seconds }}
+discriminator:
+  rule: {{ analytic.discriminator.rule }}
+  value: {{ analytic.discriminator.value }}
+baseline_n: {{ baseline_n }}
+```
+
+### Per-session evidence (first {{ evidence_sample_size }} of {{ affected_sessions }})
+
+| session_id | back_presses | burst_window_s | median_interval_s | fields_changed | exit_outcome |
+|---|---:|---:|---:|---|---|
+{% for s in evidence_sample -%}
+| `{{ s.session_id }}` | {{ s.back_presses }} | {{ s.burst_window_s }} | {{ s.median_interval_s }} | {{ s.fields_changed | join(", ") }} | {{ s.exit_outcome }} |
+{% endfor %}
+
+### Inter-press interval distribution
+
+```
+{{ interval_histogram_ascii }}
+```
+
+### Audit bundle
+
+The following are pinned to the audit bundle stamped at this detection's
+lineage row:
+
+{% for f in audit.bundle_required_fields -%}
+- `{{ f }}`
+{% endfor %}
+
+### Reproducibility
+
+Re-derive this output by replaying the lineage chain from
+`sha256:{{ lineage_anchor }}` against `{{ pack.pack_name }}` v{{ pack.pack_version }}
+on engine {{ engine_version }}. Same inputs → byte-identical output.

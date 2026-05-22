@@ -1,0 +1,32 @@
+# FrictionBench cell 5: international.beneficiary.setup × multi_back_press.
+# Engineered positive — repeated back-button presses on the beneficiary
+# setup screen is the canonical "user thinks they entered the wrong
+# section / wants to compare a value upstream" navigation-confusion shape.
+# Cross-border flows have more upstream context (currency selection, corridor
+# choice, fee preview) that users want to recheck — distinguishing
+# "confused" from "comparing" is the discriminator's job.
+
+pack_name: international_beneficiary_setup__multi_back_press
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects multi-back-press friction on the international beneficiary setup
+  screen. Signature fires when a session contains ≥3 back-navigation events
+  on the same screen within a 5-minute window. Distinguishes "rechecking
+  the corridor / currency / fee preview" from "lost in the flow" via
+  inter-press interval distribution + whether the user re-entered the
+  setup screen with field-state preserved.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 5 of 12 in FrictionBench v0.1 matrix.

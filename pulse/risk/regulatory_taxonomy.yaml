@@ -1,0 +1,111 @@
+# Pulse Risk — public regulatory taxonomy v0.
+#
+# Public taxonomies only. Bank-internal policy areas live in
+# pulse/contracts/bank_policy.yaml (per-deployment). Risk scoring crosses
+# the two: regulatory_match in this file → contributes a tier-escalation
+# adjustment; bank-internal policy area mapping in bank_policy.yaml →
+# resolves the regulatory code onto the bank's own register at render time.
+#
+# Each entry pins the regulator, taxonomy_code, journey_categories and
+# screen_classes the rule applies to, and a public_source citation. The
+# matcher in score.py looks up entries by (journey_category, screen_class)
+# and returns the union of matching taxonomy_codes.
+#
+# Adding a new taxonomy is a methodology_version change (the Risk-score
+# output footprint changes).
+#
+# Filed under PULSE-99.
+
+version: 0.1.0
+
+taxonomies:
+
+  - taxonomy_code: fca_consumer_duty.outcome_1_products_services
+    regulator: FCA
+    name: "FCA Consumer Duty Outcome 1 — Products & Services"
+    applies_to:
+      journey_categories: [choke_point]
+      screen_classes: [credit_application, mortgage_application, account_opening]
+    public_source:
+      title: "FCA PS22/9 — A new Consumer Duty (Policy Statement)"
+      date: "2022-07-27"
+
+  - taxonomy_code: fca_consumer_duty.outcome_2_price_value
+    regulator: FCA
+    name: "FCA Consumer Duty Outcome 2 — Price & Value"
+    applies_to:
+      journey_categories: [choke_point, context_loss]
+      screen_classes: [account_management, payment_initiation]
+    public_source:
+      title: "FCA PS22/9 — A new Consumer Duty (Policy Statement)"
+      date: "2022-07-27"
+
+  - taxonomy_code: fca_consumer_duty.outcome_3_consumer_understanding
+    regulator: FCA
+    name: "FCA Consumer Duty Outcome 3 — Consumer Understanding"
+    applies_to:
+      journey_categories: [context_loss]
+      screen_classes: [credit_application, account_management, payment_initiation]
+    public_source:
+      title: "FCA PS22/9 — A new Consumer Duty (Policy Statement)"
+      date: "2022-07-27"
+
+  - taxonomy_code: fca_consumer_duty.outcome_4_consumer_support
+    regulator: FCA
+    name: "FCA Consumer Duty Outcome 4 — Consumer Support"
+    applies_to:
+      journey_categories: [choke_point, infrastructure]
+      screen_classes: [mortgage_arrears, account_login, payment_initiation]
+    public_source:
+      title: "FCA PS22/9 — A new Consumer Duty (Policy Statement)"
+      date: "2022-07-27"
+
+  - taxonomy_code: fca_operational_resilience.ps21_3
+    regulator: FCA
+    name: "FCA Operational Resilience — PS21/3 (important business services)"
+    applies_to:
+      journey_categories: [infrastructure]
+      screen_classes: [account_login, payment_initiation, account_management]
+    public_source:
+      title: "FCA PS21/3 — Building operational resilience"
+      date: "2021-03-29"
+
+  - taxonomy_code: gdpr.article_5_data_minimisation
+    regulator: ICO
+    name: "GDPR Article 5(1)(c) — Data minimisation"
+    applies_to:
+      journey_categories: [infrastructure]
+      screen_classes: [account_management, payment_initiation]
+    public_source:
+      title: "Regulation (EU) 2016/679 (GDPR)"
+      date: "2016-04-27"
+
+  - taxonomy_code: gdpr.article_32_security
+    regulator: ICO
+    name: "GDPR Article 32 — Security of processing"
+    applies_to:
+      journey_categories: [infrastructure]
+      screen_classes: [account_login, payment_initiation, account_management]
+    public_source:
+      title: "Regulation (EU) 2016/679 (GDPR)"
+      date: "2016-04-27"
+
+  - taxonomy_code: eu_ai_act.high_risk_credit_scoring
+    regulator: EBA
+    name: "EU AI Act — High-risk AI systems (creditworthiness scoring, Annex III)"
+    applies_to:
+      journey_categories: [choke_point]
+      screen_classes: [credit_application]
+    public_source:
+      title: "Regulation (EU) 2024/1689 (AI Act) — Annex III"
+      date: "2024-07-12"
+
+  - taxonomy_code: fatf.recommendation_10_customer_due_diligence
+    regulator: FCA
+    name: "FATF Recommendation 10 — Customer Due Diligence (transposed into UK MLRs)"
+    applies_to:
+      journey_categories: [infrastructure]
+      screen_classes: [account_opening, payment_initiation]
+    public_source:
+      title: "FATF Recommendations (updated)"
+      date: "2023-11"

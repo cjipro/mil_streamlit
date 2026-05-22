@@ -1,0 +1,67 @@
+## {{ pack.pack_name }} — Journey altitude
+
+### What happened on `{{ screen_id }}`
+
+Across **{{ window.label }}**, {{ affected_sessions }} of {{ form_complete_sessions }}
+sessions that completed the eligibility form inputs ({{ affected_pct }}%) left
+the screen without clicking "check eligibility". These users filled the form
+but did not submit — they read what they had typed and chose not to let the
+bank look at their credit file.
+
+Detector required:
+- prior completion of income_range_band, employment_status, residency_duration_years
+- dwell on eligibility screen above the 90th-percentile baseline
+- session exit with no `eligibility_check_submitted` event
+- (excluded) sessions that returned within 30 minutes — those are tab-parks,
+  not true abandonments
+
+Statistical significance: **p = {{ p_value }}** against the rolling baseline
+(n = {{ baseline_n }}).
+
+### Final-field focus distribution
+
+The field the user was looking at when they left:
+
+| Field | Sessions | Share |
+|---|---:|---:|
+{% for f in final_field_breakdown -%}
+| `{{ f.name }}` | {{ f.count }} | {{ f.share_pct }}% |
+{% endfor %}
+
+### Cohort split
+
+| Cohort | Affected sessions | Share | Recall vs overall |
+|---|---:|---:|---:|
+{% for c in cohort_breakdown -%}
+| {{ c.label }} | {{ c.affected }} | {{ c.share_pct }}% | {{ c.recall_x }}× |
+{% endfor %}
+
+{% if fairness_flag -%}
+> **Fairness check triggered.** {{ fairness_flag.label }} —
+> {{ fairness_flag.detail }}. Independent fairness review required before
+> remediation rollout. Closed-door cohort return rates trigger Consumer
+> Duty outcome-2 and outcome-3 reporting consideration.
+{%- endif %}
+
+### Return behaviour (the load-bearing sub-variation)
+
+| Window | Returned | Share |
+|---|---:|---:|
+| Within 24h | {{ return_24h_count }} | {{ return_24h_pct }}% |
+| Within 7d  | {{ return_7d_count }}  | {{ return_7d_pct }}% |
+| Never (in window) | {{ never_returned_count }} | {{ never_returned_pct }}% |
+
+Unlike a multi-step loan application — where 24h return rates run ~37% and
+save-and-resume is the dominant lever — this screen's abandoners return at
+~{{ return_24h_pct }}% in 24h and ~{{ return_7d_pct }}% in 7d. The
+behaviour signature is "closed door" not "interrupted journey". Save-and-resume
+would be cosmetic; the load-bearing remediation is transparency.
+
+### Suggested remediation category
+
+`{{ remediation_category }}` — {{ remediation_rationale }}.
+
+### Confidence
+
+Detector reports **{{ confidence_band }}** ({{ confidence_low }}–{{ confidence_high }},
+bootstrap CI 95%). Brier score on the calibration set: {{ brier_score }}.

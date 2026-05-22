@@ -1,0 +1,32 @@
+# FrictionBench cell 10: investments.premier.portfolio.overview × dwell_after_error.
+# Engineered NEGATIVE (load-bearing). Long dwell on a Premier portfolio overview
+# after a minor data-load or filter event is deliberate review, not friction.
+# A correct detector does NOT fire on this cell — that is the test.
+
+pack_name: investments_premier_portfolio_overview__dwell_after_error
+pack_version: 0.1.0
+required_pulse_version: ">=1.0.0,<2.0.0"
+synthesis_mode: deterministic
+authors:
+  - CJI
+license: Apache-2.0
+fairness_methods_required: true
+compliance_attestations:
+  - name: fca_consumer_duty_2.0
+    status: self_declared
+    last_reviewed: 2026-05-17
+
+description: |
+  Detects dwell-after-error friction on the Premier portfolio overview, with
+  an engagement-signal discriminator that suppresses firing when long dwell
+  reflects deliberate review rather than friction. Cell 10 is the
+  FrictionBench load-bearing negative: most sessions matching the dwell
+  trigger should NOT fire. Pack ships with a negative_class_discriminator
+  block declaring the suppression rules.
+
+notes: |
+  v0.1 showcase pack — built under HOL-7 to establish the cell-pack shape.
+  Cell 10 of 12 in FrictionBench v0.1 matrix. Load-bearing negative — proves
+  the detector handles the "~zero false positives on the 754 non-target
+  screens" success criterion by demonstrating principled suppression on a
+  target screen where the signature could naively fire.

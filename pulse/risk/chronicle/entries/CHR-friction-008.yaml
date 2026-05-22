@@ -1,0 +1,45 @@
+# CHR-friction-008 — British Airways, payment-page security breach → 2020 ICO penalty
+#
+# Skimming-attack on BA's payment page (2018) compromised payment-card
+# data for ~400,000 customers. The ICO's initial Notice of Intent
+# (July 2019) proposed a £183.39M penalty under GDPR; the final
+# Monetary Penalty Notice (October 2020) issued a £20M penalty after
+# representations and Covid-19 economic considerations. Mapped to
+# `payment_page_data_exposure` on the payment_initiation screen.
+
+chronicle_id: CHR-friction-008
+institution: British Airways plc
+regulator: ICO
+year: 2020
+incident_year: 2018
+
+friction_pattern:
+  signature_id: payment_page_data_exposure
+  journey_category: infrastructure
+  screen_class: payment_initiation
+  severity: P0
+
+enforcement_action:
+  type: fine
+  fine_gbp: 20000000
+  individual_named: false
+
+remediation_imposed:
+  - procedural_change
+  - security_control_strengthening
+
+public_sources:
+  - source: "ICO Monetary Penalty Notice — British Airways plc"
+    date: "2020-10-16"
+  - source: "ICO Notice of Intent — British Airways plc (initial proposed £183M)"
+    date: "2019-07-08"
+
+notes: |
+  Although not a UK retail-banking case, BA's payment-page compromise is
+  the most-cited public precedent for security-related friction on a
+  payment_initiation screen, and the ICO is a regulator UK retail banks
+  also answer to for data-protection failings. The order-of-magnitude
+  drop from Notice of Intent (£183M) to final penalty (£20M) is also a
+  useful base rate when scoring proposed-vs-final enforcement exposure.
+
+verification_status: pending_human_review

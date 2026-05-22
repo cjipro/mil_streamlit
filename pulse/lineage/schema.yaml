@@ -1,0 +1,70 @@
+# Pulse lineage row schema — append-only hash-chained log.
+#
+# Stored as JSONL at pulse_lineage_log.jsonl (one row per line).
+# The lineage log is the FCA Consumer Duty 2.0 evidence substrate:
+# every artifact Pulse produces can be re-derived from inputs named in this log.
+#
+# Filed under PULSE-89.
+
+version: 1.0.0
+
+row_schema:
+  lineage_id:
+    type: string
+    required: true
+    description: UUID for this lineage row. Foreign key from artifact records.
+  ts:
+    type: timestamp
+    required: true
+    description: ISO 8601 UTC, millisecond precision.
+  operation:
+    type: enum
+    required: true
+    values: [ingest, analyse, synthesise, publish]
+    description: Lifecycle stage that produced the artifact_hash for this row.
+  inputs:
+    type: list[string]
+    required: true
+    description: lineage_ids of upstream rows. Empty list for ingest. Non-empty for everything downstream.
+  artifact_hash:
+    type: string
+    required: true
+    description: SHA-256 hex of the canonical-encoded artifact produced by this operation.
+  pipeline_version:
+    type: string
+    required: true
+    description: Semver of the pipeline that produced this row.
+  decision_pack_version:
+    type: string
+    required: false
+    description: Semver of the decision pack governing the operation (null for ingest).
+  template_version:
+    type: string
+    required: false
+    description: Semver of the template used (only set when operation=synthesise).
+  config_hash:
+    type: string
+    required: true
+    description: SHA-256 hex of the config snapshot active at row time.
+  prev_row_hash:
+    type: string
+    required: true
+    description: row_hash of the prior row (or literal "genesis" for the first row).
+  row_hash:
+    type: string
+    required: true
+    description: SHA-256 of canonical_json(hashed_columns) + "|" + prev_row_hash.
+
+# Which fields participate in the hash. Order matters for canonical encoding
+# (we sort keys lexicographically). prev_row_hash is NOT in hashed_columns —
+# it joins via the "|" separator in hash_row() so the chain is unambiguous.
+hashed_columns:
+  - artifact_hash
+  - config_hash
+  - decision_pack_version
+  - inputs
+  - lineage_id
+  - operation
+  - pipeline_version
+  - template_version
+  - ts

@@ -1,0 +1,58 @@
+# CHR-friction-001 — TSB Bank, 2018 migration friction → 2022 FCA/PRA enforcement
+#
+# The reference case for Pulse Risk: a friction event (1.9M customers locked
+# out of account_login after a botched core-banking migration) that took
+# 4+ years to convert into regulatory enforcement. Combined FCA + PRA fine
+# of £48.65M is the highest UK retail-banking IT-failure fine on public record
+# at time of authoring. Also produced the PRA's first-ever individual SMCR
+# conduct enforcement (former CIO, 2023).
+#
+# Mirrors MIL Sonar CHR-001 (private outage-incident framing) — re-classified
+# here into Pulse's friction-signature taxonomy.
+
+chronicle_id: CHR-friction-001
+institution: TSB Bank plc
+regulator: FCA
+year: 2022
+incident_year: 2018
+
+friction_pattern:
+  signature_id: account_access_locked_out
+  journey_category: choke_point
+  screen_class: account_login
+  severity: P0
+
+enforcement_action:
+  type: fine
+  fine_gbp: 29750000
+  individual_named: false
+
+remediation_imposed:
+  - board_oversight_required
+  - independent_review_published
+
+public_sources:
+  - source: "FCA Final Notice — TSB Bank plc"
+    date: "2022-12-20"
+  - source: "PRA Final Notice — TSB Bank plc"
+    date: "2022-12-20"
+  - source: "Slaughter and May — TSB Independent Review (published by TSB Board)"
+    date: "2019-11-19"
+
+notes: |
+  Big-bang core-banking migration on 22 April 2018 locked ~1.9M customers
+  out of the account_login journey for sustained periods through 2018,
+  with some customers also exposed to other customers' account data. The
+  FCA Final Notice cites operational-resilience and customer-protection
+  failures. Pulse classifies the customer-facing pattern as
+  `account_access_locked_out` — a P0 choke-point on the account_login
+  screen class. The 4.5-year lag from incident to fine is the load-bearing
+  reputational-exposure signal: friction at this severity converts to
+  enforcement, slowly but reliably.
+
+  PRA action ran in parallel (£18.9M fine, same date). PRA also fined
+  former CIO Carlos Abarca £81,620 on 2023-04-13 — the PRA's first
+  individual SMCR conduct enforcement. A separate CHR-friction entry will
+  capture the individual_sanction strand once curated.
+
+verification_status: pending_human_review

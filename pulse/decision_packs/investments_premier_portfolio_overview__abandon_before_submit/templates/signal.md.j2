@@ -1,0 +1,46 @@
+## {{ pack.pack_name }} — Signal altitude
+
+### Detector run
+
+- **Pack:** `{{ pack.pack_name }}` v{{ pack.pack_version }}
+- **Synthesis mode:** `{{ pack.synthesis_mode }}`
+- **Engine version:** {{ engine_version }}
+- **Detection emitted at:** `{{ detection_emitted_at }}`
+- **Lineage anchor:** `sha256:{{ lineage_anchor }}`
+
+### Analytic parameters
+
+```yaml
+method: {{ analytic.method }}
+trigger:
+  requires_entry_intent_signal: {{ analytic.trigger.requires_entry_intent_signal }}
+  requires_dwell_above_percentile: {{ analytic.trigger.requires_dwell_above_percentile }}
+  requires_exit_without_event: {{ analytic.trigger.requires_exit_without_event }}
+exclusions:
+  session_returned_within_seconds: {{ analytic.exclusions[0].session_returned_within_seconds }}
+  advised_phone_handoff_within_24h_excluded: {{ analytic.exclusions[1].advised_client_initiated_phone_call_within_24h }}
+baseline_n: {{ baseline_n }}
+```
+
+### Per-session evidence (first {{ evidence_sample_size }} of {{ affected_sessions }})
+
+| session_id | entry_intent | inferred_action | time_on_screen_s | drilldowns | holdings_opened | 24h_return | advised_phone_24h |
+|---|---|---|---:|---:|---:|---|---|
+{% for s in evidence_sample -%}
+| `{{ s.session_id }}` | {{ s.entry_intent }} | `{{ s.inferred_action }}` | {{ s.time_on_screen_s }} | {{ s.drilldowns }} | {{ s.holdings_opened }} | {{ s.returned_24h }} | {{ s.advised_phone_24h }} |
+{% endfor %}
+
+### Audit bundle
+
+The following are pinned to the audit bundle stamped at this detection's
+lineage row:
+
+{% for f in audit.bundle_required_fields -%}
+- `{{ f }}`
+{% endfor %}
+
+### Reproducibility
+
+Re-derive this output by replaying the lineage chain from
+`sha256:{{ lineage_anchor }}` against `{{ pack.pack_name }}` v{{ pack.pack_version }}
+on engine {{ engine_version }}. Same inputs → byte-identical output.
