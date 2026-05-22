@@ -29,6 +29,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
+from pulse.convergence.fairness import assess_fairness
 from pulse.decision.lineage import build_decision_lineage
 from pulse.diagnosis import (
     DiagnosisResult,
@@ -88,7 +89,11 @@ SELECT
              FILTER (WHERE fired), 0.0)                                AS abandon_share_affected,
     coalesce(avg(CASE WHEN is_vuln THEN 1.0 ELSE 0.0 END)
              FILTER (WHERE fired), 0.0)                                AS vuln_share_affected,
-    coalesce(avg(CASE WHEN is_vuln THEN 1.0 ELSE 0.0 END), 0.0)        AS baseline_vuln_share
+    coalesce(avg(CASE WHEN is_vuln THEN 1.0 ELSE 0.0 END), 0.0)        AS baseline_vuln_share,
+    sum(CASE WHEN is_vuln AND fired THEN 1 ELSE 0 END)                 AS vuln_fired,
+    sum(CASE WHEN is_vuln THEN 1 ELSE 0 END)                           AS vuln_total,
+    sum(CASE WHEN (NOT is_vuln) AND fired THEN 1 ELSE 0 END)           AS nonvuln_fired,
+    sum(CASE WHEN NOT is_vuln THEN 1 ELSE 0 END)                       AS nonvuln_total
 FROM j
 GROUP BY screen_id, target_signature
 HAVING sum(fired::INT) > 0
@@ -123,6 +128,13 @@ class DecisionRecord:
     diagnosis: str
     diagnosis_reason: str
     recommendation: str
+    fairness_assessed: bool
+    fairness_disparity_ratio: float | None
+    fairness_parity_difference: float | None
+    fairness_chi2_p: float | None
+    fairness_disparate_impact: bool
+    fairness_independent_review: bool
+    fairness_note: str
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -149,6 +161,13 @@ class DecisionRecord:
             "diagnosis": self.diagnosis,
             "diagnosis_reason": self.diagnosis_reason,
             "recommendation": self.recommendation,
+            "fairness_assessed": self.fairness_assessed,
+            "fairness_disparity_ratio": self.fairness_disparity_ratio,
+            "fairness_parity_difference": self.fairness_parity_difference,
+            "fairness_chi2_p": self.fairness_chi2_p,
+            "fairness_disparate_impact": self.fairness_disparate_impact,
+            "fairness_independent_review": self.fairness_independent_review,
+            "fairness_note": self.fairness_note,
         }
 
 
@@ -170,6 +189,20 @@ def _severity_for(screen_id: str, signature: str) -> str:
         hyp = yaml.safe_load(f)
     sev_class = (hyp.get("value_inputs") or {}).get("severity_class", "low")
     return _SEVERITY_CLASS_TO_P.get(sev_class, "P2")
+
+
+@functools.lru_cache(maxsize=None)
+def _fairness_threshold(screen_id: str, signature: str) -> float:
+    """Independent-review trigger threshold from the pack's fairness block
+    (cohort_recall_disparity_above); default 0.15."""
+    pack_dir = f"{screen_id.replace('.', '_')}__{signature}"
+    hyp_path = _PACKS_DIR / pack_dir / "hypothesis.yaml"
+    if not hyp_path.exists():
+        return 0.15
+    with hyp_path.open("r", encoding="utf-8") as f:
+        hyp = yaml.safe_load(f)
+    trig = (hyp.get("fairness") or {}).get("trigger_independent_review_if") or {}
+    return float(trig.get("cohort_recall_disparity_above", 0.15))
 
 
 def _compose_action_tier(risk_tier: str, value_tier: str) -> str:
@@ -269,6 +302,29 @@ def score_findings(
         action_tier = _compose_action_tier(risk.tier, value.tier)
         diagnosis, reason = _diagnose(journey_id, screen_class, control, assistance_arms)
 
+        # Fairness lens — only on high-stakes (escalated Risk) findings, per the
+        # convergence design (don't run on every low-stakes investigation).
+        fairness = None
+        if risk.tier in _HIGH_RISK:
+            fairness = assess_fairness(
+                protected_fired=int(m["vuln_fired"]),
+                protected_total=int(m["vuln_total"]),
+                reference_fired=int(m["nonvuln_fired"]),
+                reference_total=int(m["nonvuln_total"]),
+            )
+        assessed = bool(fairness and fairness.assessed)
+        indep_review = bool(
+            assessed
+            and fairness.statistically_significant
+            and fairness.parity_difference is not None
+            and abs(fairness.parity_difference) >= _fairness_threshold(screen_id, signature)
+        )
+        recommendation = _recommendation(action_tier, value.recoverable_sessions_per_month)
+        if indep_review:
+            recommendation += (
+                " — vulnerable-cohort disparity flagged: independent fairness review triggered."
+            )
+
         decisions.append(DecisionRecord(
             screen_id=screen_id,
             signature=signature,
@@ -292,7 +348,14 @@ def score_findings(
             action_tier=action_tier,
             diagnosis=diagnosis,
             diagnosis_reason=reason,
-            recommendation=_recommendation(action_tier, value.recoverable_sessions_per_month),
+            recommendation=recommendation,
+            fairness_assessed=assessed,
+            fairness_disparity_ratio=fairness.disparity_ratio if assessed else None,
+            fairness_parity_difference=fairness.parity_difference if assessed else None,
+            fairness_chi2_p=fairness.chi2_p_value if assessed else None,
+            fairness_disparate_impact=bool(fairness and fairness.disparate_impact),
+            fairness_independent_review=indep_review,
+            fairness_note=(fairness.reason if fairness else "not assessed — low-stakes (Risk not escalated)"),
         ))
 
     # ACUTE first, then by recoverable volume
@@ -337,6 +400,13 @@ _DECISIONS_SCHEMA = pa.schema([
     ("estimated_monthly_lift_gbp", pa.float64()),
     ("action_tier", pa.string()), ("diagnosis", pa.string()),
     ("diagnosis_reason", pa.string()), ("recommendation", pa.string()),
+    ("fairness_assessed", pa.bool_()),
+    ("fairness_disparity_ratio", pa.float64()),
+    ("fairness_parity_difference", pa.float64()),
+    ("fairness_chi2_p", pa.float64()),
+    ("fairness_disparate_impact", pa.bool_()),
+    ("fairness_independent_review", pa.bool_()),
+    ("fairness_note", pa.string()),
     ("lineage_id", pa.string()), ("lineage_row_hash", pa.string()),
 ])
 

@@ -81,6 +81,7 @@ class GeneratorConfig:
     n_sessions: int = 2000
     seed: int = 20260522
     friction_rate: float = 0.35  # P(a friction-target session plants a signature)
+    vulnerable_friction_multiplier: float = 1.7  # vulnerable cohort bears disproportionate friction
     start: str = "2026-05-20T09:00:00Z"
 
 
@@ -123,7 +124,13 @@ def _gen_session(rng: random.Random, base_ts: dt.datetime, cfg: GeneratorConfig
     subject_id = hashlib.sha256(f"subj-{rng.random()}".encode()).hexdigest()[:16]
     cohort = list(rng.choice(COHORTS))
 
-    plant = bool(target) and rng.random() < cfg.friction_rate
+    # Vulnerable cohort bears disproportionate friction — the disparate impact the
+    # fairness lens measures downstream. Deterministic: no extra rng draw, only the
+    # threshold shifts for vulnerable sessions.
+    effective_rate = cfg.friction_rate * (
+        cfg.vulnerable_friction_multiplier if "vulnerable_flag" in cohort else 1.0
+    )
+    plant = bool(target) and rng.random() < min(effective_rate, 0.95)
     signature = rng.choice(SIGNATURES) if plant else None
 
     events: list[dict[str, Any]] = []

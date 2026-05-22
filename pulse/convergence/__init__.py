@@ -6,3 +6,7 @@ CONVERGENCE_DESIGN.md.
 
 Filed under PULSE-89.
 """
+
+from pulse.convergence.fairness import FairnessResult, assess_fairness, chi_squared_2x2
+
+__all__ = ["FairnessResult", "assess_fairness", "chi_squared_2x2"]
