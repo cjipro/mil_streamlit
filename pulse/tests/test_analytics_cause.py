@@ -25,6 +25,10 @@ _PAYLOAD_KEYS = {
     "cohort_breakdown", "fairness_flag", "error_breakdown",
     "remediation_category", "remediation_rationale",
     "confidence_band", "confidence_low", "confidence_high", "brier_score",
+    # bank + signal altitude keys (PULSE-96 extension — real-data 3-altitude render)
+    "primary_cohort", "recommendation_summary",
+    "analytic", "evidence_sample", "evidence_sample_size", "audit",
+    "engine_version", "detection_emitted_at", "lineage_anchor",
 }
 
 
@@ -64,6 +68,26 @@ def test_structural_sanity():
         assert sum(e["share_pct"] for e in p["error_breakdown"]) == pytest.approx(100.0, abs=0.5)
     # remediation category must come from the pack's allowed list (data-grounded, not invented)
     assert p["remediation_category"] in {"template_fix", "validation_message_clarity", "cohort_specific_routing"}
+
+
+def test_bank_and_signal_altitude_keys():
+    """PULSE-96 extension: the payload also carries the bank + signal altitude vars."""
+    p = build_analytic_outputs(_LOANS, sessions_per_cell=40).payload
+    # pack carries version + mode (signal altitude prints them)
+    assert {"pack_name", "pack_version", "synthesis_mode"} <= set(p["pack"])
+    # bank
+    if p["primary_cohort"] is not None:
+        assert set(p["primary_cohort"]) == {"label", "share_pct", "recall_disparity_x"}
+    assert isinstance(p["recommendation_summary"], str) and p["recommendation_summary"]
+    # signal
+    assert p["analytic"]["method"] and "trigger" in p["analytic"]
+    assert p["evidence_sample_size"] == len(p["evidence_sample"])
+    for e in p["evidence_sample"]:
+        assert set(e) == {"session_id", "dwell_seconds", "error_code", "cohort_tags", "p_value"}
+        assert isinstance(e["cohort_tags"], list)
+    assert isinstance(p["audit"]["bundle_required_fields"], list)
+    assert p["engine_version"] and p["detection_emitted_at"]
+    assert len(p["lineage_anchor"]) == 64  # sha256 hex
 
 
 def test_negative_cell_does_not_crash_and_keys_hold():
