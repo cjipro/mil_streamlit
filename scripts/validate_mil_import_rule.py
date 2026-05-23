@@ -49,6 +49,52 @@ PERMITTED_READ = "mil/outputs/mil_findings.json"
 # Import pattern — matches: import X, from X import, from X.Y import
 IMPORT_RE = re.compile(r"^\s*(?:import|from)\s+([\w.]+)", re.MULTILINE)
 
+# Files OUTSIDE mil/ that legitimately reference mil/ — documented MIL-176 exemptions.
+# Each is a MIL-aware tool/shim, NOT the CJI Pulse engine reaching into MIL:
+#   scripts/clone_doctor.py       fork health-check; introspects mil/config + loaders to validate them
+#   app/pages/07_mil.py           Streamlit dashboard adapter shim (routing only, no MIL logic)
+#   app/pages/08_ask_cji_pro.py   Streamlit Ask CJI Pro adapter shim
+# Posix-style relative paths (forward slashes) so the match is OS-independent.
+EXTERNAL_MIL_ALLOWLIST = {
+    "scripts/clone_doctor.py",
+    "app/pages/07_mil.py",
+    "app/pages/08_ask_cji_pro.py",
+}
+
+
+def _mil_config_members() -> set[str]:
+    """Module / sub-package names that live in mil/config/ — MIL's OWN config package.
+
+    A mil/ file doing `from config import X` / `from config.X import …` is importing
+    mil/config (it runs with mil/ on sys.path), NOT the top-level Pulse `config/`.
+    Both packages exist, so the bare `config` token is ambiguous; resolving the
+    imported name against this set tells MIL's own config (allowed) apart from a
+    genuine cross into Pulse config (a real Zero-Entanglement breach). MIL-176."""
+    cfg = ROOT / "mil" / "config"
+    if not cfg.exists():
+        return set()
+    members = {p.stem for p in cfg.glob("*.py") if p.stem != "__init__"}
+    members |= {p.name for p in cfg.iterdir() if p.is_dir() and p.name != "__pycache__"}
+    return members
+
+
+def _config_import_is_mils_own(line: str, full_module: str, members: set[str]) -> bool:
+    """True if a `config` import on `line` resolves to mil/config (MIL's own).
+
+    Handles the three forms present in the codebase: `from config.<sub> import …`,
+    `from config import <name>[ as …][, …]`, and bare `import config[.<sub>]`."""
+    parts = full_module.split(".")
+    if len(parts) > 1:                          # config.<sub>
+        return parts[1] in members
+    if line.lstrip().startswith("import"):      # bare `import config`
+        return bool(members)
+    m = re.search(r"\bimport\s+(.+)$", line)     # `from config import a as x, b`
+    if not m:
+        return bool(members)
+    names = [seg.strip().split()[0] for seg in m.group(1).split(",")]
+    names = [n for n in names if n and n != "*"]
+    return any(n in members for n in names) if names else bool(members)
+
 
 def get_python_files(directory: Path) -> list[Path]:
     return list(directory.rglob("*.py"))
@@ -60,16 +106,26 @@ def check_mil_imports_internal(violations: list) -> None:
     if not mil_dir.exists():
         return
 
+    config_members = _mil_config_members()
     for py_file in get_python_files(mil_dir):
         content = py_file.read_text(encoding="utf-8", errors="ignore")
         for match in IMPORT_RE.finditer(content):
-            module = match.group(1).split(".")[0]
-            if module in INTERNAL_MODULES:
-                rel = py_file.relative_to(ROOT)
-                violations.append(
-                    f"VIOLATION [MIL->INTERNAL]: {rel} imports '{module}' -- "
-                    f"Zero Entanglement breach. mil/ may not import internal modules."
-                )
+            full_module = match.group(1)
+            module = full_module.split(".")[0]
+            if module not in INTERNAL_MODULES:
+                continue
+            # MIL importing its OWN mil/config is not entanglement (MIL-176).
+            if module == "config":
+                ls = content.rfind("\n", 0, match.start()) + 1
+                le = content.find("\n", match.start())
+                line = content[ls:] if le == -1 else content[ls:le]
+                if _config_import_is_mils_own(line, full_module, config_members):
+                    continue
+            rel = py_file.relative_to(ROOT)
+            violations.append(
+                f"VIOLATION [MIL->INTERNAL]: {rel} imports '{module}' -- "
+                f"Zero Entanglement breach. mil/ may not import internal modules."
+            )
 
 
 def check_external_imports_mil(violations: list) -> None:
@@ -80,6 +136,9 @@ def check_external_imports_mil(violations: list) -> None:
             continue
 
         for py_file in get_python_files(search_dir):
+            # Documented MIL-aware tools/shims are exempt (MIL-176).
+            if py_file.relative_to(ROOT).as_posix() in EXTERNAL_MIL_ALLOWLIST:
+                continue
             content = py_file.read_text(encoding="utf-8", errors="ignore")
 
             # Check for direct mil imports (not the permitted file read)
