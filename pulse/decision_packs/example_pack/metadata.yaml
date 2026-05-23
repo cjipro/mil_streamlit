@@ -3,9 +3,11 @@
 # Filed under PULSE-89.
 
 pack_name: journey_friction
-pack_version: 1.0.0
+pack_version: 1.1.0                  # PULSE-95: additive — templates + fixtures populated
 required_pulse_version: ">=1.0.0,<2.0.0"
 synthesis_mode: deterministic
+templates_dir: templates/           # PULSE-95: Cause-class altitude templates (cause__{bank,journey,signal}.md.j2)
+fixtures_dir: fixtures/             # PULSE-95: hand-authored AnalyticOutputs fixtures (testing, not v1 runtime)
 authors:
   - CJI
 license: Apache-2.0
