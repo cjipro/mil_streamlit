@@ -1,0 +1,70 @@
+# Hand-authored AnalyticOutputs fixture (PULSE-95) — Cause question class.
+# Worked investigation: dwell_after_error x loans.apply.step3 (highest-confidence
+# friction signature per FrictionBench design). Real-looking numbers; for render
+# tests, NOT v1 runtime. Covers the union of variables used by the three Cause
+# altitude templates (cause__bank / cause__journey / cause__signal).
+question_class: cause
+payload:
+  pack:
+    pack_name: journey_friction
+    pack_version: "1.1.0"
+    synthesis_mode: deterministic
+  screen_id: loans.apply.step3
+  signature_id: dwell_after_error
+  window:
+    label: "2026-05-10 to 2026-05-16"
+  engine_version: "0.1.0"
+  detection_emitted_at: "2026-05-16T23:59:59Z"
+  lineage_anchor: "3f9a1c0e7b2d4a6f8c1e5b9d2a4c6e8f0b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a"
+  affected_sessions: 1847
+  total_sessions: 12506
+  affected_pct: 14.8
+  dwell_seconds_p50: 87
+  dwell_uplift_pct: 46
+  baseline_window_days: 28
+  baseline_n: 14902
+  p_value: 0.003
+  p_value_threshold: 0.01
+  analytic:
+    method: dwell_z_score_vs_screen_baseline
+    baseline_source: rolling_28d_same_screen
+    trigger:
+      requires_prior_event: validation_error
+      dwell_window_seconds: 60
+      p_value_threshold: 0.01
+  primary_cohort:
+    label: "Mobile · age 55+"
+    share_pct: 41.0
+    recall_disparity_x: 2.1
+  cohort_breakdown:
+    - {label: "Mobile · age 55+", affected: 758, share_pct: 41.0, recall_x: 2.1}
+    - {label: "Mobile · age 35–54", affected: 412, share_pct: 22.3, recall_x: 1.1}
+    - {label: "Desktop · age 55+", affected: 267, share_pct: 14.5, recall_x: 1.4}
+    - {label: "First-time visitor", affected: 198, share_pct: 10.7, recall_x: 1.6}
+    - {label: "Returning visitor", affected: 212, share_pct: 11.5, recall_x: 0.7}
+  fairness_flag:
+    disparity: 0.21
+    threshold: 0.15
+  error_breakdown:
+    - {code: INCOME_DOC_FORMAT_REJECTED, count: 1094, share_pct: 59.0}
+    - {code: EMPLOYMENT_DATE_RANGE_INVALID, count: 463, share_pct: 25.0}
+    - {code: ADDRESS_LOOKUP_TIMEOUT, count: 187, share_pct: 10.0}
+    - {code: OTHER, count: 103, share_pct: 6.0}
+  remediation_category: template_fix
+  remediation_rationale: "INCOME_DOC_FORMAT_REJECTED dominates the error mix and is upstream of every other failure mode at this step; clarifying the validator message and accepted-format guidance addresses 59% of the affected sessions with one change"
+  recommendation_summary: "Clarify the income-document validator message and accepted-format guidance on loans.apply.step3"
+  confidence_band: high
+  confidence_low: 0.82
+  confidence_high: 0.91
+  brier_score: 0.08
+  evidence_sample_size: 3
+  evidence_sample:
+    - {session_id: "c1-pos-0012", dwell_seconds: 91, error_code: INCOME_DOC_FORMAT_REJECTED, cohort_tags: ["mobile", "age_55_plus"], p_value: 0.002}
+    - {session_id: "c1-pos-0048", dwell_seconds: 78, error_code: EMPLOYMENT_DATE_RANGE_INVALID, cohort_tags: ["desktop", "age_55_plus"], p_value: 0.004}
+    - {session_id: "c1-pos-0091", dwell_seconds: 103, error_code: INCOME_DOC_FORMAT_REJECTED, cohort_tags: ["mobile", "first_time"], p_value: 0.001}
+  audit:
+    bundle_required_fields:
+      - lineage_chain
+      - analytic_inputs_hash
+      - cohort_split_breakdown
+      - threshold_config_hash
