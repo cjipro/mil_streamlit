@@ -40,6 +40,7 @@ def build_decision_lineage(
     ma_s_manifest: dict[str, Any],
     friction_manifest: dict[str, Any],
     bank_policy: dict[str, Any],
+    synthesis_by_decision: dict[tuple[str, str], Any] | None = None,
     log_path: Path = DECISIONS_LINEAGE_LOG,
 ) -> dict[str, Any]:
     """Build + write the hash-chained lineage log for a decision run.
@@ -50,7 +51,8 @@ def build_decision_lineage(
     prev = GENESIS
 
     def add(operation: str, inputs: list[str], artifact_hash: str,
-            config: dict[str, Any], pack_version: str | None = None) -> tuple[str, str]:
+            config: dict[str, Any], pack_version: str | None = None,
+            template_version: str | None = None) -> tuple[str, str]:
         nonlocal prev
         row = {
             "lineage_id": uuid4().hex,
@@ -60,7 +62,7 @@ def build_decision_lineage(
             "artifact_hash": artifact_hash,
             "pipeline_version": PIPELINE_VERSION,
             "decision_pack_version": pack_version,
-            "template_version": None,
+            "template_version": template_version,  # only set for operation=synthesise (schema)
             "config_hash": sha256_hex(canonical_json(config)),
             "prev_row_hash": prev,
         }
@@ -80,14 +82,28 @@ def build_decision_lineage(
 
     # One row per decision — artifact_hash is the decision's own content hash, so
     # any later mutation of the decision is provable against the chain.
+    synthesis_by_decision = synthesis_by_decision or {}
     decision_anchor: dict[tuple[str, str], tuple[str, str]] = {}
+    synthesis_anchor: dict[tuple[str, str], tuple[str, str]] = {}
     for d in decisions:
         content = d.as_dict()
+        pack_version = f"{d.screen_id.replace('.', '_')}__{d.signature}@{PIPELINE_VERSION}"
         lid, rh = add(
             "analyse", [friction_id], sha256_hex(canonical_json(content)), bank_policy,
-            pack_version=f"{d.screen_id.replace('.', '_')}__{d.signature}@{PIPELINE_VERSION}",
+            pack_version=pack_version,
         )
         decision_anchor[(d.screen_id, d.signature)] = (lid, rh)
+
+        # Optional synthesise row: when a SynthesisResult was produced for this decision,
+        # record operation=synthesise carrying its template_version (the only row type that
+        # sets it, per the lineage schema). The rendered brief's artifact_id is this row's
+        # lineage_id; its audit bundle walks back through the decision to ingest.
+        sr = synthesis_by_decision.get((d.screen_id, d.signature))
+        if sr is not None:
+            synthesis_anchor[(d.screen_id, d.signature)] = add(
+                "synthesise", [lid], sr.artifact_hash, bank_policy,
+                pack_version=pack_version, template_version=sr.template_version,
+            )
 
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("w", encoding="utf-8") as f:
@@ -101,6 +117,7 @@ def build_decision_lineage(
         "head_row_hash": rows[-1]["row_hash"] if rows else GENESIS,
         "chain_verified": report.ok,
         "decision_anchor": decision_anchor,
+        "synthesis_anchor": synthesis_anchor,
     }
 
 
