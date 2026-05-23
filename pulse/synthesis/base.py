@@ -89,11 +89,18 @@ class SynthesisProvider(ABC):
 
 
 class TemplateSynthesisProvider(SynthesisProvider):
-    """v1 deterministic implementation. Hydrates Jinja2 templates. Zero LLM inference.
+    """v1 deterministic implementation (PULSE-94). Hydrates Jinja2 templates. Zero LLM inference.
 
-    Skeleton at PULSE-89; full Jinja2 implementation is a downstream ticket.
-    Body raises NotImplementedError with a clear pointer so the engine fails
-    loudly rather than silently shipping unrendered placeholders.
+    Renders every template in the supplied `TemplateLibrary` (sorted by name for
+    determinism) with the analytic outputs' `payload` as the render context,
+    concatenating the results into one artifact — so a caller passing the three
+    altitude templates (bank/journey/signal) gets the three-altitude single
+    surface, and a caller passing one gets that one. No altitude param is needed
+    on the signature: the library's contents select what renders.
+
+    Deterministic by construction: `StrictUndefined` (a missing payload key fails
+    loud, never renders a blank), `autoescape=False` (markdown output), no time /
+    random globals. Same (payload + templates) → byte-identical artifact + hash.
     """
 
     synthesis_mode: ClassVar[SynthesisMode] = SynthesisMode.DETERMINISTIC
@@ -104,8 +111,32 @@ class TemplateSynthesisProvider(SynthesisProvider):
         analytic_outputs: AnalyticOutputs,
         templates: TemplateLibrary,
     ) -> SynthesisResult:
-        raise NotImplementedError(
-            "TemplateSynthesisProvider.synthesise is a PULSE-89 skeleton. "
-            "Full Jinja2 rendering lands in a separate ticket once the analytics "
-            "layer + template library file format are decided."
+        import hashlib
+
+        from jinja2 import Environment, StrictUndefined  # approved: Jinja2==3.1.4 (PULSE-94)
+
+        if not templates.templates:
+            raise ValueError(
+                "TemplateSynthesisProvider.synthesise: TemplateLibrary has no templates to render"
+            )
+
+        env = Environment(
+            autoescape=False,           # markdown output, not HTML
+            undefined=StrictUndefined,  # missing payload key → loud failure, never silent blank
+            keep_trailing_newline=True,
+        )
+        context = dict(analytic_outputs.payload)
+        sections = [
+            env.from_string(templates.templates[name]).render(**context)
+            for name in sorted(templates.templates)  # deterministic order
+        ]
+        artifact_text = "\n\n".join(sections)
+        artifact_hash = hashlib.sha256(artifact_text.encode("utf-8")).hexdigest()
+
+        return SynthesisResult(
+            artifact_text=artifact_text,
+            artifact_hash=artifact_hash,
+            template_version=templates.version,
+            synthesis_mode=SynthesisMode.DETERMINISTIC,
+            provider_class=type(self).__name__,
         )

@@ -36,14 +36,48 @@ def test_template_provider_can_be_instantiated() -> None:
     assert provider.synthesis_mode == SynthesisMode.DETERMINISTIC
 
 
-def test_template_provider_synthesise_is_skeleton() -> None:
-    provider = TemplateSynthesisProvider()
-    with pytest.raises(NotImplementedError, match="skeleton"):
-        provider.synthesise(
-            question_class="cause",
-            analytic_outputs=AnalyticOutputs(question_class="cause"),
-            templates=TemplateLibrary(name="test", version="0.1.0"),
-        )
+def _render(payload: dict, templates: dict, version: str = "1.2.3"):
+    return TemplateSynthesisProvider().synthesise(
+        question_class="cause",
+        analytic_outputs=AnalyticOutputs(question_class="cause", payload=payload),
+        templates=TemplateLibrary(name="t", version=version, templates=templates),
+    )
+
+
+def test_template_provider_synthesise_renders() -> None:
+    """PULSE-94: the skeleton is replaced by a real deterministic Jinja2 render."""
+    import hashlib
+
+    result = _render({"name": "Holter", "n": 3}, {"journey": "Hello {{ name }} - {{ n }} signals"})
+    assert result.artifact_text == "Hello Holter - 3 signals"
+    assert result.synthesis_mode == SynthesisMode.DETERMINISTIC
+    assert result.provider_class == "TemplateSynthesisProvider"
+    assert result.template_version == "1.2.3"
+    assert result.artifact_hash == hashlib.sha256(result.artifact_text.encode("utf-8")).hexdigest()
+
+
+def test_synthesise_strict_undefined_fails_loud() -> None:
+    """A missing payload key must raise, never render a silent blank."""
+    from jinja2 import UndefinedError
+
+    with pytest.raises(UndefinedError):
+        _render({"name": "Holter"}, {"journey": "{{ name }} {{ missing_key }}"})
+
+
+def test_synthesise_is_deterministic() -> None:
+    a = _render({"n": 7}, {"j": "n={{ n }}"})
+    b = _render({"n": 7}, {"j": "n={{ n }}"})
+    assert a.artifact_text == b.artifact_text and a.artifact_hash == b.artifact_hash
+
+
+def test_synthesise_renders_all_templates_sorted_and_concatenated() -> None:
+    result = _render({}, {"signal": "S", "bank": "B", "journey": "J"})
+    assert result.artifact_text == "B\n\nJ\n\nS"  # sorted by template name
+
+
+def test_synthesise_empty_library_raises() -> None:
+    with pytest.raises(ValueError, match="no templates"):
+        _render({"name": "x"}, {})
 
 
 def test_synthesis_mode_enum_has_both_values() -> None:
