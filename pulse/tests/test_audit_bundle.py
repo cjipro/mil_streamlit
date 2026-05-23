@@ -47,6 +47,50 @@ def test_bundle_walks_decision_back_to_ingest(tmp_path):
         assert prev["lineage_id"] in nxt["inputs"]
 
 
+def test_synthesise_row_surfaces_template_version():
+    """PULSE-97: an optional synthesise row carries template_version into the bundle.
+
+    The decision chain stays 4-row when no synthesis is supplied (existing test);
+    when a SynthesisResult is supplied for a decision, a 5th `synthesise` row anchors
+    the rendered brief and the bundle surfaces its template_version (no longer {})."""
+    from dataclasses import dataclass
+
+    from pulse.decision.lineage import build_decision_lineage
+
+    @dataclass
+    class _Dec:
+        screen_id: str
+        signature: str
+
+        def as_dict(self):
+            return {"screen_id": self.screen_id, "signature": self.signature, "action_tier": "ACT"}
+
+    @dataclass
+    class _Syn:  # duck-types SynthesisResult (artifact_hash + template_version)
+        artifact_hash: str
+        template_version: str
+
+    key = ("loans.apply.step3", "dwell_after_error")
+    summary = build_decision_lineage(
+        [_Dec(*key)],
+        ma_s_manifest={"snapshot_id": "ms-1"},
+        friction_manifest={"source_snapshot_id": "md-1"},
+        bank_policy={},
+        synthesis_by_decision={key: _Syn("a" * 64, "1.1.0")},
+    )
+    assert summary["chain_verified"] is True
+    s_lid, _ = summary["synthesis_anchor"][key]
+
+    bundle = build_audit_bundle(s_lid)
+    assert bundle["found"] is True and bundle["chain_verified"] is True
+    chain = bundle["lineage_chain"]
+    assert len(chain) == 5  # ingest -> MA_S -> friction -> decision -> synthesise
+    assert chain[-1]["operation"] == "synthesise"
+    assert chain[-1]["lineage_id"] == s_lid
+    assert bundle["template_versions"] == {s_lid: "1.1.0"}
+    assert bundle["synthesis_mode"] == "deterministic"
+
+
 def test_unknown_artifact_id_not_found(tmp_path):
     _build(tmp_path)
     assert build_audit_bundle("does-not-exist")["found"] is False

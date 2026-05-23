@@ -75,8 +75,13 @@ def build_audit_bundle(
         "lineage_chain": [{k: r.get(k) for k in _SURFACED} for r in chain],
         "input_data_snapshot_refs": [],  # DVC integration not shipped (per spec)
         "pipeline_versions": {r["operation"]: r["pipeline_version"] for r in chain},
-        "template_versions": {},  # no synthesise rows in the decision chain at v1
+        # synthesise rows (when present) carry template_version — surface them keyed by row.
+        "template_versions": {
+            r["lineage_id"]: r["template_version"] for r in chain if r.get("template_version")
+        },
         "decision_pack_version": pack_versions[-1] if pack_versions else None,
+        # v1 invariant: the only registered SynthesisProvider is deterministic — no
+        # LLMSynthesisProvider exists and llm_augmented packs are rejected at validate.
         "synthesis_mode": "deterministic",
         "configs": {
             f"{i}:{r['operation']}": {"config_hash": r["config_hash"]}
