@@ -159,7 +159,7 @@ docker==7.1.0
 docrepr==0.2.0
 docstring-to-markdown==0.11
 docutils==0.18.1
-duckdb  # PROVISIONAL (2026-05-20): confirmed available in bank env (Hussain); exact pin pending — likely 1.1.x. Replace with duckdb==<version> when confirmed.
+duckdb==1.5.2  # PULSE-130: confirmed on edge node 2026-05-23 (superseded the 2026-05-20 provisional ~1.1.x guess)
 en_core_web_sm==3.8.0
 entrypoints==0.4
 et_xmlfile==1.1.0
@@ -464,6 +464,9 @@ three-merge==0.1.1
 tifffile==2023.4.12
 tinycss2==1.2.1
 tldextract==5.1.2
+tokenizers  # PULSE-130: transformers 4.44.1 dep, present on edge node; exact pin pending pip-list dump
+torch==2.5.0  # PULSE-130: +cu124 (GPU) build, confirmed on edge node 2026-05-23
+transformers==4.44.1  # PULSE-130: confirmed on edge node 2026-05-23
 
 # --- GAP: t-z range (tokenizers, tomli, tornado, tqdm, traitlets,
 #     transformers, typer, typing-extensions, tzdata, urllib3, uvicorn,
@@ -493,9 +496,10 @@ This snapshot is partial. Two alphabetical ranges are not yet captured:
   `mpmath`, `msgpack`, `multidict`, `mypy_extensions`, `nbclient`,
   `nbconvert`, `nbformat`, `nest-asyncio`, `networkx`, `nh3`, `nltk`,
   `nodeenv`, etc.
-- **t–z range** (after `tldextract`) — includes likely presences:
-  `tokenizers`, `toml`, `tomli`, `tomli_w`, `tomlkit`, `toolz`, `torch`(?),
-  `tornado`, `tqdm`, `traitlets`, `transformers`(?), `typeguard`, `typer`,
+- **t–z range** (after `tldextract`) — `torch`, `transformers`, `tokenizers`
+  now captured above (PULSE-130, edge node 2026-05-23). Other likely presences:
+  `toml`, `tomli`, `tomli_w`, `tomlkit`, `toolz`,
+  `tornado`, `tqdm`, `traitlets`, `typeguard`, `typer`,
   `typing-extensions`, `tzdata`, `uc-micro-py`, `ujson`, `unicodedata2`,
   `uri-template`, `urllib3`, `uvicorn`, `virtualenv`, `watchdog`,
   `wcwidth`, `webencodings`, `websocket-client`, `websockets`, `Werkzeug`,
