@@ -225,6 +225,7 @@ jaraco.classes==3.2.1
 jedi==0.19.1
 jeepney==0.7.1
 jellyfish==0.11.2                            # OCR partial
+Jinja2==3.1.4                                # PULSE-94: confirmed in bank env 2026-05-23 (py3.11 anaconda); Flask 3.0.3 transitive dep — closes an OCR gap, not a new dep
 joblib==1.4.2
 json5==0.9.6
 jsonpatch==1.33
