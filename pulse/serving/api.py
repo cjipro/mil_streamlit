@@ -14,8 +14,8 @@ and by Holter's own UI surfaces.
 - ``GET /investigations`` — list registered packs (real)
 - ``GET /investigations/{pack_name}`` — pack metadata + SHA-256 lineage anchor (real)
 - ``POST /lineage/verify`` — verify a chain of lineage rows (real; uses pulse.lineage.verifier)
-- ``POST /investigations/{pack_name}/run`` — **501** Designed Ceiling (PULSE-93)
-- ``GET /signals`` — **501** Designed Ceiling (PULSE-93)
+- ``POST /investigations/{pack_name}/run`` — execute investigation → synthesis result (HOL-5; PULSE-93 landed)
+- ``GET /signals`` — current signal state = the scored decisions (filter by signature/screen/cohort)
 - ``GET /openapi.json`` — auto-generated OpenAPI 3.x spec
 
 **Auth scaffolding:** placeholder middleware adds an
@@ -165,6 +165,44 @@ class CohortFriction(BaseModel):
     mean_confidence: float | None = None
 
 
+# Investigations run + signal state (HOL-5 — un-stubbed once PULSE-93 landed).
+
+class AltitudeArtifact(BaseModel):
+    artifact_text: str
+    artifact_hash: str = Field(description="SHA-256 of artifact_text.")
+    template_version: str
+
+
+class RunResponse(BaseModel):
+    pack_name: str
+    question_class: str
+    synthesis_mode: str = Field(description="Always 'deterministic' in v1.")
+    engine_version: str
+    detection_emitted_at: str
+    lineage_anchor: str = Field(
+        description="Analytic-content anchor (SHA-256). This stateless API call returns the "
+        "synthesis result + content anchor; the full lineage chain + deep-linkable audit "
+        "bundle are produced by the pipeline run (pulse.pipeline), not per request.",
+    )
+    altitudes: dict[str, AltitudeArtifact] = Field(
+        description="Rendered investigation per altitude (bank / journey / signal).",
+    )
+
+
+class SignalState(BaseModel):
+    screen_id: str
+    signature: str
+    journey_id: str
+    action_tier: str
+    risk_tier: str
+    value_tier: str
+    affected_sessions: int
+    fire_rate: float
+    fairness_independent_review: bool
+    recommendation: str
+    lineage_id: str | None = None
+
+
 # --------------------------------------------------------------------- Helpers
 
 def _pulse_version() -> str:
@@ -199,7 +237,8 @@ app = FastAPI(
         "Read-side investigation packs, friction marts, decisions (Risk/Value/Diagnosis), "
         "lineage attestations, audit bundles, and CHRONICLE candidates. The Streamlit UI "
         "(holter/) imports the engine directly and does NOT use this API — it is for external "
-        "consumers (Tableau, Databricks, bank portals). run + signals blocked on PULSE-93."
+        "consumers (Tableau, Databricks, bank portals). /investigations/{pack}/run executes "
+        "the engine; /signals serves the scored decisions (HOL-5)."
     ),
 )
 
@@ -284,46 +323,95 @@ def get_investigation(pack_name: str) -> PackDetail:
 
 @app.post(
     "/investigations/{pack_name}/run",
+    response_model=RunResponse,
     tags=["investigations"],
-    summary="Run an investigation (501 in v0 — Designed Ceiling)",
-    status_code=501,
+    summary="Run an investigation — returns the synthesis result (HOL-5)",
 )
-def run_investigation(pack_name: str) -> dict:
-    # Confirm pack exists so the 501 isn't masking a 404.
-    _load_pack(pack_name)
-    raise HTTPException(
-        status_code=501,
-        detail={
-            "error": "engine_synthesis_layer_interface_only",
-            "blocker": "PULSE-93",
-            "message": (
-                "TemplateSynthesisProvider.synthesise raises NotImplementedError. "
-                "Pack runner ships when PULSE-93 lands. Per Article Zero, this "
-                "surface declares its own incompleteness rather than returning "
-                "fabricated synthesis output."
-            ),
-        },
+def run_investigation(pack_name: str) -> RunResponse:
+    """Execute the pack's investigation end-to-end: analytics (PULSE-96) -> synthesise
+    (PULSE-94) each altitude -> rendered briefs + provenance. Stateless: the full lineage
+    chain + deep-linkable audit bundle are produced by the pipeline run (pulse.pipeline),
+    not per API call. Engine delegation only — no synthesis logic here."""
+    from pulse.analytics.cause import build_analytic_outputs
+    from pulse.synthesis.base import TemplateLibrary, TemplateSynthesisProvider
+
+    metadata, _ = _load_pack(pack_name)  # 404 if the pack doesn't exist
+    if not (PACKS_DIR / pack_name / "hypothesis.yaml").exists():
+        raise HTTPException(
+            status_code=422,
+            detail=f"Pack '{pack_name}' is a reference/fixture pack (no hypothesis.yaml) and "
+            "is not runnable. Run a friction pack (e.g. loans_apply_step3__dwell_after_error).",
+        )
+
+    ao = build_analytic_outputs(pack_name)
+    provider = TemplateSynthesisProvider()
+    templates_dir = PACKS_DIR / pack_name / "templates"
+    altitudes: dict[str, AltitudeArtifact] = {}
+    for altitude in ("bank", "journey", "signal"):
+        tmpl_path = templates_dir / f"{altitude}.md.j2"
+        if not tmpl_path.exists():
+            continue
+        result = provider.synthesise(
+            ao.question_class, ao,
+            TemplateLibrary(pack_name, str(metadata.get("pack_version", "0.0.0")),
+                            {altitude: tmpl_path.read_text(encoding="utf-8")}),
+        )
+        altitudes[altitude] = AltitudeArtifact(
+            artifact_text=result.artifact_text,
+            artifact_hash=result.artifact_hash,
+            template_version=result.template_version,
+        )
+    if not altitudes:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Pack '{pack_name}' has no altitude templates (bank/journey/signal).",
+        )
+
+    p = ao.payload
+    return RunResponse(
+        pack_name=p.get("pack", {}).get("pack_name", pack_name),
+        question_class=ao.question_class,
+        synthesis_mode=SynthesisMode.DETERMINISTIC.value,
+        engine_version=str(p.get("engine_version", "")),
+        detection_emitted_at=str(p.get("detection_emitted_at", "")),
+        lineage_anchor=str(p.get("lineage_anchor", "")),
+        altitudes=altitudes,
     )
 
 
 @app.get(
     "/signals",
+    response_model=list[SignalState],
     tags=["signals"],
-    summary="List current signal state (501 in v0 — Designed Ceiling)",
-    status_code=501,
+    summary="Current signal state (the scored decisions); filter by signature/screen/cohort",
 )
-def list_signals() -> dict:
-    raise HTTPException(
-        status_code=501,
-        detail={
-            "error": "signal_state_service_not_implemented",
-            "blocker": "PULSE-93",
-            "message": (
-                "No analytics layer ships in v1; signal state is not yet "
-                "materialised. Endpoint reserved for v1+."
-            ),
-        },
-    )
+def list_signals(
+    signature: str | None = None,
+    screen: str | None = None,
+    cohort: str | None = None,
+) -> list[SignalState]:
+    """Current signal state = the scored decisions (one per screen x signature fired finding).
+    Empty until a pipeline run has materialised the decisions mart (honest — no fabricated
+    state). `cohort=vulnerable_flag` narrows to findings that triggered an independent
+    fairness review; finer cohort breakdowns live at /friction/by-cohort."""
+    if not PIPELINE_SESSION_FRICTION_PARQUET.exists():
+        return []  # no pipeline run yet — no signal state materialised
+    out: list[SignalState] = []
+    for d in read_decisions():
+        if signature and d.get("signature") != signature:
+            continue
+        if screen and d.get("screen_id") != screen:
+            continue
+        if cohort == "vulnerable_flag" and not d.get("fairness_independent_review"):
+            continue
+        out.append(SignalState(
+            screen_id=d["screen_id"], signature=d["signature"], journey_id=d["journey_id"],
+            action_tier=d["action_tier"], risk_tier=d["risk_tier"], value_tier=d["value_tier"],
+            affected_sessions=d["affected_sessions"], fire_rate=d["fire_rate"],
+            fairness_independent_review=d["fairness_independent_review"],
+            recommendation=d["recommendation"], lineage_id=d.get("lineage_id"),
+        ))
+    return out
 
 
 @app.post(
