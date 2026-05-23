@@ -50,6 +50,9 @@ from holter.preview._shared import (  # noqa: E402
     # Engine bridge
     discover_packs,
     get_pack_cell,
+    get_pack_analytics,
+    lineage_anchor_short,
+    analytics_quality_items,
     headline_pack,
     short_hash,
     screen_short,
@@ -281,7 +284,9 @@ def render_ticker(packs: list[dict]) -> str:
         h = p["hypothesis"] or {}
         sig = h.get("signature_id", "—").replace("_", " ")
         cell = h.get("cell_id", "?")
-        sha = short_hash(p["sha256"])
+        # PULSE-93/96 — the ticker labels itself "lineage anchors", so show the
+        # REAL lineage anchor; fixture packs (no analytics) fall back to meta-sha.
+        sha = lineage_anchor_short(p["meta"]["pack_name"]) or short_hash(p["sha256"])
         is_neg = h.get("ground_truth_expectation") == "negative"
         color = "var(--amber)" if is_neg else "var(--text-2)"
         bar_w = 22 if is_neg else 40
@@ -471,6 +476,20 @@ def render_box1(packs: list[dict], selected_name: str | None = None) -> str:
                 color=_VALUE_COLORS.get(value_label, "var(--blue)"),
             )
 
+    # PULSE-93/96 wiring — the decision-QUALITY strip + lineage badge now read
+    # from the live synthesis analytics (real confidence band/interval, Brier
+    # calibration, fairness flag, lineage anchor), not hardcoded literals. When
+    # analytics are unavailable (fixture pack / engine error) we render the
+    # honest pending state instead of a fabricated "Confidence 0.82".
+    quality_items = analytics_quality_items(meta["pack_name"]) or [
+        "Confidence —", "Brier —", "Fairness —", "Lineage pending",
+    ]
+    lineage_short = lineage_anchor_short(meta["pack_name"])
+    lineage_note = (
+        f"lineage:{lineage_short}" if lineage_short
+        else f"sha256:{short_hash(pack['sha256'])} (meta · lineage pending)"
+    )
+
     return render_box(
         header=box_header(key_area, "key area · selection-driven"),
         accent_color=tier_color,
@@ -491,16 +510,11 @@ def render_box1(packs: list[dict], selected_name: str | None = None) -> str:
                 (f'<strong>What this means:</strong> {verdict_synthesis}',
                  "var(--text-2)"),
             ])
-            + body_quality_strip([
-                "Confidence 0.82",
-                "Designed ceiling 0.85",
-                "Fairness attested",
-                "Lineage anchored",
-            ])
+            + body_quality_strip(quality_items)
         ),
         footer=box_footer(
             f"pack: {meta['pack_name']}", NOW, live=True,
-            note=f"sha256:{short_hash(pack['sha256'])} · verdict v0 · DuckDB-backed (PULSE)",
+            note=f"{lineage_note} · verdict v0 · DuckDB-backed (PULSE)",
         ),
     )
 
@@ -716,6 +730,15 @@ def render_box3(packs: list[dict], selected_name: str | None = None) -> str:
             color="var(--blue)",
         )
 
+    # PULSE-93/96 — footer lineage badge from the live analytics anchor (not the
+    # metadata-file sha). The 30-day series itself stays illustrative: the Cause
+    # analytics layer produces a single-snapshot investigation, not a time series.
+    lineage_short = lineage_anchor_short(meta["pack_name"])
+    lineage_note = (
+        f"lineage:{lineage_short}" if lineage_short
+        else f"sha256:{short_hash(pack['sha256'])} (meta · lineage pending)"
+    )
+
     return render_box(
         header=box_header("EVIDENCE", "key data · 30-day trend"),
         accent_color=delta_color,
@@ -743,7 +766,7 @@ def render_box3(packs: list[dict], selected_name: str | None = None) -> str:
         ),
         footer=box_footer(
             "evidence v0.1", NOW, live=True,
-            note=f"sha256:{short_hash(pack['sha256'])} · DuckDB time-series (stub) · drill V3 for full evidence",
+            note=f"{lineage_note} · 30-day trend illustrative · drill V3 for full evidence",
         ),
     )
 
@@ -841,6 +864,22 @@ def render_box_placement_posture(packs: list[dict]) -> str:
 def render_box_confidence_protocol(packs: list[dict]) -> str:
     n_neg = sum(1 for p in packs if (p["hypothesis"] or {}).get("ground_truth_expectation") == "negative")
     n_pos = len(packs) - n_neg
+    # PULSE-93 is live — replace the "awaiting hydration" placeholder with the
+    # real synthesis state, proven by running the headline pack through the
+    # synthesis analytics (mode + confidence band + lineage anchor).
+    hp = headline_pack(packs)
+    synth_out = get_pack_analytics(hp["meta"]["pack_name"]) if hp else None
+    if synth_out is not None:
+        sp = synth_out.payload
+        synth_line = (
+            f"Synthesis LIVE · {sp['pack']['synthesis_mode']} · "
+            f"confidence {sp['confidence_band']} · "
+            f"lineage {short_hash(sp['lineage_anchor'])} (PULSE-93)"
+        )
+        synth_color = "var(--green)"
+    else:
+        synth_line = "Synthesis · analytics unavailable for headline pack (PULSE-93)"
+        synth_color = "var(--text-3)"
     return render_box(
         header=box_header("CONFIDENCE PROTOCOL", "4-tier"),
         accent_color="var(--green)",
@@ -860,7 +899,7 @@ def render_box_confidence_protocol(packs: list[dict]) -> str:
         ]) + body_lines([
             (f"All {len(packs)} packs pass v1 metadata validator", "var(--green)"),
             (f"All {len(packs)} packs pass canvas-completeness (PULSE-103)", "var(--green)"),
-            ("Synthesis tier · awaiting PULSE-93 hydration", "var(--text-3)"),
+            (synth_line, synth_color),
         ]),
         footer=box_footer("registry v0.1", NOW, live=True,
                          note="Per-pack confidence inputs land in v0.2"),

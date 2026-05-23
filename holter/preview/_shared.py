@@ -164,6 +164,83 @@ def get_pack_cell(pack_name: str):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Engine integration — per-pack Cause-class analytics (PULSE-93/96 synthesis layer)
+#
+# The SECOND engine bridge, alongside get_pack_cell(). Where get_pack_cell()
+# returns the DECISION-layer placement verdict, this returns the SYNTHESIS-layer
+# `AnalyticOutputs`: the real confidence band / interval, calibration (Brier),
+# fairness flag, and lineage anchor the surface must show (HOL-3 acceptance:
+# "lineage hash visible on every rendering"). Before PULSE-93/96 shipped these
+# were hardcoded placeholders ("Confidence 0.82", "awaiting PULSE-93 hydration").
+#
+# Fails soft exactly like get_pack_cell — fixture packs (no hypothesis.yaml),
+# packs whose cell_id isn't in the FrictionBench corpus, or any engine error
+# return None, logged to stderr so the failure is visible while the renderer
+# keeps working. Callers render the honest "pending" state on None.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Match the analytics + /investigations/<pack>/run default so the surface shows
+# the same numbers an API consumer would get.
+_UI_SESSIONS_PER_CELL = 200
+
+
+@functools.lru_cache(maxsize=32)
+def get_pack_analytics(pack_name: str):
+    """Real Cause-class AnalyticOutputs for a runnable pack, or None (fail-soft)."""
+    import logging
+    try:
+        from pulse.analytics.cause import build_analytic_outputs
+        return build_analytic_outputs(pack_name, sessions_per_cell=_UI_SESSIONS_PER_CELL)
+    except Exception:
+        logging.exception(
+            "get_pack_analytics(%s) failed — synthesis analytics unavailable; "
+            "quality strip + lineage badge render as PENDING for this pack",
+            pack_name,
+        )
+        return None
+
+
+def lineage_anchor_short(pack_name: str) -> str | None:
+    """Short form of a pack's REAL lineage anchor (sha256 of the analytic facts),
+    or None when analytics are unavailable. This is the hash the surface shows as
+    the lineage badge — NOT the metadata-file sha (`pack["sha256"]`), which is
+    pack identity, not run provenance."""
+    out = get_pack_analytics(pack_name)
+    if out is None:
+        return None
+    return short_hash(out.payload["lineage_anchor"])
+
+
+def analytics_quality_items(pack_name: str) -> list[str] | None:
+    """The four decision-QUALITY signals for body_quality_strip, sourced from the
+    real synthesis analytics: confidence band + interval, calibration (Brier),
+    fairness state, lineage anchor. None when analytics unavailable.
+
+    Replaces the hardcoded 'Confidence 0.82 / Designed ceiling 0.85 / Fairness
+    attested / Lineage anchored' strip. The Cause analytics layer does not produce
+    a 'designed ceiling' (that is a FrictionBench/detection concept), so the
+    fabricated ceiling literal is dropped in favour of the real Brier calibration
+    score — an honest decision-quality signal the engine actually computes."""
+    out = get_pack_analytics(pack_name)
+    if out is None:
+        return None
+    p = out.payload
+    conf = (
+        f"Confidence {p['confidence_band']} "
+        f"[{p['confidence_low']:.2f}–{p['confidence_high']:.2f}]"
+    )
+    brier = p.get("brier_score")
+    calib = f"Brier {brier:.3f}" if brier is not None else "Brier —"
+    ff = p.get("fairness_flag")
+    fairness = (
+        "Fairness within parity" if ff is None
+        else f"Fairness FLAG {ff['disparity']:.2f} > {ff['threshold']:.2f}"
+    )
+    lineage = f"Lineage {short_hash(p['lineage_anchor'])}"
+    return [conf, calib, fairness, lineage]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Commercial signal — friction-volume PRIMARY, £ scaffold SECONDARY.
 #
 # Single source of truth for how every surface renders the commercial signal.
