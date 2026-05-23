@@ -22,6 +22,7 @@ Run:  py -m pulse.analytics.cause --pack loans_apply_step3__dwell_after_error
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import re
@@ -45,6 +46,11 @@ _MIN_COHORT_SESSIONS = 5
 _CI_LOW_PCT, _CI_HIGH_PCT = 2.5, 97.5
 
 QUESTION_CLASS = "cause"
+
+# Signal-altitude provenance: the runtime stamp (matches DETECTION_RUNTIME_VERSION).
+ENGINE_VERSION = "0.1.0"
+# Per-session evidence rows the signal altitude shows.
+_EVIDENCE_SAMPLE_SIZE = 3
 
 
 # ── pack config ────────────────────────────────────────────────────────────────
@@ -166,11 +172,59 @@ def _remediation(error_rows: list[dict], categories: list[str]) -> tuple[str, st
 # ── public API ────────────────────────────────────────────────────────────────
 
 
+def _primary_cohort(cohort_rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The most-affected cohort, for the bank-altitude headline. None if none fired."""
+    if not cohort_rows:
+        return None
+    top = cohort_rows[0]  # _cohort_breakdown sorts by affected desc
+    return {"label": top["label"], "share_pct": top["share_pct"], "recall_disparity_x": top["recall_x"]}
+
+
+def _recommendation_summary(category: str, error_rows: list[dict[str, Any]], screen_id: str) -> str:
+    """One-line exec recommendation for the bank altitude — deterministic, data-grounded."""
+    if not error_rows:
+        return f"Investigate the dwell-after-error pattern on {screen_id}"
+    top = error_rows[0]
+    return f"Apply {category} to {top['code']} on {screen_id} ({top['share_pct']}% of errors)"
+
+
+def _analytic_block(hyp: dict) -> dict[str, Any]:
+    """The pack's analytic config the signal altitude prints (straight from hypothesis.yaml)."""
+    a = hyp.get("analytic", {})
+    t = a.get("trigger", {})
+    return {
+        "method": a.get("method"),
+        "baseline_source": a.get("baseline_source"),
+        "trigger": {
+            "requires_prior_event": t.get("requires_prior_event"),
+            "dwell_window_seconds": t.get("dwell_window_seconds"),
+            "p_value_threshold": t.get("p_value_threshold"),
+        },
+    }
+
+
+def _evidence_sample(records: list[dict[str, Any]], n: int = _EVIDENCE_SAMPLE_SIZE) -> list[dict[str, Any]]:
+    """First n fired sessions (by session_id) as per-session evidence for the signal altitude."""
+    fired = sorted((r for r in records if r["fired"]), key=lambda r: r["session_id"])[:n]
+    return [
+        {
+            "session_id": r["session_id"],
+            "dwell_seconds": round(r["dwell"]) if r["dwell"] is not None else None,
+            "error_code": r["error_type"] or (r["error_codes"][0] if r["error_codes"] else "none"),
+            "cohort_tags": r["cohort_tags"],
+            "p_value": r["p_value"],
+        }
+        for r in fired
+    ]
+
+
 def build_analytic_outputs(pack_name: str, *, sessions_per_cell: int = 200) -> AnalyticOutputs:
     """Aggregate the pack's labelled corpus cell into the Cause-class AnalyticOutputs.
 
-    Deterministic for a given pack + sessions_per_cell. `payload` keys are exactly
-    the journey-template variables."""
+    Deterministic for a given pack + sessions_per_cell. `payload` keys cover all three
+    altitude templates (journey / bank / signal). Signal-altitude provenance stamps
+    (engine_version / detection_emitted_at / lineage_anchor) are deterministic analytics
+    defaults; the live pipeline overrides emitted_at + lineage_anchor with real run values."""
     hyp, meta = _load_pack(pack_name)
     cell_id = int(hyp["cell_id"])
     screen_id = hyp["screen_id"]
@@ -189,21 +243,31 @@ def build_analytic_outputs(pack_name: str, *, sessions_per_cell: int = 200) -> A
 
     # Run detection; harvest each session's detection + evidence + ground truth.
     records: list[dict[str, Any]] = []
+    latest_event_ts: str | None = None
     for session, gt in cell_sessions[cell_id]:
         det = run_detection(hypothesis=hypothesis, session=session, baseline=baseline)
         ev = det.evidence or {}
-        error_codes = [
-            (e.get("event", {}).get("payload", {}) or {}).get("error_type")
-            for e in session.events
-            if e.get("event", {}).get("event_type") == "error"
-        ]
+        error_codes: list[str] = []
+        for e in session.events:
+            evt = e.get("event", {})
+            if evt.get("event_type") == "error":
+                code = (evt.get("payload", {}) or {}).get("error_type")
+                if code:
+                    error_codes.append(code)
+            ts = evt.get("event_ts")
+            if ts and (latest_event_ts is None or ts > latest_event_ts):
+                latest_event_ts = ts  # deterministic: max event_ts across the corpus cell
         records.append({
+            "session_id": session.session_id,
             "fired": bool(det.fired),
             "confidence": float(det.confidence) if det.confidence is not None else 0.0,
             "should_fire": bool(gt.get("should_fire", False)),
             "cohort": _cohort_label(tuple(session.cohort_tags)),
+            "cohort_tags": list(session.cohort_tags),
             "dwell": ev.get("dwell_time_seconds"),
-            "error_codes": [c for c in error_codes if c],
+            "p_value": ev.get("p_value"),
+            "error_type": ev.get("error_type"),
+            "error_codes": error_codes,
         })
 
     total = len(records)
@@ -223,14 +287,35 @@ def build_analytic_outputs(pack_name: str, *, sessions_per_cell: int = 200) -> A
         p_value = None
 
     error_rows = _error_breakdown(records)
+    cohort_rows = _cohort_breakdown(records, overall_rate)
     rem_category, rem_rationale = _remediation(error_rows, rem_categories)
     conf_values = [r["confidence"] for r in fired]
     median_conf = statistics.median(conf_values) if conf_values else 0.0
     brier = round(statistics.fmean([(r["confidence"] - r["should_fire"]) ** 2 for r in records]), 4) \
         if total else None
+    evidence_sample = _evidence_sample(records)
+
+    # Signal-altitude provenance. detection_emitted_at = latest corpus event_ts (deterministic);
+    # lineage_anchor = content hash of the analytic facts (honest analytic-content anchor). The
+    # live pipeline overrides emitted_at + lineage_anchor with the real run ts + lineage row hash.
+    analytic_facts = {
+        "screen_id": screen_id, "signature_id": signature_id,
+        "affected_sessions": affected, "total_sessions": total,
+        "dwell_seconds_p50": round(dwell_p50), "p_value": p_value,
+        "cohort_breakdown": cohort_rows, "error_breakdown": error_rows,
+    }
+    lineage_anchor = hashlib.sha256(
+        json.dumps(analytic_facts, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+    detection_emitted_at = latest_event_ts or "1970-01-01T00:00:00Z"
 
     payload: dict[str, Any] = {
-        "pack": {"pack_name": meta.get("pack_name", pack_name)},
+        # shared / journey altitude
+        "pack": {
+            "pack_name": meta.get("pack_name", pack_name),
+            "pack_version": str(meta.get("pack_version", "0.0.0")),
+            "synthesis_mode": meta.get("synthesis_mode", "deterministic"),
+        },
         "screen_id": screen_id,
         "signature_id": signature_id,
         "window": {"label": "FrictionBench v0.1 calibration set"},
@@ -244,7 +329,7 @@ def build_analytic_outputs(pack_name: str, *, sessions_per_cell: int = 200) -> A
         "p_value": p_value,
         "baseline_n": baseline.n_sessions,
         "p_value_threshold": p_threshold,
-        "cohort_breakdown": _cohort_breakdown(records, overall_rate),
+        "cohort_breakdown": cohort_rows,
         "fairness_flag": _fairness_flag(records, fairness_threshold),
         "error_breakdown": error_rows,
         "remediation_category": rem_category,
@@ -253,6 +338,17 @@ def build_analytic_outputs(pack_name: str, *, sessions_per_cell: int = 200) -> A
         "confidence_low": round(_percentile(conf_values, _CI_LOW_PCT), 2),
         "confidence_high": round(_percentile(conf_values, _CI_HIGH_PCT), 2),
         "brier_score": brier,
+        # bank altitude
+        "primary_cohort": _primary_cohort(cohort_rows),
+        "recommendation_summary": _recommendation_summary(rem_category, error_rows, screen_id),
+        # signal altitude — analytic config + per-session evidence + provenance stamps
+        "analytic": _analytic_block(hyp),
+        "evidence_sample": evidence_sample,
+        "evidence_sample_size": len(evidence_sample),
+        "audit": {"bundle_required_fields": list(hyp.get("audit", {}).get("bundle_required_fields", []))},
+        "engine_version": ENGINE_VERSION,
+        "detection_emitted_at": detection_emitted_at,
+        "lineage_anchor": lineage_anchor,
     }
     return AnalyticOutputs(question_class=QUESTION_CLASS, payload=payload)
 

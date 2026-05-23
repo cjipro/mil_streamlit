@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from pulse.analytics.cause import build_analytic_outputs
 from pulse.synthesis.base import (
     SynthesisMode,
@@ -23,7 +25,8 @@ from pulse.synthesis.base import (
 
 _PACK = "loans_apply_step3__dwell_after_error"
 _REPO = Path(__file__).resolve().parents[2]
-_JOURNEY_TMPL = _REPO / "pulse" / "decision_packs" / _PACK / "templates" / "journey.md.j2"
+_TEMPLATES_DIR = _REPO / "pulse" / "decision_packs" / _PACK / "templates"
+_JOURNEY_TMPL = _TEMPLATES_DIR / "journey.md.j2"
 
 
 def _synthesise():
@@ -55,3 +58,17 @@ def test_render_is_deterministic():
     _, b = _synthesise()
     assert a.artifact_text == b.artifact_text
     assert a.artifact_hash == b.artifact_hash
+
+
+@pytest.mark.parametrize("altitude", ["bank", "journey", "signal"])
+def test_all_altitudes_hydrate_from_real_analytics(altitude):
+    """PULSE-96 extension: bank + signal (not just journey) render from REAL analytics.
+
+    StrictUndefined would raise on any missing var, so a clean render proves the analytics
+    payload now satisfies all three altitude templates' variable contracts (previously bank/
+    signal only rendered from the hand-authored PULSE-95 fixture)."""
+    out = build_analytic_outputs(_PACK, sessions_per_cell=40)
+    tmpl = (_TEMPLATES_DIR / f"{altitude}.md.j2").read_text(encoding="utf-8")
+    r = TemplateSynthesisProvider().synthesise("cause", out, TemplateLibrary(_PACK, "1.0.0", {altitude: tmpl}))
+    assert r.artifact_text.strip()
+    assert len(r.artifact_hash) == 64
