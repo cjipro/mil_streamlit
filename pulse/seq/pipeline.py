@@ -15,12 +15,13 @@ from __future__ import annotations
 
 import os
 import random
+import time
 
 import duckdb
 import pyarrow.parquet as pq
 import torch
-from torch.utils.data import IterableDataset
-from transformers import GPT2Config, GPT2LMHeadModel, Trainer, TrainingArguments
+from torch.utils.data import DataLoader, IterableDataset
+from transformers import GPT2Config, GPT2LMHeadModel
 
 # Total isolation from the Hugging Face Hub for the whole process lifecycle.
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
@@ -133,29 +134,43 @@ class ShardedSessionDataset(IterableDataset):
 # Stage 3 — offline GPT-2 training
 # ---------------------------------------------------------------------------
 def train_behavioral_transformer(tokenized_parquet: str, vocab_size: int,
-                                 context_window: int = 512, output_dir: str = "./seq_out") -> None:
+                                 context_window: int = 512, max_steps: int = 1000,
+                                 batch_size: int = 16) -> None:
+    """Native PyTorch loop — **no HF Trainer** (and therefore no `accelerate`,
+    which transformers' Trainer hard-requires and which is NOT in the bank
+    approved-libs / not on the edge node — PULSE-130). Auto-detects device.
+
+    NB: the bank edge node is **CPU-only** (PULSE-130), so this is the OFF-NODE
+    reference; real pretraining belongs on a GPU box. The architecture below is
+    deliberately small to stay CPU-runnable; size it up off-node on a GPU.
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     config = GPT2Config(
         vocab_size=vocab_size, n_positions=context_window,
-        n_layer=6, n_head=8, n_embd=512,
+        n_layer=4, n_head=4, n_embd=256,   # illustrative CPU-runnable scale
         bos_token_id=BOS_ID, eos_token_id=EOS_ID, pad_token_id=PAD_ID,
     )
-    model = GPT2LMHeadModel(config)   # local init — no Hub fetch
-    print(f"[seq] model params: {model.num_parameters():,}")
+    model = GPT2LMHeadModel(config).to(device)   # local init — no Hub fetch
+    print(f"[seq] {model.num_parameters():,} params on {device}")
 
-    dataset = ShardedSessionDataset(tokenized_parquet, block_size=context_window)
-    args = TrainingArguments(
-        output_dir=output_dir, overwrite_output_dir=True,
-        max_steps=50000, per_device_train_batch_size=32,
-        learning_rate=5e-4, weight_decay=0.01, warmup_steps=1000,
-        logging_steps=100, save_steps=5000,
-        fp16=torch.cuda.is_available(),
-        dataloader_num_workers=2,
-        remove_unused_columns=False,
-        report_to="none",   # block wandb / network logging hangs on the air-gapped node
+    loader = DataLoader(
+        ShardedSessionDataset(tokenized_parquet, block_size=context_window),
+        batch_size=batch_size, num_workers=0,
     )
-    if not torch.cuda.is_available():
-        print("[seq][info] no CUDA — training on CPU (slow).")
-    Trainer(model=model, args=args, train_dataset=dataset).train()
+    opt = torch.optim.AdamW(model.parameters(), lr=5e-4, weight_decay=0.01)
+    model.train()
+    t0 = time.time()
+    for step, batch in enumerate(loader):
+        if step >= max_steps:
+            break
+        ids = batch["input_ids"].to(device)
+        loss = model(input_ids=ids, labels=batch["labels"].to(device)).loss
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+        if step % 50 == 0:
+            print(f"[seq] step {step} · loss {loss.item():.4f} · {time.time() - t0:.1f}s")
+    print("[seq] native loop done — ran without HF Trainer / accelerate.")
 
 
 if __name__ == "__main__":

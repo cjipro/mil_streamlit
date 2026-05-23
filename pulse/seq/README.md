@@ -22,8 +22,11 @@ Models customer journeys as **token sequences** and trains a small, fully
    + shuffled row-group order, fixed 512-token windows. RAM-bounded (one row
    group at a time).
 3. **HF GPT-2** (`train_behavioral_transformer`) — offline (`HF_HUB_OFFLINE`,
-   `GPT2Config` built locally, `report_to="none"`); `labels=input_ids` (HF
-   shifts internally for next-token prediction).
+   `GPT2Config` built locally); `labels=input_ids` (HF shifts internally for
+   next-token prediction). Trained with a **native PyTorch loop** (AdamW), **not**
+   the HF `Trainer` — `Trainer` hard-requires `accelerate`, which is **not** in
+   the approved libs / not on the node (confirmed 2026-05-23). Auto-detects
+   device; the node is **CPU-only**, so this is the off-node reference.
 
 ## Run order
 ```
@@ -38,10 +41,11 @@ One row per event: `customer_id, session_id, session_start, sequence_order, oper
 `[PAD]=0  [UNK]=1  [BOS]=2  [EOS]=3  [SEP]=4`; operation IDs start at 11.
 
 ## Approved stack (confirmed on edge node 2026-05-23)
-Python 3.11.9 · duckdb 1.5.2 · pyarrow 18.1.0 · torch 2.5.0+cu124 (GPU) ·
-transformers 4.44.1 · numpy 1.26.4. All captured in `APPROVED_LIBRARIES.md`
-(pins for `torch`/`transformers`/`tokenizers` to be finalised from a
-`pip list --format=freeze` on the node).
+Python 3.11.9 · duckdb 1.5.2 · pyarrow 18.1.0 · torch 2.5.0+cu124 ·
+transformers 4.44.1 · numpy 1.26.4. **No `accelerate`** (so no HF `Trainer`).
+The `+cu124` is the CUDA *wheel build*, **not** GPU hardware — the node is
+**CPU-only** (`torch.cuda.is_available()` is `False`). All captured in
+`APPROVED_LIBRARIES.md`.
 
 ## Boundaries
 - No `mil/` imports (Zero Entanglement). No real PII — real-bank ingestion stays

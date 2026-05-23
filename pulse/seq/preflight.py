@@ -96,11 +96,13 @@ def main() -> int:
             return f"device={dev}, loss={out.loss.item():.3f}"
         check("offline GPT-2 build + fwd/bwd (no network)", model_fwd_bwd)
 
-        # 5) HF Trainer 2 steps over a tiny IterableDataset ---------------
-        def trainer_smoke():
+        # 5) native PyTorch loop 2 steps over a tiny IterableDataset ------
+        #    Mirrors pipeline.py: NO HF Trainer / NO accelerate (neither is in
+        #    the approved libs / on the node — confirmed 2026-05-23).
+        def native_loop_smoke():
             import torch
-            from torch.utils.data import IterableDataset
-            from transformers import GPT2Config, GPT2LMHeadModel, Trainer, TrainingArguments
+            from torch.utils.data import DataLoader, IterableDataset
+            from transformers import GPT2Config, GPT2LMHeadModel
 
             class Tiny(IterableDataset):
                 def __iter__(self):
@@ -108,16 +110,20 @@ def main() -> int:
                         t = torch.randint(0, 64, (32,), dtype=torch.long)
                         yield {"input_ids": t, "labels": t.clone()}
 
+            dev = "cuda" if torch.cuda.is_available() else "cpu"
             cfg = GPT2Config(vocab_size=64, n_positions=32, n_layer=2, n_head=2, n_embd=64)
-            args = TrainingArguments(
-                output_dir=os.path.join(scratch, "trainer"), max_steps=2,
-                per_device_train_batch_size=8, dataloader_num_workers=2,
-                report_to="none", logging_steps=1, fp16=torch.cuda.is_available(),
-                remove_unused_columns=False,
-            )
-            Trainer(model=GPT2LMHeadModel(cfg), args=args, train_dataset=Tiny()).train()
-            return "2 steps, report_to=none (no logging hang)"
-        check("HF Trainer 2-step offline smoke", trainer_smoke)
+            model = GPT2LMHeadModel(cfg).to(dev)
+            loader = DataLoader(Tiny(), batch_size=8, num_workers=0)
+            opt = torch.optim.AdamW(model.parameters(), lr=5e-4)
+            model.train()
+            for step, batch in enumerate(loader):
+                if step >= 2:
+                    break
+                loss = model(input_ids=batch["input_ids"].to(dev),
+                             labels=batch["labels"].to(dev)).loss
+                opt.zero_grad(); loss.backward(); opt.step()
+            return f"2 steps on {dev}, no Trainer/accelerate"
+        check("native PyTorch loop 2-step smoke (no accelerate)", native_loop_smoke)
 
         # 6) resources + writable scratch ---------------------------------
         def resources():
