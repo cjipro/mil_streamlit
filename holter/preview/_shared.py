@@ -790,6 +790,99 @@ def sparkline_svg(values: list[float], color: str, width: int = 220, height: int
         f'<circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="2.5" fill="{color}"/>'
         f'</svg>'
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Page-chrome marquee — lives here (not in a renderer) so any surface can mount
+# it without a cross-renderer import (HOL-35). Mounted on the Decisions surface
+# as of HOL-87 (was Workspace/Intelligence).
+# ─────────────────────────────────────────────────────────────────────────────
+
+def render_ticker(packs: list[dict]) -> str:
+    """Scrolling marquee of pack lineage anchors — page chrome (not a box).
+    Doubled track so the loop seam is invisible during animation."""
+    if not packs:
+        return ""
+    items = []
+    for p in packs:
+        h = p["hypothesis"] or {}
+        sig = h.get("signature_id", "—").replace("_", " ")
+        cell = h.get("cell_id", "?")
+        # The ticker labels itself "lineage anchors", so show the REAL lineage
+        # anchor; fixture packs (no analytics) fall back to the meta-sha.
+        sha = lineage_anchor_short(p["meta"]["pack_name"]) or short_hash(p["sha256"])
+        is_neg = h.get("ground_truth_expectation") == "negative"
+        color = "var(--amber)" if is_neg else "var(--text-2)"
+        bar_w = 22 if is_neg else 40
+        items.append(
+            f'<span class="holter-ticker-item">'
+            f'<span class="holter-ticker-cell" style="color:{color};">CELL {cell:>2}</span>'
+            f'<span class="holter-ticker-sig">{sig}</span>'
+            f'<span class="holter-ticker-bar"><span class="holter-ticker-bar-fill" '
+            f'style="width:{bar_w}px;background:{color};"></span></span>'
+            f'<span class="holter-ticker-sha">{sha}</span>'
+            f'</span>'
+            f'<span class="holter-ticker-sep">·</span>'
+        )
+    track = "".join(items)
+    return (
+        f'<div class="holter-ticker">'
+        f'<div class="holter-ticker-track">'
+        f'<div class="holter-ticker-inner">{track}{track}</div>'
+        f'</div></div>'
+    )
+
+
+# Marquee styles — relocated here (HOL-87) so a surface with its own CSS (Home /
+# Decisions) can include them without pulling the whole _shared CSS. Injected as
+# a standalone <style> block via render_home's <head>.
+TICKER_CSS = """
+<style id="holter-ticker-css">
+.holter-ticker {
+  overflow: hidden; background: var(--bg-strip);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+  flex-shrink: 0;   /* HOL-87: Decisions is a flex-column; overflow:hidden sets
+                       min-height:0, so without this the band compresses to ~1px. */
+}
+/* track is a flex container so it sizes to the inner's height in ANY parent
+   context (HOL-87: on Decisions it's a flex-column child, not a grid item — a
+   plain block track collapsed to 1px there). inner keeps flex:0 0 auto so its
+   max-content width survives for the scroll. */
+.holter-ticker-track { display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
+.holter-ticker-inner {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center;
+  padding: 10px 0;
+  animation: holter-ticker-scroll 120s linear infinite;
+}
+.holter-ticker-inner:hover { animation-play-state: paused; }
+@keyframes holter-ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.holter-ticker-item {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0 20px;
+}
+.holter-ticker-cell {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  font-family: var(--mono);
+}
+.holter-ticker-sig {
+  font-size: 11px; color: var(--text-2);
+}
+.holter-ticker-bar {
+  width: 40px; height: 6px; background: var(--card); border-radius: 1px;
+  overflow: hidden;
+}
+.holter-ticker-bar-fill { height: 100%; }
+.holter-ticker-sha {
+  font-family: var(--mono); font-size: 9px; color: var(--text-3);
+}
+.holter-ticker-sep { color: var(--border); padding: 0 4px; font-size: 16px; }
+</style>
+"""
 CSS = """
 :root {
   /* Multi-tone backgrounds for visual layering (was 2-tone in v0) */
@@ -1395,42 +1488,8 @@ details[open] > .body-disclosure-summary::after { content: " ▴"; }
 /* Not boxes — full-width horizontal strips between row sections. Same
    role as topnav/footer: page chrome that lives outside the box grid. */
 
-.holter-ticker {
-  overflow: hidden; background: var(--bg-strip);
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  margin-bottom: 12px;
-}
-.holter-ticker-track { overflow: hidden; white-space: nowrap; }
-.holter-ticker-inner {
-  display: inline-flex; align-items: center;
-  padding: 10px 0;
-  animation: holter-ticker-scroll 120s linear infinite;
-}
-.holter-ticker-inner:hover { animation-play-state: paused; }
-@keyframes holter-ticker-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.holter-ticker-item {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 0 20px;
-}
-.holter-ticker-cell {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
-  font-family: var(--mono);
-}
-.holter-ticker-sig {
-  font-size: 11px; color: var(--text-2);
-}
-.holter-ticker-bar {
-  width: 40px; height: 6px; background: var(--card); border-radius: 1px;
-  overflow: hidden;
-}
-.holter-ticker-bar-fill { height: 100%; }
-.holter-ticker-sha {
-  font-family: var(--mono); font-size: 9px; color: var(--text-3);
-}
-.holter-ticker-sep { color: var(--border); padding: 0 4px; font-size: 16px; }
+/* .holter-ticker* moved to the TICKER_CSS constant (HOL-87) — the marquee
+   relocated from the Workspace grid to the Decisions surface (own CSS). */
 
 .holter-journey-strip {
   margin-bottom: 12px;

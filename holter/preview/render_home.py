@@ -40,6 +40,8 @@ if str(REPO) not in sys.path:
 # broken render_holter doesn't cascade to Pulse Home.
 from holter.preview._shared import (  # noqa: E402
     discover_packs,
+    render_ticker,
+    TICKER_CSS,
     get_pack_cell,
     get_pack_analytics,
     lineage_anchor_short,
@@ -1498,10 +1500,12 @@ def render_page() -> str:
 <meta charset="utf-8">
 <title>Pulse — decisions to make</title>
 <style>{CSS}</style>
+{TICKER_CSS}
 </head>
 <body>
 {render_topnav()}
 <main class="home-main">
+{render_ticker(packs)}
 {render_masthead()}
 {body}
 </main>

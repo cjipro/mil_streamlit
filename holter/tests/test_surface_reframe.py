@@ -67,3 +67,19 @@ def test_no_mlops_vocab_in_rendered_surfaces():
         body = c.get(path).get_data(as_text=True)
         for banned in _BANNED:
             assert banned not in body, f"{banned!r} still rendered on {path}"
+
+
+# ── HOL-87: marquee belongs on Decisions, not Intelligence ──────────────────--
+
+def test_marquee_on_decisions_not_intelligence():
+    c = app.test_client()
+    decisions = c.get("/").get_data(as_text=True)
+    intelligence = c.get("/workspace").get_data(as_text=True)
+    assert 'class="holter-ticker"' in decisions        # marquee markup present
+    assert 'class="holter-ticker"' not in intelligence  # gone from Workspace
+
+
+def test_decisions_ships_ticker_css_and_animation():
+    body = app.test_client().get("/").get_data(as_text=True)
+    assert "holter-ticker-css" in body            # TICKER_CSS style block injected
+    assert "holter-ticker-scroll" in body         # the marquee keyframes animation
