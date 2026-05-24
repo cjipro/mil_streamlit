@@ -83,3 +83,36 @@ def test_decisions_ships_ticker_css_and_animation():
     body = app.test_client().get("/").get_data(as_text=True)
     assert "holter-ticker-css" in body            # TICKER_CSS style block injected
     assert "holter-ticker-scroll" in body         # the marquee keyframes animation
+
+
+# ── HOL-86: Row 2 is global chrome; legacy Workspace filters removed ────────--
+
+def test_row2_on_all_three_surfaces():
+    c = app.test_client()
+    for path in _SURFACE_PATHS:
+        body = c.get(path).get_data(as_text=True)
+        assert 'class="cji-row2"' in body            # the Row 2 bar
+        assert 'id="cji-r2-journey"' in body         # Journey multi-select
+        assert 'class="cji-r2-search"' in body       # searchable
+        assert 'data-sort="friction"' in body        # Sort toggle
+        assert 'data-sort="opportunity"' in body
+
+
+def test_row2_journey_list_from_taxonomy():
+    body = app.test_client().get("/").get_data(as_text=True)
+    # Journey checkboxes keyed by taxonomy id (humanised label shown to the user).
+    assert 'value="loans"' in body
+    assert 'value="international"' in body
+
+
+def test_row2_subjourney_gated():
+    body = app.test_client().get("/").get_data(as_text=True)
+    assert "Sub Journey" in body
+    assert "cji-r2-soon" in body          # rendered disabled with a "soon" badge
+
+
+def test_intelligence_product_owner_filters_removed():
+    body = app.test_client().get("/workspace").get_data(as_text=True)
+    assert 'id="filter-product"' not in body
+    assert 'id="filter-owner"' not in body
+    assert 'class="holter-filter-strip"' not in body   # the dead filter strip is gone
