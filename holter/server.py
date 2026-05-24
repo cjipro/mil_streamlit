@@ -81,6 +81,10 @@ main.holter-main{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!
    way so the box grid below can fill every row) */
 main.holter-main>.holter-ticker{grid-column:1 / -1!important;order:-2!important}
 main.holter-main>.holter-journey-strip{grid-column:1 / -1!important;order:-1!important}
+/* HOL-78 — the altitude band is a full-width element (markdown + tables), not a
+   uniform cell; span it across the grid. No order → it sits in source position
+   (after the verdict trio), below the top bands. */
+main.holter-main>.holter-altitude{grid-column:1 / -1!important}
 /* ALL box rows dissolve → one uniform grid of fixed-size cells. A wider screen
    adds COLUMNS and pulls boxes up from the next row — boxes never widen. */
 main.holter-main>.holter-row{display:contents!important}

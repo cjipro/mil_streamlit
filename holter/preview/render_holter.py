@@ -97,6 +97,7 @@ from holter.preview._shared import (  # noqa: E402
     # Multi-signal provenance (pulse-multisignal-identity)
     signal_provenance,
 )
+from holter.preview._md import render_markdown  # noqa: E402  (HOL-78 altitude band)
 
 
 def cell_screens_with_counts(packs: list[dict]) -> list[dict]:
@@ -1266,6 +1267,122 @@ FILTER_JS = """
 # Page composition
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# HOL-78 — Altitude band (Bank / Journey / Signal single-surface switcher)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_ALTITUDE_CSS = """<style id="cji-altitude-css">
+.holter-altitude{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.alt-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  background:var(--card-2);border-bottom:1px solid var(--border);padding:9px 14px}
+.alt-eyebrow{font:600 11px/1 var(--mono);letter-spacing:.14em;color:var(--teal);margin-right:8px}
+.alt-sub{font:400 12px/1.4 var(--sans);color:var(--text-2)}
+.alt-sub code{font-family:var(--mono);color:var(--text-2);font-size:11px}
+.alt-seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.alt-seg-btn{background:transparent;color:var(--text-2);border:0;border-left:1px solid var(--border);
+  font:600 11px/1 var(--mono);letter-spacing:.08em;padding:7px 14px;cursor:pointer}
+.alt-seg-btn:first-child{border-left:0}
+.alt-seg-btn:hover{color:var(--text);background:var(--card-elev)}
+.alt-seg-btn.is-active{background:var(--teal);color:#00161a}
+.alt-body{padding:14px 16px}
+.alt-norender{font:400 12px var(--mono);color:var(--amber)}
+.alt-pane[hidden]{display:none}
+.alt-pane h2{font:700 15px/1.3 var(--sans);color:var(--text);margin:0 0 6px}
+.alt-pane h3{font:600 11px/1.3 var(--mono);letter-spacing:.07em;color:var(--blue);
+  text-transform:uppercase;margin:15px 0 6px}
+.alt-pane p{font:400 13px/1.55 var(--sans);color:var(--text-2);margin:0 0 9px}
+.alt-pane strong{color:var(--text);font-weight:700}
+.alt-pane code{font-family:var(--mono);font-size:12px;color:var(--blue);
+  background:var(--bg-strip);padding:1px 5px;border-radius:3px}
+.alt-pane ul{margin:0 0 9px;padding-left:18px}
+.alt-pane li{font:400 13px/1.5 var(--sans);color:var(--text-2);margin:2px 0}
+.alt-pane blockquote{margin:0 0 9px;padding:8px 12px;border-left:3px solid var(--amber);
+  background:var(--bg-strip);color:var(--text-2);font:400 12.5px/1.5 var(--sans)}
+.alt-md-pre{margin:0 0 9px;padding:10px 12px;background:var(--bg-strip);border:1px solid var(--border);
+  border-radius:5px;overflow-x:auto}
+.alt-md-pre code{background:none;color:var(--text-2);padding:0;font-size:11.5px;line-height:1.5}
+.alt-md-table{border-collapse:collapse;width:100%;margin:0 0 10px;font:400 12px var(--mono)}
+.alt-md-table th{color:var(--text-3);font-weight:600;letter-spacing:.04em;font-size:10.5px;
+  text-transform:uppercase;border-bottom:1px solid var(--border);padding:5px 9px}
+.alt-md-table td{color:var(--text-2);border-bottom:1px solid var(--border);padding:5px 9px}
+.alt-md-table tr:last-child td{border-bottom:0}
+</style>"""
+
+_ALTITUDE_JS = """<script>
+(function(){
+  document.querySelectorAll('.holter-altitude').forEach(function(band){
+    var btns = band.querySelectorAll('.alt-seg-btn');
+    var panes = band.querySelectorAll('.alt-pane');
+    btns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var alt = btn.getAttribute('data-alt');
+        btns.forEach(function(b){
+          var on = b === btn;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panes.forEach(function(p){
+          if (p.getAttribute('data-alt') === alt) p.removeAttribute('hidden');
+          else p.setAttribute('hidden','');
+        });
+        band.setAttribute('data-altitude', alt);
+      });
+    });
+  });
+})();
+</script>"""
+
+# Bank / Journey / Signal: (key, label, one-line descriptor) in escalating detail.
+_ALTITUDES = (
+    ("bank",    "BANK",    "executive headline · max compression"),
+    ("journey", "JOURNEY", "narrative + evidence · default"),
+    ("signal",  "SIGNAL",  "forensic · per-event detail"),
+)
+_ALTITUDE_DEFAULT = "journey"
+
+
+def render_altitude_band(packs: list[dict], selected_name: str | None = None) -> str:
+    """HOL-78 — the three-altitude single-surface switcher for the SELECTED
+    investigation. Bank/Journey/Signal are the SAME investigation at escalating
+    detail; the engine emits all three as markdown per pack (samples/*.md). One
+    band, client-side toggle, default Journey — realising the HOL-1 lock that the
+    CEO's headline (Bank) is the analyst's full panel (Journey/Signal), compressed.
+    Honors the selected pack (?pack= deep-link from HOL-76 + nav dropdown)."""
+    pack = _workspace_default_pack(packs, selected_name)
+    if not pack:
+        return ""
+    pack_label = _e(pack["meta"]["pack_name"])
+
+    seg = "".join(
+        f'<button class="alt-seg-btn{" is-active" if a == _ALTITUDE_DEFAULT else ""}"'
+        f' data-alt="{a}" type="button" role="tab"'
+        f' aria-selected="{"true" if a == _ALTITUDE_DEFAULT else "false"}"'
+        f' title="{lbl} — {desc}">{lbl}</button>'
+        for a, lbl, desc in _ALTITUDES
+    )
+
+    def pane(a: str) -> str:
+        md = (pack.get(f"{a}_md") or "").strip()
+        inner = render_markdown(md) if md else (
+            f'<div class="alt-norender">NO RENDER · {a} altitude unavailable '
+            f'for this investigation</div>'
+        )
+        hidden = "" if a == _ALTITUDE_DEFAULT else " hidden"
+        return f'<div class="alt-pane" data-alt="{a}"{hidden}>{inner}</div>'
+
+    panes = "".join(pane(a) for a, _, _ in _ALTITUDES)
+    return f"""<section class="holter-altitude" data-altitude="{_ALTITUDE_DEFAULT}">
+  <div class="alt-head">
+    <div class="alt-head-l">
+      <span class="alt-eyebrow">ALTITUDE</span>
+      <span class="alt-sub">same investigation · three renderings · <code>{pack_label}</code></span>
+    </div>
+    <div class="alt-seg" role="tablist" aria-label="Altitude">{seg}</div>
+  </div>
+  <div class="alt-body">{panes}</div>
+</section>"""
+
+
 def render_page(selected_pack_name: str | None = None) -> str:
     packs = discover_packs()
     rows_html = ""
@@ -1278,6 +1395,11 @@ def render_page(selected_pack_name: str | None = None) -> str:
     rows_html += render_box2(packs)
     rows_html += render_box3(packs, selected_pack_name)
     rows_html += '</div>'
+
+    # HOL-78 — altitude band: the selected investigation at Bank/Journey/Signal.
+    # Full-width (spanned in the grid via server _LAYOUT_CSS), sits below the
+    # verdict trio as the drill-into-this-investigation surface.
+    rows_html += render_altitude_band(packs, selected_pack_name)
 
     # Page-chrome strips between topbar row and engine-summary row.
     # Documented exceptions to the box discipline — full-width horizontal
@@ -1321,6 +1443,7 @@ def render_page(selected_pack_name: str | None = None) -> str:
 <title>Holter — functional template</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>{CSS}</style>
+{_ALTITUDE_CSS}
 </head>
 <body>
 <div class="holter-app">
@@ -1329,6 +1452,7 @@ def render_page(selected_pack_name: str | None = None) -> str:
   <main class="holter-main">{rows_html}</main>
 </div>
 {FILTER_JS}
+{_ALTITUDE_JS}
 </body>
 </html>'''
 
