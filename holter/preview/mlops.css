@@ -14,14 +14,18 @@
   letter-spacing: 1.2px; text-transform: uppercase;
 }
 
-/* 4 panes — same locked box discipline as Workspace, 2-col grid on wide,
-   1-col on narrow. */
+/* 4 panes — laptop-first uniform-cell discipline (HOL-79, finishing the HOL-73
+   responsive pass). auto-fill (not auto-fit) keeps the panes at ~560-620px and
+   ADDS columns as width grows — 2 at laptop, 3 around 1900px, 4 around 2500px —
+   instead of widening 2 panes unboundedly to fill the row ("boxes never widen").
+   Subsumes the old fixed-2-col grid + 1100px collapse: below ~1150px it drops to
+   a single column on its own. */
 .mlops-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
   gap: 14px;
+  align-content: start;
 }
-@media (max-width: 1100px) { .mlops-grid { grid-template-columns: 1fr; } }
 
 /* Governance table */
 .govern-table { width: 100%; border-collapse: collapse;
