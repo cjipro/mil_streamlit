@@ -275,41 +275,35 @@ def lineage_status(pack_name: str, sha: str) -> dict:
     }
 
 
-def synthesis_governance(pack_name: str) -> dict:
-    """Stub synthesis-mode + attestation per pack."""
-    h = sum(ord(c) for c in pack_name)
-    is_llm = (h % 23) > 20  # ~13% of packs as LLM_AUGMENTED (gated)
-    if is_llm:
-        mode = "LLM_AUGMENTED"
-        attestation = "self_declared"
-        att_color = "var(--amber)"
-    else:
-        mode = "DETERMINISTIC"
-        # ~20% of deterministic also land in attestation_pending — e.g.
-        # newly-onboarded packs awaiting independent assessment. These
-        # are the second class of rows MRM needs to act on.
-        bucket = h % 3
-        if bucket == 0:
-            attestation = "attestation_pending"
-            att_color = "var(--amber)"
-        elif bucket == 1:
-            attestation = "certified"
-            att_color = "var(--green)"
-        else:
-            attestation = "independently_assessed"
-            att_color = "var(--teal)"
+def synthesis_governance(pack: dict) -> dict:
+    """REAL synthesis-mode (from pack metadata) + honest v1 attestation state.
+
+    PULSE-93 wiring. `synthesis_mode` is read from the pack's own metadata.yaml —
+    NOT fabricated. The v1 runtime is deterministic-locked (only
+    TemplateSynthesisProvider ships; see pulse/synthesis/SYNTHESIS_DESIGN.md), so
+    every v1 pack reads DETERMINISTIC and the LLM_AUGMENTED gate count is 0.
+
+    Attestation reflects the honest pre-production state: nothing has been through
+    an independent model-risk review, so deterministic packs are
+    `attestation_pending` (awaiting MRM sign-off) and reviewer/date read as
+    not-yet-assessed. A procurement gate must NOT assert governance that hasn't
+    happened — so the previously-fabricated `certified` / `independently_assessed`
+    rows and the invented MRM reviewer names ("J. Patel" / "S. Khan") are gone."""
+    mode_raw = str(pack.get("meta", {}).get("synthesis_mode", "deterministic")).lower()
+    is_llm = mode_raw == "llm_augmented"
+    # self_declared for LLM (author-declared, unassessed); attestation_pending for
+    # deterministic (awaiting independent MRM sign-off). Both are honest
+    # "needs governance action" states — never a fabricated 'certified'.
+    attestation = "self_declared" if is_llm else "attestation_pending"
     return {
-        "synthesis_mode":  mode,
+        "synthesis_mode":  "LLM_AUGMENTED" if is_llm else "DETERMINISTIC",
         "mode_color":      "var(--red)" if is_llm else "var(--green)",
         "attestation":     attestation,
-        "att_color":       att_color,
-        "reviewer":        "MRM-A · J. Patel" if (h % 3) else "MRM-B · S. Khan",
-        "reviewed_date":   "2026-04-22" if (h % 5) else "2026-05-08",
-        # HOL-42: PENDING rows get inline Attest/Challenge/Defer
-        # affordances. Two flavours of "pending": (a) LLM_AUGMENTED
-        # self_declared, (b) DETERMINISTIC attestation_pending. Rock's
-        # R2 hard-gate fix: governance state needs governance affordance.
-        "is_actionable":   attestation in ("self_declared", "attestation_pending"),
+        "att_color":       "var(--amber)",
+        "reviewer":        "—",            # no independent review has occurred (POC)
+        "reviewed_date":   "—",
+        # Every v1 pack is awaiting independent assessment → all actionable.
+        "is_actionable":   True,
     }
 
 
@@ -910,7 +904,7 @@ def render_synthesis_pane(packs: list[dict]) -> str:
     """Pane 4 — SYNTHESIS-MODE GOVERNANCE. Per-pack table of synthesis-mode +
     attestation status. Critical before any LLM_AUGMENTED prod enable.
     HOL-50: row + action-cluster construction extracted to helpers."""
-    rows = [(p, synthesis_governance(p["meta"]["pack_name"])) for p in packs]
+    rows = [(p, synthesis_governance(p)) for p in packs]
     n_llm = sum(1 for _, g in rows if g["synthesis_mode"] == "LLM_AUGMENTED")
     n_det = len(packs) - n_llm
     n_certified = sum(1 for _, g in rows if g["attestation"] == "certified")
@@ -967,7 +961,8 @@ def render_synthesis_pane(packs: list[dict]) -> str:
         body=synth_filter + table_html + gate_note,
         footer=box_footer(
             "synthesis v0.1", NOW, live=True,
-            note=f"All packs declare synthesis_mode · attestation pinned per review",
+            note="synthesis_mode read from pack metadata · v1 deterministic-locked · "
+                 "no independent MRM assessment yet",
         ),
     )
 
