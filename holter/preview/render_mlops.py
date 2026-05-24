@@ -1,14 +1,14 @@
-"""MLOps Console (HOL-6) — procurement-gate surface for ML eng + MRM.
+"""Verification surface (HOL-6 build; HOL-83 reframe) — verify every journey finding.
 
 Per HOL-6 spec (CLAUDE.md surface 4): mandatory before any live bank
 deployment; built BEFORE any LLM_AUGMENTED synthesis is enabled in prod.
 
 Four panes:
-  1. DRIFT MONITORS — per FrictionBench cell × signature; time-series of
+  1. FINDING RELIABILITY — per FrictionBench cell × signature; time-series of
      detection rate / false-positive rate / accuracy gap
-  2. FAIRNESS RE-CHECK — demographic_parity / equalised_odds /
+  2. JOURNEY FAIRNESS — demographic_parity / equalised_odds /
      calibration_by_cohort over time, per template, per cohort dim
-  3. LINEAGE VERIFIER — hash-chain health, broken-chain alerts,
+  3. FINDING LINEAGE — hash-chain health, broken-chain alerts,
      last-verified timestamp per pack
   4. SYNTHESIS-MODE GOVERNANCE — table of every pack with synthesis_mode
      (DETERMINISTIC / LLM_AUGMENTED), attestation status, reviewer + date
@@ -304,13 +304,13 @@ DRIFT_RULES: dict[str, str] = {
     "DRIFT_NOMINAL":  "Drift NOMINAL = |delta| < 2pp (no material change)",
     "DRIFT_WATCH":    "Drift WATCH = 2-5pp delta (observe; no action required)",
     "DRIFT_ESCALATE": "Drift ESCALATE = 5-10pp delta (review baseline; flag for next cycle)",
-    "DRIFT_ACUTE":    "Drift ACUTE = |delta| >= 10pp (recalibrate threshold; hold deployment)",
+    "DRIFT_ACUTE":    "Drift ACUTE = |delta| >= 10pp (recalibrate threshold; hold the finding)",
 }
 
 LINEAGE_RULES: dict[str, str] = {
     "LINEAGE_NOMINAL":  "Lineage NOMINAL = 0 broken chains (all hashes verified)",
     "LINEAGE_ESCALATE": "Lineage ESCALATE = 1 broken chain (re-seal; review anchor source)",
-    "LINEAGE_ACUTE":    "Lineage ACUTE = 2+ broken chains (halt promotions; trace propagation)",
+    "LINEAGE_ACUTE":    "Lineage ACUTE = 2+ broken chains (halt reliance; trace propagation)",
 }
 
 SYNTHESIS_RULES: dict[str, str] = {
@@ -465,7 +465,7 @@ def _build_drift_row(p: dict, series_pp: list[int]) -> tuple[str, int]:
 
 
 def render_drift_pane(packs: list[dict]) -> str:
-    """Pane 1 — DRIFT MONITORS. REAL per-cell detection-rate history
+    """Pane 1 — FINDING RELIABILITY. REAL per-cell detection-rate history
     (run_history.read_cell_metrics_history) — one recall series per cell, not the
     fabricated cohort overlay (run-history is per-cell, PULSE-133). Honest
     NO-HISTORY state when nothing has been recorded."""
@@ -473,7 +473,7 @@ def render_drift_pane(packs: list[dict]) -> str:
 
     if not by_cell:
         return render_box(
-            header=box_header("DRIFT MONITORS", "detection-rate history"),
+            header=box_header("FINDING RELIABILITY", "detection-rate history"),
             accent_color="var(--text-3)",
             headline=headline_stat_card(
                 label="WORST-CELL DELTA · 7-DAY", value="N/A",
@@ -518,7 +518,7 @@ def render_drift_pane(packs: list[dict]) -> str:
                  ("ESCALATE", "≥ESCALATE"), ("WATCH", "≥WATCH")],
     )
     return render_box(
-        header=box_header("DRIFT MONITORS", f"detection-rate · {n_runs} runs"),
+        header=box_header("FINDING RELIABILITY", f"detection-rate · {n_runs} runs"),
         accent_color="var(--blue)",
         headline=headline_stat_card(
             label="WORST-CELL DELTA · 7-DAY",
@@ -554,7 +554,7 @@ def _fairness_history_by_cell() -> dict[int, list[dict]]:
 
 
 def render_fairness_pane(packs: list[dict]) -> str:
-    """Pane 2 — FAIRNESS RE-CHECK. REAL per-run demographic-parity history
+    """Pane 2 — JOURNEY FAIRNESS. REAL per-run demographic-parity history
     (PULSE-134 run_history.read_fairness_history): worst-cell ratio vs the 4/5ths
     floor + disparate-impact count + an over-time trend sparkline. equalised_odds +
     calibration declared-not-run. Honest NO-HISTORY state when nothing recorded."""
@@ -568,7 +568,7 @@ def render_fairness_pane(packs: list[dict]) -> str:
 
     if not latest:
         return render_box(
-            header=box_header("FAIRNESS RE-CHECK", "demographic-parity over time"),
+            header=box_header("JOURNEY FAIRNESS", "demographic-parity over time"),
             accent_color="var(--text-3)",
             headline=headline_stat_card(
                 label="WORST DEMOGRAPHIC-PARITY", value="N/A",
@@ -614,7 +614,7 @@ def render_fairness_pane(packs: list[dict]) -> str:
          f"<strong>For whom:</strong> the over_50 protected cohort. "
          f"<strong>Evidence:</strong> convergence.assess_fairness — chi² p={p_str} ({sig}). "
          f"<strong>Response:</strong> "
-         f"{'hold deployment; MRM fairness re-review' if worst_ratio < FLOOR else 'no action — within tolerance'}."),
+         f"{'hold the finding; compliance fairness re-review' if worst_ratio < FLOOR else 'no action — within tolerance'}."),
     )
     delta_str = (
         f'<span style="color:{dp_color};" class="threshold-token" '
@@ -623,7 +623,7 @@ def render_fairness_pane(packs: list[dict]) -> str:
         f'({worst_ratio:.2f} vs {FLOOR:.2f})</span>'
     )
     return render_box(
-        header=box_header("FAIRNESS RE-CHECK", f"demographic-parity · {n_runs} runs"),
+        header=box_header("JOURNEY FAIRNESS", f"demographic-parity · {n_runs} runs"),
         accent_color="var(--amber)" if n_flagged else "var(--green)",
         headline=headline_stat_card(
             label="WORST DEMOGRAPHIC-PARITY",
@@ -669,7 +669,7 @@ def _lineage_report() -> dict:
 
 
 def render_lineage_pane(packs: list[dict]) -> str:
-    """Pane 3 — LINEAGE VERIFIER. The REAL global decision-run hash-chain
+    """Pane 3 — FINDING LINEAGE. The REAL global decision-run hash-chain
     (pulse.decision.lineage.verify_decision_lineage), not a fabricated per-pack
     table. Honest states: VERIFIED (clean run) / BROKEN (violations) / NO RUN
     (no chain sealed yet) / UNAVAILABLE (verify error)."""
@@ -701,7 +701,7 @@ def render_lineage_pane(packs: list[dict]) -> str:
             f"clean across {total_rows} hash-linked rows. <strong>For whom:</strong> any "
             f"reviewer or regulator can re-derive every Action tier from the inputs it "
             f"claims. <strong>Evidence:</strong> pulse.lineage.verify_chain — 0 "
-            f"violations, head {head_short}. <strong>Response:</strong> none; promotion-safe."
+            f"violations, head {head_short}. <strong>Response:</strong> none; verification-clean."
         )
     else:
         status, color, sev, pct = "BROKEN", "var(--red)", "ACUTE", 50
@@ -712,7 +712,7 @@ def render_lineage_pane(packs: list[dict]) -> str:
             f"{n_viol} integrity violation{'s' if n_viol != 1 else ''}. <strong>For whom:"
             f"</strong> any reviewer or regulator querying these decisions gets a chain-"
             f"integrity failure. <strong>Evidence:</strong> pulse.lineage.verify_chain "
-            f"violations. <strong>Response:</strong> trace + reseal anchors before promotion."
+            f"violations. <strong>Response:</strong> trace + reseal anchors before relying on these findings."
         )
 
     violation_detail = ""
@@ -724,7 +724,7 @@ def render_lineage_pane(packs: list[dict]) -> str:
         ])
 
     return render_box(
-        header=box_header("LINEAGE VERIFIER", "global decision-run chain"),
+        header=box_header("FINDING LINEAGE", "global decision-run chain"),
         accent_color=color,
         headline=headline_stat_card(
             label="DECISION-CHAIN INTEGRITY",
@@ -760,39 +760,23 @@ def _render_synthesis_action_cluster(cell: str) -> str:
 
 
 def _build_synthesis_row(p: dict, g: dict) -> str:
-    """HOL-50: extracted from render_synthesis_pane. One SYNTHESIS table
-    <tr> with cell link, value tier + mode + attestation badges
-    (threshold-tooltip'd), reviewer + date columns, and the actionable
-    PENDING action cluster (or "—" placeholder for resolved rows).
-    HOL-57: Value tier column added so the reviewer can prioritise
-    high-value packs in the pending queue."""
+    """One SYNTHESIS PROVENANCE row: cell link, value tier + friction volume,
+    and the synthesis mode (DETERMINISTIC / LLM_AUGMENTED). HOL-83 dropped the
+    MRM attestation / reviewer columns + the Attest/Challenge/Defer cluster —
+    this surface verifies findings; the deploying team owns model governance."""
     h = p["hypothesis"] or {}
     cell = _e(str(h.get("cell_id", "?")))
-    # HOL-42: PENDING rows get inline action cluster; resolved rows show "—"
-    if g["is_actionable"]:
-        actions_cell = _render_synthesis_action_cluster(cell)
-    else:
-        actions_cell = '<td><span class="govern-actions-none">—</span></td>'
-    # HOL-39 + HOL-45 row attrs: drill-through + filter + sort + tooltips
-    row_sev = attestation_severity(g["attestation"])
-    att_tip = ATTESTATION_RULES.get(g["attestation"], "")
     mode_tip = SYNTHESIS_RULES.get(g["synthesis_mode"], "")  # may be empty
-    # HOL-57: pull commercial signal off the engine PlacementCell
     signal = _commercial_signal_for_pack(p)
     value_color = _VALUE_COLORS.get(signal["value_tier"], "#5A6E7A")
-    # HOL-57 + no-pound-pandora: friction-volume is the primary unit on the
-    # row; £ scaffold (if any) goes in a tooltip, never as the cell text.
     volume_text = signal["volume_label"] or '<span class="govern-lift-pending">—</span>'
     scaffold_tip = signal.get("scaffold") or ""
     return (
         f'<tr class="cell-row pane-filterable" data-cell-id="{cell}" '
-        f'data-row-state="pending" data-severity="{row_sev}" '
         f'data-filter-scope="synthesis" '
         f'data-sort-cell="{cell}" '
         f'data-sort-value="{_e(signal["value_tier"])}" '
-        f'data-sort-mode="{_e(g["synthesis_mode"])}" '
-        f'data-sort-attestation="{_e(g["attestation"])}" '
-        f'data-sort-reviewed="{_e(g["reviewed_date"])}">'
+        f'data-sort-mode="{_e(g["synthesis_mode"])}">'
         f'<td><a class="cell-link" href="#cell-{cell}" data-cell-id="{cell}">cell {cell}</a></td>'
         f'<td><span class="govern-badge govern-badge--value" '
         f'style="color:{value_color};">{_e(signal["value_tier"])}</span> '
@@ -800,26 +784,19 @@ def _build_synthesis_row(p: dict, g: dict) -> str:
         f'<td><span class="govern-badge threshold-token" '
         f'style="color:{g["mode_color"]};" title="{_e(mode_tip)}">'
         f'{g["synthesis_mode"]}</span></td>'
-        f'<td><span class="govern-badge threshold-token" '
-        f'style="color:{g["att_color"]};" title="{_e(att_tip)}">'
-        f'{g["attestation"]}</span></td>'
-        f'<td>{_e(g["reviewer"])}</td>'
-        f'<td>{_e(g["reviewed_date"])}</td>'
-        f'{actions_cell}'
         f'</tr>'
     )
 
 
 def render_synthesis_pane(packs: list[dict]) -> str:
-    """Pane 4 — SYNTHESIS-MODE GOVERNANCE. Per-pack table of synthesis-mode +
-    attestation status. Critical before any LLM_AUGMENTED prod enable.
-    HOL-50: row + action-cluster construction extracted to helpers."""
+    """Pane 4 — SYNTHESIS PROVENANCE. Per-finding synthesis mode (DETERMINISTIC
+    vs LLM_AUGMENTED) — the real, on-brand trust signal. HOL-83 removed the MRM
+    attestation governance (certified / reviewer / Attest-Challenge-Defer): this
+    surface verifies findings; the deploying team owns model governance."""
     rows = [(p, synthesis_governance(p)) for p in packs]
     n_llm = sum(1 for _, g in rows if g["synthesis_mode"] == "LLM_AUGMENTED")
     n_det = len(packs) - n_llm
-    n_certified = sum(1 for _, g in rows if g["attestation"] == "certified")
 
-    n_actionable = sum(1 for _, g in rows[:6] if g["is_actionable"])
     table_rows = [_build_synthesis_row(p, g) for p, g in rows[:6]]
     # HOL-45 — sortable column headers; data-sort-key matches the
     # data-sort-* attrs on rows, JS handler reorders tbody children.
@@ -828,51 +805,32 @@ def render_synthesis_pane(packs: list[dict]) -> str:
         '<thead><tr>'
         '<th class="sortable" data-sort-key="cell">cell</th>'
         '<th class="sortable" data-sort-key="value">value · sessions/wk</th>'
-        '<th class="sortable" data-sort-key="mode">mode</th>'
-        '<th class="sortable" data-sort-key="attestation">attestation</th>'
-        '<th>reviewer</th>'
-        '<th class="sortable" data-sort-key="reviewed">reviewed</th>'
-        '<th>actions</th>'
+        '<th class="sortable" data-sort-key="mode">synthesis mode</th>'
         '</tr></thead>'
         f'<tbody>{"".join(table_rows)}</tbody>'
         '</table>'
-        # HOL-42: session log tray — JS updates count + last action
-        f'<div class="govern-session-log" id="govern-session-log" '
-        f'data-pending="{n_actionable}">'
-        f'session log · 0 decisions recorded · '
-        f'<span class="govern-session-log-count">{n_actionable}</span> pending'
-        f'</div>'
     )
 
     # HOL-40 — severity driven by LLM_AUGMENTED count
     gate_note = render_severity_narrative(
         classify_synthesis_severity(n_llm),
-        (f'<strong>v1 immutability gate:</strong> {n_llm} LLM_AUGMENTED pack'
-         f'{"s" if n_llm != 1 else ""} flagged. Per pulse/synthesis/SYNTHESIS_DESIGN.md '
-         f'the v1 gate refuses synthesis_mode: llm_augmented in decision packs. '
-         f'<strong>Response:</strong> '
-         f'hold packs out of prod; route through governance review before enabling.')
-    )
-
-    # HOL-45 — pane filter strip for SYNTHESIS
-    synth_filter = render_filter_strip(
-        scope="synthesis",
-        options=[("all", "ALL"), ("PENDING", "PENDING only")],
+        (f'<strong>v1 synthesis gate:</strong> {n_llm} LLM_AUGMENTED finding'
+         f'{"s" if n_llm != 1 else ""}. Per pulse/synthesis/SYNTHESIS_DESIGN.md the '
+         f'v1 runtime refuses synthesis_mode: llm_augmented — every shipped finding is '
+         f'template-deterministic, so its synthesis is reproducible and auditable.')
     )
 
     return render_box(
-        header=box_header("SYNTHESIS GOVERNANCE", "per-pack attestation"),
+        header=box_header("SYNTHESIS PROVENANCE", "per-finding synthesis mode"),
         accent_color="var(--green)" if n_llm == 0 else "var(--amber)",
         headline=headline_chip_strip([
-            (str(n_det),       "DETERMINISTIC", "var(--green)"),
-            (str(n_llm),       "LLM_AUGMENTED", "var(--red)"),
-            (str(n_certified), "CERTIFIED",     "var(--teal)"),
+            (str(n_det), "DETERMINISTIC", "var(--green)"),
+            (str(n_llm), "LLM_AUGMENTED", "var(--red)"),
         ]),
-        body=synth_filter + table_html + gate_note,
+        body=table_html + gate_note,
         footer=box_footer(
             "synthesis v0.1", NOW, live=True,
-            note="synthesis_mode read from pack metadata · v1 deterministic-locked · "
-                 "no independent MRM assessment yet",
+            note="synthesis_mode read from pack metadata · v1 deterministic-locked",
         ),
     )
 
@@ -962,7 +920,7 @@ def render_unblocks_strip(packs: list[dict]) -> str:
             '<div class="mlops-unblocks-strip mlops-unblocks-strip--empty">'
             '<span class="mlops-unblocks-label">UNBLOCKS</span>'
             '<span class="mlops-unblocks-empty">'
-            'no commercial-tier packs currently gated by this workflow'
+            'no commercial-tier findings currently held pending verification'
             '</span>'
             '</div>'
         )
@@ -1003,31 +961,30 @@ def render_unblocks_strip(packs: list[dict]) -> str:
 
     headline = (
         f' · <span class="mlops-unblocks-total">~{total_sessions:,} sessions/wk '
-        f'held by this workflow</span>'
+        f'held pending verification</span>'
         if total_sessions else ''
     )
 
     return (
         f'<div class="mlops-unblocks-strip">'
         f'<span class="mlops-unblocks-label">UNBLOCKS</span>'
-        f'<span class="mlops-unblocks-context">{len(signals)} commercial-tier pack'
-        f'{"s" if len(signals) != 1 else ""} gated{headline}</span>'
+        f'<span class="mlops-unblocks-context">{len(signals)} commercial-tier finding'
+        f'{"s" if len(signals) != 1 else ""} held pending verification{headline}</span>'
         f'<ul class="mlops-unblocks-list">{"".join(items_html)}{more_html}</ul>'
         f'</div>'
     )
 
 
 def render_decision_frame(packs: list[dict]) -> str:
-    """HOL-44 — Top-of-page decision frame. Replaces the bare procurement-gate
-    masthead with a Young/Burt/Rock-aligned "why you are here today" framing.
+    """HOL-44 + HOL-83 — Top-of-page Verification frame. A "what to verify today"
+    framing for the journey-finding re-check; NOT a model-deployment gate.
 
-    Composition (matches ticket acceptance):
-      - Trigger sentence — computed from worst-cell drift + flagged count
-      - Unblocks strip (HOL-57) — commercial signal-back; shows what packs
-        are gated by this workflow and total sessions/week held (friction
-        volume, NOT £ — see no-pound-pandora)
-      - Decision frame — 3-button cluster [Approve 14d / Committee / Retrain]
-      - Session badge — reviewer + session start + decisions logged
+    Composition:
+      - Trigger sentence — computed from worst-cell detection delta + flagged count
+      - Unblocks strip (HOL-57) — commercial signal-back; findings held pending
+        verification + total sessions/week (friction volume, NOT £)
+      - Boundary line — model-deployment risk sits with the deploying DS team
+      - Session badge — reviewer + session start
     """
     # Compute trigger from REAL per-cell drift history (worst-cell pack)
     worst_delta = 0
@@ -1064,9 +1021,8 @@ def render_decision_frame(packs: list[dict]) -> str:
 
     trigger = (
         f'<span class="mlops-decision-trigger-tag" style="color:{sev_color};">{sev}</span>'
-        f'Model <span class="mlops-decision-trigger-pack">{_e(pack_name)}</span> '
-        f'manual re-check flagged <strong>{sev}</strong> — '
-        f'drift {worst_delta:+d}pp on cell {_e(str(cell_id))} · '
+        f'Finding on <span class="mlops-decision-trigger-pack">{_e(pack_name)}</span> '
+        f'flagged for re-check — detection {worst_delta:+d}pp on cell {_e(str(cell_id))} · '
         f'{cohorts_below} cell{"s" if cohorts_below != 1 else ""} flagged for '
         f'demographic-parity disparate impact.'
     )
@@ -1078,46 +1034,25 @@ def render_decision_frame(packs: list[dict]) -> str:
     # so the reviewer sees the cost-of-hold before pressing a workflow button.
     unblocks_html = render_unblocks_strip(packs)
 
-    # HOL-57 + no-pound-pandora — APPROVE FOR PROD 14D carries the worst-pack's
-    # friction-volume signal (sessions/wk), NOT £. Christensen's hard-gate:
-    # the regulated-approval audit confirmation must record customer-exposure
-    # units, never a raw £ figure (which would make money the unit-of-record
-    # for a customer-protection decision).
-    worst_pack_signal = (
-        _commercial_signal_for_pack(worst_pack)
-        if worst_pack
-        else {"value_tier": "—", "volume_label": None, "journey_id": "—"}
-    )
-    # Strip the trailing "recoverable" word for the compact button attr.
-    _vol = worst_pack_signal.get("volume_label") or ""
-    approve_volume_attr = _e(_vol.replace(" recoverable", ""), quote=True)
-    approve_journey_attr = _e(worst_pack_signal["journey_id"], quote=True)
-    approve_tier_attr = _e(worst_pack_signal["value_tier"], quote=True)
-
+    # HOL-83 — the surface verifies journey FINDINGS; it never implies we own
+    # the deploying team's model-deployment decision. The former "Approve for
+    # prod / Route to committee / Request retraining" cluster claimed exactly
+    # that ownership and is removed. The verify-method/threshold controls are
+    # PULSE-135 (the Verification framework), not this naming reframe.
     return f'''
 <div class="mlops-decision-frame {frame_mod}">
   <div class="mlops-decision-trigger">{trigger}</div>
   {unblocks_html}
-  <div class="mlops-decision-actions">
-    <button class="mlops-decision-btn mlops-decision-btn--approve"
-            data-decision="approve_14d"
-            data-pack-journey="{approve_journey_attr}"
-            data-pack-tier="{approve_tier_attr}"
-            data-pack-volume="{approve_volume_attr}"
-            type="button">Approve for prod · 14d</button>
-    <button class="mlops-decision-btn mlops-decision-btn--committee"
-            data-decision="route_committee" type="button">Route to committee</button>
-    <button class="mlops-decision-btn mlops-decision-btn--retrain"
-            data-decision="request_retrain" type="button">Request retraining</button>
+  <div class="mlops-verify-boundary" style="margin:12px 0 0;padding:9px 13px;border-left:3px solid var(--text-3);background:var(--bg-strip);color:var(--text-2);font-size:11px;line-height:1.55;">
+    <strong style="color:var(--text);">Model-deployment risk sits with the deploying data-science team's own evaluation.</strong>
+    This surface verifies journey findings — it does not approve, retrain, or deploy models.
   </div>
   <div class="mlops-decision-session">
     <span>reviewer · <span class="mlops-decision-session-reviewer">HA · Hussain Ahmed</span></span>
     <span>session · {today} · started {session_start}</span>
-    <span>decisions · <span class="mlops-decision-session-count" id="mlops-decision-count">0</span></span>
-    <span class="mlops-decision-session-confirm" id="mlops-decision-confirm"></span>
   </div>
 </div>
-<div class="mlops-dateline">MLOps Console · {today} · {session_start}</div>'''
+<div class="mlops-dateline">Verification · {today} · {session_start}</div>'''
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1142,7 +1077,7 @@ def render_page() -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>MLOps Console — procurement gate</title>
+<title>Verification — verify every finding</title>
 <style>{WORKSPACE_CSS}{CSS_EXTRA}</style>
 </head>
 <body>
@@ -1183,95 +1118,8 @@ def render_page() -> str:
   }});
 }})();
 
-// HOL-42 + HOL-44 — In-session event log. HOL-51 (Hickey): both
-// cell-scope (Attest/Challenge/Defer) and model-scope (Approve/Committee/
-// Retrain) writers share a single envelope so the eventual engine
-// consumer doesn't have to demux on scope.
-//
-//   {{ scope: 'cell' | 'model',
-//     target: cell_id | model_name,
-//     action: string,
-//     reason: string | null,
-//     reviewer: string,
-//     timestamp: ISO-8601 }}
-window.holterEventLog = window.holterEventLog || [];
-window.holterRecordEvent = function (scope, target, action, reason) {{
-  const event = {{
-    scope: scope,
-    target: target,
-    action: action,
-    reason: reason || null,
-    reviewer: 'HA',
-    timestamp: new Date().toISOString(),
-  }};
-  window.holterEventLog.push(event);
-  console.log('[holter-event]', event);
-  return event;
-}};
-
-(function () {{
-  function recordAction(cellId, action, reason) {{
-    return window.holterRecordEvent('cell', cellId, action, reason);
-  }}
-
-  function resolveRow(cellId, action) {{
-    const row = document.querySelector(
-      '.govern-table tr.cell-row[data-cell-id="' + cellId + '"]'
-    );
-    if (!row) return;
-    row.setAttribute('data-row-state', action);
-    row.classList.add('govern-row--resolved');
-    const actionsCell = row.querySelector('td:last-child');
-    if (actionsCell) {{
-      actionsCell.innerHTML = '<span class="govern-resolved-badge ' +
-        'govern-resolved-badge--' + action + 'ed">' +
-        action.toUpperCase() + 'ED</span>';
-    }}
-  }}
-
-  function updateSessionLog() {{
-    const log = document.getElementById('govern-session-log');
-    if (!log) return;
-    // HOL-51: count only cell-scope events for the cell-scope tray;
-    // model-scope events are tracked separately by the decision frame.
-    const cellEvents = window.holterEventLog.filter(e => e.scope === 'cell');
-    const n = cellEvents.length;
-    const initialPending = parseInt(log.getAttribute('data-pending'), 10);
-    const stillPending = Math.max(0, initialPending - n);
-    const last = n ? cellEvents[n - 1] : null;
-    if (n === 0) {{
-      log.innerHTML = 'session log · 0 decisions recorded · ' +
-        '<span class="govern-session-log-count">' + initialPending +
-        '</span> pending';
-    }} else {{
-      log.classList.add('govern-session-log--active');
-      log.innerHTML = 'session log · ' +
-        '<span class="govern-session-log-count">' + n + '</span> recorded · ' +
-        stillPending + ' pending · last: cell ' + last.target + ' ' +
-        last.action.toUpperCase() +
-        (last.reason ? ' (' + last.reason.slice(0, 30) + ')' : '');
-    }}
-  }}
-
-  document.querySelectorAll('.govern-action-btn').forEach(btn => {{
-    btn.addEventListener('click', function (ev) {{
-      ev.preventDefault();
-      ev.stopPropagation();
-      const cellId = this.getAttribute('data-cell-id');
-      const action = this.getAttribute('data-action');
-      let reason = null;
-      if (action === 'challenge') {{
-        reason = window.prompt(
-          'Challenge cell ' + cellId + ' — reason (cohort scope + concern):'
-        );
-        if (reason === null) return;  // user cancelled
-      }}
-      recordAction(cellId, action, reason);
-      resolveRow(cellId, action);
-      updateSessionLog();
-    }});
-  }});
-}})();
+// HOL-83 — the cell-scope governance cluster + session-log tray + their shared
+// event-log writer were removed with the synthesis-provenance reframe.
 
 // HOL-43 — Window scrubber [7d][14d][30d] + lineage hash click-to-expand
 // chain ancestry. Three affordances, one gesture (reach into the data).
@@ -1309,63 +1157,8 @@ window.holterRecordEvent = function (scope, target, action, reason) {{
   }});
 }})();
 
-// HOL-44 — Top-of-page decision frame. Three model-scope decisions:
-// Approve 14d / Route to committee / Request retraining.
-// HOL-51: routes through the unified window.holterRecordEvent writer
-// with scope='model' + target=<model_name>; same envelope as cell-scope.
-(function () {{
-  const countEl = document.getElementById('mlops-decision-count');
-  const confirmEl = document.getElementById('mlops-decision-confirm');
-  const frameEl = document.querySelector('.mlops-decision-frame');
-  const modelName = frameEl
-    ? (frameEl.querySelector('.mlops-decision-trigger-pack')
-        ?.textContent.trim() || 'unknown_model')
-    : 'unknown_model';
-  let modelDecisions = 0;
-
-  function flashConfirm(text) {{
-    if (!confirmEl) return;
-    confirmEl.textContent = '✓ ' + text;
-    confirmEl.classList.add('mlops-decision-session-confirm--shown');
-    setTimeout(() => {{
-      confirmEl.classList.remove('mlops-decision-session-confirm--shown');
-    }}, 2400);
-  }}
-
-  document.querySelectorAll('.mlops-decision-btn').forEach(btn => {{
-    btn.addEventListener('click', function (ev) {{
-      ev.preventDefault();
-      // Torvalds PR-panel: double-click guard. Rapid-tap on "Route to
-      // committee" was pushing two events to the log; unacceptable for
-      // a sign-off workbench. data-locked latches on first click.
-      if (this.getAttribute('data-locked') === 'true') return;
-      this.setAttribute('data-locked', 'true');
-      this.disabled = true;
-      const decision = this.getAttribute('data-decision');
-      window.holterRecordEvent('model', modelName, decision, null);
-      modelDecisions += 1;
-      if (countEl) countEl.textContent = modelDecisions;
-      // HOL-57 + no-pound-pandora — APPROVE FOR PROD 14D records the
-      // customer-exposure unit it clears (sessions/wk), NOT £. The audit
-      // confirmation must speak in friction-volume — money is never the
-      // unit-of-record for a customer-protection approval.
-      if (decision === 'approve_14d') {{
-        const journey = this.getAttribute('data-pack-journey') || '';
-        const tier = this.getAttribute('data-pack-tier') || '';
-        const volume = this.getAttribute('data-pack-volume') || '';
-        if (journey && volume) {{
-          flashConfirm('cleared ' + journey + ' for 14d prod · ' + volume + ' (' + tier + ')');
-        }} else if (journey) {{
-          flashConfirm('cleared ' + journey + ' for 14d prod · volume pending');
-        }} else {{
-          flashConfirm('approve 14d');
-        }}
-      }} else {{
-        flashConfirm(decision.replace(/_/g, ' '));
-      }}
-    }});
-  }});
-}})();
+// HOL-83 — the model-scope decision frame was removed; this surface verifies
+// findings, it does not take model-deployment actions.
 
 // HOL-45 — pane-scoped severity filter + sortable SYNTHESIS columns.
 // Filter: pane-filter-btn click sets active filter for that scope; hides

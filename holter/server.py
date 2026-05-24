@@ -30,9 +30,9 @@ app = Flask(__name__)
 
 # (route, label) for the surface switcher, in display order.
 _SURFACES: tuple[tuple[str, str], ...] = (
-    ("/", "Home"),
-    ("/workspace", "Workspace"),
-    ("/mlops", "MLOps"),
+    ("/", "Decisions"),
+    ("/workspace", "Intelligence"),
+    ("/mlops", "Verification"),
 )
 
 # Anchor inside the design's existing dark top bar — identical across surfaces.

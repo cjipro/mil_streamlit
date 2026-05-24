@@ -275,39 +275,8 @@ def render_filter_strip(packs: list[dict]) -> str:
 # _extract_quote — imported from _shared.py
 
 
-def render_ticker(packs: list[dict]) -> str:
-    """Scrolling marquee of pack lineage anchors (page chrome, not a box).
-    Doubled track so the loop seam is invisible during animation."""
-    if not packs:
-        return ""
-    items = []
-    for p in packs:
-        h = p["hypothesis"] or {}
-        sig = h.get("signature_id", "—").replace("_", " ")
-        cell = h.get("cell_id", "?")
-        # PULSE-93/96 — the ticker labels itself "lineage anchors", so show the
-        # REAL lineage anchor; fixture packs (no analytics) fall back to meta-sha.
-        sha = lineage_anchor_short(p["meta"]["pack_name"]) or short_hash(p["sha256"])
-        is_neg = h.get("ground_truth_expectation") == "negative"
-        color = "var(--amber)" if is_neg else "var(--text-2)"
-        bar_w = 22 if is_neg else 40
-        items.append(
-            f'<span class="holter-ticker-item">'
-            f'<span class="holter-ticker-cell" style="color:{color};">CELL {cell:>2}</span>'
-            f'<span class="holter-ticker-sig">{sig}</span>'
-            f'<span class="holter-ticker-bar"><span class="holter-ticker-bar-fill" '
-            f'style="width:{bar_w}px;background:{color};"></span></span>'
-            f'<span class="holter-ticker-sha">{sha}</span>'
-            f'</span>'
-            f'<span class="holter-ticker-sep">·</span>'
-        )
-    track = "".join(items)
-    return (
-        f'<div class="holter-ticker">'
-        f'<div class="holter-ticker-track">'
-        f'<div class="holter-ticker-inner">{track}{track}</div>'
-        f'</div></div>'
-    )
+# render_ticker moved to _shared (HOL-87) — the marquee now mounts on the
+# Decisions surface, not Workspace/Intelligence.
 
 
 def render_journey_row(packs: list[dict]) -> str:
@@ -1404,7 +1373,8 @@ def render_page(selected_pack_name: str | None = None) -> str:
     # Page-chrome strips between topbar row and engine-summary row.
     # Documented exceptions to the box discipline — full-width horizontal
     # elements (ticker is a stream; journey row is a 4-cell status strip).
-    rows_html += render_ticker(packs)
+    # HOL-87 — the marquee (render_ticker) moved to the Decisions surface; the
+    # journey-KPI strip stays here on Intelligence.
     rows_html += render_journey_row(packs)
 
     # Row 2 — engine summary
