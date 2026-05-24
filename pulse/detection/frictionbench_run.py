@@ -17,6 +17,7 @@ Run:  py -m pulse.detection.frictionbench_run
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 from typing import Any
 
@@ -164,6 +165,11 @@ def _make_session(
                   _ev(2, "error", screen, _ts(5), {"error_type": "validation_error"}),
                   _ev(3, "dwell", screen, _ts(13), {"duration_seconds": 60.0}))
             return Session(sid, screen, cohort, ev, {}), gt(True)
+        if kind == "degraded_positive":  # PULSE-133 drift: friction occurred
+            # (gt True) but dwell drifted below threshold → detector misses it
+            ev = (_ev(1, "error", screen, _ts(0), {"error_type": "validation_error"}),
+                  _ev(2, "dwell", screen, _ts(3), {"duration_seconds": 22.0}))
+            return Session(sid, screen, cohort, ev, {}), gt(True)
         if kind == "negative":  # close-call: dwell near baseline → no fire
             ev = (_ev(1, "error", screen, _ts(0), {"error_type": "validation_error"}),
                   _ev(2, "dwell", screen, _ts(3), {"duration_seconds": 22.0}))
@@ -175,6 +181,10 @@ def _make_session(
     if signature == "multi_back_press":
         if kind == "positive":  # tight burst → fires
             ev = tuple(_ev(1 + i, "back_press", screen, _ts(i * 8)) for i in range(4))
+            return Session(sid, screen, cohort, ev, {}), gt(True)
+        if kind == "degraded_positive":  # PULSE-133 drift: presses spaced out
+            # (gt True) → burst no longer detected = missed detection
+            ev = tuple(_ev(1 + i, "back_press", screen, _ts(i * 60)) for i in range(4))
             return Session(sid, screen, cohort, ev, {}), gt(True)
         if kind == "negative":  # spaced-out → deliberate review → no fire
             ev = tuple(_ev(1 + i, "back_press", screen, _ts(i * 60)) for i in range(4))
@@ -190,6 +200,10 @@ def _make_session(
     if kind == "positive":  # prior steps + long dwell + no submit + no return → fires
         feats = {"prior_steps_completed": ["step1", "step2"], "time_on_step_seconds": 120.0}
         return Session(sid, screen, cohort, base_ev, feats), gt(True)
+    if kind == "degraded_positive":  # PULSE-133 drift: dwell drifted below the
+        # percentile (gt True) → terminal-abandonment trigger missed
+        feats = {"prior_steps_completed": ["step1", "step2"], "time_on_step_seconds": 35.0}
+        return Session(sid, screen, cohort, base_ev, feats), gt(True)
     if kind == "negative":  # below the dwell percentile → no fire
         feats = {"prior_steps_completed": ["step1", "step2"], "time_on_step_seconds": 35.0}
         return Session(sid, screen, cohort, base_ev, feats), gt(False)
@@ -199,20 +213,37 @@ def _make_session(
 
 
 def generate_corpus(
-    sessions_per_cell: int = 100, negative_pool_size: int = 60
+    sessions_per_cell: int = 100, negative_pool_size: int = 60,
+    *, seed: int | None = None, drift_pct: float = 0.0,
 ) -> tuple[dict[int, list[tuple[Session, dict]]], list[tuple[Session, dict]]]:
-    """Deterministic synthetic corpus. Per-cell mix follows TEST_SET_SPEC ratios
-    (~65% positive-slot / 25% negative / 10% noise). Negative pool = sessions on
-    non-target screens (false-positive substrate)."""
+    """Synthetic corpus. Per-cell mix follows TEST_SET_SPEC ratios (~65% positive-
+    slot / 25% negative / 10% noise). Negative pool = sessions on non-target screens
+    (false-positive substrate).
+
+    PULSE-133 — `seed` / `drift_pct` are additive: `seed=None, drift_pct=0.0` (the
+    defaults) reproduce the original byte-identical deterministic corpus. When
+    `drift_pct > 0`, `round(n_pos * drift_pct)` true-positive sessions per positive
+    cell are emitted as `degraded_positive` — ground-truth should_fire UNCHANGED, but
+    sub-threshold events the detector misses (recall degradation = drift). `seed`
+    jitters the degraded count ±1 for run-to-run noise. Cell 10 (engineered negative)
+    is never degraded."""
     n_pos = round(sessions_per_cell * 0.65)
     n_neg = round(sessions_per_cell * 0.25)
     n_noise = sessions_per_cell - n_pos - n_neg
+    rng = random.Random(seed) if seed is not None else None
 
     cell_sessions: dict[int, list[tuple[Session, dict]]] = {}
     for cell_id, screen, signature, _expect in CELLS:
+        n_degraded = 0
+        if drift_pct > 0 and cell_id != 10:
+            base = n_pos * drift_pct
+            if rng is not None:
+                base += rng.uniform(-1.0, 1.0)
+            n_degraded = max(0, min(n_pos, round(base)))
         items: list[tuple[Session, dict]] = []
         for i in range(n_pos):
-            items.append(_make_session(cell_id, screen, signature, "positive", i))
+            kind = "degraded_positive" if i < n_degraded else "positive"
+            items.append(_make_session(cell_id, screen, signature, kind, i))
         for i in range(n_neg):
             items.append(_make_session(cell_id, screen, signature, "negative", i))
         for i in range(n_noise):
