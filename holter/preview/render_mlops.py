@@ -97,16 +97,6 @@ def cohort_drift_series_n(pack_name: str, cohort: str, n: int) -> list[int]:
 
 
 @dataclass(frozen=True)
-class ChainEntry:
-    """HOL-54 — frozen record for one lineage chain hop. Mirrors the eventual
-    pulse.lineage contract shape so the engine can drop in compatible objects."""
-    sha: str
-    pipeline: str
-    dataset: str
-    sealed_at: str
-
-
-@dataclass(frozen=True)
 class CohortSeries:
     """HOL-54 — bundles label + colour + values for a single cohort line.
     Replaces the parallel-list signature of multi_sparkline_svg, eliminating
@@ -114,31 +104,6 @@ class CohortSeries:
     label: str
     color: str
     values: list[float]
-
-
-def lineage_chain_ancestry(pack_name: str, sha: str) -> list[ChainEntry]:
-    """HOL-43 — stub upstream ancestry chain for a pack's lineage hash.
-    Closes O'Neil's 'hash is a string not a link' + Banin's 'no upstream
-    pointer' R2 critique. Engine returns this via pulse.lineage in prod.
-    HOL-54: returns frozen ChainEntry dataclasses instead of dicts."""
-    h = sum(ord(c) for c in pack_name)
-    depth = 4 + (h % 3)
-    pipelines = [
-        "frictionbench.scoring", "convergence.cohort_split",
-        "lineage.anchor_sealer", "pulse.synthesis.deterministic",
-        "telemetry.taq_adapter", "schema.canonical_v2",
-    ]
-    chain: list[ChainEntry] = []
-    for i in range(depth):
-        ph = (h * 31 + i * 17) % 0xFFFFFFFF
-        ds_suffix = (5 - i + (h % 4)) % 5 + 1
-        chain.append(ChainEntry(
-            sha=f"sha-{ph:08x}_{(ph >> 4) & 0xFFFF:04x}",
-            pipeline=pipelines[(h + i) % len(pipelines)],
-            dataset=f"taq.session_2026{ds_suffix:02d}",
-            sealed_at=f"2026-05-{(19 - i * 3) % 28 + 1:02d}",
-        ))
-    return chain
 
 
 def drift_series(pack_name: str) -> list[int]:
@@ -259,19 +224,6 @@ def fairness_record(pack_name: str) -> dict:
         "calibration_by_cohort":   0.94 - (h % 7)  * 0.01,
         "cohort_dims":             ["age_band", "gender", "ethnicity_band"],
         "deviation_alert":         (h % 17) > 13,
-    }
-
-
-def lineage_status(pack_name: str, sha: str) -> dict:
-    """Stub lineage verification — engine returns via pulse.lineage."""
-    h = sum(ord(c) for c in pack_name)
-    broken = (h % 19) > 17  # ~10% of packs synthesised as broken
-    return {
-        "chain_status":   "BROKEN" if broken else "VERIFIED",
-        "color":          "var(--red)" if broken else "var(--green)",
-        "last_verified":  "2026-05-19 06:42 UTC" if not broken else "2026-05-17 14:08 UTC",
-        "chain_depth":    4 + (h % 3),
-        "anchor_sha":     sha,
     }
 
 
@@ -737,99 +689,96 @@ def render_fairness_pane(packs: list[dict]) -> str:
     )
 
 
-def _build_lineage_row(p: dict, ls: dict) -> str:
-    """HOL-50: extracted from render_lineage_pane. One LINEAGE row (drift-cell
-    layout) + the collapsible .hash-chain block underneath. Row carries
-    data-cell-id for HOL-39 drill-through and data-severity for HOL-45 filter."""
-    h = p["hypothesis"] or {}
-    cell = _e(str(h.get("cell_id", "?")))
-    sha_short = _e(short_hash(p["sha256"]))
-    # HOL-43: hash is a click-target; expands chain ancestry inline
-    ancestry = lineage_chain_ancestry(p["meta"]["pack_name"], p["sha256"])
-    chain_rows = []
-    for i, anc in enumerate(ancestry):
-        arrow = ('<span class="hash-chain-arrow">↑ parent</span>'
-                 if i < len(ancestry) - 1 else
-                 '<span class="hash-chain-arrow">root</span>')
-        chain_rows.append(
-            f'<div class="hash-chain-row">'
-            f'<span class="hash-chain-sha">{_e(anc.sha)}</span>'
-            f'<span class="hash-chain-pipeline">{_e(anc.pipeline)}</span>'
-            f'<span class="hash-chain-dataset">{_e(anc.dataset)}</span>'
-            f'<span class="hash-chain-date">{_e(anc.sealed_at)}</span>'
-            f'</div>'
-            f'<div class="hash-chain-row">{arrow}</div>'
-        )
-    chain_html = (
-        f'<div class="hash-chain" data-chain-for="{cell}">'
-        f'{"".join(chain_rows)}'
-        f'</div>'
-    )
-    # HOL-45: per-row severity (BROKEN→ACUTE, VERIFIED→NOMINAL) +
-    # threshold tooltip on the chain_status badge
-    row_sev = "ACUTE" if ls["chain_status"] == "BROKEN" else "NOMINAL"
-    status_tip = STATUS_RULES.get(ls["chain_status"], "")
-    return (
-        f'<div class="drift-cell cell-row pane-filterable" '
-        f'data-cell-id="{cell}" data-severity="{row_sev}" '
-        f'data-filter-scope="lineage">'
-        f'<span class="drift-cell-label">'
-        f'<a class="cell-link" href="#cell-{cell}" data-cell-id="{cell}">cell {cell}</a>'
-        f' · <a class="hash-link" href="#" data-chain-toggle="{cell}" '
-        f'title="Expand upstream chain">sha:{sha_short}</a></span>'
-        f'<span class="govern-badge threshold-token" '
-        f'style="color:{ls["color"]};" title="{_e(status_tip)}">'
-        f'{ls["chain_status"]}</span>'
-        f'<span class="drift-cell-val" style="color:var(--text-3); width:auto; '
-        f'text-align:right; font-size:9px;">depth {ls["chain_depth"]}</span>'
-        f'</div>'
-        f'{chain_html}'
-    )
+def _lineage_report() -> dict:
+    """REAL global decision-run lineage verdict (fail-soft).
+
+    pulse.decision.lineage seals ONE hash-chain per pipeline run — there are no
+    per-pack chains — so this pane verifies that global chain via
+    verify_decision_lineage() over marts/decisions_lineage.jsonl. Fail-soft: an
+    import/IO error yields an honest 'verify_error' verdict, never fabricated
+    health. The previous per-pack VERIFIED/BROKEN table (with a fabricated ~10%
+    breakage rate) is gone — there were never per-pack chains to break."""
+    try:
+        from pulse.decision.lineage import verify_decision_lineage
+        return verify_decision_lineage()
+    except Exception:
+        import logging
+        logging.exception("verify_decision_lineage failed — LINEAGE pane renders UNAVAILABLE")
+        return {"ok": False, "reason": "verify_error", "total_rows": 0, "violations": 0}
 
 
 def render_lineage_pane(packs: list[dict]) -> str:
-    """Pane 3 — LINEAGE VERIFIER. Hash-chain health + broken alerts.
-    HOL-50: row construction extracted to _build_lineage_row()."""
-    rows = [(p, lineage_status(p["meta"]["pack_name"], p["sha256"])) for p in packs]
-    broken = [(p, ls) for p, ls in rows if ls["chain_status"] == "BROKEN"]
-    n_broken = len(broken)
-    n_verified = len(packs) - n_broken
-    chain_health_pct = int(100 * n_verified / max(len(packs), 1))
+    """Pane 3 — LINEAGE VERIFIER. The REAL global decision-run hash-chain
+    (pulse.decision.lineage.verify_decision_lineage), not a fabricated per-pack
+    table. Honest states: VERIFIED (clean run) / BROKEN (violations) / NO RUN
+    (no chain sealed yet) / UNAVAILABLE (verify error)."""
+    report = _lineage_report()
+    total_rows = int(report.get("total_rows", 0) or 0)
+    viols = report.get("violations")
+    n_viol = len(viols) if isinstance(viols, list) else int(viols or 0)
+    reason = report.get("reason")
+    head = report.get("head_row_hash")
+    head_short = short_hash(head) if head else "—"
 
-    detail_rows = [_build_lineage_row(p, ls) for p, ls in rows[:5]]
+    if reason == "no_lineage_log":
+        status, color, sev, pct = "NO RUN", "var(--text-3)", "WATCH", 0
+        head_delta = "no decision-lineage chain sealed yet"
+        traj = "→ awaiting run"
+        narrative_body = (
+            "<strong>What changed:</strong> no pipeline run has sealed a decision-"
+            "lineage chain yet. <strong>For whom:</strong> a reviewer or regulator "
+            "querying provenance has no chain to verify. <strong>Evidence:</strong> "
+            "marts/decisions_lineage.jsonl is absent. <strong>Response:</strong> run "
+            "pulse.pipeline.run to generate + seal the chain, then re-verify."
+        )
+    elif report.get("ok"):
+        status, color, sev, pct = "VERIFIED", "var(--green)", "NOMINAL", 100
+        head_delta = f"{total_rows} rows · head {head_short}"
+        traj = "→ INTACT"
+        narrative_body = (
+            f"<strong>What changed:</strong> the decision-run lineage chain verified "
+            f"clean across {total_rows} hash-linked rows. <strong>For whom:</strong> any "
+            f"reviewer or regulator can re-derive every Action tier from the inputs it "
+            f"claims. <strong>Evidence:</strong> pulse.lineage.verify_chain — 0 "
+            f"violations, head {head_short}. <strong>Response:</strong> none; promotion-safe."
+        )
+    else:
+        status, color, sev, pct = "BROKEN", "var(--red)", "ACUTE", 50
+        head_delta = f"{n_viol} violation{'s' if n_viol != 1 else ''} · {total_rows} rows"
+        traj = "↘ INTEGRITY FAILURE"
+        narrative_body = (
+            f"<strong>What changed:</strong> the decision-run lineage chain reported "
+            f"{n_viol} integrity violation{'s' if n_viol != 1 else ''}. <strong>For whom:"
+            f"</strong> any reviewer or regulator querying these decisions gets a chain-"
+            f"integrity failure. <strong>Evidence:</strong> pulse.lineage.verify_chain "
+            f"violations. <strong>Response:</strong> trace + reseal anchors before promotion."
+        )
 
-    # HOL-45 — pane filter strip
-    lineage_filter = render_filter_strip(
-        scope="lineage",
-        options=[("all", "ALL"), ("ACUTE", "BROKEN only"),
-                 ("NOMINAL", "VERIFIED only")],
-    )
+    violation_detail = ""
+    if isinstance(viols, list) and viols:
+        violation_detail = body_lines([
+            (f'{_e(str(v.get("kind", "?")))} · {_e(str(v.get("lineage_id", "?"))[:12])}',
+             "var(--red)")
+            for v in viols[:6]
+        ])
 
     return render_box(
-        header=box_header("LINEAGE VERIFIER", "hash-chain integrity"),
-        accent_color="var(--red)" if n_broken else "var(--green)",
+        header=box_header("LINEAGE VERIFIER", "global decision-run chain"),
+        accent_color=color,
         headline=headline_stat_card(
-            label="CHAIN HEALTH",
-            value=f"{n_verified}/{len(packs)}",
-            delta=f"{n_broken} broken" if n_broken else "all chains verified",
-            traj="↘ DEGRADED" if n_broken else "→ STABLE",
-            meta_left="hash-anchored · regulator-defensible",
+            label="DECISION-CHAIN INTEGRITY",
+            value=status,
+            delta=head_delta,
+            traj=traj,
+            meta_left="hash-anchored · regulator-defensible · one chain per run",
             meta_right=NOW,
-            progress_pct=chain_health_pct,
+            progress_pct=pct,
         ),
-        # HOL-40 — severity driven by BROKEN count (0 → NOMINAL → single-token render)
-        body=lineage_filter + "".join(detail_rows) + render_severity_narrative(
-            classify_lineage_severity(n_broken),
-            (f'<strong>What changed:</strong> {n_broken} pack chain'
-             f'{"s" if n_broken != 1 else ""} reported BROKEN. '
-             f'<strong>For whom:</strong> any reviewer or regulator querying '
-             f'these packs gets a chain-integrity failure. '
-             f'<strong>Evidence:</strong> lineage_verifier.verify() output. '
-             f'<strong>Response:</strong> trace + reseal chain anchors before next promotion.'),
-        ),
+        body=violation_detail + render_severity_narrative(sev, narrative_body),
         footer=box_footer(
             "lineage v0.1", NOW, live=True,
-            note="pulse.lineage verifier · synthesis-pending packs excluded",
+            note="pulse.decision.lineage.verify_decision_lineage · global decision-run "
+                 "chain (not per-pack)",
         ),
     )
 
