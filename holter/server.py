@@ -178,6 +178,138 @@ a.cji-theme-item:hover{background:rgba(125,168,201,.14);color:#fff}
 """
 
 
+# ── Row 2 — global structural-drill selector (HOL-86) ─────────────────────────
+# A second selector bar under Row 1, identical on all three surfaces (injected
+# by _page after the topnav). Journey ▾ (multi-select + searchable) · Sub Journey
+# ▾ (gated — needs the op-code mapping data) · Sort (Friction / Opportunity).
+# Selection is client-side for now; it re-scopes content once the engine theme
+# model (PULSE-136) lands. Replaces the removed per-surface Product/Owner strip.
+
+def _load_journeys() -> list[tuple[str, str]]:
+    """(id, label) for every journey in the taxonomy, sorted by label. Label is
+    the id humanised (the taxonomy keys are journey ids, not CJ01–107 codes — the
+    canonical CJ mapping is future work). Fail-soft to [] so the bar still renders."""
+    try:
+        from holter.preview._shared import load_journey_taxonomy
+        journeys = load_journey_taxonomy()  # {id: category}
+    except Exception:
+        import logging
+        logging.exception("journey taxonomy unreadable — Row 2 Journey list empty")
+        journeys = {}
+    out = [(jid, jid.replace("_", " ").title()) for jid in journeys]
+    return sorted(out, key=lambda t: t[1])
+
+
+def _row2_html() -> str:
+    """Row 2 selector bar — Journey ▾ · Sub Journey ▾ (gated) · Sort."""
+    opts = "".join(
+        f'<label class="cji-r2-opt">'
+        f'<input type="checkbox" class="cji-r2-jcheck" value="{jid}">'
+        f'<span>{label}</span></label>'
+        for jid, label in _load_journeys()
+    )
+    return (
+        '<div class="cji-row2">'
+        '<details class="cji-r2-picker" id="cji-r2-journey">'
+        '<summary class="cji-r2-summary">'
+        '<span class="cji-r2-kicker">Journey</span>'
+        '<span class="cji-r2-current" data-empty="All journeys">All journeys</span>'
+        '<span class="cji-r2-caret">▾</span>'
+        '</summary>'
+        '<div class="cji-r2-menu">'
+        '<input type="text" class="cji-r2-search" placeholder="Search journeys…" '
+        'aria-label="Search journeys">'
+        f'<div class="cji-r2-list">{opts}</div>'
+        '</div>'
+        '</details>'
+        '<span class="cji-r2-picker is-disabled" aria-disabled="true" '
+        'title="Sub-Journey drill needs the op-code mapping data (PULSE-136)">'
+        '<span class="cji-r2-kicker">Sub Journey</span>'
+        '<span class="cji-r2-current">—</span>'
+        '<span class="cji-r2-soon">soon</span>'
+        '</span>'
+        '<div class="cji-r2-sort">'
+        '<span class="cji-r2-kicker">Sort</span>'
+        '<button type="button" class="cji-r2-sort-opt is-active" data-sort="friction">Friction</button>'
+        '<button type="button" class="cji-r2-sort-opt" data-sort="opportunity">Opportunity</button>'
+        '</div>'
+        '</div>'
+    )
+
+
+_ROW2_CSS = """
+<style id="cji-row2-css">
+.cji-row2{flex:0 0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:8px 16px;background:#001624;border-bottom:1px solid #003A5C}
+.cji-r2-kicker{font:700 8px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;
+  text-transform:uppercase;color:#5A8199;margin-right:.45rem}
+.cji-r2-picker{position:relative;display:inline-flex;align-items:center;
+  background:#001828;border:1px solid #003A5C;border-radius:6px;padding:.34rem .7rem;
+  font:600 11px/1 ui-sans-serif,system-ui,sans-serif;color:#e8f4fa;cursor:pointer}
+.cji-r2-picker>summary{list-style:none;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer}
+.cji-r2-picker>summary::-webkit-details-marker{display:none}
+.cji-r2-picker>summary::marker{content:""}
+.cji-r2-picker[open]{border-color:#00B7F5}
+.cji-r2-picker.is-disabled{opacity:.55;cursor:not-allowed}
+.cji-r2-current{color:#e8f4fa}
+.cji-r2-caret{color:#5A8199;font-size:9px}
+.cji-r2-soon{font:700 8px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;color:#0b1f30;background:#5A8199;border-radius:3px;padding:2px 5px;margin-left:.4rem}
+.cji-r2-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:300;min-width:240px;
+  background:#001828;border:1px solid #003A5C;border-radius:8px;padding:.4rem;
+  box-shadow:0 12px 32px rgba(0,0,0,.55)}
+.cji-r2-search{width:100%;box-sizing:border-box;margin-bottom:.4rem;padding:.4rem .55rem;
+  background:#000d18;border:1px solid #003A5C;border-radius:5px;color:#e8f4fa;
+  font:500 12px/1.2 ui-sans-serif,system-ui,sans-serif}
+.cji-r2-search:focus{outline:none;border-color:#00B7F5}
+.cji-r2-list{max-height:48vh;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.cji-r2-opt{display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;border-radius:5px;
+  font:500 12px/1.2 ui-sans-serif,system-ui,sans-serif;color:#cfe4f0;cursor:pointer}
+.cji-r2-opt:hover{background:rgba(125,168,201,.14);color:#fff}
+.cji-r2-opt.is-hidden{display:none}
+.cji-r2-opt input{cursor:pointer;accent-color:#00B7F5}
+.cji-r2-sort{display:inline-flex;align-items:center;gap:.3rem}
+.cji-r2-sort-opt{background:#001828;border:1px solid #003A5C;color:#8DC2D9;
+  font:600 11px/1 ui-sans-serif,system-ui,sans-serif;padding:.36rem .7rem;border-radius:6px;cursor:pointer}
+.cji-r2-sort-opt:hover{border-color:#00B7F5;color:#e8f4fa}
+.cji-r2-sort-opt.is-active{background:rgba(0,183,245,.16);border-color:#00B7F5;color:#fff}
+</style>
+"""
+
+_ROW2_JS = """
+<script id="cji-row2-js">
+(function () {
+  var search = document.querySelector('.cji-r2-search');
+  if (search) {
+    search.addEventListener('input', function () {
+      var q = this.value.trim().toLowerCase();
+      document.querySelectorAll('.cji-r2-opt').forEach(function (opt) {
+        var t = opt.textContent.trim().toLowerCase();
+        opt.classList.toggle('is-hidden', q && t.indexOf(q) === -1);
+      });
+    });
+  }
+  var current = document.querySelector('#cji-r2-journey .cji-r2-current');
+  document.querySelectorAll('.cji-r2-jcheck').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var n = document.querySelectorAll('.cji-r2-jcheck:checked').length;
+      if (current) current.textContent = n === 0
+        ? current.getAttribute('data-empty')
+        : (n === 1 ? '1 journey' : n + ' journeys');
+    });
+  });
+  document.querySelectorAll('.cji-r2-sort-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.cji-r2-sort-opt').forEach(function (b) {
+        b.classList.toggle('is-active', b === btn);
+      });
+    });
+  });
+})();
+</script>
+"""
+
+
 def _nav_html(active: str, theme: str) -> str:
     """Surface-switcher markup. Carries the active ?theme= so the chosen subject
     survives view switches (theme is primary context, tab is the view). Built
@@ -263,7 +395,11 @@ def _page(html: str, active: str, theme: str) -> str:
         + _nav_html(active, theme)
     )
     html = html.replace(_BRAND, row1, 1)
-    html = html.replace("</head>", _NAV_CSS + _THEMES_CSS + _LAYOUT_CSS + "</head>", 1)
+    # Row 2 — global structural-drill selector, directly under Row 1 on every
+    # surface (HOL-86). Injected after the topnav's closing </header>.
+    html = html.replace("</header>", "</header>" + _row2_html(), 1)
+    html = html.replace("</head>", _NAV_CSS + _THEMES_CSS + _ROW2_CSS + _LAYOUT_CSS + "</head>", 1)
+    html = html.replace("</body>", _ROW2_JS + "</body>", 1)
     return html
 
 

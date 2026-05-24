@@ -147,26 +147,13 @@ def cell_screens_with_counts(packs: list[dict]) -> list[dict]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_topnav(packs: list[dict]) -> str:
-    """Topnav with identity + Product/Owner filters. Domain + Date moved
-    into the filter strip so they don't duplicate (Journey = Domain;
-    Time = Date)."""
-    owners = sorted({a for p in packs for a in p["meta"].get("authors", [])})
-    n = len(packs)
-    product_opts = f'<option value="">Product · all packs · {n}</option>\n' + "".join(
-        f'<option value="{p["meta"]["pack_name"]}">'
-        f'Product · cell {(p["hypothesis"] or {}).get("cell_id","?")} · '
-        f'{(p["hypothesis"] or {}).get("signature_id","—").replace("_"," ")}</option>'
-        for p in sorted(packs, key=lambda p: (p["hypothesis"] or {}).get("cell_id", 99))
-    )
-    owner_opts = f'<option value="">Owner · all teams · {len(owners)}</option>\n' + "".join(
-        f'<option value="{o}">Owner · {o}</option>' for o in owners
-    )
+    """Topnav with identity only. The Product/Owner filters were removed (HOL-86,
+    Hussain: "not required") — journey filtering is the global Row 2 selector
+    injected by server._page, identical across all three surfaces. `packs` is
+    kept in the signature for call-site compatibility."""
     return f'''
 <header class="holter-topnav">
   <span class="brand-logo">Cerno</span>
-  <select class="topnav-select" id="filter-product" data-filter="packname">{product_opts}</select>
-  <select class="topnav-select" id="filter-owner" data-filter="author">{owner_opts}</select>
-  <button class="topnav-reset" id="filter-reset" type="button" hidden>Reset</button>
   <span class="topnav-spacer"></span>
   <button class="topnav-icon" type="button" title="Search packs (/)">⌕</button>
   <button class="topnav-icon" type="button" title="Notifications">🔔</button>
@@ -1418,10 +1405,8 @@ def render_page(selected_pack_name: str | None = None) -> str:
 <body>
 <div class="holter-app">
   {render_topnav(packs)}
-  {render_filter_strip(packs)}
   <main class="holter-main">{rows_html}</main>
 </div>
-{FILTER_JS}
 {_ALTITUDE_JS}
 </body>
 </html>'''
