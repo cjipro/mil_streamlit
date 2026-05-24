@@ -26,6 +26,7 @@ import datetime as _dt
 import sys
 from html import escape as _e
 from pathlib import Path
+from urllib.parse import quote
 
 REPO = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO / "dist" / "preview" / "home"
@@ -1033,6 +1034,20 @@ def render_masthead() -> str:
 </div>"""
 
 
+def _workspace_href(pack_name: str | None) -> str:
+    """In-app deep link from a Home card to the Workspace (HOL-76).
+
+    Bank-altitude (Home) → Journey-altitude (Workspace) drill-through: a card
+    opens the *same* investigation focused on its pack. The /workspace route
+    maps ?pack=<name> → render_holter.render_page(selected_pack_name=...),
+    matched on meta.pack_name. Falls back to the generic Workspace when no
+    pack is known (e.g. synthetic stub cards), never a fabricated target.
+    """
+    if pack_name:
+        return f"/workspace?pack={quote(pack_name, safe='')}"
+    return "/workspace"
+
+
 def render_hero(top_signal: dict, lens: str = "compliance",
                 live_index: dict[tuple[str, str], int] | None = None) -> str:
     """The top-of-feed urgency card.
@@ -1106,7 +1121,7 @@ def render_hero(top_signal: dict, lens: str = "compliance",
     tag_label = "OPPORTUNITY" if lens == "commercial" else "FLAGGED"
     return f"""
 <a class="hero-card hero-card--{lens}" style="border-left-color:{color}; text-decoration:none; color:inherit;"
-   href="http://localhost:8504/" target="_blank">
+   href="{_workspace_href(pack['meta']['pack_name'])}">
   <div>
     <div class="hero-card-meta">
       <span class="hero-card-tier-badge" style="color:{color};">
@@ -1134,7 +1149,8 @@ def render_feed_card(*, tag: str, tag_color: str, headline: str, summary: str,
                      suppress_change: bool = False,
                      is_pending: bool = False,
                      volume_label: str | None = None,
-                     scaffold: str | None = None) -> str:
+                     scaffold: str | None = None,
+                     href: str = "/workspace") -> str:
     """Generic feed card — reused for FLAGGED, AWAITING REVIEW, MLOPS.
 
     HOL-24: optional `delta` adds confidence chip beside tier badge AND
@@ -1142,6 +1158,8 @@ def render_feed_card(*, tag: str, tag_color: str, headline: str, summary: str,
     the summary. `preview_text` is the "X sub-findings · ..." pre-click hint.
     HOL-55 + no-pound-pandora: `volume_label` is the friction-volume primary
     (e.g. "~300"); `scaffold` is the optional £ secondary shown in the sub.
+    HOL-76: `href` is the in-app drill-through target (default `/workspace`);
+    callers pass `/workspace?pack=<name>` for real packs, `/mlops` for alerts.
     """
     tier_html = ""
     if tier:
@@ -1177,7 +1195,7 @@ def render_feed_card(*, tag: str, tag_color: str, headline: str, summary: str,
     )
     return f"""
 <a class="feed-card{pending_class}" style="border-left-color:{accent}; text-decoration:none; color:inherit;"
-   href="http://localhost:8504/" target="_blank">
+   href="{href}">
   <div class="feed-card-meta">
     <span class="feed-card-tag" style="color:{tag_color};">{tag}</span>
     {confidence_html}
@@ -1257,6 +1275,7 @@ def render_flagged_feed(flagged: list[dict], hero: dict,
             suppress_change=suppress,
             volume_label=volume_label,
             scaffold=scaffold,
+            href=_workspace_href(pack["meta"]["pack_name"]),
         ))
     if not cards:
         return ""
@@ -1329,6 +1348,7 @@ def render_commercial_queue(signals: list[dict], hero: dict | None,
             suppress_change=False,
             volume_label=volume_label,
             scaffold=scaffold,
+            href=_workspace_href(pack["meta"]["pack_name"]),
         ))
 
     # Aggregate headline across the queue — friction volume (sessions/wk),
@@ -1399,11 +1419,12 @@ def render_mlops_alerts(items: list[dict]) -> str:
             tier=it["severity"],
             tier_dim="risk",
             meta_left=f"raised {it['raised']}",
-            meta_right="MLOps Console (HOL-6 pending)",
+            meta_right="MLOps Console",
             cta_label="ACKNOWLEDGE →",
             accent=sev_color,
             delta=delta,
             preview_text="affects 1 cell · auto-resolves on backfill",
+            href="/mlops",  # HOL-76 — alerts open the (now-live) MLOps Console
         ))
     return f"""
 <section>
