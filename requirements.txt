@@ -26,6 +26,10 @@ duckdb>=1.1.0
 # ── JSON repair (enrichment batch fallback) ───────────────────────────────────
 json-repair>=0.30.0
 
+# ── Web / serving (Holter front-end — HOL-81) ────────────────────────────────
+Flask==3.0.3                 # full-page Pulse surfaces (holter/server.py)
+gunicorn==23.0.0             # prod WSGI (Linux); Windows dev uses the Flask dev server
+
 # ── Dashboard / Visualisation ─────────────────────────────────────────────────
 streamlit>=1.40.0
 plotly>=5.22.0

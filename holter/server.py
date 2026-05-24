@@ -11,6 +11,7 @@ Run (bank/prod):  gunicorn -w 4 -b 127.0.0.1:8600 holter.server:app
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -21,6 +22,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from holter.preview import render_holter, render_home, render_mlops  # noqa: E402
+from holter.preview._shared import discover_packs  # noqa: E402  (HOL-81 healthz)
 
 app = Flask(__name__)
 
@@ -154,6 +156,29 @@ def workspace() -> str:
 @app.get("/mlops")
 def mlops() -> str:
     return _page(render_mlops.render_page(), "/mlops")
+
+
+@app.get("/healthz")
+def healthz() -> Response:
+    """Liveness + light readiness (HOL-81).
+
+    200 if the process is up AND the engine can discover decision packs — this
+    catches a broken deploy where `pulse/decision_packs/` is missing/unreadable,
+    not just whether the port is open. 503 otherwise, so a load balancer / probe
+    pulls the instance out of rotation. Cheap: metadata reads only, no DuckDB.
+    """
+    try:
+        n = len(discover_packs())
+    except Exception as e:  # readiness failure — surface, don't crash the probe
+        return Response(
+            json.dumps({"status": "degraded", "service": "holter", "error": str(e)}),
+            status=503, mimetype="application/json",
+        )
+    return Response(
+        json.dumps({"status": "ok", "service": "holter", "packs": n,
+                    "surfaces": [r for r, _ in _SURFACES]}),
+        mimetype="application/json",
+    )
 
 
 if __name__ == "__main__":
