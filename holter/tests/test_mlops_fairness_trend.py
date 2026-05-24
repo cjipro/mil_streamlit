@@ -52,5 +52,5 @@ def test_mlops_page_renders_with_fairness_trend(monkeypatch):
     series = {1: [_verdict(0.9, False), _verdict(0.7, True)]}
     monkeypatch.setattr(M, "_fairness_history_by_cell", lambda: series)
     html = M.render_page()
-    assert "FAIRNESS RE-CHECK" in html
+    assert "JOURNEY FAIRNESS" in html
     assert "flagged for" in html                     # decision frame fairness count

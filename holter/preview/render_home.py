@@ -633,7 +633,7 @@ a { color: var(--blue); text-decoration: none; }
   letter-spacing: 1.2px; text-transform: uppercase;
 }
 
-/* ── Section label (FLAGGED / AWAITING REVIEW / MLOPS) ─────────────────── */
+/* ── Section label (FLAGGED / AWAITING REVIEW / VERIFICATION) ─────────────────── */
 .section-label {
   display: flex; align-items: center; gap: 10px;
   font-family: var(--mono);
@@ -1029,7 +1029,7 @@ def render_masthead() -> str:
     today = _dt.date.today().strftime("%A · %d %b %Y")
     return f"""
 <div class="home-masthead">
-  <div class="home-masthead-title">Pulse Home — what changed</div>
+  <div class="home-masthead-title">Pulse — decisions to make</div>
   <div class="home-masthead-dateline">{today} · {NOW}</div>
 </div>"""
 
@@ -1412,24 +1412,24 @@ def render_mlops_alerts(items: list[dict]) -> str:
         sev_color = "var(--amber)" if it["severity"] == "WATCH" else "var(--red)"
         delta = card_delta(it["title"])
         cards.append(render_feed_card(
-            tag="MLOPS",
+            tag="VERIFICATION",
             tag_color=sev_color,
             headline=it["title"],
             summary=it["summary"],
             tier=it["severity"],
             tier_dim="risk",
             meta_left=f"raised {it['raised']}",
-            meta_right="MLOps Console",
+            meta_right="Verification",
             cta_label="ACKNOWLEDGE →",
             accent=sev_color,
             delta=delta,
             preview_text="affects 1 cell · auto-resolves on backfill",
-            href="/mlops",  # HOL-76 — alerts open the (now-live) MLOps Console
+            href="/mlops",  # HOL-76 — alerts open the Verification surface
         ))
     return f"""
 <section>
   <div class="section-label">
-    MLOps alerts
+    Verification alerts
     <span class="section-label-count">{len(items)}</span>
   </div>
   <div class="feed-grid">{"".join(cards)}</div>
@@ -1496,7 +1496,7 @@ def render_page() -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Pulse Home — what changed</title>
+<title>Pulse — decisions to make</title>
 <style>{CSS}</style>
 </head>
 <body>

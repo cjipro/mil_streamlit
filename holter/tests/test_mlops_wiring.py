@@ -69,7 +69,9 @@ def test_synthesis_pane_has_no_fabricated_governance():
     for fake in _FABRICATED:
         assert fake not in html
     assert "DETERMINISTIC" in html
-    assert "attestation_pending" in html
+    # HOL-83 reframe: MRM attestation governance removed — pane is provenance now.
+    assert "SYNTHESIS PROVENANCE" in html
+    assert "attestation" not in html
 
 
 def test_synthesis_pane_llm_chip_reads_zero():
@@ -80,6 +82,6 @@ def test_synthesis_pane_llm_chip_reads_zero():
 
 def test_mlops_page_renders_without_error():
     html = M.render_page()
-    assert "SYNTHESIS GOVERNANCE" in html
+    assert "SYNTHESIS PROVENANCE" in html
     for fake in _FABRICATED:
         assert fake not in html

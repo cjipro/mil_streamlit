@@ -64,5 +64,5 @@ def test_mlops_page_renders_with_drift(monkeypatch):
     series = {1: [90, 85, 80, 75, 70, 65, 60, 55]}
     monkeypatch.setattr(M, "_drift_series_by_cell", lambda: series)
     html = M.render_page()
-    assert "DRIFT MONITORS" in html
+    assert "FINDING RELIABILITY" in html
     assert "WORST-CELL DELTA" in html
