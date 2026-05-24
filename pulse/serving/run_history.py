@@ -27,6 +27,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from pulse.convergence.fairness import assess_fairness
 from pulse.detection.detect import run_detection
 from pulse.detection.frictionbench_run import (
     CELLS,
@@ -37,6 +38,7 @@ from pulse.detection.frictionbench_run import (
 from pulse.serving.marts import MARTS_DIR
 
 CELL_METRICS_HISTORY_LOG = MARTS_DIR / "cell_metrics_history.jsonl"
+FAIRNESS_HISTORY_LOG = MARTS_DIR / "fairness_history.jsonl"
 _TS_FMT = "%Y-%m-%dT%H:%M:%SZ"
 
 
@@ -78,6 +80,49 @@ def compute_cell_metrics(
     return rows
 
 
+def compute_fairness_metrics(
+    *, sessions_per_cell: int = 200, seed: int | None = None, cohort_disparity: float = 0.0,
+) -> list[dict[str, Any]]:
+    """Per-cell fairness verdict over a MIXED-cohort corpus (PULSE-134): protected =
+    over_50 sessions, reference = the rest; runs convergence.assess_fairness on the
+    detection outcomes. `cohort_disparity>0` lowers the protected cohort's recall →
+    a real disparate-impact signal. Deterministic per inputs."""
+    cell_sessions, _ = generate_corpus(
+        sessions_per_cell, 0, seed=seed, mixed_cohorts=True, cohort_disparity=cohort_disparity,
+    )
+    rows: list[dict[str, Any]] = []
+    for cell_id, screen, signature, expect in CELLS:
+        hyp = _hypothesis_for(cell_id, screen, signature)
+        baseline = _baseline_for(signature, screen)
+        prot_fired = prot_total = ref_fired = ref_total = 0
+        for session, _gt in cell_sessions[cell_id]:
+            fired = bool(run_detection(hypothesis=hyp, session=session, baseline=baseline).fired)
+            if "over_50" in session.cohort_tags:
+                prot_total += 1
+                prot_fired += int(fired)
+            else:
+                ref_total += 1
+                ref_fired += int(fired)
+        v = assess_fairness(
+            protected_fired=prot_fired, protected_total=prot_total,
+            reference_fired=ref_fired, reference_total=ref_total,
+            protected_group="over_50",
+        )
+        rows.append({
+            "cell_id": cell_id,
+            "screen_id": screen,
+            "signature_id": signature,
+            "ground_truth_class": expect,
+            "assessed": v.assessed,
+            "demographic_parity_ratio": v.disparity_ratio,
+            "disparate_impact": v.disparate_impact,
+            "chi2_p_value": v.chi2_p_value,
+            "protected_rate": v.protected_rate,
+            "reference_rate": v.reference_rate,
+        })
+    return rows
+
+
 def record_run(
     run_ts: str, rows: list[dict[str, Any]], *,
     log_path: Path = CELL_METRICS_HISTORY_LOG,
@@ -114,26 +159,48 @@ def read_cell_metrics_history(
     return rows
 
 
+def read_fairness_history(
+    *, cell_id: int | None = None, signature: str | None = None, days: int | None = None,
+) -> list[dict[str, Any]]:
+    """Per-run fairness-verdict history (PULSE-134) — same filters as
+    read_cell_metrics_history. Empty until a fairness run is recorded."""
+    return read_cell_metrics_history(
+        cell_id=cell_id, signature=signature, days=days, log_path=FAIRNESS_HISTORY_LOG,
+    )
+
+
 def backfill_demo_history(
     days: int = 14, *, sessions_per_cell: int = 200,
-    log_path: Path = CELL_METRICS_HISTORY_LOG, fresh: bool = True,
+    log_path: Path = CELL_METRICS_HISTORY_LOG,
+    fairness_log_path: Path = FAIRNESS_HISTORY_LOG, fresh: bool = True,
 ) -> int:
-    """Seed a synthetic drift SCENARIO: `days` runs (oldest first), `drift_pct`
-    ramping 0 → ~0.45 so recall declines across the window; each run seeded by its
-    day index for run-to-run noise. Returns total rows written.
-
-    Clearly a synthetic drift scenario for the OSS preview — production accumulates
-    real per-run history instead."""
-    if fresh and log_path.exists():
-        log_path.unlink()
+    """Seed synthetic SCENARIOS for the OSS preview: `days` runs (oldest first).
+    Detection history gets `drift_pct` ramping 0 → ~0.45 (declining recall = drift);
+    fairness history gets `cohort_disparity` ramping 0 → ~0.35 (worsening protected-
+    cohort disparity). Each run seeded by its day index. Returns detection rows
+    written. Production accumulates real per-run history instead."""
+    if fresh:
+        for lp in (log_path, fairness_log_path):
+            if lp.exists():
+                lp.unlink()
     today = dt.datetime.now(dt.timezone.utc)
     total = 0
     span = max(days - 1, 1)
     for d in range(days):
         run_ts = _iso(today - dt.timedelta(days=span - d))  # oldest → newest
-        drift_pct = round(0.45 * (d / span), 4)
-        rows = compute_cell_metrics(sessions_per_cell=sessions_per_cell, seed=d, drift_pct=drift_pct)
-        total += record_run(run_ts, rows, log_path=log_path)
+        frac = d / span
+        total += record_run(
+            run_ts,
+            compute_cell_metrics(sessions_per_cell=sessions_per_cell, seed=d,
+                                 drift_pct=round(0.45 * frac, 4)),
+            log_path=log_path,
+        )
+        record_run(
+            run_ts,
+            compute_fairness_metrics(sessions_per_cell=sessions_per_cell, seed=d,
+                                     cohort_disparity=round(0.35 * frac, 4)),
+            log_path=fairness_log_path,
+        )
     return total
 
 

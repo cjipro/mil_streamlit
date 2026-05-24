@@ -130,12 +130,17 @@ def _ts(sec: int) -> str:
 
 
 def _make_session(
-    cell_id: int, screen: str, signature: str, kind: str, idx: int
+    cell_id: int, screen: str, signature: str, kind: str, idx: int,
+    cohort_override: tuple[str, ...] | None = None,
 ) -> tuple[Session, dict]:
-    """kind ∈ {positive, negative, noise}. Returns (Session, ground_truth_row).
-    Sessions are constructed so the detector's fire/abstain matches should_fire."""
+    """kind ∈ {positive, degraded_positive, negative, noise}. Returns
+    (Session, ground_truth_row). Sessions are constructed so the detector's
+    fire/abstain matches should_fire. `cohort_override` (PULSE-134) sets the cohort
+    tag explicitly for the mixed-cohort fairness corpus; default keeps the
+    signature-derived cohort."""
     sid = f"c{cell_id}-{kind}-{idx}"
-    cohort = ("over_50",) if signature != "multi_back_press" else ("mobile",)
+    cohort = cohort_override if cohort_override is not None else (
+        ("over_50",) if signature != "multi_back_press" else ("mobile",))
 
     # cell 10: the "positive-slot" is the engineered negative (interest, suppressed)
     is_neg_cell = cell_id == 10
@@ -212,9 +217,43 @@ def _make_session(
     return Session(sid, screen, cohort, base_ev, feats), gt(False)
 
 
+def _mixed_cohort_cell(
+    cell_id: int, screen: str, signature: str, n_pos: int, n_neg: int, n_noise: int,
+    *, drift_pct: float = 0.0, cohort_disparity: float = 0.0,
+) -> list[tuple[Session, dict]]:
+    """PULSE-134 — build one cell with a ~50/50 over_50 vs reference cohort mix so
+    `assess_fairness` has within-cell cohort contrast. Protected (over_50) positives
+    degrade at (drift_pct + cohort_disparity); reference at drift_pct → a controlled
+    detection-rate disparity. Cell 10 (engineered negative) never degrades."""
+    items: list[tuple[Session, dict]] = []
+    n_prot = n_pos // 2
+    n_ref = n_pos - n_prot
+    if cell_id == 10:
+        n_prot_deg = n_ref_deg = 0
+    else:
+        n_prot_deg = min(n_prot, round(n_prot * min(1.0, drift_pct + cohort_disparity)))
+        n_ref_deg = min(n_ref, round(n_ref * drift_pct))
+    for i in range(n_pos):
+        if i < n_prot:
+            kind = "degraded_positive" if i < n_prot_deg else "positive"
+            co: tuple[str, ...] = ("over_50",)
+        else:
+            kind = "degraded_positive" if (i - n_prot) < n_ref_deg else "positive"
+            co = ()
+        items.append(_make_session(cell_id, screen, signature, kind, i, cohort_override=co))
+    for i in range(n_neg):
+        co = ("over_50",) if i % 2 == 0 else ()
+        items.append(_make_session(cell_id, screen, signature, "negative", i, cohort_override=co))
+    for i in range(n_noise):
+        co = ("over_50",) if i % 2 == 0 else ()
+        items.append(_make_session(cell_id, screen, signature, "noise", i, cohort_override=co))
+    return items
+
+
 def generate_corpus(
     sessions_per_cell: int = 100, negative_pool_size: int = 60,
     *, seed: int | None = None, drift_pct: float = 0.0,
+    mixed_cohorts: bool = False, cohort_disparity: float = 0.0,
 ) -> tuple[dict[int, list[tuple[Session, dict]]], list[tuple[Session, dict]]]:
     """Synthetic corpus. Per-cell mix follows TEST_SET_SPEC ratios (~65% positive-
     slot / 25% negative / 10% noise). Negative pool = sessions on non-target screens
@@ -226,7 +265,12 @@ def generate_corpus(
     cell are emitted as `degraded_positive` — ground-truth should_fire UNCHANGED, but
     sub-threshold events the detector misses (recall degradation = drift). `seed`
     jitters the degraded count ±1 for run-to-run noise. Cell 10 (engineered negative)
-    is never degraded."""
+    is never degraded.
+
+    PULSE-134 — `mixed_cohorts` / `cohort_disparity` are also additive (defaults off
+    → unchanged). `mixed_cohorts=True` mixes over_50 vs reference per cell (fairness
+    needs cohort contrast); `cohort_disparity>0` makes the protected cohort's
+    positives degrade more → a controlled detection-rate disparity."""
     n_pos = round(sessions_per_cell * 0.65)
     n_neg = round(sessions_per_cell * 0.25)
     n_noise = sessions_per_cell - n_pos - n_neg
@@ -234,6 +278,12 @@ def generate_corpus(
 
     cell_sessions: dict[int, list[tuple[Session, dict]]] = {}
     for cell_id, screen, signature, _expect in CELLS:
+        if mixed_cohorts:
+            cell_sessions[cell_id] = _mixed_cohort_cell(
+                cell_id, screen, signature, n_pos, n_neg, n_noise,
+                drift_pct=drift_pct, cohort_disparity=cohort_disparity,
+            )
+            continue
         n_degraded = 0
         if drift_pct > 0 and cell_id != 10:
             base = n_pos * drift_pct
