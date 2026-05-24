@@ -88,6 +88,24 @@ main.holter-main>.holter-row{display:contents!important}
 main.holter-main .holter-box{min-width:0!important}
 main.holter-main img,main.holter-main svg,main.holter-main canvas{max-width:100%!important;height:auto!important}
 .holter-ticker,.holter-ticker-track,.holter-ticker-wrap{overflow:hidden!important;max-width:100%!important}
+
+/* HOL-77 — only the Workspace ships the .holter-app wrapper that the bounded
+   shell above targets. Home + MLOps are body > header.holter-topnav +
+   main.{home-main|mlops-page} (no wrapper), so the global body{overflow:hidden}
+   above clipped them with no scroll region — MLOps lost ~1145px below the fold.
+   Make BODY their bounded shell: fixed topnav + the page-main as the single
+   vertical scroll region. The html height:100vh is load-bearing — body's
+   100vh resolves cleanly only when the root height is definite too. Scoped via
+   :has(>main.home-main|mlops-page) + body>main.* child selectors, so the
+   Workspace (topnav + main live inside .holter-app, not direct body children)
+   never matches and is untouched. */
+html:has(body>main.home-main),html:has(body>main.mlops-page){height:100vh!important}
+body:has(>main.home-main),body:has(>main.mlops-page){
+  height:100vh!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+body:has(>main.home-main)>header.holter-topnav,
+body:has(>main.mlops-page)>header.holter-topnav{flex:0 0 auto!important}
+body>main.home-main,body>main.mlops-page{
+  flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important}
 </style>
 """
 
