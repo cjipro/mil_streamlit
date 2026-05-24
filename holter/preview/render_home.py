@@ -40,6 +40,8 @@ if str(REPO) not in sys.path:
 from holter.preview._shared import (  # noqa: E402
     discover_packs,
     get_pack_cell,
+    get_pack_analytics,
+    lineage_anchor_short,
     headline_pack,
     short_hash,
     _ACTION_COLORS,
@@ -349,13 +351,42 @@ _DELTA_CONFIDENCE = [
 ]
 
 
+_CONF_BAND_COLORS = {"high": "var(--green)", "medium": "var(--amber)", "low": "var(--red)"}
+
+
+def _real_confidence(pack_name: str) -> tuple[str, str, str] | None:
+    """PULSE-93/96 — real confidence (band label, percentile-interval string,
+    colour) from the synthesis analytics, or None when the pack isn't runnable.
+    The interval is the honest signal: a single fabricated point score is what
+    we're replacing."""
+    out = get_pack_analytics(pack_name)
+    if out is None:
+        return None
+    p = out.payload
+    band = p["confidence_band"]  # high / medium / low
+    interval = f"{p['confidence_low']:.2f}–{p['confidence_high']:.2f}"
+    return band.upper(), interval, _CONF_BAND_COLORS.get(band, "var(--amber)")
+
+
+def _lineage_meta(pack: dict) -> str:
+    """Card meta line lineage badge — the REAL lineage anchor when available,
+    metadata-file sha as the honest fallback for fixture/non-runnable packs."""
+    la = lineage_anchor_short(pack["meta"]["pack_name"])
+    return f"lineage:{la}" if la else f"sha:{short_hash(pack['sha256'])}"
+
+
 def card_delta(pack_name: str) -> dict:
-    """Deterministic stub delta values for a pack. Engine returns these
-    on the verdict object once pulse.workspace.feed_for(role) lands."""
+    """Per-card delta values. time / change / velocity / n_findings stay
+    deterministic stubs (no feed-state contract in the engine yet), but the
+    CONFIDENCE is now the REAL synthesis-analytics band + interval for runnable
+    packs (PULSE-93/96), falling back to the stub for non-runnable packs."""
     h = sum(ord(c) for c in pack_name)
     time_str = _DELTA_TIMES[h % len(_DELTA_TIMES)]
     change_str, change_color = _DELTA_CHANGES[(h // 3) % len(_DELTA_CHANGES)]
     conf_label, conf_score, conf_color = _DELTA_CONFIDENCE[(h // 7) % len(_DELTA_CONFIDENCE)]
+    real_conf = _real_confidence(pack_name)
+    if real_conf is not None:
+        conf_label, conf_score, conf_color = real_conf
     n_findings = 1 + (h % 7)
     # HOL-27 — categorical velocity tag (Klein's "structure fire vs vehicle
     # fire" framing wants categorical, not continuous). Derived from
@@ -1048,9 +1079,11 @@ def render_hero(top_signal: dict, lens: str = "compliance",
     )
     # HOL-25 — slug breadcrumb killed. Provenance moves to a hover-tooltip
     # on the INVESTIGATE → CTA so a curious reader can still verify lineage.
-    sha = short_hash(pack["sha256"])
+    # PULSE-93/96 — real lineage anchor in the provenance tooltip (meta-sha fallback).
+    la = lineage_anchor_short(pack["meta"]["pack_name"])
+    lineage_str = f"lineage:{la}" if la else f"sha256:{short_hash(pack['sha256'])} (meta)"
     provenance_tooltip = _e(
-        f"pack: {pack['meta']['pack_name']} · sha256:{sha} · "
+        f"pack: {pack['meta']['pack_name']} · {lineage_str} · "
         f"verdict v0 · DuckDB-backed (PULSE)"
     , quote=True)
     # HOL-24 — delta meta: confidence chip + time-since-surfaced + tier-change + click preview
@@ -1215,7 +1248,7 @@ def render_flagged_feed(flagged: list[dict], hero: dict,
             summary=summary,
             tier=tier,
             tier_dim="action",
-            meta_left=f"sha:{short_hash(pack['sha256'])}",
+            meta_left=_lineage_meta(pack),
             meta_right=NOW,
             cta_label="INVESTIGATE →",
             accent=accent,
@@ -1287,7 +1320,7 @@ def render_commercial_queue(signals: list[dict], hero: dict | None,
             summary=summary,
             tier=value_tier,
             tier_dim="value",
-            meta_left=f"sha:{short_hash(pack['sha256'])}",
+            meta_left=_lineage_meta(pack),
             meta_right=NOW,
             cta_label="INVESTIGATE →",
             accent=accent,
