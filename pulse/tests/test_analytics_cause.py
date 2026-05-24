@@ -22,7 +22,7 @@ _PAYLOAD_KEYS = {
     "affected_sessions", "total_sessions", "affected_pct",
     "dwell_seconds_p50", "dwell_uplift_pct", "baseline_window_days",
     "p_value", "baseline_n", "p_value_threshold",
-    "cohort_breakdown", "fairness_flag", "error_breakdown",
+    "cohort_breakdown", "fairness_flag", "fairness", "error_breakdown",
     "remediation_category", "remediation_rationale",
     "confidence_band", "confidence_low", "confidence_high", "brier_score",
     # bank + signal altitude keys (PULSE-96 extension — real-data 3-altitude render)
@@ -88,6 +88,27 @@ def test_bank_and_signal_altitude_keys():
     assert isinstance(p["audit"]["bundle_required_fields"], list)
     assert p["engine_version"] and p["detection_emitted_at"]
     assert len(p["lineage_anchor"]) == 64  # sha256 hex
+
+
+def test_fairness_verdict_is_real_convergence_output():
+    """PULSE-132: payload['fairness'] is the real assess_fairness verdict (or None
+    when <2 eligible cohorts) — demographic_parity ratio + chi² significance."""
+    f = build_analytic_outputs(_LOANS, sessions_per_cell=40).payload["fairness"]
+    if f is not None:
+        assert set(f) == {
+            "assessed", "protected_group", "protected_rate", "reference_rate",
+            "disparity_ratio", "parity_difference", "chi2_statistic", "chi2_p_value",
+            "statistically_significant", "disparate_impact", "methods", "reason",
+        }
+        if f["assessed"]:
+            assert "demographic_parity" in f["methods"]
+            assert "chi_squared" in f["methods"]
+
+
+def test_fairness_verdict_deterministic():
+    a = build_analytic_outputs(_LOANS, sessions_per_cell=40).payload["fairness"]
+    b = build_analytic_outputs(_LOANS, sessions_per_cell=40).payload["fairness"]
+    assert a == b
 
 
 def test_negative_cell_does_not_crash_and_keys_hold():
