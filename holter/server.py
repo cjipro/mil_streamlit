@@ -34,9 +34,6 @@ _SURFACES: tuple[tuple[str, str], ...] = (
 # Anchor inside the design's existing dark top bar — identical across surfaces.
 _BRAND = '<span class="brand-logo">CJI&nbsp;PULSE</span>'
 
-# Design-stage link baked into the Home cards; point it at the live Workspace.
-_STALE_LINK = "http://localhost:8504/"
-
 _NAV_CSS = """
 <style id="cji-surface-nav-css">
 .cji-surface-nav{display:inline-flex;gap:.2rem;margin-left:1.1rem;align-items:center;vertical-align:middle}
@@ -96,10 +93,13 @@ main.holter-main img,main.holter-main svg,main.holter-main canvas{max-width:100%
 
 
 def _page(html: str, active: str) -> str:
-    """Inject the surface nav + styles and rewire the design-stage link."""
+    """Inject the surface nav + styles into a rendered design surface.
+
+    Cards now emit their own in-app deep links at the source (HOL-76), so the
+    legacy stale-link string-replace is gone — no surface emits localhost:8504.
+    """
     html = html.replace(_BRAND, _BRAND + _nav_html(active), 1)
     html = html.replace("</head>", _NAV_CSS + _LAYOUT_CSS + "</head>", 1)
-    html = html.replace(_STALE_LINK, "/workspace")
     return html
 
 
