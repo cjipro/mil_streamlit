@@ -184,14 +184,21 @@ def get_pack_cell(pack_name: str):
 _UI_SESSIONS_PER_CELL = 200
 
 
-@functools.lru_cache(maxsize=32)
+@functools.lru_cache(maxsize=64)
 def get_pack_analytics(pack_name: str):
     """Real Cause-class AnalyticOutputs for a runnable pack, or None (fail-soft)."""
     import logging
     try:
         from pulse.analytics.cause import build_analytic_outputs
         return build_analytic_outputs(pack_name, sessions_per_cell=_UI_SESSIONS_PER_CELL)
+    except FileNotFoundError:
+        # Expected, quiet None: not a runnable pack (no hypothesis.yaml) —
+        # fixture packs, stub feed items, synthetic alert titles. No stack
+        # trace, because this is a normal "render the pending state" case.
+        return None
     except Exception:
+        # Unexpected: the pack IS runnable but the engine failed (e.g. cell_id
+        # absent from the corpus). Log loudly so the failure is visible.
         logging.exception(
             "get_pack_analytics(%s) failed — synthesis analytics unavailable; "
             "quality strip + lineage badge render as PENDING for this pack",
