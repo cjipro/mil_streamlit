@@ -32,6 +32,7 @@ from typing import Any
 
 import yaml
 
+from pulse.convergence.fairness import assess_fairness
 from pulse.detection.detect import normal_cdf, run_detection
 from pulse.detection.frictionbench_run import _baseline_for, _hypothesis_for, generate_corpus
 from pulse.synthesis.base import AnalyticOutputs
@@ -118,6 +119,44 @@ def _fairness_flag(records: list[dict], threshold: float) -> dict[str, Any] | No
     if disparity > threshold:
         return {"disparity": disparity, "threshold": threshold}
     return None
+
+
+# The protected attribute for the demographic-parity assessment. In the synthetic
+# corpus the vulnerability-relevant axis is age — the `over_50` cohort tag — which is
+# a recognised UK-banking vulnerability indicator. A real deployment configures the
+# protected characteristic per pack; v1 uses this single, well-populated axis.
+_PROTECTED_TAG = "over_50"
+
+
+def _fairness_assessment(
+    records: list[dict], protected_tag: str = _PROTECTED_TAG,
+    min_cohort: int = _MIN_COHORT_SESSIONS,
+) -> dict[str, Any] | None:
+    """Real fairness-aware verdict via convergence.assess_fairness (demographic_parity
+    ratio + chi² significance + 4/5ths disparate-impact flag).
+
+    Split on a single protected attribute: sessions carrying `protected_tag` (protected)
+    vs those without (reference). A binary, well-populated split — NOT a fragmenting
+    breakdown over full cohort-tag tuples — so the demographic-parity question that
+    actually matters here (age-vulnerability disparity in detection) is answerable.
+    Returns the full convergence verdict (PULSE-89 registry); None when either arm is
+    below min_cohort. Deterministic."""
+    prot_fired = prot_total = ref_fired = ref_total = 0
+    for r in records:
+        fired = int(r["fired"])
+        if protected_tag in (r.get("cohort_tags") or []):
+            prot_total += 1
+            prot_fired += fired
+        else:
+            ref_total += 1
+            ref_fired += fired
+    if prot_total < min_cohort or ref_total < min_cohort:
+        return None
+    return assess_fairness(
+        protected_fired=prot_fired, protected_total=prot_total,
+        reference_fired=ref_fired, reference_total=ref_total,
+        protected_group=protected_tag, min_cohort=min_cohort,
+    ).as_dict()
 
 
 def _error_breakdown(records: list[dict]) -> list[dict[str, Any]]:
@@ -331,6 +370,7 @@ def build_analytic_outputs(pack_name: str, *, sessions_per_cell: int = 200) -> A
         "p_value_threshold": p_threshold,
         "cohort_breakdown": cohort_rows,
         "fairness_flag": _fairness_flag(records, fairness_threshold),
+        "fairness": _fairness_assessment(records),
         "error_breakdown": error_rows,
         "remediation_category": rem_category,
         "remediation_rationale": rem_rationale,
