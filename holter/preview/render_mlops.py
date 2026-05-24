@@ -80,23 +80,6 @@ NOW = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 # once those contracts are wired. Deterministic per pack-name hash.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def drift_series_n(pack_name: str, n: int) -> list[int]:
-    """Stub N-day detection-rate series. HOL-43 — variable length so the
-    window scrubber can swap [7d][14d][30d] without re-fetching."""
-    h = sum(ord(c) for c in pack_name)
-    baseline = 40 + (h % 30)
-    return [baseline + ((h + i * 5) % 19) - 9 for i in range(n)]
-
-
-def cohort_drift_series_n(pack_name: str, cohort: str, n: int) -> list[int]:
-    """HOL-43 — variable-length cohort series; mirrors cohort_drift_series."""
-    h = sum(ord(c) for c in pack_name) + sum(ord(c) for c in cohort)
-    baseline = 40 + (h % 30)
-    swing = (h % 12) - 6
-    return [baseline + ((h + i * (3 + cohort.count("-"))) % 19) - 9 + swing
-            for i in range(n)]
-
-
 @dataclass(frozen=True)
 class CohortSeries:
     """HOL-54 — bundles label + colour + values for a single cohort line.
@@ -105,34 +88,6 @@ class CohortSeries:
     label: str
     color: str
     values: list[float]
-
-
-def drift_series(pack_name: str) -> list[int]:
-    """Stub 14-day detection-rate series. Engine returns this via
-    pulse.frictionbench.scoring once the contract is wired."""
-    h = sum(ord(c) for c in pack_name)
-    baseline = 40 + (h % 30)
-    # Walk away from baseline by a tier-coupled drift amount
-    return [baseline + ((h + i * 3) % 17) - 8 for i in range(14)]
-
-
-# HOL-41 — cohort axes for disaggregated drift (O'Neil + Gigerenzer + Hubbard).
-# Engine returns per-cohort series via pulse.frictionbench.scoring.cohort_breakdown
-# once the contract is wired; stubbed deterministically per (pack, cohort).
-_COHORT_LABELS = ["18-24", "25-54", "55+"]
-_COHORT_COLORS = ["var(--red)", "var(--blue)", "var(--green)"]
-
-
-def cohort_drift_series(pack_name: str, cohort: str) -> list[int]:
-    """Stub 14-day detection-rate series per cohort. Different cohorts drift
-    independently — important because cell-aggregated drift can hide a single
-    subgroup bleeding (O'Neil's R1 critique)."""
-    h = sum(ord(c) for c in pack_name) + sum(ord(c) for c in cohort)
-    baseline = 40 + (h % 30)
-    # Each cohort gets its own drift signature
-    swing = (h % 12) - 6
-    return [baseline + ((h + i * (3 + cohort.count("-"))) % 19) - 9 + swing
-            for i in range(14)]
 
 
 def multi_sparkline_svg(cohorts: list[CohortSeries],
@@ -299,19 +254,21 @@ def synthesis_governance(pack: dict) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def drift_narrative(pack_name: str, series: list[int]) -> str:
-    """Generate a one-paragraph drift narrative — alert-fatigue mitigation."""
-    today, week_ago = series[-1], series[-8]
+    """One-paragraph drift narrative over the REAL per-cell detection-rate series
+    (pp) from run_history. Robust to short series."""
+    if not series:
+        return "<strong>What changed:</strong> no recorded runs for this cell."
+    today = series[-1]
+    week_ago = series[-8] if len(series) >= 8 else series[0]
     delta = today - week_ago
     direction = "rose" if delta > 0 else ("fell" if delta < 0 else "held")
     return (
-        f"<strong>What changed:</strong> detection rate {direction} "
-        f"{abs(delta)}pp over the last 7 days (now {today}). "
-        f"<strong>For whom:</strong> the {_e(pack_name)[:40]} pack's "
-        f"cell-level detection model. "
-        f"<strong>Evidence:</strong> 14-day sparkline + cohort-weighted "
-        f"baseline comparison. "
-        f"<strong>Response:</strong> "
-        f"{'recalibrate threshold; new bank-altitude check' if abs(delta) > 5 else 'continue monitoring — within bounds'}."
+        f"<strong>What changed:</strong> detection rate (recall) {direction} "
+        f"{abs(delta)}pp over the window (now {today}%). "
+        f"<strong>For whom:</strong> the {_e(pack_name)[:40]} cell's detection model. "
+        f"<strong>Evidence:</strong> pulse.serving.run_history per-run series vs the "
+        f"run-window mean. <strong>Response:</strong> "
+        f"{'recalibrate threshold; investigate the missed-detection cohort' if abs(delta) > 5 else 'continue monitoring — within bounds'}."
     )
 
 
@@ -511,77 +468,61 @@ CSS_EXTRA = (Path(__file__).parent / "mlops.css").read_text(encoding="utf-8")
 # so each pane is orchestration-only. Pure refactor; byte-stable output.
 
 def _render_drift_legend_strip() -> str:
-    """Top-of-DRIFT-pane strip: cohort legend swatches + 30d baseline indicator
-    + HOL-43 window scrubber [7d][14d][30d]. Constant across all renders."""
-    legend_swatches = "".join(
-        f'<span class="drift-legend-swatch" data-cohort="{_e(label)}">'
-        f'<span class="drift-legend-dot" style="background:{c};"></span>'
-        f'<span>{_e(label)}</span>'
-        f'</span>'
-        for label, c in zip(_COHORT_LABELS, _COHORT_COLORS)
-    )
-    scrubber_html = (
-        f'<div class="window-scrubber">'
-        f'<span class="window-scrubber-label">window</span>'
-        f'<button class="window-scrubber-btn" data-window="7d" type="button">7d</button>'
-        f'<button class="window-scrubber-btn" data-window="14d" type="button" '
-        f'data-active="true">14d</button>'
-        f'<button class="window-scrubber-btn" data-window="30d" type="button">30d</button>'
-        f'</div>'
-    )
+    """DRIFT-pane strip: what the sparkline shows + the baseline marker. The
+    per-cohort overlay + window scrubber are retired — run-history is per-cell
+    (PULSE-133), not per-cohort, and each line is a real detection-rate series."""
     return (
-        f'<div class="drift-legend">'
-        f'<span class="drift-legend-label">age_band</span>'
-        f'{legend_swatches}'
-        f'<span class="drift-legend-baseline">'
-        f'<span class="drift-legend-baseline-line"></span>'
-        f'<span>30-day baseline</span>'
-        f'</span>'
-        f'{scrubber_html}'
-        f'</div>'
+        '<div class="drift-legend">'
+        '<span class="drift-legend-label">detection rate %</span>'
+        '<span class="drift-legend-baseline">'
+        '<span class="drift-legend-baseline-line"></span>'
+        '<span>run-window mean</span>'
+        '</span>'
+        '<span class="drift-legend-label" style="margin-left:auto;">'
+        'per-cell recall over recorded runs</span>'
+        '</div>'
     )
 
 
-def _build_drift_row(p: dict) -> tuple[str, int]:
-    """Render one DRIFT row's HTML + return the row's 7-day delta so the
-    pane orchestrator can find the worst-cell pack for the headline KPI
-    + narrative. Includes the 3 pre-rendered sparkline windows (HOL-43)."""
-    cell_series = drift_series(p["meta"]["pack_name"])
-    today, week_ago = cell_series[-1], cell_series[-8]
+def _drift_history() -> list[dict]:
+    """Real per-cell detection-metric history (run_history), fail-soft → []."""
+    try:
+        from pulse.serving.run_history import read_cell_metrics_history
+        return read_cell_metrics_history()
+    except Exception:
+        import logging
+        logging.exception("read_cell_metrics_history failed — DRIFT pane renders NO HISTORY")
+        return []
+
+
+def _drift_series_by_cell() -> dict[int, list[int]]:
+    """{cell_id: detection-rate series (pp, chronological)} from run_history."""
+    by_cell: dict[int, list[int]] = {}
+    for r in _drift_history():  # read_cell_metrics_history returns chronological
+        by_cell.setdefault(r["cell_id"], []).append(round(r["detection_rate"] * 100))
+    return by_cell
+
+
+def _build_drift_row(p: dict, series_pp: list[int]) -> tuple[str, int]:
+    """One DRIFT row from the REAL per-cell detection-rate series (pp). Returns
+    (row_html, 7-day delta in pp) so the orchestrator can pick the worst cell."""
+    today = series_pp[-1]
+    week_ago = series_pp[-8] if len(series_pp) >= 8 else series_pp[0]
     delta = today - week_ago
     color = "var(--red)" if abs(delta) > 5 else (
              "var(--amber)" if abs(delta) > 2 else "var(--green)")
     h = p["hypothesis"] or {}
     cell = _e(str(h.get("cell_id", "?")))
     sig = _e(h.get("signature_id", "—").replace("_", " "))
-
-    # HOL-41 + HOL-43: render 3 sparkline windows; CSS toggles which is visible
-    baseline_30d = sum(cell_series) / len(cell_series)
-    spark_parts = []
-    for win_n, win_label in [(7, "7d"), (14, "14d"), (30, "30d")]:
-        cohorts = [
-            CohortSeries(
-                label=cohort,
-                color=cohort_color,
-                values=cohort_drift_series_n(p["meta"]["pack_name"], cohort, win_n),
-            )
-            for cohort, cohort_color in zip(_COHORT_LABELS, _COHORT_COLORS)
-        ]
-        svg = multi_sparkline_svg(
-            cohorts, width=240, height=28, baseline=baseline_30d,
-        )
-        svg_tagged = svg.replace(
-            '<svg class="body-sparkline"',
-            f'<svg class="body-sparkline" data-window="{win_label}"',
-            1,
-        )
-        spark_parts.append(svg_tagged)
-    spark = "".join(spark_parts)
-
+    baseline = sum(series_pp) / len(series_pp)
+    spark = sparkline_svg(
+        series_pp, color if abs(delta) > 2 else "var(--blue)",
+        width=240, height=28, reference_value=baseline,
+    )
     # HOL-39 + HOL-45: cell-id link, per-row severity, threshold tooltip
     row_sev = classify_drift_severity(delta)
     delta_tooltip = DRIFT_RULES.get(f"DRIFT_{row_sev}", "")
-    row_html = (
+    return (
         f'<div class="drift-cell cell-row pane-filterable" '
         f'data-cell-id="{cell}" data-severity="{row_sev}" '
         f'data-filter-scope="drift">'
@@ -593,60 +534,78 @@ def _build_drift_row(p: dict) -> tuple[str, int]:
         f'style="color:{color};" title="{_e(delta_tooltip)}">'
         f'{delta:+d}pp</span>'
         f'</div>'
-    )
-    return row_html, delta
+    ), delta
 
 
 def render_drift_pane(packs: list[dict]) -> str:
-    """Pane 1 — DRIFT MONITORS. Per-cell COHORT-DISAGGREGATED sparklines
-    (HOL-41) — multiple lines per row showing each age-band's trend so
-    O'Neil's single-subgroup-bleeding case is visible at a glance.
-    HOL-50: extracted row builder + legend strip into helpers."""
+    """Pane 1 — DRIFT MONITORS. REAL per-cell detection-rate history
+    (run_history.read_cell_metrics_history) — one recall series per cell, not the
+    fabricated cohort overlay (run-history is per-cell, PULSE-133). Honest
+    NO-HISTORY state when nothing has been recorded."""
+    by_cell = _drift_series_by_cell()
+
+    if not by_cell:
+        return render_box(
+            header=box_header("DRIFT MONITORS", "detection-rate history"),
+            accent_color="var(--text-3)",
+            headline=headline_stat_card(
+                label="WORST-CELL DELTA · 7-DAY", value="N/A",
+                delta="no run history recorded", traj="→ awaiting runs",
+                meta_left=f"{len(packs)} cells · 0 runs", meta_right=NOW, progress_pct=0,
+            ),
+            body=render_severity_narrative(
+                "WATCH",
+                "<strong>What changed:</strong> no detection-metric history has been "
+                "recorded yet. <strong>For whom:</strong> the drift monitor has no "
+                "time-series to evaluate. <strong>Evidence:</strong> "
+                "marts/cell_metrics_history.jsonl is empty. <strong>Response:</strong> "
+                "run <code>py -m pulse.serving.run_history --backfill 14</code> (synthetic "
+                "scenario), or let the pipeline record runs in production.",
+            ),
+            footer=box_footer("run-history v0.1", NOW, live=True,
+                              note="pulse.serving.run_history · no runs recorded yet"),
+        )
+
     drift_rows: list[str] = []
     worst_delta = 0
     worst_pack: dict | None = None
-    for p in packs[:5]:  # 5 rows fit cleanly with the bigger sparkline
-        row_html, delta = _build_drift_row(p)
+    worst_series: list[int] = []
+    for p in packs[:5]:
+        series_pp = by_cell.get((p["hypothesis"] or {}).get("cell_id"))
+        if not series_pp:
+            continue
+        row_html, delta = _build_drift_row(p, series_pp)
         drift_rows.append(row_html)
         if abs(delta) > abs(worst_delta):
-            worst_delta = delta
-            worst_pack = p
+            worst_delta, worst_pack, worst_series = delta, p, series_pp
 
-    # HOL-40 — narrative severity gradient driven by worst-cell delta
-    drift_sev = classify_drift_severity(worst_delta)
-    narrative = ""
-    if worst_pack:
-        series = drift_series(worst_pack["meta"]["pack_name"])
-        narrative = render_severity_narrative(
-            drift_sev,
-            drift_narrative(worst_pack["meta"]["pack_name"], series),
-        )
-    elif drift_sev == "NOMINAL":
-        narrative = render_severity_narrative("NOMINAL", "")
-
-    # HOL-45 — pane filter strip
+    n_runs = max((len(v) for v in by_cell.values()), default=0)
+    narrative = render_severity_narrative(
+        classify_drift_severity(worst_delta),
+        drift_narrative(worst_pack["meta"]["pack_name"], worst_series) if worst_pack
+        else "<strong>What changed:</strong> no significant drift across recorded runs.",
+    )
     drift_filter = render_filter_strip(
         scope="drift",
         options=[("all", "ALL"), ("ACUTE", "ACUTE only"),
                  ("ESCALATE", "≥ESCALATE"), ("WATCH", "≥WATCH")],
     )
-
     return render_box(
-        header=box_header("DRIFT MONITORS", "14-day window"),
+        header=box_header("DRIFT MONITORS", f"detection-rate · {n_runs} runs"),
         accent_color="var(--blue)",
         headline=headline_stat_card(
             label="WORST-CELL DELTA · 7-DAY",
             value=f"{worst_delta:+d}pp",
             delta=f"on cell {(worst_pack['hypothesis'] or {}).get('cell_id','?') if worst_pack else '—'}",
-            traj="↗ DRIFTING" if abs(worst_delta) > 5 else "→ STABLE",
-            meta_left=f"{len(packs)} cells monitored",
+            traj="↘ DRIFTING" if abs(worst_delta) > 5 else "→ STABLE",
+            meta_left=f"{len(by_cell)} cells · {n_runs} runs recorded",
             meta_right=NOW,
             progress_pct=min(100, abs(worst_delta) * 10),
         ),
         body=drift_filter + _render_drift_legend_strip() + "".join(drift_rows) + narrative,
         footer=box_footer(
-            "frictionbench v0.1", NOW, live=True,
-            note="Drift baselines from pulse.frictionbench.scoring",
+            "run-history v0.1", NOW, live=True,
+            note="real per-cell detection-rate history · pulse.serving.run_history",
         ),
     )
 
@@ -1128,12 +1087,15 @@ def render_decision_frame(packs: list[dict]) -> str:
       - Decision frame — 3-button cluster [Approve 14d / Committee / Retrain]
       - Session badge — reviewer + session start + decisions logged
     """
-    # Compute trigger from drift (worst-cell pack)
+    # Compute trigger from REAL per-cell drift history (worst-cell pack)
     worst_delta = 0
     worst_pack = None
+    _drift_by_cell = _drift_series_by_cell()
     for p in packs[:5]:
-        cs = drift_series(p["meta"]["pack_name"])
-        delta = cs[-1] - cs[-8]
+        series_pp = _drift_by_cell.get((p["hypothesis"] or {}).get("cell_id"))
+        if not series_pp:
+            continue
+        delta = series_pp[-1] - (series_pp[-8] if len(series_pp) >= 8 else series_pp[0])
         if abs(delta) > abs(worst_delta):
             worst_delta = delta
             worst_pack = p
@@ -1540,6 +1502,18 @@ window.holterRecordEvent = function (scope, target, action, reason) {{
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Seed a synthetic drift scenario for the preview if no run-history exists yet
+    # (production records real runs; this only fires on an empty store).
+    try:
+        from pulse.serving.run_history import (
+            CELL_METRICS_HISTORY_LOG,
+            backfill_demo_history,
+        )
+        if not CELL_METRICS_HISTORY_LOG.exists():
+            backfill_demo_history(14)
+    except Exception:
+        import logging
+        logging.exception("drift-history backfill skipped — DRIFT pane will show NO HISTORY")
     out = OUT_DIR / "index.html"
     html = render_page()
     out.write_text(html, encoding="utf-8")
