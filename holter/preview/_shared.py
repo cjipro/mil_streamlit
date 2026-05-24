@@ -92,14 +92,20 @@ def discover_packs() -> list[dict]:
             yaml.safe_load(hyp_path.read_text(encoding="utf-8"))
             if hyp_path.exists() else None
         )
-        bank_md = (samples_dir / "bank.md").read_text(encoding="utf-8") \
-            if (samples_dir / "bank.md").exists() else ""
+        def _sample(name: str) -> str:
+            p = samples_dir / name
+            return p.read_text(encoding="utf-8") if p.exists() else ""
+        # All three altitude renderings the engine emits per investigation
+        # (bank/journey/signal). HOL-78 surfaces them in the Workspace; bank_md
+        # is also mined for a quotable headline by _extract_quote.
         packs.append({
             "dir": pack_dir,
             "meta": meta,
             "sha256": hashlib.sha256(raw_bytes).hexdigest(),
             "hypothesis": hypothesis,
-            "bank_md": bank_md,
+            "bank_md": _sample("bank.md"),
+            "journey_md": _sample("journey.md"),
+            "signal_md": _sample("signal.md"),
         })
     return packs
 
