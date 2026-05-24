@@ -34,7 +34,7 @@ _SURFACES: tuple[tuple[str, str], ...] = (
 )
 
 # Anchor inside the design's existing dark top bar — identical across surfaces.
-_BRAND = '<span class="brand-logo">CJI&nbsp;PULSE</span>'
+_BRAND = '<span class="brand-logo">Cerno</span>'
 
 _NAV_CSS = """
 <style id="cji-surface-nav-css">
