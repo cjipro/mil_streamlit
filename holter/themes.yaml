@@ -1,0 +1,88 @@
+# Holter Row-1 Themes registry (HOL-85).
+#
+# A theme is a DECISION OUTPUT — the answer to one user question — surfaced in
+# the row-1 context picker (Cerno · Themes ▾ · view-tabs). The list is flat and
+# uniform: the user sees channels, synthesis, and overviews the same way. A theme
+# is NOT journey-dependent — it reads across all journeys and ranks them
+# (decision record: memory project_pulse_surface_ia_and_verification.md).
+#
+# CONFIG-DRIVEN: adding/removing a theme = one entry here, no code change.
+# Order below = display order. One theme is selected at a time (no "All").
+#
+# Fields per theme:
+#   slug     — URL-safe id, used in ?theme=<slug> and as the stable key
+#   label    — the bar label. Uses "App" (precision lives in the tooltip)
+#   status   — active      : selectable now
+#              placeholder : rendered disabled / "soon" — NEVER empty-but-live
+#                            (no-dead-control discipline; an empty decision-output
+#                            undercuts "verify every claim")
+#   tooltip  — hover text; carries the precise meaning ("the mobile banking app")
+#
+# Content behind each theme lands with the engine theme model (PULSE-136); this
+# file is the selector's source of truth, shipped ahead of that content (HOL-85).
+
+themes:
+  - slug: the-app
+    label: The App
+    status: active
+    tooltip: The mobile banking app — overview and leads across every journey.
+
+  - slug: agentic-ai-chat-candidates
+    label: Agentic AI Chat Candidates
+    status: active
+    tooltip: Synthesis output — journeys that are candidates for agentic-AI chat. Just another decision output, not a special mode.
+
+  - slug: app-and-errors
+    label: App and Errors
+    status: active
+    tooltip: The mobile banking app and error / failure signals.
+
+  - slug: app-and-digital-chat
+    label: App and Digital Chat
+    status: active
+    tooltip: The mobile banking app and digital-chat demand.
+
+  - slug: app-and-help
+    label: App and Help
+    status: active
+    tooltip: The mobile banking app and in-app help demand.
+
+  - slug: app-and-call-centre
+    label: App and Call Centre
+    status: active
+    tooltip: The mobile banking app and call-centre demand — app friction deflecting into the contact centre.
+
+  - slug: app-and-online
+    label: App and Online
+    status: active
+    tooltip: The mobile banking app and online / web banking.
+
+  - slug: app-and-branch
+    label: App and Branch
+    status: active
+    tooltip: The mobile banking app and branch demand.
+
+  - slug: app-and-complaints
+    label: App and Complaints
+    status: active
+    tooltip: The mobile banking app and complaints.
+
+  - slug: app-and-nps
+    label: App and NPS
+    status: active
+    tooltip: The mobile banking app and NPS / customer-advocacy signal.
+
+  - slug: app-and-cx
+    label: App and Customer Experience (CX)
+    status: active
+    tooltip: The mobile banking app and overall customer-experience signal.
+
+  - slug: app-and-disputes
+    label: App and Disputes
+    status: placeholder
+    tooltip: Coming soon — the mobile banking app and disputes.
+
+  - slug: app-and-fraud
+    label: App and Fraud
+    status: placeholder
+    tooltip: Coming soon — the mobile banking app and fraud.
