@@ -171,50 +171,6 @@ def multi_sparkline_svg(cohorts: list[CohortSeries],
     )
 
 
-def fairness_record(pack_name: str) -> dict:
-    """REAL fairness verdict (PULSE-132), shaped for the pane.
-
-    Pulls `payload["fairness"]` (convergence.assess_fairness) via the analytics
-    bridge. On the synthetic single-cohort corpus this is NOT assessable
-    (`assessed=False`) and populates on production mixed-cohort data.
-    `demographic_parity` is a [0,1] parity SCORE derived from the real
-    disparity_ratio (1.0 = equal selection rates; <0.8 = disparate impact / outside
-    the 4/5ths band). `equalised_odds` + `calibration_by_cohort` are declared in
-    convergence/methods.yaml but NOT run at v1 (need ground-truth labels) → None;
-    the pane renders them "declared, not run"."""
-    out = get_pack_analytics(pack_name)
-    v = out.payload.get("fairness") if out is not None else None
-    if not v or not v.get("assessed"):
-        return {
-            "assessed": False,
-            "demographic_parity": None,
-            "equalised_odds": None,
-            "calibration_by_cohort": None,
-            "disparate_impact": False,
-            "chi2_p_value": None,
-            "statistically_significant": False,
-            "deviation_alert": False,
-            "protected_group": (v or {}).get("protected_group", "over_50"),
-            "cohort_dims": [(v or {}).get("protected_group", "over_50")],
-            "reason": (v or {}).get("reason", "not_assessable_single_cohort"),
-        }
-    ratio = v.get("disparity_ratio") or 0.0
-    parity_score = round(min(ratio, 1.0 / ratio), 4) if ratio > 0 else 0.0
-    return {
-        "assessed": True,
-        "demographic_parity": parity_score,
-        "equalised_odds": None,
-        "calibration_by_cohort": None,
-        "disparate_impact": bool(v.get("disparate_impact")),
-        "chi2_p_value": v.get("chi2_p_value"),
-        "statistically_significant": bool(v.get("statistically_significant")),
-        "deviation_alert": bool(v.get("disparate_impact")),
-        "protected_group": v.get("protected_group", "—"),
-        "cohort_dims": [v.get("protected_group", "—")],
-        "reason": v.get("reason", "ok"),
-    }
-
-
 def synthesis_governance(pack: dict) -> dict:
     """REAL synthesis-mode (from pack metadata) + honest v1 attestation state.
 
@@ -421,35 +377,6 @@ def render_filter_strip(scope: str, options: list[tuple[str, str]],
     )
 
 
-def fairness_narrative(pack_name: str, fair: dict) -> str:
-    """One-paragraph fairness narrative over the REAL verdict (PULSE-132)."""
-    if not fair["assessed"]:
-        return (
-            "<strong>What changed:</strong> demographic-parity could not be assessed — "
-            "no within-investigation cohort contrast in the current (synthetic, "
-            "single-cohort) corpus. "
-            f"<strong>For whom:</strong> the {_e(fair['protected_group'])} protected split. "
-            "<strong>Evidence:</strong> convergence.assess_fairness returned "
-            "not-assessable. <strong>Response:</strong> populates on production "
-            "mixed-cohort data; equalised-odds + calibration need ground-truth labels "
-            "(declared, not run at v1)."
-        )
-    dp = fair["demographic_parity"]
-    p = fair["chi2_p_value"]
-    p_str = f"{p:.4f}" if p is not None else "n/a"
-    sig = "significant" if fair["statistically_significant"] else "not significant"
-    flagged = fair["disparate_impact"]
-    return (
-        f"<strong>What changed:</strong> demographic-parity score {dp:.2f} on the "
-        f"{_e(fair['protected_group'])} split"
-        f"{' — outside the 4/5ths band (disparate impact)' if flagged else ' — within the 4/5ths band'}. "
-        f"<strong>For whom:</strong> {_e(fair['protected_group'])} vs reference cohort. "
-        f"<strong>Evidence:</strong> convergence.assess_fairness — chi² p={p_str} ({sig}). "
-        f"<strong>Response:</strong> "
-        f"{'hold deployment; MRM fairness re-review' if flagged else 'no action — within tolerance'}."
-    )
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # CSS — MIL briefing aesthetic + a small MLOps-specific addition for the
 # governance table
@@ -610,100 +537,115 @@ def render_drift_pane(packs: list[dict]) -> str:
     )
 
 
+def _fairness_history_by_cell() -> dict[int, list[dict]]:
+    """{cell_id: [fairness verdict rows], chronological} from run_history
+    (PULSE-134). Fail-soft → {} so the pane renders the honest NO-HISTORY state."""
+    by_cell: dict[int, list[dict]] = {}
+    try:
+        from pulse.serving.run_history import read_fairness_history
+        rows = read_fairness_history()
+    except Exception:
+        import logging
+        logging.exception("read_fairness_history failed — FAIRNESS pane renders NO HISTORY")
+        rows = []
+    for r in rows:
+        by_cell.setdefault(r["cell_id"], []).append(r)
+    return by_cell
+
+
 def render_fairness_pane(packs: list[dict]) -> str:
-    """Pane 2 — FAIRNESS RE-CHECK. Per-pack metrics + worst-pack narrative.
-
-    HOL-46 — Raskin's R1+R2 carryover: "FAIRNESS RE-CHECK still leads with
-    three competing numbers at equal visual weight. Pick one." Header now
-    rebuilt with a single dominant primary KPI (worst equalised-odds) and
-    PASS/FAIL counts demoted to supporting annotation. Gigerenzer's "0.85
-    GINI requires a stats card" closed via threshold tooltip on the
-    primary value.
-    """
-    FLOOR = 0.8  # 4/5ths (adverse-impact) rule on the demographic-parity score
-    fair_records = [(p, fairness_record(p["meta"]["pack_name"])) for p in packs]
-    assessed = [(p, f) for p, f in fair_records if f["assessed"]]
-    n_assessed = len(assessed)
-    n_flagged = sum(1 for _, f in assessed if f["disparate_impact"])
-
-    # EQ ODDS + CALIBRATION are declared in convergence/methods.yaml but not run
-    # at v1 (need ground-truth labels) — always render as "declared, not run".
+    """Pane 2 — FAIRNESS RE-CHECK. REAL per-run demographic-parity history
+    (PULSE-134 run_history.read_fairness_history): worst-cell ratio vs the 4/5ths
+    floor + disparate-impact count + an over-time trend sparkline. equalised_odds +
+    calibration declared-not-run. Honest NO-HISTORY state when nothing recorded."""
+    FLOOR = 0.8  # 4/5ths (adverse-impact) rule on the demographic-parity ratio
     _not_run_tiles = [
         ("—", "EQ ODDS", "declared · not run", "var(--text-3)"),
         ("—", "CALIBRATION", "declared · not run", "var(--text-3)"),
     ]
+    by_cell = _fairness_history_by_cell()
+    latest = {cid: rows[-1] for cid, rows in by_cell.items() if rows and rows[-1].get("assessed")}
 
-    if not assessed:
-        # Honest not-assessable state — the current synthetic FrictionBench corpus
-        # is cohort-homogeneous per cell, so there's no within-investigation cohort
-        # contrast. The real verdict populates on production mixed-cohort data.
+    if not latest:
         return render_box(
-            header=box_header("FAIRNESS RE-CHECK", "demographic-parity + chi²"),
+            header=box_header("FAIRNESS RE-CHECK", "demographic-parity over time"),
             accent_color="var(--text-3)",
             headline=headline_stat_card(
-                label="DEMOGRAPHIC PARITY",
-                value="N/A",
-                delta="not assessable on this data",
-                traj="→ awaiting cohort contrast",
-                meta_left=f"0 of {len(packs)} packs assessable",
-                meta_right=NOW,
-                progress_pct=0,
+                label="WORST DEMOGRAPHIC-PARITY", value="N/A",
+                delta="no fairness history recorded", traj="→ awaiting runs",
+                meta_left=f"0 of {len(packs)} cells assessed", meta_right=NOW, progress_pct=0,
             ),
             body=body_kpi_tiles(
-                [("N/A", "DEM PARITY", "needs mixed-cohort data", "var(--text-3)")]
-                + _not_run_tiles
+                [("N/A", "DEM PARITY", "needs mixed-cohort runs", "var(--text-3)")] + _not_run_tiles
             ) + render_severity_narrative(
                 "WATCH",
-                fairness_narrative(fair_records[0][0]["meta"]["pack_name"], fair_records[0][1]),
-            ) + body_lines([
-                ("Method: pulse.convergence.assess_fairness — demographic_parity + chi² "
-                 "(real); equalised_odds + calibration declared, not run at v1",
-                 "var(--text-3)"),
-            ]),
-            footer=box_footer(
-                "convergence v0.1", NOW, live=True,
-                note="real assess_fairness verdict · not assessable on synthetic "
-                     "single-cohort cells (populates on production data)",
+                "<strong>What changed:</strong> no fairness history recorded yet. "
+                "<strong>For whom:</strong> the over_50 protected split. "
+                "<strong>Evidence:</strong> marts/fairness_history.jsonl is empty. "
+                "<strong>Response:</strong> run <code>py -m pulse.serving.run_history "
+                "--backfill 14</code> (synthetic scenario), or production records per-run "
+                "fairness. equalised_odds + calibration need labels (not run at v1).",
             ),
+            footer=box_footer("convergence v0.1", NOW, live=True,
+                              note="pulse.serving.run_history fairness · no runs recorded yet"),
         )
 
-    # Production path — at least one pack assessable.
-    worst_pack, worst_fair = min(assessed, key=lambda pf: pf[1]["demographic_parity"])
-    worst_dp = worst_fair["demographic_parity"]
-    dp_color = "var(--red)" if worst_dp < FLOOR else "var(--green)"
+    worst_cid = min(latest, key=lambda c: latest[c]["demographic_parity_ratio"] or 1.0)
+    worst = latest[worst_cid]
+    worst_ratio = worst["demographic_parity_ratio"] or 0.0
+    n_assessed = len(latest)
+    n_flagged = sum(1 for v in latest.values() if v.get("disparate_impact"))
+    n_runs = max((len(v) for v in by_cell.values()), default=0)
+    ratio_series = [round((r.get("demographic_parity_ratio") or 0.0) * 100)
+                    for r in by_cell[worst_cid] if r.get("assessed")]
+    dp_color = "var(--red)" if worst_ratio < FLOOR else "var(--green)"
+    spark = (sparkline_svg(ratio_series, dp_color, width=240, height=28,
+                           reference_value=FLOOR * 100)
+             if len(ratio_series) >= 2 else "")
+    p = worst.get("chi2_p_value")
+    p_str = f"{p:.4f}" if p is not None else "n/a"
+    sig = "significant" if (p is not None and p < 0.05) else "not significant"
+    narrative = render_severity_narrative(
+        classify_fairness_severity(n_flagged),
+        (f"<strong>What changed:</strong> worst demographic-parity ratio is "
+         f"{worst_ratio:.2f} on cell {worst_cid} (over_50 vs reference)"
+         f"{' — outside the 4/5ths band (disparate impact)' if worst_ratio < FLOOR else ' — within the 4/5ths band'}, "
+         f"across {len(ratio_series)} recorded runs. "
+         f"<strong>For whom:</strong> the over_50 protected cohort. "
+         f"<strong>Evidence:</strong> convergence.assess_fairness — chi² p={p_str} ({sig}). "
+         f"<strong>Response:</strong> "
+         f"{'hold deployment; MRM fairness re-review' if worst_ratio < FLOOR else 'no action — within tolerance'}."),
+    )
     delta_str = (
         f'<span style="color:{dp_color};" class="threshold-token" '
         f'title="{_e(FAIRNESS_METRIC_RULES["demographic_parity"])}">'
-        f'{"↓ disparate impact" if worst_dp < FLOOR else "↑ within 4/5ths"} '
-        f'({worst_dp:.2f} vs {FLOOR:.2f})</span>'
-    )
-    narrative = render_severity_narrative(
-        classify_fairness_severity(n_flagged),
-        fairness_narrative(worst_pack["meta"]["pack_name"], worst_fair),
+        f'{"↓ disparate impact" if worst_ratio < FLOOR else "↑ within 4/5ths"} '
+        f'({worst_ratio:.2f} vs {FLOOR:.2f})</span>'
     )
     return render_box(
-        header=box_header("FAIRNESS RE-CHECK", "demographic-parity + chi²"),
+        header=box_header("FAIRNESS RE-CHECK", f"demographic-parity · {n_runs} runs"),
         accent_color="var(--amber)" if n_flagged else "var(--green)",
         headline=headline_stat_card(
             label="WORST DEMOGRAPHIC-PARITY",
-            value=f"{worst_dp:.2f}",
+            value=f"{worst_ratio:.2f}",
             delta=delta_str,
-            traj="↘ DISPARATE IMPACT" if worst_dp < FLOOR else "→ WITHIN 4/5THS",
-            meta_left=f"{n_assessed} assessed · {n_flagged} flagged · {len(packs)} packs",
+            traj="↘ DISPARATE IMPACT" if worst_ratio < FLOOR else "→ WITHIN 4/5THS",
+            meta_left=f"{n_assessed} assessed · {n_flagged} flagged · {n_runs} runs",
             meta_right=NOW,
-            progress_pct=int(worst_dp * 100),
+            progress_pct=int(min(100, worst_ratio * 100)),
         ),
-        body=body_kpi_tiles(
+        body=(f'<div class="drift-cell-spark">{spark}</div>' if spark else "")
+        + body_kpi_tiles(
             [(f"{n_flagged}/{n_assessed}", "DEM PARITY", "disparate impact",
-              "var(--red)" if n_flagged else "var(--green)")]
-            + _not_run_tiles
+              "var(--red)" if n_flagged else "var(--green)")] + _not_run_tiles
         ) + narrative + body_lines([
-            ("Method: pulse.convergence.assess_fairness — demographic_parity + chi² "
-             "(real); equalised_odds + calibration declared, not run at v1", "var(--text-3)"),
+            ("Method: pulse.convergence.assess_fairness over per-run history (PULSE-134); "
+             "equalised_odds + calibration declared, not run at v1", "var(--text-3)"),
         ]),
         footer=box_footer(
             "convergence v0.1", NOW, live=True,
-            note="real assess_fairness verdict (demographic-parity ratio + chi² significance)",
+            note="real per-run fairness history · demographic-parity ratio + chi² · "
+                 "pulse.serving.run_history",
         ),
     )
 
@@ -1112,20 +1054,21 @@ def render_decision_frame(packs: list[dict]) -> str:
     pack_name = worst_pack["meta"]["pack_name"] if worst_pack else "—"
     cell_id = (worst_pack["hypothesis"] or {}).get("cell_id", "?") if worst_pack else "?"
 
-    # Count packs the real fairness verdict flags for disparate impact
-    # (matches FAIRNESS pane logic; 0 on the synthetic single-cohort corpus).
-    cohorts_below = 0
-    for p in packs:
-        f_ = fairness_record(p["meta"]["pack_name"])
-        if f_["deviation_alert"]:
-            cohorts_below += 1
+    # Count cells the latest fairness-history verdict flags for disparate impact
+    # (matches the FAIRNESS pane; sourced from real per-run history, PULSE-134).
+    _fair_latest = _fairness_history_by_cell()
+    cohorts_below = sum(
+        1 for rows in _fair_latest.values()
+        if rows and rows[-1].get("disparate_impact")
+    )
 
     trigger = (
         f'<span class="mlops-decision-trigger-tag" style="color:{sev_color};">{sev}</span>'
         f'Model <span class="mlops-decision-trigger-pack">{_e(pack_name)}</span> '
         f'manual re-check flagged <strong>{sev}</strong> — '
         f'drift {worst_delta:+d}pp on cell {_e(str(cell_id))} · '
-        f'{cohorts_below}/{len(packs)} cohorts below equalised-odds floor.'
+        f'{cohorts_below} cell{"s" if cohorts_below != 1 else ""} flagged for '
+        f'demographic-parity disparate impact.'
     )
 
     today = _dt.date.today().strftime("%a · %d %b")
@@ -1507,10 +1450,11 @@ def main() -> None:
     try:
         from pulse.serving.run_history import (
             CELL_METRICS_HISTORY_LOG,
+            FAIRNESS_HISTORY_LOG,
             backfill_demo_history,
         )
-        if not CELL_METRICS_HISTORY_LOG.exists():
-            backfill_demo_history(14)
+        if not CELL_METRICS_HISTORY_LOG.exists() or not FAIRNESS_HISTORY_LOG.exists():
+            backfill_demo_history(14)  # seeds both drift + fairness scenarios (fresh)
     except Exception:
         import logging
         logging.exception("drift-history backfill skipped — DRIFT pane will show NO HISTORY")
