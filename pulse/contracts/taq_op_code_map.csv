@@ -1,0 +1,698 @@
+id,op_code,journey,customer_journey
+a0002,A0002,authentication,Logoff
+a0012,A0012,authentication,Push Notifications
+a001c,A001C,core_app_web,Terms & Conditions
+a001d,A001D,core_app_web,Terms & Conditions
+a401a,A401A,authentication,Logon
+a401b,A401B,authentication,Logon
+ab001,AB001,homepage_transactions,Banners
+ab002,AB002,homepage_transactions,Banners
+ab003,AB003,finance_my_growth,Loans
+ak001,AK001,payments,Open Banking
+ak002,AK002,payments,Open Banking
+ak003,AK003,payments,Open Banking
+ak004,AK004,payments,Open Banking
+ak02b,AK02B,payments,Open Banking
+al001,AL001,finance_my_growth,Business ALS Loan
+al004,AL004,onboarding,Onboarding
+alu01,ALU01,onboarding,Change of Address
+ap002,AP002,payments,Apple Pay
+ap003,AP003,payments,Apple wallet extension
+api.adigihelphubqry,spro1,api_inspector,
+api.busaccountmanagementxapi,spro1,api_inspector,
+api.busprodsuitabilityxapi,spro1,api_inspector,
+api.digitaldynamicformsxapi,spro1,api_inspector,
+api.digitalrewardmgmtxapi,spro1,api_inspector,
+api.digixapiaccountsmgt,spro1,api_inspector,
+api.digixapichequeprocessing,spro1,api_inspector,
+api.digixapicustpropositions,spro1,api_inspector,
+api.digixapipaymentsmgt,spro1,api_inspector,
+api.digixapirwdsubsmgt,spro1,api_inspector,
+api.digixapitransactionsmgt,spro1,api_inspector,
+api.emmxapissdauthqry,spro1,api_inspector,
+api.mortrepaymentchargesxapi,spro1,api_inspector,
+api.spr01,spro1,api_inspector,
+api.taqapiavios,spro1,api_inspector,
+api.taqapicrdmgmntcmd,spro1,api_inspector,
+api.taqapicrdtknqry,spro1,api_inspector,
+api.taqapidej,spro1,api_inspector,
+api.taqapimrkprefsmgt,spro1,api_inspector,
+api.taqapiprospects,spro1,api_inspector,
+api.taqapiprospectslookup,spro1,api_inspector,
+api.taqapisearchmgt,spro1,api_inspector,
+api.taqbpfpymntsxapi,spro1,api_inspector,
+api.taqdataapibusinsmgt,spro1,api_inspector,
+api.taqdbtcrdsrvcngiapi,spro1,api_inspector,
+api.taqdomainbbao,spro1,api_inspector,
+api.taqdomaincommon,spro1,api_inspector,
+api.taqdomaincustonboarding,spro1,api_inspector,
+api.taqdomainhomepage,spro1,api_inspector,
+api.taqdomainngcbetb,spro1,api_inspector,
+api.taqdomainpkgholdings,spro1,api_inspector,
+api.taqdomainregistration,spro1,api_inspector,
+api.taqdomaintransaction,spro1,api_inspector,
+api.taqfundstrnsfrxapi,spro1,api_inspector,
+api.taqmanagepaymentsiapi,spro1,api_inspector,
+api.taqmortgagesxapi,spro1,api_inspector,
+api.taqppecrdactenqxapi,spro1,api_inspector,
+api.taqppecrdtxnenqxapi,spro1,api_inspector,
+api.taqpperpayenqxapi,spro1,api_inspector,
+api.taqxapiasyncchat,spro1,api_inspector,
+api.taqxapicontactdetails,spro1,api_inspector,
+api.taqxapistmtdocs,spro1,api_inspector,
+api.xdigiloyaltyexpmgt,spro1,api_inspector,
+api.xdigiofflinemodemgmt,spro1,api_inspector,
+api.xdigiprofilesmgt,spro1,api_inspector,
+api.xdigirewardscashbackmgt,spro1,api_inspector,
+api.xeccapptbookmgt,spro1,api_inspector,
+api.xfinplantiaadrop,spro1,api_inspector,
+api.xmortgagedirectdebit,spro1,api_inspector,
+api.xmortgagesummarymgt,spro1,api_inspector,
+api.xpbwmdigiinvauthmgt,spro1,api_inspector,
+api.xpbwmonehubviewmgt,spro1,api_inspector,
+api.xunseccardintratemgt,spro1,api_inspector,
+api.xunseccardsmartpaymgt,spro1,api_inspector,
+api.xunseccreditoffermgt,spro1,api_inspector,
+api.xunsecoffermgt,spro1,api_inspector,
+api.xunsecsustainhubmgt,spro1,api_inspector,
+at006,AT006,core_app_web,Analytics
+at007,AT007,core_app_web,Analytics
+at008,AT008,core_app_web,Analytics
+au005,AU005,cross_product_servicing,Profile
+au006,AU006,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature
+au007,AU007,credit_cards,TAQ-Credit Card
+au008,AU008,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature
+au009,AU009,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature
+b0003,B0003,loans,Loans
+b0005,B0005,loans,Loans
+b0006,B0006,loans,Loans
+b0007,B0007,loans,Loans
+b0008,B0008,loans,Loans
+b0010,B0010,loans,Loans
+b0012,B0012,overdrafts,Overdraft
+b0013,B0013,overdrafts,Overdraft
+b0015,B0015,overdrafts,Overdraft
+b0016,B0016,overdrafts,Overdraft
+b0017,B0017,loans,Loans
+b0018,B0018,loans,Loans
+b0019,B0019,loans,Loans
+b0020,B0020,loans,Loans
+b0021,B0021,loans,Loans
+b0022,B0022,loans,Loans
+b0023,B0023,loans,Loans
+b0024,B0024,overdrafts,Overdraft
+b0025,B0025,overdrafts,Overdraft
+b0027,B0027,loans,Lending-Child Care
+b0028,B0028,loans,Lending-Child Care
+b0029,B0029,loans,Lending-Child Care
+b0030,B0030,loans,Lending-Child Care
+b0031,B0031,loans,Lending-Child Care
+b0032,B0032,loans,Lending - CLIV
+b0033,B0033,loans,Lending - CLIV
+b0041,B0041,overdrafts,Overdraft
+ba002,BA002,homepage_transactions,Transactions
+ba004,BA004,homepage_transactions,Transactions
+ba006,BA006,homepage_transactions,Transactions
+ba009,BA009,homepage_transactions,Transactions
+ba010,BA010,homepage_transactions,Transactions
+ba01c,BA01C,homepage_transactions,"Logon, View Balance"
+ba01d,BA01D,homepage_transactions,"Logon, View Balance"
+ba01g,BA01G,homepage_transactions,"Logon, View Balance"
+ba01w,BA01W,homepage_transactions,View Accounts
+ba03b,BA03B,homepage_transactions,Hide Account
+bc3a,BC3A,credit_cards,TAQ-Credit Card
+bc3b,BC3B,credit_cards,TAQ-Credit Card
+bci01,BCI01,credit_cards,Credit Limit
+bci02,BCI02,credit_cards,TAQ-Credit Card
+bci03,BCI03,credit_cards,Credit Limit
+bci09,BCI09,credit_cards,TAQ-Credit Card
+bcl01,BCL01,credit_cards,TAQ-Credit Card
+bcl01b,BCL01B,credit_cards,TAQ-Credit Card
+bcm01,BCM01,authentication,Logon
+bcs01,BCS01,authentication,Registration - TAQ-Credit Card Solus
+bdd06,BDD06,credit_cards,TAQ-Credit Card
+bdd08,BDD08,credit_cards,TAQ-Credit Card
+bdd10,BDD10,credit_cards,TAQ-Credit Card
+bdd7a,BDD7A,credit_cards,TAQ-Credit Card
+bdd7b,BDD7B,credit_cards,TAQ-Credit Card
+bdd9a,BDD9A,credit_cards,TAQ-Credit Card
+bfa01,BFA01,strategic_debt_manager,MyPaymentMyPlan - TAQ-Credit Card
+bfa02,BFA02,strategic_debt_manager,Logon
+blw01,BLW01,authentication,Logon
+bm001,BM001,core_app_web,Payments
+bp007,BP007,credit_cards,TAQ-Credit Card
+bp011,BP011,credit_cards,TAQ-Credit Card
+bp012,BP012,credit_cards,TAQ-Credit Card
+bp013,BP013,credit_cards,TAQ-Credit Card
+bp01b,BP01B,payments,Payments
+bp02b,BP02B,payments,Payments
+bp03a,BP03A,payments,Payments
+bp03b,BP03B,payments,Payments
+bp04b,BP04B,credit_cards,TAQ-Credit Card
+bp10b,BP10B,credit_cards,TAQ-Credit Card
+bpv01,BPV01,credit_cards,TAQ-Credit Card
+bpv02,BPV02,credit_cards,TAQ-Credit Card
+bpv03,BPV03,credit_cards,TAQ-Credit Card
+br001,BR001,credit_cards,TAQ-Credit Card
+brc01,BRC01,current_accounts,Cards Hub
+brc02,BRC02,current_accounts,Cards Hub
+brc03,BRC03,current_accounts,Cards Hub
+brc04,BRC04,credit_cards,TAQ-Credit Card
+bs009,BS009,credit_cards,TAQ-Credit Card
+bs010,BS010,credit_cards,TAQ-Credit Card
+bs011,BS011,credit_cards,TAQ-Credit Card
+bt007,BT007,credit_cards,Balance Transfer
+bt008,BT008,credit_cards,Balance Transfer
+bt008a,BT008A,credit_cards,Balance Transfer
+bt009,BT009,credit_cards,Balance Transfer
+bt012,BT012,credit_cards,Balance Transfer
+bt013,BT013,credit_cards,Balance Transfer
+btp02,BTP02,payments,BTAP
+btp02b,BTP02B,payments,BTAP
+c001a,C001A,authentication,Logon
+c001ab,C001AB,authentication,Logon
+ca001,CA001,credit_cards,TAQ-Credit Card
+ca001b,CA001B,credit_cards,TAQ-Credit Card
+ca002,CA002,credit_cards,TAQ-Credit Card
+ca002b,CA002B,credit_cards,TAQ-Credit Card
+ca004,CA004,credit_cards,TAQ-Credit Card
+ca004b,CA004B,credit_cards,TAQ-Credit Card
+cb01a,CB01A,authentication,Logon
+cb01ab,CB01AB,authentication,Logon
+cc01c,CC01C,virtual_experiences,Chat
+cc01cb,CC01CB,virtual_experiences,Chat
+cf001,CF001,authentication,Logon
+cf001b,CF001B,authentication,Logon
+ci000,CI000,digital_communications_transformation,Statements and Documents Feature Design
+ci000b,CI000B,digital_communications_transformation,Statements and Documents Feature Design
+ci001,CI001,digital_communications_transformation,Statements and Documents Feature Design
+ci001b,CI001B,digital_communications_transformation,Statements and Documents Feature Design
+ci002,CI002,digital_communications_transformation,Statements and Documents Feature Design
+ci002b,CI002B,digital_communications_transformation,Statements and Documents Feature Design
+ci003,CI003,digital_communications_transformation,Statements and Documents Feature Design
+ci003b,CI003B,digital_communications_transformation,Statements and Documents Feature Design
+ci005,CI005,digital_communications_transformation,Statements and Documents Feature Design
+ci005b,CI005B,digital_communications_transformation,Statements and Documents Feature Design
+ci006,CI006,digital_communications_transformation,Statements and Documents Feature Design
+ci006b,CI006B,digital_communications_transformation,Statements and Documents Feature Design
+ci010,CI010,digital_communications_transformation,Statements and Documents Feature Design
+ci010b,CI010B,digital_communications_transformation,Statements and Documents Feature Design
+ci011,CI011,digital_communications_transformation,Statements and Documents Feature Design
+ci011b,CI011B,digital_communications_transformation,Statements and Documents Feature Design
+ci012,CI012,digital_communications_transformation,Statements and Documents Feature Design
+ci012b,CI012B,digital_communications_transformation,Statements and Documents Feature Design
+ci021,CI021,digital_communications_transformation,Statements and Documents Feature Design
+ci021b,CI021B,digital_communications_transformation,Statements and Documents Feature Design
+ci022,CI022,digital_communications_transformation,CloudIt
+ci022b,CI022B,digital_communications_transformation,CloudIt
+ci023,CI023,digital_communications_transformation,Statements and Documents Feature Design
+ci023b,CI023B,digital_communications_transformation,Statements and Documents Feature Design
+ci024,CI024,digital_communications_transformation,CloudIt
+ci024b,CI024B,digital_communications_transformation,CloudIt
+ci024c,CI024C,digital_communications_transformation,Statements and Documents Feature Design
+ci025,CI025,digital_communications_transformation,Statements and Documents Feature Design
+ci025b,CI025B,digital_communications_transformation,Statements and Documents Feature Design
+ci025c,CI025C,digital_communications_transformation,Statements and Documents Feature Design
+ci026,CI026,digital_communications_transformation,Statements and Documents Feature Design
+ci026b,CI026B,digital_communications_transformation,Statements and Documents Feature Design
+ci026c,CI026C,digital_communications_transformation,Statements and Documents Feature Design
+ci029,CI029,digital_communications_transformation,Statements and Documents Feature Design
+ci029b,CI029B,digital_communications_transformation,Statements and Documents Feature Design
+ci029c,CI029C,digital_communications_transformation,Statements and Documents Feature Design
+ci030,CI030,digital_communications_transformation,Statements and Documents Feature Design
+ci030b,CI030B,digital_communications_transformation,Statements and Documents Feature Design
+ci030c,CI030C,digital_communications_transformation,Statements and Documents Feature Design
+ci031,CI031,digital_communications_transformation,CloudIt
+ci031b,CI031B,digital_communications_transformation,Statements and Documents Feature Design
+ci090,CI090,digital_communications_transformation,CloudIt
+ci090b,CI090B,digital_communications_transformation,CloudIt
+ci091,CI091,digital_communications_transformation,CloudIt
+ci091b,CI091B,digital_communications_transformation,CloudIt
+cop01,COP01,payments,Payments
+cop01b,COP01B,payments,Payments
+cop02,COP02,payments,Payments
+cop02b,COP02B,payments,Payments
+cq001,CQ001,payments,Cheque
+cq001b,CQ001B,payments,Cheque
+cq002,CQ002,payments,Cheque
+cq002b,CQ002B,payments,Cheque
+cq003,CQ003,payments,Cheque
+cq003b,CQ003B,payments,Cheque
+cq004,CQ004,payments,Cheque
+cq004b,CQ004B,payments,Cheque
+cq005,CQ005,payments,Cheque
+cq005b,CQ005B,payments,Cheque
+cq006,CQ006,payments,Cheque
+cq006b,CQ006B,payments,Cheque
+cr001,CR001,authentication,Register
+cr001b,CR001B,authentication,Register
+cr002,CR002,onboarding,Onboarding
+cr002b,CR002B,onboarding,Onboarding
+cr003,CR003,onboarding,Onboarding
+cr003b,CR003B,onboarding,Onboarding
+cr01a,CR01A,authentication,Tapit
+cr01ab,CR01AB,authentication,Tapit
+cv001,CV001,homepage_transactions,Calender View
+cv001b,CV001B,homepage_transactions,Calender View
+cw01,CW01,core_app_web,Security Protocol
+cw01b,CW01B,core_app_web,Security Protocol
+dcc01,DCC01,current_accounts,Cards Hub
+dcc01b,DCC01B,current_accounts,Cards Hub
+dcc02,DCC02,current_accounts,Cards Hub
+dcc02b,DCC02B,current_accounts,Cards Hub
+dcc03,DCC03,current_accounts,Cards Hub
+dcc03b,DCC03B,current_accounts,Cards Hub
+dcc04,DCC04,current_accounts,Cards Hub
+dcc04b,DCC04B,current_accounts,Cards Hub
+dcc05,DCC05,current_accounts,Cards Hub
+dcc05b,DCC05B,current_accounts,Cards Hub
+dcc06,DCC06,current_accounts,Cards Hub
+dcc06b,DCC06B,current_accounts,Cards Hub
+dda01,DDA01,authentication,Tapit
+dda01b,DDA01B,authentication,Tapit
+dda02,DDA02,authentication,Tapit
+dda02b,DDA02B,authentication,Tapit
+dda03,DDA03,authentication,Tapit
+dda03b,DDA03B,authentication,Tapit
+demo_control.audit.config_writes,demo_control.audit.config_writes,demo_control,
+demo_control.audit.interventions,demo_control.audit.interventions,demo_control,
+demo_control.auth,demo_control.auth,demo_control,
+demo_control.bot_fleet.start,demo_control.bot_fleet.start,demo_control,
+demo_control.bot_fleet.status,demo_control.bot_fleet.status,demo_control,
+demo_control.bot_fleet.stop,demo_control.bot_fleet.stop,demo_control,
+demo_control.config.toggle,demo_control.config.toggle,demo_control,
+demo_control.config.view,demo_control.config.view,demo_control,
+demo_control.home,demo_control.home,demo_control,
+demo_control.kv.history,demo_control.kv.history,demo_control,
+demo_control.preset.apply,demo_control.preset.apply,demo_control,
+demo_control.preset.list,demo_control.preset.list,demo_control,
+demo_control.pulse.signature_view,demo_control.pulse.signature_view,demo_control,
+demo_control.recovery,demo_control.recovery,demo_control,
+demo_control.scenario.history,demo_control.scenario.history,demo_control,
+dm001,DM001,authentication,Connected Devices
+dm001b,DM001B,authentication,Connected Devices
+dm002,DM002,authentication,Connected Devices
+dm002b,DM002B,authentication,Connected Devices
+dnc01,DNC01,authentication,Dynamic Invocation (Messages)
+dnc01b,DNC01B,authentication,Dynamic Invocation (Messages)
+dp001,DP001,core_app_web,Onboarding
+dp001b,DP001B,core_app_web,Onboarding
+dp002,DP002,onboarding,Onboarding
+dp002b,DP002B,onboarding,Onboarding
+dr01a,DR01A,onboarding,Registration
+dr01ab,DR01AB,onboarding,Registration
+dr01b,DR01B,authentication,Registration
+dr01bb,DR01BB,authentication,Registration
+ec010,EC010,authentication,Offers
+ec010b,EC010B,authentication,Offers
+ec014,EC014,segments_propositions_l2_essential,Offers
+ec014b,EC014B,segments_propositions_l2_essential,Offers
+ec016,EC016,segments_propositions_l2_essential,Offers
+ec016b,EC016B,segments_propositions_l2_essential,Offers
+ec020,EC020,segments_propositions_l2_essential,Offers
+ec020b,EC020B,segments_propositions_l2_essential,Offers
+errors.404,errors.404,errors,
+errors.500,errors.500,errors,
+errors.account_frozen,errors.account_frozen,errors,
+errors.api_error,errors.api_error,errors,
+errors.captcha,errors.captcha,errors,
+errors.csrf_failed,errors.csrf_failed,errors,
+errors.daily_limit,errors.daily_limit,errors,
+errors.fallback,errors.fallback,errors,
+errors.feature_unavailable,errors.feature_unavailable,errors,
+errors.geo_blocked,errors.geo_blocked,errors,
+errors.input_validation,errors.input_validation,errors,
+errors.insufficient_funds,errors.insufficient_funds,errors,
+errors.kyc_required,errors.kyc_required,errors,
+errors.locked_out,errors.locked_out,errors,
+errors.maintenance,errors.maintenance,errors,
+errors.network_timeout,errors.network_timeout,errors,
+errors.offline,errors.offline,errors,
+errors.payment.failed,errors.payment.failed,errors,
+errors.permission_denied,errors.permission_denied,errors,
+errors.product_unavailable,errors.product_unavailable,errors,
+errors.rate_limit,errors.rate_limit,errors,
+errors.session_expired,errors.session_expired,errors,
+errors.signed_out,errors.signed_out,errors,
+errors.unsupported_browser,errors.unsupported_browser,errors,
+errors.update_required,errors.update_required,errors,
+flc01,FLC01,digital_communications_transformation,Feature Logging Configuration
+flc01b,FLC01B,digital_communications_transformation,Feature Logging Configuration
+fp001,FP001,payments,International Payments
+fp001b,FP001B,payments,International Payments
+fp002,FP002,payments,International Payments
+fp002b,FP002B,payments,International Payments
+fp003,FP003,payments,International Payments
+fp003b,FP003B,payments,International Payments
+fp004,FP004,payments,International Payments
+fp004b,FP004B,payments,International Payments
+fp005,FP005,payments,International Payments
+fp005b,FP005B,payments,International Payments
+fp006,FP006,payments,International Payments
+fp006b,FP006B,payments,International Payments
+fp007,FP007,payments,International Payments
+fp007b,FP007B,payments,International Payments
+fp008,FP008,payments,International Payments
+fp008b,FP008B,payments,International Payments
+fp009,FP009,payments,International Payments
+fp009b,FP009B,payments,International Payments
+fp010,FP010,payments,International Payments
+fp010b,FP010B,payments,International Payments
+fp011,FP011,payments,International Payments
+fp011b,FP011B,payments,International Payments
+fp901,FP901,payments,International Payments
+fp901b,FP901B,payments,International Payments
+ftc01,FTC01,digital_communications_transformation,Digital Enrolment Journey (DEJ)
+ftc01b,FTC01B,digital_communications_transformation,Digital Enrolment Journey (DEJ)
+ga001,GA001,homepage_transactions,Display TAQ Apps
+ga001b,GA001B,homepage_transactions,Display TAQ Apps
+gba01,GBA01,credit_cards,TAQ-Credit Card
+gba01b,GBA01B,credit_cards,TAQ-Credit Card
+gbt01,GBT01,credit_cards,TAQ-Credit Card
+gbt01b,GBT01B,credit_cards,TAQ-Credit Card
+gc003,GC003,credit_cards,TAQ-Credit Card
+gc003b,GC003B,credit_cards,TAQ-Credit Card
+gc003c,GC003C,credit_cards,TAQ-Credit Card
+gc02a,GC02A,credit_cards,TAQ-Credit Card
+gc02ab,GC02AB,credit_cards,TAQ-Credit Card
+gcd01,GCD01,credit_cards,TAQ-Credit Card
+gcd01b,GCD01B,credit_cards,TAQ-Credit Card
+gcd01c,GCD01C,credit_cards,TAQ-Credit Card
+gel01,GEL01,core_app_web,Platform - Generic Logging
+gel01b,GEL01B,core_app_web,Platform - Generic Logging
+gel01c,GEL01C,core_app_web,Platform - Generic Logging
+grc01,GRC01,cross_product_servicing,Change of Address
+grc01b,GRC01B,cross_product_servicing,Change of Address
+grc01c,GRC01C,cross_product_servicing,Change of Address
+ic001,IC001,credit_cards,TAQ-Credit Card
+ic001b,IC001B,credit_cards,TAQ-Credit Card
+ic001c,IC001C,credit_cards,TAQ-Credit Card
+ic002,IC002,credit_cards,TAQ-Credit Card
+ic002b,IC002B,credit_cards,TAQ-Credit Card
+ic003,IC003,credit_cards,TAQ-Credit Card
+ic003b,IC003B,credit_cards,TAQ-Credit Card
+ic004,IC004,credit_cards,Instant Debit Cards
+ic004b,IC004B,credit_cards,Instant Debit Cards
+id002,ID002,current_accounts,Instant Debit Cards
+id002b,ID002B,current_accounts,Instant Debit Cards
+id003,ID003,current_accounts,NTB Onboarding
+id003b,ID003B,current_accounts,Instant Debit Cards
+idp01,IDP01,payments,Open Banking
+ins01,INS01,segments_propositions_l2_essential,Finance Coach
+ins02,INS02,segments_propositions_l2_essential,Finance Coach
+ins03,INS03,segments_propositions_l2_essential,Finance Coach
+is001,IS001,savings,ISA
+is002,IS002,savings,ISA
+is003,IS003,savings,ISA
+iv011,IV011,help_me_manage_my_business,Making Business Special (MBS)
+iv012,IV012,help_me_manage_my_business,Making Business Special (MBS)
+iv013,IV013,help_me_manage_my_business,Making Business Special (MBS)
+iv014,IV014,help_me_manage_my_business,Making Business Special (MBS)
+iv015,IV015,help_me_manage_my_business,Making Business Special (MBS)
+iv022,IV022,help_me_manage_my_business,Making Business Special (MBS)
+iv024,IV024,help_me_manage_my_business,Making Business Special (MBS)
+iv025,IV025,help_me_manage_my_business,Making Business Special (MBS)
+iv031,IV031,help_me_manage_my_business,Making Business Special (MBS)
+iv041,IV041,help_me_manage_my_business,Making Business Special (MBS)
+iv042,IV042,help_me_manage_my_business,Making Business Special (MBS)
+iv043,IV043,help_me_manage_my_business,Making Business Special (MBS)
+iv044,IV044,help_me_manage_my_business,Making Business Special (MBS)
+iv051,IV051,help_me_manage_my_business,Making Business Special (MBS)
+iv061,IV061,help_me_manage_my_business,Making Business Special (MBS)
+iv062,IV062,help_me_manage_my_business,Making Business Special (MBS)
+iv071,IV071,help_me_manage_my_business,Making Business Special (MBS)
+iv092,IV092,help_me_manage_my_business,Making Business Special (MBS)
+iv102,IV102,help_me_manage_my_business,Making Business Special
+iv105,IV105,help_me_manage_my_business,Making Business Special (MBS)
+jb01a,JB01A,core_app_web,Security Protocol
+jb01c,JB01C,authentication,Trust Anchor
+jf000,JF000,authentication,Journey Framework
+l0001,L0001,core_app_web,Security Protocol
+l0002,L0002,core_app_web,Security Protocol
+l0003,L0003,core_app_web,Security Protocol
+l0004,L0004,core_app_web,Security Protocol
+lf02a,LF02A,segments_propositions_l2_essential,Launchpad
+lh001,LH001,homepage_transactions,Banners
+lpr01,LPR01,segments_propositions_l2_essential,Launchpad
+lpr02,LPR02,segments_propositions_l2_essential,Launchpad
+lps01,LPS01,segments_propositions_l2_essential,Launchpad
+ls002,LS002,current_accounts,Cards Hub
+mbs02,MBS02,help_me_manage_my_business,Making Business Special (MBS)
+mc001,MC001,payments,BTAP
+md001,MD001,cross_product_servicing,KYC CDD
+md002,MD002,cross_product_servicing,KYC CDD
+md003,MD003,cross_product_servicing,KYC CDD
+mnp01,MNP01,payments,Payments
+moi01,MOI01,mortgage_servicing,View Balance
+moi02,MOI02,mortgage_servicing,View Balance
+mp001,MP001,payments,Payments
+mp002,MP002,payments,Payments
+mp003,MP003,payments,Payments
+mp004,MP004,payments,Payments
+mp007,MP007,credit_cards,TAQ-Credit Card
+mp010,MP010,credit_cards,TAQ-Credit Card
+mp011,MP011,credit_cards,TAQ-Credit Card
+mp012,MP012,credit_cards,TAQ-Credit Card
+mp013,MP013,credit_cards,TAQ-Credit Card
+mp014,MP014,credit_cards,TAQ-Credit Card
+mp015,MP015,credit_cards,TAQ-Credit Card
+mrp01,MRP01,payments,Recent Payees
+mt000,MT000,mortgage_servicing,View Balance
+mt001,MT001,mortgage_servicing,View Balance
+mt002,MT002,homepage_transactions,Transactions
+mt003,MT003,homepage_transactions,Transactions
+mt004,MT004,mortgage_servicing,Mortgage Payments
+mt005,MT005,mortgage_servicing,Mortgage Payments
+mt006,MT006,mortgage_servicing,Mortgage Payments
+mt007,MT007,mortgage_servicing,Mortgage Payments
+nb001,NB001,payments,Payments
+nb002,NB002,payments,Payments
+nb005,NB005,payments,Payments
+nb006,NB006,payments,Payments
+nk001,NK001,homepage_transactions,Nickname
+np002,NP002,virtual_experiences,NoMi
+np003,NP003,virtual_experiences,Chat
+nps02,NPS02,cross_product_servicing,NetPromoterScore
+nps03,NPS03,cross_product_servicing,NetPromoterScore
+nr001,NR001,authentication,Registration
+nt001,NT001,cross_product_servicing,In App Notification
+nt002,NT002,cross_product_servicing,In App Notification
+nt003,NT003,cross_product_servicing,In App Notification
+nt004,NT004,cross_product_servicing,In App Notification
+nt005,NT005,cross_product_servicing,In App Notification
+ntb01,NTB01,onboarding,NTB Onboarding
+ntb02,NTB02,onboarding,NTB Onboarding
+ntb03,NTB03,onboarding,NTB Onboarding
+ntb04,NTB04,onboarding,NTB Onboarding
+ntb05,NTB05,onboarding,NTB Onboarding
+ntb06,NTB06,onboarding,NTB Onboarding
+ntb07,NTB07,onboarding,NTB Onboarding
+ntb08,NTB08,onboarding,NTB Onboarding
+ntb09,NTB09,onboarding,NTB Onboarding
+ntb10,NTB10,onboarding,NTB Onboarding
+ntb11,NTB11,onboarding,NTB Onboarding
+ntb12,NTB12,onboarding,NTB Onboarding
+ntb13,NTB13,onboarding,NTB Onboarding
+oe001,OE001,payments,Offers
+om001,OM001,payments,Offers
+p2p01,P2P01,payments,Tap2Pay Mobile Payments
+p2p02,P2P02,payments,Tap2Pay Mobile Payments
+p2p03,P2P03,payments,Tap2Pay Mobile Payments
+pa000,PA000,cross_product_servicing,Logoff
+pcr01,PCR01,onboarding,PECR consent
+pct00,PCT00,authentication,Extend Session Length
+pdt01,PDT01,homepage_transactions,Transactions
+pe001,PE001,credit_cards,TAQ-Credit Card
+pf001,PF001,authentication,Payphone
+pf002,PF002,authentication,Payphone
+pfc01,PFC01,authentication,Partner Finance Amazon Checkout
+pk001,PK001,digital_communications_transformation,Security Protocol
+pl01b,PL01B,current_accounts,Statements
+po001,PO001,current_accounts,High Value Transaction Offers
+po002,PO002,segments_propositions_l2_essential,High Value Transaction Offers
+pp001,PP001,onboarding,ProspectPushNotificaion
+pr002,PR002,payments,Tap2Pay
+pr003,PR003,authentication,Mobile Payments Scheme Signup
+pr004,PR004,authentication,Tap2Pay
+pr005,PR005,authentication,Registration
+pre01,PRE01,digital_communications_transformation,Customer Preferences
+pre02,PRE02,digital_communications_transformation,Customer Preferences
+ps002,PS002,digital_communications_transformation,Statements
+ps003,PS003,digital_communications_transformation,Statements
+ps004,PS004,digital_communications_transformation,Statements
+ps005,PS005,digital_communications_transformation,Statements
+ps007,PS007,digital_communications_transformation,Statements
+ps008,PS008,digital_communications_transformation,Statements
+ps009,PS009,digital_communications_transformation,Statements
+psw01,PSW01,engineering_platform_engineering,Change Profile
+ptx01,PTX01,homepage_transactions,Transactions
+pw001,PW001,virtual_experiences,Async Chat
+r0001,R0001,authentication,OneApp migration
+r0002,R0002,authentication,Registration
+r0003,R0003,authentication,Registration
+r0004,R0004,authentication,Registration
+r0005,R0005,authentication,Registration
+r0007,R0007,authentication,Registration
+r0014,R0014,authentication,Credit Card PinSentry
+r0015,R0015,authentication,Credit Card PinSentry
+r0019,R0019,authentication,De-Register
+r0020,R0020,authentication,Registration
+r0023,R0023,digital_communications_transformation,Preferences
+r0024,R0024,digital_communications_transformation,Preferences
+r0025,R0025,digital_communications_transformation,Preferences
+r0026,R0026,digital_communications_transformation,Preferences
+r0027,R0027,digital_communications_transformation,Preferences
+r002b,R002B,authentication,Registration
+r002c,R002C,authentication,Registration
+r0100,R0100,authentication,Registration
+r011a,R011A,credit_cards,Credit Card Physical PINSentry
+r012a,R012A,credit_cards,Credit Card Physical PINSentry
+r012b,R012B,credit_cards,Credit Card Physical PINSentry
+r013a,R013A,credit_cards,TAQ-Credit Card
+r5000,R5000,authentication,Onfido
+r5001,R5001,authentication,Onfido
+r5002,R5002,authentication,Onfido
+r5005,R5005,authentication,Onfido
+rd001,RD001,onboarding,EveryDay Saver - SVO
+rf001,RF001,core_app_web,Security Protocol
+rk01a,RK01A,segments_propositions_l2_essential,Launchpad
+rk03a,RK03A,segments_propositions_l2_essential,Launchpad
+rk04a,RK04A,segments_propositions_l2_essential,Launchpad
+rl001,RL001,cross_product_servicing,Letter
+rm001,RM001,onboarding,Onboarding
+rr001,RR001,core_app_web,Backup and Restore
+rr002,RR002,core_app_web,Backup and Restore
+rr04a,RR04A,core_app_web,Backup and Restore
+rr04b,RR04B,core_app_web,App to Web
+ru001,RU001,core_app_web,App to Web
+ru002,RU002,virtual_experiences,Smartcall
+sc001,SC001,virtual_experiences,Smartcall
+sc002,SC002,virtual_experiences,Smartcall
+sc003,SC003,wealth_hub,SOLD View Balance
+sd001,SD001,homepage_transactions,SOLD Transactions
+sd002,SD002,smart_investor,Smart Investor
+sf006,SF006,smart_investor,Smart Investor
+sfg01,SFG01,smart_investor,View Accounts
+sfg02,SFG02,homepage_transactions,Finance Coach
+sfg03,SFG03,segments_propositions_l2_essential,Finance Coach
+sgs01,SGS01,segments_propositions_l2_essential,Finance Coach
+sgs02,SGS02,segments_propositions_l2_essential,Finance Coach
+sgs03,SGS03,segments_propositions_l2_essential,Finance Coach
+sgs04,SGS04,segments_propositions_l2_essential,Finance Coach
+sgs05,SGS05,segments_propositions_l2_essential,Finance Coach
+sgs06,SGS06,smart_investor,Finance Coach
+si001,SI001,smart_investor,Smart Investor
+si004,SI004,smart_investor,Smart Investor
+si005,SI005,smart_investor,Smart Investor
+si006,SI006,smart_investor,Smart Investor
+si007,SI007,smart_investor,Smart Investor
+si008,SI008,smart_investor,Smart Investor
+si009,SI009,smart_investor,Smart Investor
+sp007,SP007,segments_propositions_l2_essential,Finance Coach
+sp008,SP008,segments_propositions_l2_essential,Finance Coach
+sp009,SP009,segments_propositions_l2_essential,Finance Coach
+sp010,SP010,segments_propositions_l2_essential,Finance Coach
+sp011,SP011,segments_propositions_l2_essential,Finance Coach
+sp012,SP012,segments_propositions_l2_essential,Finance Coach
+sp013,SP013,segments_propositions_l2_essential,Finance Coach
+sr401,SR401,authentication,Speedy Reg
+sr402,SR402,authentication,Speedy Reg
+sr403,SR403,authentication,Speedy Reg
+sr404,SR404,authentication,Speedy Reg
+ssl00,SSL00,core_app_web,"Logon, Security Protocol"
+st01,ST01,payments,Smart Investor Transfers
+st02,ST02,payments,Smart Investor Transfers
+st03,ST03,payments,Smart Investor Transfers
+st04,ST04,payments,Smart Investor Transfers
+st05,ST05,payments,Smart Investor Transfers
+su001,SU001,core_app_web,Security Protocol
+ta001,TA001,authentication,Trust Anchor
+ta002,TA002,authentication,Trust Anchor
+ta003,TA003,authentication,Trust Anchor
+ta004,TA004,authentication,Trust Anchor
+ta04b,TA04B,authentication,"Logon, Touch ID"
+tat01,TAT01,homepage_transactions,Take a Tour
+ti000,TI000,core_app_web,"App to Web, Full Consumption MCA"
+ti001,TI001,authentication,Touch ID
+ti002,TI002,core_app_web,"App to Web, Full Consumption MCA"
+ti003,TI003,core_app_web,"App to Web,Full Consumption MCA"
+tr04a,TR04A,authentication,"Logon, Touch ID"
+tr04b,TR04B,authentication,"Logon, Touch ID"
+tx001,TX001,homepage_transactions,Transactions
+tx002,TX002,homepage_transactions,Transactions
+tx003,TX003,segments_propositions_l2_essential,Transactions
+u0003,U0003,core_app_web,Security Protocol
+ua001,UA001,cross_product_servicing,Change of Address
+ua002,UA002,cross_product_servicing,Change of Address
+ua002b,UA002B,cross_product_servicing,Change of Address
+ua003,UA003,cross_product_servicing,Change of Address
+ua003b,UA003B,cross_product_servicing,Change of Address
+ua004,UA004,cross_product_servicing,Change of Address
+ua004b,UA004B,cross_product_servicing,Change of Address
+ua005,UA005,cross_product_servicing,Change of Address
+ua005b,UA005B,cross_product_servicing,Change of Address
+ua006,UA006,cross_product_servicing,Change of Address
+ua006b,UA006B,cross_product_servicing,Welcome Journey
+ucd03,UCD03,current_accounts,Welcome Journey
+ufo01,UFO01,payments,Payments
+vcs01,VCS01,segments_propositions_l2_essential,Blue Rewards
+ve001,VE001,segments_propositions_l2_essential,Blue Rewards
+ve002,VE002,segments_propositions_l2_essential,Blue Rewards
+ve003,VE003,segments_propositions_l2_essential,Blue Rewards
+ve005,VE005,segments_propositions_l2_essential,Blue Rewards
+ve006,VE006,segments_propositions_l2_essential,Blue Rewards
+ve007,VE007,segments_propositions_l2_essential,Blue Rewards
+ve008,VE008,segments_propositions_l2_essential,Blue Rewards
+ve008b,VE008B,segments_propositions_l2_essential,Blue Rewards
+ve009,VE009,segments_propositions_l2_essential,Blue Rewards
+ve009b,VE009B,segments_propositions_l2_essential,Blue Rewards
+ve04a,VE04A,segments_propositions_l2_essential,Blue Rewards
+vp001,VP001,payments,Voice Payments
+vp001b,VP001B,payments,Voice Payments
+vp04a,VP04A,authentication,In-App Passcode Verification
+vp04ab,VP04AB,authentication,In-App Passcode Verification
+vp04b,VP04B,authentication,In-App Passcode Verification
+vp04bb,VP04BB,authentication,In-App Passcode Verification
+vpt01,VPT01,authentication,Tapit PIN Entry
+vpt01b,VPT01B,authentication,Tapit PIN Entry
+vpt01c,VPT01C,authentication,Tapit PIN Entry
+vpt02,VPT02,authentication,Tapit PIN Entry
+vpt02b,VPT02B,authentication,Tapit PIN Entry
+vpt02c,VPT02C,authentication,Tapit PIN Entry
+wa001,WA001,wealth_hub,Wealth Accounts
+wa001b,WA001B,wealth_hub,Wealth Accounts
+wa001c,WA001C,wealth_hub,Wealth Accounts
+waa01,WAA01,wealth_hub,Wealth
+waa01b,WAA01B,wealth_hub,Wealth
+waa01c,WAA01C,wealth_hub,Wealth
+wad01,WAD01,wealth_hub,Wealth Accounts
+wad01b,WAD01B,wealth_hub,Wealth Accounts
+wad01c,WAD01C,wealth_hub,Wealth Accounts
+wapi1,WAPI1,wealth_hub,Wealth
+wapi1b,WAPI1B,wealth_hub,Wealth
+wapi1c,WAPI1C,wealth_hub,Wealth
+wc001,WC001,wealth_hub,Wealth Accounts
+wc001b,WC001B,wealth_hub,Wealth Accounts
+wc001c,WC001C,wealth_hub,Wealth Accounts
+wc002,WC002,wealth_hub,Wealth
+wc002b,WC002B,wealth_hub,Wealth
+wc002c,WC002C,wealth_hub,Wealth
+wha01,WHA01,wealth_hub,Wealth
+wha01b,WHA01B,wealth_hub,Wealth
+wha01c,WHA01C,wealth_hub,Wealth
+wp001,WP001,wealth_hub,Wealth
+wp001b,WP001B,wealth_hub,Wealth
+wp001c,WP001C,wealth_hub,Wealth
+zap01,ZAP01,payments,Pay by Bank App (PBBA)
+zap01b,ZAP01B,payments,Pay by Bank App (PBBA)
+zap02,ZAP02,payments,Pay by Bank App (PBBA)
+zap02b,ZAP02B,payments,Pay by Bank App (PBBA)
+zap03,ZAP03,payments,Pay by Bank App (PBBA)
+zap03b,ZAP03B,payments,Pay by Bank App (PBBA)
+zap04,ZAP04,payments,Pay by Bank App (PBBA)
+zap04b,ZAP04B,payments,Pay by Bank App (PBBA)
+zap05,ZAP05,payments,Pay by Bank App (PBBA)
+zap05b,ZAP05B,payments,Pay by Bank App (PBBA)
+zap06,ZAP06,payments,Pay by Bank App (PBBA)
+zap07,ZAP07,payments,Pay by Bank App (PBBA)
+zap08,ZAP08,payments,Pay by Bank App (PBBA)

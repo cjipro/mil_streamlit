@@ -22,6 +22,9 @@ data/*.json
 *.pkl
 *.csv
 *.parquet
+# Exception: the PULSE-137 op-code taxonomy mapping is a committed reference artifact
+# (pulse/taxonomy.py + tests read it). Regenerate via scripts/build_taq_taxonomy.py.
+!pulse/contracts/taq_op_code_map.csv
 
 # Pulse pipeline generated output (MA_D / MA_S / marts + manifests) — regenerated
 # from code via pulse.synthetic.generate_ma_d -> pulse.pipeline.sessionise ->

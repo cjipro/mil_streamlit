@@ -1,0 +1,144 @@
+_generated_by: scripts/build_taq_taxonomy.py (PULSE-137)
+_do_not_edit: regenerate from taq-app/inventory/screens.yaml; do not hand-edit
+source: taq-app/inventory/screens.yaml
+source_meta: v2
+generated: '2026-05-24'
+counts:
+  op_codes: 697
+  journeys: 24
+  customer_journeys: 107
+  orphans: 97
+  customer_journey_coverage_pct: 86.08
+journeys:
+- api_inspector
+- authentication
+- core_app_web
+- credit_cards
+- cross_product_servicing
+- current_accounts
+- demo_control
+- digital_communications_transformation
+- engineering_platform_engineering
+- errors
+- finance_my_growth
+- help_me_manage_my_business
+- homepage_transactions
+- loans
+- mortgage_servicing
+- onboarding
+- overdrafts
+- payments
+- savings
+- segments_propositions_l2_essential
+- smart_investor
+- strategic_debt_manager
+- virtual_experiences
+- wealth_hub
+customer_journeys:
+- Analytics
+- App to Web
+- App to Web, Full Consumption MCA
+- App to Web,Full Consumption MCA
+- Apple Pay
+- Apple wallet extension
+- Async Chat
+- BTAP
+- Backup and Restore
+- Balance Transfer
+- Banners
+- Blue Rewards
+- Business ALS Loan
+- Calender View
+- Cards Hub
+- Change Profile
+- Change of Address
+- Chat
+- Cheque
+- CloudIt
+- Connected Devices
+- Credit Card Physical PINSentry
+- Credit Card PinSentry
+- Credit Limit
+- Customer Preferences
+- De-Register
+- Digital Enrolment Journey (DEJ)
+- Display TAQ Apps
+- Dynamic Invocation (Messages)
+- EveryDay Saver - SVO
+- Extend Session Length
+- Feature Logging Configuration
+- Finance Coach
+- Hide Account
+- High Value Transaction Offers
+- ISA
+- In App Notification
+- In-App Passcode Verification
+- Instant Debit Cards
+- International Payments
+- Journey Framework
+- KYC CDD
+- Launchpad
+- Lending - CLIV
+- Lending-Child Care
+- Letter
+- Loans
+- Logoff
+- Logon
+- Logon, Security Protocol
+- Logon, Touch ID
+- Logon, View Balance
+- Making Business Special
+- Making Business Special (MBS)
+- Mobile Payments Scheme Signup
+- Mortgage Payments
+- MyPaymentMyPlan - TAQ-Credit Card
+- NTB Onboarding
+- NetPromoterScore
+- Nickname
+- NoMi
+- Offers
+- Onboarding
+- OneApp migration
+- Onfido
+- Open Banking
+- Overdraft
+- PECR consent
+- Partner Finance Amazon Checkout
+- Pay by Bank App (PBBA)
+- Payments
+- Payphone
+- Platform - Generic Logging
+- Preferences
+- Profile
+- ProspectPushNotificaion
+- Push Notifications
+- Recent Payees
+- Register
+- Registration
+- Registration - TAQ-Credit Card Solus
+- SOLD Transactions
+- SOLD View Balance
+- Security Protocol
+- Smart Investor
+- Smart Investor Transfers
+- Smartcall
+- Speedy Reg
+- Statements
+- Statements and Documents Feature Design
+- TAQ-Credit Card
+- TAQ-Credit Card Add/Manage Card Holders Feature
+- Take a Tour
+- Tap2Pay
+- Tap2Pay Mobile Payments
+- Tapit
+- Tapit PIN Entry
+- Terms & Conditions
+- Touch ID
+- Transactions
+- Trust Anchor
+- View Accounts
+- View Balance
+- Voice Payments
+- Wealth
+- Wealth Accounts
+- Welcome Journey
