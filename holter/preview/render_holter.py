@@ -163,7 +163,7 @@ def render_topnav(packs: list[dict]) -> str:
     )
     return f'''
 <header class="holter-topnav">
-  <span class="brand-logo">CJI&nbsp;PULSE</span>
+  <span class="brand-logo">Cerno</span>
   <select class="topnav-select" id="filter-product" data-filter="packname">{product_opts}</select>
   <select class="topnav-select" id="filter-owner" data-filter="author">{owner_opts}</select>
   <button class="topnav-reset" id="filter-reset" type="button" hidden>Reset</button>

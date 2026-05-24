@@ -1005,10 +1005,10 @@ a { color: var(--blue); text-decoration: none; }
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_topnav() -> str:
-    """Same identity strip as Workspace — CJI PULSE logo + utility cluster."""
+    """Same identity strip as Workspace — Cerno logo + utility cluster."""
     return f"""
 <header class="home-topnav">
-  <span class="brand-logo">CJI&nbsp;PULSE</span>
+  <span class="brand-logo">Cerno</span>
   <span class="topnav-spacer"></span>
   <button class="topnav-icon" type="button" title="Search packs (/)">⌕</button>
   <button class="topnav-icon" type="button" title="Notifications">🔔</button>
