@@ -37,8 +37,13 @@ def _load_embed_model():
     if _EMBED_MODEL is None:
         try:
             from sentence_transformers import SentenceTransformer
-            _EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
-            logger.info("[rag] Loaded sentence-transformer: all-MiniLM-L6-v2")
+            # device="cpu" pinned 2026-05-24. all-MiniLM-L6-v2 is tiny, so CPU cost is
+            # negligible — but this in-process GPU encode was the operation in flight at
+            # 3 mid-pipeline machine crashes (BSOD 0x116 VIDEO_TDR_ERROR on the RTX 5070 Ti
+            # Laptop: 28/04, 05/05, 12/05). Pinning to CPU removes the GPU as a crash
+            # trigger for the daily run. See memory project_gpu_tdr_crashes.md.
+            _EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+            logger.info("[rag] Loaded sentence-transformer: all-MiniLM-L6-v2 (device=cpu)")
         except Exception as exc:
             logger.warning("[rag] sentence-transformers unavailable (%s) — using keyword overlap", exc)
             _EMBED_MODEL = False
