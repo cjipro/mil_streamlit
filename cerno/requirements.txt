@@ -1,0 +1,14 @@
+# Cerno — declared dependencies (documentation only).
+# The bank edge node has these pre-installed; this file does NOT drive install.
+# Versions reflect the bank edge node snapshot (see APPROVED_LIBRARIES.md).
+duckdb==1.5.2
+pyarrow==18.1.0
+numpy==1.26.4
+scikit-learn==1.5.1
+statsmodels==0.14.2
+pyspark==2.4.0
+pyodbc==5.1.0
+pandas==2.2.3
+scipy==1.13.1
+PyYAML==6.0.1
+joblib==1.4.2

@@ -1,0 +1,42 @@
+# Cerno — internal GitLab CI baseline.
+#
+# Runs lint, tests, and the import-time safety gate on every push.
+# No deploy stage — Cerno runs on the bank edge node, not in CI.
+#
+# Adapt image + tags to whatever the bank GitLab runner exposes.
+
+stages:
+  - lint
+  - test
+  - safety
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+.python_base: &python_base
+  image: python:3.11-slim
+  before_script:
+    - python -V
+
+lint:
+  <<: *python_base
+  stage: lint
+  script:
+    - python -m py_compile src/cerno/*.py
+
+test:
+  <<: *python_base
+  stage: test
+  script:
+    - python -m pip install --quiet pytest pyyaml duckdb pyarrow
+    - python -m pytest
+
+safety:
+  <<: *python_base
+  stage: safety
+  script:
+    - python -m pip install --quiet pyyaml
+    - python -c "from cerno.safety import assert_safe; assert_safe()"
+  variables:
+    PYTHONPATH: "src"
