@@ -76,6 +76,9 @@ competitors:
     name: "Revolut"
     app_store_id: "932493382"
     google_play_id: "com.revolut.revolut"
+    # MIL-178 — highest-volume peer; deeper pagination so multi-day gaps don't drop reviews.
+    app_store_max_pages: 10      # iTunes RSS hard cap = 500 reviews (default 5 / 250)
+    google_play_max_pages: 10    # ~1000 reviews of headroom (default 5 / 500)
     downdetector_slug: "revolut"
     trustpilot_slug: "revolut.com"
     reddit_mentions: ["Revolut", "Revolut app", "Revolut UK"]

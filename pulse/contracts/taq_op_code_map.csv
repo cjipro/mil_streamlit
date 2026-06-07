@@ -1,698 +1,698 @@
-id,op_code,journey,customer_journey
-a0002,A0002,authentication,Logoff
-a0012,A0012,authentication,Push Notifications
-a001c,A001C,core_app_web,Terms & Conditions
-a001d,A001D,core_app_web,Terms & Conditions
-a401a,A401A,authentication,Logon
-a401b,A401B,authentication,Logon
-ab001,AB001,homepage_transactions,Banners
-ab002,AB002,homepage_transactions,Banners
-ab003,AB003,finance_my_growth,Loans
-ak001,AK001,payments,Open Banking
-ak002,AK002,payments,Open Banking
-ak003,AK003,payments,Open Banking
-ak004,AK004,payments,Open Banking
-ak02b,AK02B,payments,Open Banking
-al001,AL001,finance_my_growth,Business ALS Loan
-al004,AL004,onboarding,Onboarding
-alu01,ALU01,onboarding,Change of Address
-ap002,AP002,payments,Apple Pay
-ap003,AP003,payments,Apple wallet extension
-api.adigihelphubqry,spro1,api_inspector,
-api.busaccountmanagementxapi,spro1,api_inspector,
-api.busprodsuitabilityxapi,spro1,api_inspector,
-api.digitaldynamicformsxapi,spro1,api_inspector,
-api.digitalrewardmgmtxapi,spro1,api_inspector,
-api.digixapiaccountsmgt,spro1,api_inspector,
-api.digixapichequeprocessing,spro1,api_inspector,
-api.digixapicustpropositions,spro1,api_inspector,
-api.digixapipaymentsmgt,spro1,api_inspector,
-api.digixapirwdsubsmgt,spro1,api_inspector,
-api.digixapitransactionsmgt,spro1,api_inspector,
-api.emmxapissdauthqry,spro1,api_inspector,
-api.mortrepaymentchargesxapi,spro1,api_inspector,
-api.spr01,spro1,api_inspector,
-api.taqapiavios,spro1,api_inspector,
-api.taqapicrdmgmntcmd,spro1,api_inspector,
-api.taqapicrdtknqry,spro1,api_inspector,
-api.taqapidej,spro1,api_inspector,
-api.taqapimrkprefsmgt,spro1,api_inspector,
-api.taqapiprospects,spro1,api_inspector,
-api.taqapiprospectslookup,spro1,api_inspector,
-api.taqapisearchmgt,spro1,api_inspector,
-api.taqbpfpymntsxapi,spro1,api_inspector,
-api.taqdataapibusinsmgt,spro1,api_inspector,
-api.taqdbtcrdsrvcngiapi,spro1,api_inspector,
-api.taqdomainbbao,spro1,api_inspector,
-api.taqdomaincommon,spro1,api_inspector,
-api.taqdomaincustonboarding,spro1,api_inspector,
-api.taqdomainhomepage,spro1,api_inspector,
-api.taqdomainngcbetb,spro1,api_inspector,
-api.taqdomainpkgholdings,spro1,api_inspector,
-api.taqdomainregistration,spro1,api_inspector,
-api.taqdomaintransaction,spro1,api_inspector,
-api.taqfundstrnsfrxapi,spro1,api_inspector,
-api.taqmanagepaymentsiapi,spro1,api_inspector,
-api.taqmortgagesxapi,spro1,api_inspector,
-api.taqppecrdactenqxapi,spro1,api_inspector,
-api.taqppecrdtxnenqxapi,spro1,api_inspector,
-api.taqpperpayenqxapi,spro1,api_inspector,
-api.taqxapiasyncchat,spro1,api_inspector,
-api.taqxapicontactdetails,spro1,api_inspector,
-api.taqxapistmtdocs,spro1,api_inspector,
-api.xdigiloyaltyexpmgt,spro1,api_inspector,
-api.xdigiofflinemodemgmt,spro1,api_inspector,
-api.xdigiprofilesmgt,spro1,api_inspector,
-api.xdigirewardscashbackmgt,spro1,api_inspector,
-api.xeccapptbookmgt,spro1,api_inspector,
-api.xfinplantiaadrop,spro1,api_inspector,
-api.xmortgagedirectdebit,spro1,api_inspector,
-api.xmortgagesummarymgt,spro1,api_inspector,
-api.xpbwmdigiinvauthmgt,spro1,api_inspector,
-api.xpbwmonehubviewmgt,spro1,api_inspector,
-api.xunseccardintratemgt,spro1,api_inspector,
-api.xunseccardsmartpaymgt,spro1,api_inspector,
-api.xunseccreditoffermgt,spro1,api_inspector,
-api.xunsecoffermgt,spro1,api_inspector,
-api.xunsecsustainhubmgt,spro1,api_inspector,
-at006,AT006,core_app_web,Analytics
-at007,AT007,core_app_web,Analytics
-at008,AT008,core_app_web,Analytics
-au005,AU005,cross_product_servicing,Profile
-au006,AU006,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature
-au007,AU007,credit_cards,TAQ-Credit Card
-au008,AU008,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature
-au009,AU009,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature
-b0003,B0003,loans,Loans
-b0005,B0005,loans,Loans
-b0006,B0006,loans,Loans
-b0007,B0007,loans,Loans
-b0008,B0008,loans,Loans
-b0010,B0010,loans,Loans
-b0012,B0012,overdrafts,Overdraft
-b0013,B0013,overdrafts,Overdraft
-b0015,B0015,overdrafts,Overdraft
-b0016,B0016,overdrafts,Overdraft
-b0017,B0017,loans,Loans
-b0018,B0018,loans,Loans
-b0019,B0019,loans,Loans
-b0020,B0020,loans,Loans
-b0021,B0021,loans,Loans
-b0022,B0022,loans,Loans
-b0023,B0023,loans,Loans
-b0024,B0024,overdrafts,Overdraft
-b0025,B0025,overdrafts,Overdraft
-b0027,B0027,loans,Lending-Child Care
-b0028,B0028,loans,Lending-Child Care
-b0029,B0029,loans,Lending-Child Care
-b0030,B0030,loans,Lending-Child Care
-b0031,B0031,loans,Lending-Child Care
-b0032,B0032,loans,Lending - CLIV
-b0033,B0033,loans,Lending - CLIV
-b0041,B0041,overdrafts,Overdraft
-ba002,BA002,homepage_transactions,Transactions
-ba004,BA004,homepage_transactions,Transactions
-ba006,BA006,homepage_transactions,Transactions
-ba009,BA009,homepage_transactions,Transactions
-ba010,BA010,homepage_transactions,Transactions
-ba01c,BA01C,homepage_transactions,"Logon, View Balance"
-ba01d,BA01D,homepage_transactions,"Logon, View Balance"
-ba01g,BA01G,homepage_transactions,"Logon, View Balance"
-ba01w,BA01W,homepage_transactions,View Accounts
-ba03b,BA03B,homepage_transactions,Hide Account
-bc3a,BC3A,credit_cards,TAQ-Credit Card
-bc3b,BC3B,credit_cards,TAQ-Credit Card
-bci01,BCI01,credit_cards,Credit Limit
-bci02,BCI02,credit_cards,TAQ-Credit Card
-bci03,BCI03,credit_cards,Credit Limit
-bci09,BCI09,credit_cards,TAQ-Credit Card
-bcl01,BCL01,credit_cards,TAQ-Credit Card
-bcl01b,BCL01B,credit_cards,TAQ-Credit Card
-bcm01,BCM01,authentication,Logon
-bcs01,BCS01,authentication,Registration - TAQ-Credit Card Solus
-bdd06,BDD06,credit_cards,TAQ-Credit Card
-bdd08,BDD08,credit_cards,TAQ-Credit Card
-bdd10,BDD10,credit_cards,TAQ-Credit Card
-bdd7a,BDD7A,credit_cards,TAQ-Credit Card
-bdd7b,BDD7B,credit_cards,TAQ-Credit Card
-bdd9a,BDD9A,credit_cards,TAQ-Credit Card
-bfa01,BFA01,strategic_debt_manager,MyPaymentMyPlan - TAQ-Credit Card
-bfa02,BFA02,strategic_debt_manager,Logon
-blw01,BLW01,authentication,Logon
-bm001,BM001,core_app_web,Payments
-bp007,BP007,credit_cards,TAQ-Credit Card
-bp011,BP011,credit_cards,TAQ-Credit Card
-bp012,BP012,credit_cards,TAQ-Credit Card
-bp013,BP013,credit_cards,TAQ-Credit Card
-bp01b,BP01B,payments,Payments
-bp02b,BP02B,payments,Payments
-bp03a,BP03A,payments,Payments
-bp03b,BP03B,payments,Payments
-bp04b,BP04B,credit_cards,TAQ-Credit Card
-bp10b,BP10B,credit_cards,TAQ-Credit Card
-bpv01,BPV01,credit_cards,TAQ-Credit Card
-bpv02,BPV02,credit_cards,TAQ-Credit Card
-bpv03,BPV03,credit_cards,TAQ-Credit Card
-br001,BR001,credit_cards,TAQ-Credit Card
-brc01,BRC01,current_accounts,Cards Hub
-brc02,BRC02,current_accounts,Cards Hub
-brc03,BRC03,current_accounts,Cards Hub
-brc04,BRC04,credit_cards,TAQ-Credit Card
-bs009,BS009,credit_cards,TAQ-Credit Card
-bs010,BS010,credit_cards,TAQ-Credit Card
-bs011,BS011,credit_cards,TAQ-Credit Card
-bt007,BT007,credit_cards,Balance Transfer
-bt008,BT008,credit_cards,Balance Transfer
-bt008a,BT008A,credit_cards,Balance Transfer
-bt009,BT009,credit_cards,Balance Transfer
-bt012,BT012,credit_cards,Balance Transfer
-bt013,BT013,credit_cards,Balance Transfer
-btp02,BTP02,payments,BTAP
-btp02b,BTP02B,payments,BTAP
-c001a,C001A,authentication,Logon
-c001ab,C001AB,authentication,Logon
-ca001,CA001,credit_cards,TAQ-Credit Card
-ca001b,CA001B,credit_cards,TAQ-Credit Card
-ca002,CA002,credit_cards,TAQ-Credit Card
-ca002b,CA002B,credit_cards,TAQ-Credit Card
-ca004,CA004,credit_cards,TAQ-Credit Card
-ca004b,CA004B,credit_cards,TAQ-Credit Card
-cb01a,CB01A,authentication,Logon
-cb01ab,CB01AB,authentication,Logon
-cc01c,CC01C,virtual_experiences,Chat
-cc01cb,CC01CB,virtual_experiences,Chat
-cf001,CF001,authentication,Logon
-cf001b,CF001B,authentication,Logon
-ci000,CI000,digital_communications_transformation,Statements and Documents Feature Design
-ci000b,CI000B,digital_communications_transformation,Statements and Documents Feature Design
-ci001,CI001,digital_communications_transformation,Statements and Documents Feature Design
-ci001b,CI001B,digital_communications_transformation,Statements and Documents Feature Design
-ci002,CI002,digital_communications_transformation,Statements and Documents Feature Design
-ci002b,CI002B,digital_communications_transformation,Statements and Documents Feature Design
-ci003,CI003,digital_communications_transformation,Statements and Documents Feature Design
-ci003b,CI003B,digital_communications_transformation,Statements and Documents Feature Design
-ci005,CI005,digital_communications_transformation,Statements and Documents Feature Design
-ci005b,CI005B,digital_communications_transformation,Statements and Documents Feature Design
-ci006,CI006,digital_communications_transformation,Statements and Documents Feature Design
-ci006b,CI006B,digital_communications_transformation,Statements and Documents Feature Design
-ci010,CI010,digital_communications_transformation,Statements and Documents Feature Design
-ci010b,CI010B,digital_communications_transformation,Statements and Documents Feature Design
-ci011,CI011,digital_communications_transformation,Statements and Documents Feature Design
-ci011b,CI011B,digital_communications_transformation,Statements and Documents Feature Design
-ci012,CI012,digital_communications_transformation,Statements and Documents Feature Design
-ci012b,CI012B,digital_communications_transformation,Statements and Documents Feature Design
-ci021,CI021,digital_communications_transformation,Statements and Documents Feature Design
-ci021b,CI021B,digital_communications_transformation,Statements and Documents Feature Design
-ci022,CI022,digital_communications_transformation,CloudIt
-ci022b,CI022B,digital_communications_transformation,CloudIt
-ci023,CI023,digital_communications_transformation,Statements and Documents Feature Design
-ci023b,CI023B,digital_communications_transformation,Statements and Documents Feature Design
-ci024,CI024,digital_communications_transformation,CloudIt
-ci024b,CI024B,digital_communications_transformation,CloudIt
-ci024c,CI024C,digital_communications_transformation,Statements and Documents Feature Design
-ci025,CI025,digital_communications_transformation,Statements and Documents Feature Design
-ci025b,CI025B,digital_communications_transformation,Statements and Documents Feature Design
-ci025c,CI025C,digital_communications_transformation,Statements and Documents Feature Design
-ci026,CI026,digital_communications_transformation,Statements and Documents Feature Design
-ci026b,CI026B,digital_communications_transformation,Statements and Documents Feature Design
-ci026c,CI026C,digital_communications_transformation,Statements and Documents Feature Design
-ci029,CI029,digital_communications_transformation,Statements and Documents Feature Design
-ci029b,CI029B,digital_communications_transformation,Statements and Documents Feature Design
-ci029c,CI029C,digital_communications_transformation,Statements and Documents Feature Design
-ci030,CI030,digital_communications_transformation,Statements and Documents Feature Design
-ci030b,CI030B,digital_communications_transformation,Statements and Documents Feature Design
-ci030c,CI030C,digital_communications_transformation,Statements and Documents Feature Design
-ci031,CI031,digital_communications_transformation,CloudIt
-ci031b,CI031B,digital_communications_transformation,Statements and Documents Feature Design
-ci090,CI090,digital_communications_transformation,CloudIt
-ci090b,CI090B,digital_communications_transformation,CloudIt
-ci091,CI091,digital_communications_transformation,CloudIt
-ci091b,CI091B,digital_communications_transformation,CloudIt
-cop01,COP01,payments,Payments
-cop01b,COP01B,payments,Payments
-cop02,COP02,payments,Payments
-cop02b,COP02B,payments,Payments
-cq001,CQ001,payments,Cheque
-cq001b,CQ001B,payments,Cheque
-cq002,CQ002,payments,Cheque
-cq002b,CQ002B,payments,Cheque
-cq003,CQ003,payments,Cheque
-cq003b,CQ003B,payments,Cheque
-cq004,CQ004,payments,Cheque
-cq004b,CQ004B,payments,Cheque
-cq005,CQ005,payments,Cheque
-cq005b,CQ005B,payments,Cheque
-cq006,CQ006,payments,Cheque
-cq006b,CQ006B,payments,Cheque
-cr001,CR001,authentication,Register
-cr001b,CR001B,authentication,Register
-cr002,CR002,onboarding,Onboarding
-cr002b,CR002B,onboarding,Onboarding
-cr003,CR003,onboarding,Onboarding
-cr003b,CR003B,onboarding,Onboarding
-cr01a,CR01A,authentication,Tapit
-cr01ab,CR01AB,authentication,Tapit
-cv001,CV001,homepage_transactions,Calender View
-cv001b,CV001B,homepage_transactions,Calender View
-cw01,CW01,core_app_web,Security Protocol
-cw01b,CW01B,core_app_web,Security Protocol
-dcc01,DCC01,current_accounts,Cards Hub
-dcc01b,DCC01B,current_accounts,Cards Hub
-dcc02,DCC02,current_accounts,Cards Hub
-dcc02b,DCC02B,current_accounts,Cards Hub
-dcc03,DCC03,current_accounts,Cards Hub
-dcc03b,DCC03B,current_accounts,Cards Hub
-dcc04,DCC04,current_accounts,Cards Hub
-dcc04b,DCC04B,current_accounts,Cards Hub
-dcc05,DCC05,current_accounts,Cards Hub
-dcc05b,DCC05B,current_accounts,Cards Hub
-dcc06,DCC06,current_accounts,Cards Hub
-dcc06b,DCC06B,current_accounts,Cards Hub
-dda01,DDA01,authentication,Tapit
-dda01b,DDA01B,authentication,Tapit
-dda02,DDA02,authentication,Tapit
-dda02b,DDA02B,authentication,Tapit
-dda03,DDA03,authentication,Tapit
-dda03b,DDA03B,authentication,Tapit
-demo_control.audit.config_writes,demo_control.audit.config_writes,demo_control,
-demo_control.audit.interventions,demo_control.audit.interventions,demo_control,
-demo_control.auth,demo_control.auth,demo_control,
-demo_control.bot_fleet.start,demo_control.bot_fleet.start,demo_control,
-demo_control.bot_fleet.status,demo_control.bot_fleet.status,demo_control,
-demo_control.bot_fleet.stop,demo_control.bot_fleet.stop,demo_control,
-demo_control.config.toggle,demo_control.config.toggle,demo_control,
-demo_control.config.view,demo_control.config.view,demo_control,
-demo_control.home,demo_control.home,demo_control,
-demo_control.kv.history,demo_control.kv.history,demo_control,
-demo_control.preset.apply,demo_control.preset.apply,demo_control,
-demo_control.preset.list,demo_control.preset.list,demo_control,
-demo_control.pulse.signature_view,demo_control.pulse.signature_view,demo_control,
-demo_control.recovery,demo_control.recovery,demo_control,
-demo_control.scenario.history,demo_control.scenario.history,demo_control,
-dm001,DM001,authentication,Connected Devices
-dm001b,DM001B,authentication,Connected Devices
-dm002,DM002,authentication,Connected Devices
-dm002b,DM002B,authentication,Connected Devices
-dnc01,DNC01,authentication,Dynamic Invocation (Messages)
-dnc01b,DNC01B,authentication,Dynamic Invocation (Messages)
-dp001,DP001,core_app_web,Onboarding
-dp001b,DP001B,core_app_web,Onboarding
-dp002,DP002,onboarding,Onboarding
-dp002b,DP002B,onboarding,Onboarding
-dr01a,DR01A,onboarding,Registration
-dr01ab,DR01AB,onboarding,Registration
-dr01b,DR01B,authentication,Registration
-dr01bb,DR01BB,authentication,Registration
-ec010,EC010,authentication,Offers
-ec010b,EC010B,authentication,Offers
-ec014,EC014,segments_propositions_l2_essential,Offers
-ec014b,EC014B,segments_propositions_l2_essential,Offers
-ec016,EC016,segments_propositions_l2_essential,Offers
-ec016b,EC016B,segments_propositions_l2_essential,Offers
-ec020,EC020,segments_propositions_l2_essential,Offers
-ec020b,EC020B,segments_propositions_l2_essential,Offers
-errors.404,errors.404,errors,
-errors.500,errors.500,errors,
-errors.account_frozen,errors.account_frozen,errors,
-errors.api_error,errors.api_error,errors,
-errors.captcha,errors.captcha,errors,
-errors.csrf_failed,errors.csrf_failed,errors,
-errors.daily_limit,errors.daily_limit,errors,
-errors.fallback,errors.fallback,errors,
-errors.feature_unavailable,errors.feature_unavailable,errors,
-errors.geo_blocked,errors.geo_blocked,errors,
-errors.input_validation,errors.input_validation,errors,
-errors.insufficient_funds,errors.insufficient_funds,errors,
-errors.kyc_required,errors.kyc_required,errors,
-errors.locked_out,errors.locked_out,errors,
-errors.maintenance,errors.maintenance,errors,
-errors.network_timeout,errors.network_timeout,errors,
-errors.offline,errors.offline,errors,
-errors.payment.failed,errors.payment.failed,errors,
-errors.permission_denied,errors.permission_denied,errors,
-errors.product_unavailable,errors.product_unavailable,errors,
-errors.rate_limit,errors.rate_limit,errors,
-errors.session_expired,errors.session_expired,errors,
-errors.signed_out,errors.signed_out,errors,
-errors.unsupported_browser,errors.unsupported_browser,errors,
-errors.update_required,errors.update_required,errors,
-flc01,FLC01,digital_communications_transformation,Feature Logging Configuration
-flc01b,FLC01B,digital_communications_transformation,Feature Logging Configuration
-fp001,FP001,payments,International Payments
-fp001b,FP001B,payments,International Payments
-fp002,FP002,payments,International Payments
-fp002b,FP002B,payments,International Payments
-fp003,FP003,payments,International Payments
-fp003b,FP003B,payments,International Payments
-fp004,FP004,payments,International Payments
-fp004b,FP004B,payments,International Payments
-fp005,FP005,payments,International Payments
-fp005b,FP005B,payments,International Payments
-fp006,FP006,payments,International Payments
-fp006b,FP006B,payments,International Payments
-fp007,FP007,payments,International Payments
-fp007b,FP007B,payments,International Payments
-fp008,FP008,payments,International Payments
-fp008b,FP008B,payments,International Payments
-fp009,FP009,payments,International Payments
-fp009b,FP009B,payments,International Payments
-fp010,FP010,payments,International Payments
-fp010b,FP010B,payments,International Payments
-fp011,FP011,payments,International Payments
-fp011b,FP011B,payments,International Payments
-fp901,FP901,payments,International Payments
-fp901b,FP901B,payments,International Payments
-ftc01,FTC01,digital_communications_transformation,Digital Enrolment Journey (DEJ)
-ftc01b,FTC01B,digital_communications_transformation,Digital Enrolment Journey (DEJ)
-ga001,GA001,homepage_transactions,Display TAQ Apps
-ga001b,GA001B,homepage_transactions,Display TAQ Apps
-gba01,GBA01,credit_cards,TAQ-Credit Card
-gba01b,GBA01B,credit_cards,TAQ-Credit Card
-gbt01,GBT01,credit_cards,TAQ-Credit Card
-gbt01b,GBT01B,credit_cards,TAQ-Credit Card
-gc003,GC003,credit_cards,TAQ-Credit Card
-gc003b,GC003B,credit_cards,TAQ-Credit Card
-gc003c,GC003C,credit_cards,TAQ-Credit Card
-gc02a,GC02A,credit_cards,TAQ-Credit Card
-gc02ab,GC02AB,credit_cards,TAQ-Credit Card
-gcd01,GCD01,credit_cards,TAQ-Credit Card
-gcd01b,GCD01B,credit_cards,TAQ-Credit Card
-gcd01c,GCD01C,credit_cards,TAQ-Credit Card
-gel01,GEL01,core_app_web,Platform - Generic Logging
-gel01b,GEL01B,core_app_web,Platform - Generic Logging
-gel01c,GEL01C,core_app_web,Platform - Generic Logging
-grc01,GRC01,cross_product_servicing,Change of Address
-grc01b,GRC01B,cross_product_servicing,Change of Address
-grc01c,GRC01C,cross_product_servicing,Change of Address
-ic001,IC001,credit_cards,TAQ-Credit Card
-ic001b,IC001B,credit_cards,TAQ-Credit Card
-ic001c,IC001C,credit_cards,TAQ-Credit Card
-ic002,IC002,credit_cards,TAQ-Credit Card
-ic002b,IC002B,credit_cards,TAQ-Credit Card
-ic003,IC003,credit_cards,TAQ-Credit Card
-ic003b,IC003B,credit_cards,TAQ-Credit Card
-ic004,IC004,credit_cards,Instant Debit Cards
-ic004b,IC004B,credit_cards,Instant Debit Cards
-id002,ID002,current_accounts,Instant Debit Cards
-id002b,ID002B,current_accounts,Instant Debit Cards
-id003,ID003,current_accounts,NTB Onboarding
-id003b,ID003B,current_accounts,Instant Debit Cards
-idp01,IDP01,payments,Open Banking
-ins01,INS01,segments_propositions_l2_essential,Finance Coach
-ins02,INS02,segments_propositions_l2_essential,Finance Coach
-ins03,INS03,segments_propositions_l2_essential,Finance Coach
-is001,IS001,savings,ISA
-is002,IS002,savings,ISA
-is003,IS003,savings,ISA
-iv011,IV011,help_me_manage_my_business,Making Business Special (MBS)
-iv012,IV012,help_me_manage_my_business,Making Business Special (MBS)
-iv013,IV013,help_me_manage_my_business,Making Business Special (MBS)
-iv014,IV014,help_me_manage_my_business,Making Business Special (MBS)
-iv015,IV015,help_me_manage_my_business,Making Business Special (MBS)
-iv022,IV022,help_me_manage_my_business,Making Business Special (MBS)
-iv024,IV024,help_me_manage_my_business,Making Business Special (MBS)
-iv025,IV025,help_me_manage_my_business,Making Business Special (MBS)
-iv031,IV031,help_me_manage_my_business,Making Business Special (MBS)
-iv041,IV041,help_me_manage_my_business,Making Business Special (MBS)
-iv042,IV042,help_me_manage_my_business,Making Business Special (MBS)
-iv043,IV043,help_me_manage_my_business,Making Business Special (MBS)
-iv044,IV044,help_me_manage_my_business,Making Business Special (MBS)
-iv051,IV051,help_me_manage_my_business,Making Business Special (MBS)
-iv061,IV061,help_me_manage_my_business,Making Business Special (MBS)
-iv062,IV062,help_me_manage_my_business,Making Business Special (MBS)
-iv071,IV071,help_me_manage_my_business,Making Business Special (MBS)
-iv092,IV092,help_me_manage_my_business,Making Business Special (MBS)
-iv102,IV102,help_me_manage_my_business,Making Business Special
-iv105,IV105,help_me_manage_my_business,Making Business Special (MBS)
-jb01a,JB01A,core_app_web,Security Protocol
-jb01c,JB01C,authentication,Trust Anchor
-jf000,JF000,authentication,Journey Framework
-l0001,L0001,core_app_web,Security Protocol
-l0002,L0002,core_app_web,Security Protocol
-l0003,L0003,core_app_web,Security Protocol
-l0004,L0004,core_app_web,Security Protocol
-lf02a,LF02A,segments_propositions_l2_essential,Launchpad
-lh001,LH001,homepage_transactions,Banners
-lpr01,LPR01,segments_propositions_l2_essential,Launchpad
-lpr02,LPR02,segments_propositions_l2_essential,Launchpad
-lps01,LPS01,segments_propositions_l2_essential,Launchpad
-ls002,LS002,current_accounts,Cards Hub
-mbs02,MBS02,help_me_manage_my_business,Making Business Special (MBS)
-mc001,MC001,payments,BTAP
-md001,MD001,cross_product_servicing,KYC CDD
-md002,MD002,cross_product_servicing,KYC CDD
-md003,MD003,cross_product_servicing,KYC CDD
-mnp01,MNP01,payments,Payments
-moi01,MOI01,mortgage_servicing,View Balance
-moi02,MOI02,mortgage_servicing,View Balance
-mp001,MP001,payments,Payments
-mp002,MP002,payments,Payments
-mp003,MP003,payments,Payments
-mp004,MP004,payments,Payments
-mp007,MP007,credit_cards,TAQ-Credit Card
-mp010,MP010,credit_cards,TAQ-Credit Card
-mp011,MP011,credit_cards,TAQ-Credit Card
-mp012,MP012,credit_cards,TAQ-Credit Card
-mp013,MP013,credit_cards,TAQ-Credit Card
-mp014,MP014,credit_cards,TAQ-Credit Card
-mp015,MP015,credit_cards,TAQ-Credit Card
-mrp01,MRP01,payments,Recent Payees
-mt000,MT000,mortgage_servicing,View Balance
-mt001,MT001,mortgage_servicing,View Balance
-mt002,MT002,homepage_transactions,Transactions
-mt003,MT003,homepage_transactions,Transactions
-mt004,MT004,mortgage_servicing,Mortgage Payments
-mt005,MT005,mortgage_servicing,Mortgage Payments
-mt006,MT006,mortgage_servicing,Mortgage Payments
-mt007,MT007,mortgage_servicing,Mortgage Payments
-nb001,NB001,payments,Payments
-nb002,NB002,payments,Payments
-nb005,NB005,payments,Payments
-nb006,NB006,payments,Payments
-nk001,NK001,homepage_transactions,Nickname
-np002,NP002,virtual_experiences,NoMi
-np003,NP003,virtual_experiences,Chat
-nps02,NPS02,cross_product_servicing,NetPromoterScore
-nps03,NPS03,cross_product_servicing,NetPromoterScore
-nr001,NR001,authentication,Registration
-nt001,NT001,cross_product_servicing,In App Notification
-nt002,NT002,cross_product_servicing,In App Notification
-nt003,NT003,cross_product_servicing,In App Notification
-nt004,NT004,cross_product_servicing,In App Notification
-nt005,NT005,cross_product_servicing,In App Notification
-ntb01,NTB01,onboarding,NTB Onboarding
-ntb02,NTB02,onboarding,NTB Onboarding
-ntb03,NTB03,onboarding,NTB Onboarding
-ntb04,NTB04,onboarding,NTB Onboarding
-ntb05,NTB05,onboarding,NTB Onboarding
-ntb06,NTB06,onboarding,NTB Onboarding
-ntb07,NTB07,onboarding,NTB Onboarding
-ntb08,NTB08,onboarding,NTB Onboarding
-ntb09,NTB09,onboarding,NTB Onboarding
-ntb10,NTB10,onboarding,NTB Onboarding
-ntb11,NTB11,onboarding,NTB Onboarding
-ntb12,NTB12,onboarding,NTB Onboarding
-ntb13,NTB13,onboarding,NTB Onboarding
-oe001,OE001,payments,Offers
-om001,OM001,payments,Offers
-p2p01,P2P01,payments,Tap2Pay Mobile Payments
-p2p02,P2P02,payments,Tap2Pay Mobile Payments
-p2p03,P2P03,payments,Tap2Pay Mobile Payments
-pa000,PA000,cross_product_servicing,Logoff
-pcr01,PCR01,onboarding,PECR consent
-pct00,PCT00,authentication,Extend Session Length
-pdt01,PDT01,homepage_transactions,Transactions
-pe001,PE001,credit_cards,TAQ-Credit Card
-pf001,PF001,authentication,Payphone
-pf002,PF002,authentication,Payphone
-pfc01,PFC01,authentication,Partner Finance Amazon Checkout
-pk001,PK001,digital_communications_transformation,Security Protocol
-pl01b,PL01B,current_accounts,Statements
-po001,PO001,current_accounts,High Value Transaction Offers
-po002,PO002,segments_propositions_l2_essential,High Value Transaction Offers
-pp001,PP001,onboarding,ProspectPushNotificaion
-pr002,PR002,payments,Tap2Pay
-pr003,PR003,authentication,Mobile Payments Scheme Signup
-pr004,PR004,authentication,Tap2Pay
-pr005,PR005,authentication,Registration
-pre01,PRE01,digital_communications_transformation,Customer Preferences
-pre02,PRE02,digital_communications_transformation,Customer Preferences
-ps002,PS002,digital_communications_transformation,Statements
-ps003,PS003,digital_communications_transformation,Statements
-ps004,PS004,digital_communications_transformation,Statements
-ps005,PS005,digital_communications_transformation,Statements
-ps007,PS007,digital_communications_transformation,Statements
-ps008,PS008,digital_communications_transformation,Statements
-ps009,PS009,digital_communications_transformation,Statements
-psw01,PSW01,engineering_platform_engineering,Change Profile
-ptx01,PTX01,homepage_transactions,Transactions
-pw001,PW001,virtual_experiences,Async Chat
-r0001,R0001,authentication,OneApp migration
-r0002,R0002,authentication,Registration
-r0003,R0003,authentication,Registration
-r0004,R0004,authentication,Registration
-r0005,R0005,authentication,Registration
-r0007,R0007,authentication,Registration
-r0014,R0014,authentication,Credit Card PinSentry
-r0015,R0015,authentication,Credit Card PinSentry
-r0019,R0019,authentication,De-Register
-r0020,R0020,authentication,Registration
-r0023,R0023,digital_communications_transformation,Preferences
-r0024,R0024,digital_communications_transformation,Preferences
-r0025,R0025,digital_communications_transformation,Preferences
-r0026,R0026,digital_communications_transformation,Preferences
-r0027,R0027,digital_communications_transformation,Preferences
-r002b,R002B,authentication,Registration
-r002c,R002C,authentication,Registration
-r0100,R0100,authentication,Registration
-r011a,R011A,credit_cards,Credit Card Physical PINSentry
-r012a,R012A,credit_cards,Credit Card Physical PINSentry
-r012b,R012B,credit_cards,Credit Card Physical PINSentry
-r013a,R013A,credit_cards,TAQ-Credit Card
-r5000,R5000,authentication,Onfido
-r5001,R5001,authentication,Onfido
-r5002,R5002,authentication,Onfido
-r5005,R5005,authentication,Onfido
-rd001,RD001,onboarding,EveryDay Saver - SVO
-rf001,RF001,core_app_web,Security Protocol
-rk01a,RK01A,segments_propositions_l2_essential,Launchpad
-rk03a,RK03A,segments_propositions_l2_essential,Launchpad
-rk04a,RK04A,segments_propositions_l2_essential,Launchpad
-rl001,RL001,cross_product_servicing,Letter
-rm001,RM001,onboarding,Onboarding
-rr001,RR001,core_app_web,Backup and Restore
-rr002,RR002,core_app_web,Backup and Restore
-rr04a,RR04A,core_app_web,Backup and Restore
-rr04b,RR04B,core_app_web,App to Web
-ru001,RU001,core_app_web,App to Web
-ru002,RU002,virtual_experiences,Smartcall
-sc001,SC001,virtual_experiences,Smartcall
-sc002,SC002,virtual_experiences,Smartcall
-sc003,SC003,wealth_hub,SOLD View Balance
-sd001,SD001,homepage_transactions,SOLD Transactions
-sd002,SD002,smart_investor,Smart Investor
-sf006,SF006,smart_investor,Smart Investor
-sfg01,SFG01,smart_investor,View Accounts
-sfg02,SFG02,homepage_transactions,Finance Coach
-sfg03,SFG03,segments_propositions_l2_essential,Finance Coach
-sgs01,SGS01,segments_propositions_l2_essential,Finance Coach
-sgs02,SGS02,segments_propositions_l2_essential,Finance Coach
-sgs03,SGS03,segments_propositions_l2_essential,Finance Coach
-sgs04,SGS04,segments_propositions_l2_essential,Finance Coach
-sgs05,SGS05,segments_propositions_l2_essential,Finance Coach
-sgs06,SGS06,smart_investor,Finance Coach
-si001,SI001,smart_investor,Smart Investor
-si004,SI004,smart_investor,Smart Investor
-si005,SI005,smart_investor,Smart Investor
-si006,SI006,smart_investor,Smart Investor
-si007,SI007,smart_investor,Smart Investor
-si008,SI008,smart_investor,Smart Investor
-si009,SI009,smart_investor,Smart Investor
-sp007,SP007,segments_propositions_l2_essential,Finance Coach
-sp008,SP008,segments_propositions_l2_essential,Finance Coach
-sp009,SP009,segments_propositions_l2_essential,Finance Coach
-sp010,SP010,segments_propositions_l2_essential,Finance Coach
-sp011,SP011,segments_propositions_l2_essential,Finance Coach
-sp012,SP012,segments_propositions_l2_essential,Finance Coach
-sp013,SP013,segments_propositions_l2_essential,Finance Coach
-sr401,SR401,authentication,Speedy Reg
-sr402,SR402,authentication,Speedy Reg
-sr403,SR403,authentication,Speedy Reg
-sr404,SR404,authentication,Speedy Reg
-ssl00,SSL00,core_app_web,"Logon, Security Protocol"
-st01,ST01,payments,Smart Investor Transfers
-st02,ST02,payments,Smart Investor Transfers
-st03,ST03,payments,Smart Investor Transfers
-st04,ST04,payments,Smart Investor Transfers
-st05,ST05,payments,Smart Investor Transfers
-su001,SU001,core_app_web,Security Protocol
-ta001,TA001,authentication,Trust Anchor
-ta002,TA002,authentication,Trust Anchor
-ta003,TA003,authentication,Trust Anchor
-ta004,TA004,authentication,Trust Anchor
-ta04b,TA04B,authentication,"Logon, Touch ID"
-tat01,TAT01,homepage_transactions,Take a Tour
-ti000,TI000,core_app_web,"App to Web, Full Consumption MCA"
-ti001,TI001,authentication,Touch ID
-ti002,TI002,core_app_web,"App to Web, Full Consumption MCA"
-ti003,TI003,core_app_web,"App to Web,Full Consumption MCA"
-tr04a,TR04A,authentication,"Logon, Touch ID"
-tr04b,TR04B,authentication,"Logon, Touch ID"
-tx001,TX001,homepage_transactions,Transactions
-tx002,TX002,homepage_transactions,Transactions
-tx003,TX003,segments_propositions_l2_essential,Transactions
-u0003,U0003,core_app_web,Security Protocol
-ua001,UA001,cross_product_servicing,Change of Address
-ua002,UA002,cross_product_servicing,Change of Address
-ua002b,UA002B,cross_product_servicing,Change of Address
-ua003,UA003,cross_product_servicing,Change of Address
-ua003b,UA003B,cross_product_servicing,Change of Address
-ua004,UA004,cross_product_servicing,Change of Address
-ua004b,UA004B,cross_product_servicing,Change of Address
-ua005,UA005,cross_product_servicing,Change of Address
-ua005b,UA005B,cross_product_servicing,Change of Address
-ua006,UA006,cross_product_servicing,Change of Address
-ua006b,UA006B,cross_product_servicing,Welcome Journey
-ucd03,UCD03,current_accounts,Welcome Journey
-ufo01,UFO01,payments,Payments
-vcs01,VCS01,segments_propositions_l2_essential,Blue Rewards
-ve001,VE001,segments_propositions_l2_essential,Blue Rewards
-ve002,VE002,segments_propositions_l2_essential,Blue Rewards
-ve003,VE003,segments_propositions_l2_essential,Blue Rewards
-ve005,VE005,segments_propositions_l2_essential,Blue Rewards
-ve006,VE006,segments_propositions_l2_essential,Blue Rewards
-ve007,VE007,segments_propositions_l2_essential,Blue Rewards
-ve008,VE008,segments_propositions_l2_essential,Blue Rewards
-ve008b,VE008B,segments_propositions_l2_essential,Blue Rewards
-ve009,VE009,segments_propositions_l2_essential,Blue Rewards
-ve009b,VE009B,segments_propositions_l2_essential,Blue Rewards
-ve04a,VE04A,segments_propositions_l2_essential,Blue Rewards
-vp001,VP001,payments,Voice Payments
-vp001b,VP001B,payments,Voice Payments
-vp04a,VP04A,authentication,In-App Passcode Verification
-vp04ab,VP04AB,authentication,In-App Passcode Verification
-vp04b,VP04B,authentication,In-App Passcode Verification
-vp04bb,VP04BB,authentication,In-App Passcode Verification
-vpt01,VPT01,authentication,Tapit PIN Entry
-vpt01b,VPT01B,authentication,Tapit PIN Entry
-vpt01c,VPT01C,authentication,Tapit PIN Entry
-vpt02,VPT02,authentication,Tapit PIN Entry
-vpt02b,VPT02B,authentication,Tapit PIN Entry
-vpt02c,VPT02C,authentication,Tapit PIN Entry
-wa001,WA001,wealth_hub,Wealth Accounts
-wa001b,WA001B,wealth_hub,Wealth Accounts
-wa001c,WA001C,wealth_hub,Wealth Accounts
-waa01,WAA01,wealth_hub,Wealth
-waa01b,WAA01B,wealth_hub,Wealth
-waa01c,WAA01C,wealth_hub,Wealth
-wad01,WAD01,wealth_hub,Wealth Accounts
-wad01b,WAD01B,wealth_hub,Wealth Accounts
-wad01c,WAD01C,wealth_hub,Wealth Accounts
-wapi1,WAPI1,wealth_hub,Wealth
-wapi1b,WAPI1B,wealth_hub,Wealth
-wapi1c,WAPI1C,wealth_hub,Wealth
-wc001,WC001,wealth_hub,Wealth Accounts
-wc001b,WC001B,wealth_hub,Wealth Accounts
-wc001c,WC001C,wealth_hub,Wealth Accounts
-wc002,WC002,wealth_hub,Wealth
-wc002b,WC002B,wealth_hub,Wealth
-wc002c,WC002C,wealth_hub,Wealth
-wha01,WHA01,wealth_hub,Wealth
-wha01b,WHA01B,wealth_hub,Wealth
-wha01c,WHA01C,wealth_hub,Wealth
-wp001,WP001,wealth_hub,Wealth
-wp001b,WP001B,wealth_hub,Wealth
-wp001c,WP001C,wealth_hub,Wealth
-zap01,ZAP01,payments,Pay by Bank App (PBBA)
-zap01b,ZAP01B,payments,Pay by Bank App (PBBA)
-zap02,ZAP02,payments,Pay by Bank App (PBBA)
-zap02b,ZAP02B,payments,Pay by Bank App (PBBA)
-zap03,ZAP03,payments,Pay by Bank App (PBBA)
-zap03b,ZAP03B,payments,Pay by Bank App (PBBA)
-zap04,ZAP04,payments,Pay by Bank App (PBBA)
-zap04b,ZAP04B,payments,Pay by Bank App (PBBA)
-zap05,ZAP05,payments,Pay by Bank App (PBBA)
-zap05b,ZAP05B,payments,Pay by Bank App (PBBA)
-zap06,ZAP06,payments,Pay by Bank App (PBBA)
-zap07,ZAP07,payments,Pay by Bank App (PBBA)
-zap08,ZAP08,payments,Pay by Bank App (PBBA)
+id,op_code,kind,journey,customer_journey,op_class,name,handle,friendly_name,friction_class,friction_target,friction_patterns_supported
+a0002,A0002,op,authentication,Logoff,LogOffOperation,Logoff - Logoff Operation,,,,,
+a0012,A0012,op,authentication,Push Notifications,BMBManageDeviceTokenDataOperation,Push Notifications - Manage Device Token Data Operation,,,,,
+a001c,A001C,op,core_app_web,Terms & Conditions,GetTermsAndConditions,T&C - Get Terms and Conditions Operations,,,,,
+a001d,A001D,op,core_app_web,Terms & Conditions,SaveTermsAndConditions,T&Cs - Save Terms and Conditions Operation,,,,,
+a401a,A401A,op,authentication,Logon,AuthHello,Logon - Passcode Auth Hello Operation (v4),,,,,
+a401b,A401B,op,authentication,Logon,AuthChallenge,Logon - Passcode Auth Challenge Operation (v4),,,,,
+ab001,AB001,op,homepage_transactions,Banners,AccountListBanner,View Banners - Account List Banner,,,,,
+ab002,AB002,op,homepage_transactions,Banners,NewBannerSuppressionOperation,View Banners - New Banner Suppression,,,,,
+ab003,AB003,op,finance_my_growth,Loans,CheckBILResumeOperation,Loans - Check BIL Resume,,,,,
+ak001,AK001,op,payments,Open Banking,OBRetrieveConsentDetailsOperation.java,Open Banking - Open Banking Consent Details Operation,,,,,
+ak002,AK002,op,payments,Open Banking,OpenBankingProductListOperation,Open Banking - Open Banking Product List Operation,,,,,
+ak003,AK003,op,payments,Open Banking,OpenBankingConsentApprovalOperation,Open Banking - Open Banking Consent Approval Operation,,,,,
+ak004,AK004,op,payments,Open Banking,rejectConsent,Open Banking - Reject Consent,,,,,
+ak02b,AK02B,op,payments,Open Banking,OpenBankingValidateProducts,Open Banking - Open Banking Validate Products,,,,,
+al001,AL001,op,finance_my_growth,Business ALS Loan,Retrieve Business ALS Loan,Business ALS Loan - Retrieve Business ALS Loan,,,,,
+al004,AL004,op,onboarding,Onboarding,GetAddresses,Onboarding - Get Addresses,,,,,
+alu01,ALU01,op,onboarding,Change of Address,GetAddressFromPostcode,Change of Address - Get Address From Postcode,,,,,
+ap002,AP002,op,payments,Apple Pay,EncryptApplePayCardDetailsOperation,Apple Pay - Encrypt Apple Pay Card Details Operation,,,,,
+ap003,AP003,op,payments,Apple wallet extension,AppleWalletExtensionOperation,Apple Wallet Extension - AppleWalletExtensionOperation,,,,,
+api.adigihelphubqry,spro1,api,api_inspector,,,Digital Help Hub Query API,adigihelphubqry,Digital Help Hub Query API,,,
+api.busaccountmanagementxapi,spro1,api,api_inspector,,,Business Account Management X API,busaccountmanagementxapi,Business Account Management X API,,,
+api.busprodsuitabilityxapi,spro1,api,api_inspector,,,Business Product Suitability X API,busprodsuitabilityxapi,Business Product Suitability X API,,,
+api.digitaldynamicformsxapi,spro1,api,api_inspector,,,Digital Dynamic Forms X API,digitaldynamicformsxapi,Digital Dynamic Forms X API,,,
+api.digitalrewardmgmtxapi,spro1,api,api_inspector,,,Digital Rewards Management X API,digitalrewardmgmtxapi,Digital Rewards Management X API,,,
+api.digixapiaccountsmgt,spro1,api,api_inspector,,,Accounts Management X API,digixapiaccountsmgt,Accounts Management X API,,,
+api.digixapichequeprocessing,spro1,api,api_inspector,,,Cheque Processing X API,digixapichequeprocessing,Cheque Processing X API,,,
+api.digixapicustpropositions,spro1,api,api_inspector,,,Customer Propositions X API,digixapicustpropositions,Customer Propositions X API,,,
+api.digixapipaymentsmgt,spro1,api,api_inspector,,,Payments Management X API,digixapipaymentsmgt,Payments Management X API,,,
+api.digixapirwdsubsmgt,spro1,api,api_inspector,,,Rewards Subscription Management X API,digixapirwdsubsmgt,Rewards Subscription Management X API,,,
+api.digixapitransactionsmgt,spro1,api,api_inspector,,,Transaction Management API,digixapitransactionsmgt,Transaction Management API,,,
+api.emmxapissdauthqry,spro1,api,api_inspector,,,SSD Auth Query X API,emmxapissdauthqry,SSD Auth Query X API,,,
+api.mortrepaymentchargesxapi,spro1,api,api_inspector,,,Mortgage Repayment Charges X API,mortrepaymentchargesxapi,Mortgage Repayment Charges X API,,,
+api.spr01,spro1,api,api_inspector,,,Cjmaping,spr01,Cjmaping,,,
+api.taqapiavios,spro1,api,api_inspector,,,Avios API,taqapiavios,Avios API,,,
+api.taqapicrdmgmntcmd,spro1,api,api_inspector,,,Card Management Command API,taqapicrdmgmntcmd,Card Management Command API,,,
+api.taqapicrdtknqry,spro1,api,api_inspector,,,Card Token Query API,taqapicrdtknqry,Card Token Query API,,,
+api.taqapidej,spro1,api,api_inspector,,,Digital Enrolment Journey API,taqapidej,Digital Enrolment Journey API,,,
+api.taqapimrkprefsmgt,spro1,api,api_inspector,,,Marketing Preferences Management API,taqapimrkprefsmgt,Marketing Preferences Management API,,,
+api.taqapiprospects,spro1,api,api_inspector,,,Prospects API,taqapiprospects,Prospects API,,,
+api.taqapiprospectslookup,spro1,api,api_inspector,,,Prospects Lookup API,taqapiprospectslookup,Prospects Lookup API,,,
+api.taqapisearchmgt,spro1,api,api_inspector,,,Search Management API,taqapisearchmgt,Search Management API,,,
+api.taqbpfpymntsxapi,spro1,api,api_inspector,,,BPF Payments X API,taqbpfpymntsxapi,BPF Payments X API,,,
+api.taqdataapibusinsmgt,spro1,api,api_inspector,,,Business Insights Data API,taqdataapibusinsmgt,Business Insights Data API,,,
+api.taqdbtcrdsrvcngiapi,spro1,api,api_inspector,,,Debit Card Servicing API,taqdbtcrdsrvcngiapi,Debit Card Servicing API,,,
+api.taqdomainbbao,spro1,api,api_inspector,,,Domain BBAO API,taqdomainbbao,Domain BBAO API,,,
+api.taqdomaincommon,spro1,api,api_inspector,,,Domain Common API,taqdomaincommon,Domain Common API,,,
+api.taqdomaincustonboarding,spro1,api,api_inspector,,,Domain Customer Onboarding API,taqdomaincustonboarding,Domain Customer Onboarding API,,,
+api.taqdomainhomepage,spro1,api,api_inspector,,,Domain Homepage API,taqdomainhomepage,Domain Homepage API,,,
+api.taqdomainngcbetb,spro1,api,api_inspector,,,Domain NGC BETB API,taqdomainngcbetb,Domain NGC BETB API,,,
+api.taqdomainpkgholdings,spro1,api,api_inspector,,,Domain Package Holdings API,taqdomainpkgholdings,Domain Package Holdings API,,,
+api.taqdomainregistration,spro1,api,api_inspector,,,Domain Registration API,taqdomainregistration,Domain Registration API,,,
+api.taqdomaintransaction,spro1,api,api_inspector,,,Transaction API,taqdomaintransaction,Transaction API,,,
+api.taqfundstrnsfrxapi,spro1,api,api_inspector,,,Funds Transfer API,taqfundstrnsfrxapi,Funds Transfer API,,,
+api.taqmanagepaymentsiapi,spro1,api,api_inspector,,,Manage Payments API,taqmanagepaymentsiapi,Manage Payments API,,,
+api.taqmortgagesxapi,spro1,api,api_inspector,,,Mortgages X API,taqmortgagesxapi,Mortgages X API,,,
+api.taqppecrdactenqxapi,spro1,api,api_inspector,,,PPE Card Account Enquiry API,taqppecrdactenqxapi,PPE Card Account Enquiry API,,,
+api.taqppecrdtxnenqxapi,spro1,api,api_inspector,,,PPE Card Transaction Enquiry API,taqppecrdtxnenqxapi,PPE Card Transaction Enquiry API,,,
+api.taqpperpayenqxapi,spro1,api,api_inspector,,,PPE Repayment Enquiry API,taqpperpayenqxapi,PPE Repayment Enquiry API,,,
+api.taqxapiasyncchat,spro1,api,api_inspector,,,Async Chat X API,taqxapiasyncchat,Async Chat X API,,,
+api.taqxapicontactdetails,spro1,api,api_inspector,,,Contact Details X API,taqxapicontactdetails,Contact Details X API,,,
+api.taqxapistmtdocs,spro1,api,api_inspector,,,Statement Documents X API,taqxapistmtdocs,Statement Documents X API,,,
+api.xdigiloyaltyexpmgt,spro1,api,api_inspector,,,Digital Loyalty Experience Management API,xdigiloyaltyexpmgt,Digital Loyalty Experience Management API,,,
+api.xdigiofflinemodemgmt,spro1,api,api_inspector,,,Offline Mode Management API,xdigiofflinemodemgmt,Offline Mode Management API,,,
+api.xdigiprofilesmgt,spro1,api,api_inspector,,,Digital Profiles Management API,xdigiprofilesmgt,Digital Profiles Management API,,,
+api.xdigirewardscashbackmgt,spro1,api,api_inspector,,,Rewards Cashback Management API,xdigirewardscashbackmgt,Rewards Cashback Management API,,,
+api.xeccapptbookmgt,spro1,api,api_inspector,,,ECC Appointment Booking Management API,xeccapptbookmgt,ECC Appointment Booking Management API,,,
+api.xfinplantiaadrop,spro1,api,api_inspector,,,Financial Planning TIAA Drop API,xfinplantiaadrop,Financial Planning TIAA Drop API,,,
+api.xmortgagedirectdebit,spro1,api,api_inspector,,,Mortgage Direct Debit API,xmortgagedirectdebit,Mortgage Direct Debit API,,,
+api.xmortgagesummarymgt,spro1,api,api_inspector,,,Mortgage Summary Management API,xmortgagesummarymgt,Mortgage Summary Management API,,,
+api.xpbwmdigiinvauthmgt,spro1,api,api_inspector,,,PBWM Digital Investment Auth Management API,xpbwmdigiinvauthmgt,PBWM Digital Investment Auth Management API,,,
+api.xpbwmonehubviewmgt,spro1,api,api_inspector,,,PBWM OneHub View Management API,xpbwmonehubviewmgt,PBWM OneHub View Management API,,,
+api.xunseccardintratemgt,spro1,api,api_inspector,,,Unsecured Card Interest Rate Management API,xunseccardintratemgt,Unsecured Card Interest Rate Management API,,,
+api.xunseccardsmartpaymgt,spro1,api,api_inspector,,,Unsecured Card SmartPay Management API,xunseccardsmartpaymgt,Unsecured Card SmartPay Management API,,,
+api.xunseccreditoffermgt,spro1,api,api_inspector,,,Unsecured Credit Offer Management API,xunseccreditoffermgt,Unsecured Credit Offer Management API,,,
+api.xunsecoffermgt,spro1,api,api_inspector,,,Unsecured Offers Management API,xunsecoffermgt,Unsecured Offers Management API,,,
+api.xunsecsustainhubmgt,spro1,api,api_inspector,,,Unsecured Sustainability Hub Management API,xunsecsustainhubmgt,Unsecured Sustainability Hub Management API,,,
+at006,AT006,op,core_app_web,Analytics,AcknowledgePromptActionOperation,Analytics - Acknowledge Prompt Action Operation,,,,,
+at007,AT007,op,core_app_web,Analytics,GetExclusionMarkerOperation,Analytics - Get Exclusion Marker Operation,,,,,
+at008,AT008,op,core_app_web,Analytics,UpdateExclusionMarkerOperation,Analytics - Update Exclusion Marker Operation,,,,,
+au005,AU005,op,cross_product_servicing,Profile,GetAddressCountriesBMB,Profile - Get Address Countries BMB,,,,,
+au006,AU006,op,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature,GetTAQCreditCardsDetail,TAQ-Credit Card Auth User - Get TAQ-Credit Cards Detail,,,,,
+au007,AU007,op,credit_cards,TAQ-Credit Card,AddAuthorisedUserWithPhoneNumber,TAQ-Credit Card Auth User - Add Authorised User With Phone Number,,,,,
+au008,AU008,op,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature,UpdateAuthorisedUserPhoneNumber,TAQ-Credit Card Auth User - Update Authorised User Phone Number,,,,,
+au009,AU009,op,credit_cards,TAQ-Credit Card Add/Manage Card Holders Feature,GetAuthorisedUserEligibilitiesOperation,TAQ-Credit Card Auth User - Get Authorised User Eligibilities,,,,,
+b0003,B0003,op,loans,Loans,GetLoanReferenceData,Loans - Get Loan Reference Data,,,,,
+b0005,B0005,op,loans,Loans,LoanCalculate,Loans - Loan Calculate,,,,,
+b0006,B0006,op,loans,Loans,LoanStep1,Loans - Loan Step 1,,,,,
+b0007,B0007,op,loans,Loans,LoanStep2,Loans - Loan Step 2,,,,,
+b0008,B0008,op,loans,Loans,LoanStep3,Loans - Loan Step 3,,,,,
+b0010,B0010,op,loans,Loans,LoanStep4,Loans - Loan Step 4,,,,,
+b0012,B0012,op,overdrafts,Overdraft,OverdraftStep2i,Overdraft - Overdraft Step 2i,,,,,
+b0013,B0013,op,overdrafts,Overdraft,OverdraftStep2ii,Overdraft - Overdraft Step 2ii,,,,,
+b0015,B0015,op,overdrafts,Overdraft,OverdraftSummary,Overdraft - Overdraft Summary,,,,,
+b0016,B0016,op,overdrafts,Overdraft,OverdraftStep4,Overdraft - Overdraft Step 4,,,,,
+b0017,B0017,op,loans,Loans,GetLoanDetails,Loans - Get Loan Details,,,,,
+b0018,B0018,op,loans,Loans,GetSettlementAccounts,Loans - Get Settlement Accounts,,,,,
+b0019,B0019,op,loans,Loans,RetrieveLoanApplication,Loans - Retrieve Loan Application,,,,,
+b0020,B0020,op,loans,Loans,CancelLoanApplication,Loans - Cancel Loan Application,,,,,
+b0021,B0021,op,loans,Loans,ValidateLoanSettlementOperation,Loans - Validate Loan Settlement Operation,,,,,
+b0022,B0022,op,loans,Loans,ConfirmLoanSettlementOperation,Loans - Confirm Loan Settlement Operation,,,,,
+b0023,B0023,op,loans,Loans,GetLoanApplications,Loans - Get Loan Applications,,,,,
+b0024,B0024,op,overdrafts,Overdraft,OverdraftStep5,Overdraft - Overdraft Step 5,,,,,
+b0025,B0025,op,overdrafts,Overdraft,IsStatementPreferenceRelevantOperation,Overdraft - Is Statement Preference Relevant Operation,,,,,
+b0027,B0027,op,loans,Lending-Child Care,LendingAffordabilityQuestionnaireOperation,Lending-Child Care - Get Customer Risk Questions,,,,,
+b0028,B0028,op,loans,Lending-Child Care,adjustCustomerAffordability,Lending-Child Care - adjust Customer Affordability,,,,,
+b0029,B0029,op,loans,Lending-Child Care,CheckEligibilityForPDC,Lending-Child Care - Check Eligibility for PDC,,,,,
+b0030,B0030,op,loans,Lending-Child Care,calculateInterestRateforPDC,Lending-Child Care - calculate Interest Rate for PDC,,,,,
+b0031,B0031,op,loans,Lending-Child Care,updateNewPaymentDate,Lending-Child Care - update New Payment Date,,,,,
+b0032,B0032,op,loans,Lending - CLIV,getAffordabilityQuestionnaire,Lending - CLIV - get Affordability Questionnaire,,,,,
+b0033,B0033,op,loans,Lending - CLIV,adjustCustomerAffordability,Lending - CLIV - adjust Customer Affordability,,,,,
+b0041,B0041,op,overdrafts,Overdraft,GetOverdraftTierFeesOperation,Overdraft - Get Overdraft Tier Fees Operation,,,,,
+ba002,BA002,op,homepage_transactions,Transactions,RetrieveLastTransactionsOperation,Transactions - Retrieve Last Transactions Operation,,,,,
+ba004,BA004,op,homepage_transactions,Transactions,CardTransactions,Transactions - CardTransactions,,,,,
+ba006,BA006,op,homepage_transactions,Transactions,GetODSTransactionList,Transactions - Get ODS Transaction List,,,,,
+ba009,BA009,op,homepage_transactions,Transactions,GetPendingTransactionsTotalOperation,Transactions - Get Pending Transactions Total Operation,,,,,
+ba010,BA010,op,homepage_transactions,Transactions,Individual Credit Card Summary,Transactions - Individual Credit Card Summary,,,,,
+ba01c,BA01C,op,homepage_transactions,"Logon, View Balance",AccountListSummaryOperation,View Accounts - Account List Summary Operation,,,,,
+ba01d,BA01D,op,homepage_transactions,"Logon, View Balance",CardListOperation,View Accounts - Card List Operation,,,,,
+ba01g,BA01G,op,homepage_transactions,"Logon, View Balance",BCSCardListOperation,View Accounts - BCSCardListOperation,,,,,
+ba01w,BA01W,op,homepage_transactions,View Accounts,WalletListOperation,View Accounts - WalletListOperation,,,,,
+ba03b,BA03B,op,homepage_transactions,Hide Account,HideAndSortOperation,Hide Account - HideAndSortOperation,,,,,
+bc3a,BC3A,op,credit_cards,TAQ-Credit Card,ConfirmFundsTransferOperation,Payments - Validate Card Payment Operation,,,,,
+bc3b,BC3B,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardPinViewEligibility,Payments - Confirm Funds Transfer Operation,,,,,
+bci01,BCI01,op,credit_cards,Credit Limit,GetTAQCreditCardCreditLimitDetails,Credit Limit - Get TAQ-Credit Card Credit Limit Details,,,,,
+bci02,BCI02,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCreditLimitChangeDecision,Credit Limit - Get TAQ-Credit Card Credit Limit Change Decision,,,,,
+bci03,BCI03,op,credit_cards,Credit Limit,AcceptCreditLimitCounterOffer,Credit Limit - Accept Credit Limit Counter Offer,,,,,
+bci09,BCI09,op,credit_cards,TAQ-Credit Card,RefreshCreditLimit,Credit Limit - Refresh Credit Limit,,,,,
+bcl01,BCL01,op,credit_cards,TAQ-Credit Card,ReportTAQCreditCardLostOrStolen,Lost and Stolen - Report TAQ-Credit Card Lost Or Stolen,,,,,
+bcl01b,BCL01B,op,credit_cards,TAQ-Credit Card,ReportTAQCreditCardLostOrStolen,Lost and Stolen - Report TAQ-Credit Card Lost Or Stolen,,,,,
+bcm01,BCM01,op,authentication,Logon,MigrateBCACustomer,Login - Migrate BCA Customer,,,,,
+bcs01,BCS01,op,authentication,Registration - TAQ-Credit Card Solus,BCSVerifyCardAndRegChecks,Registration - TAQ-Credit Card Solus Verify Card And Reg Checks Operation,,,,,
+bdd06,BDD06,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardDirectDebitsBMB,TAQ-Credit Card Direct Debit - Get TAQ-Credit Card Direct Debits BMB,,,,,
+bdd08,BDD08,op,credit_cards,TAQ-Credit Card,UpdateAmountDetailsBMB,TAQ-Credit Card Direct Debit - Update Amount Details BMB,,,,,
+bdd10,BDD10,op,credit_cards,TAQ-Credit Card,CancelDirectDebitBMB,TAQ-Credit Card Direct Debit - Cancel Direct Debit BMB,,,,,
+bdd7a,BDD7A,op,credit_cards,TAQ-Credit Card,ValidateDirectDebitSetUpBMB,TAQ-Credit Card Direct Debit - Validate Direct Debit Set Up BMB,,,,,
+bdd7b,BDD7B,op,credit_cards,TAQ-Credit Card,SubmitDirectDebitSetupBMB,TAQ-Credit Card Direct Debit - Submit Direct Debit Setup BMB,,,,,
+bdd9a,BDD9A,op,credit_cards,TAQ-Credit Card,ValidateBankDetailsUpdateBMB,TAQ-Credit Card Direct Debit - Validate Bank Details Update BMB,,,,,
+bfa01,BFA01,op,strategic_debt_manager,MyPaymentMyPlan - TAQ-Credit Card,GetBFAExperienceOutcome,My Payment My Plan - TAQ-Credit Card - Get BFA Experience Outcome,,,,,
+bfa02,BFA02,op,strategic_debt_manager,Logon,GetOverdueAmount,My Payment My Plan - TAQ-Credit Card - Get Overdue Amount,,,,,
+blw01,BLW01,op,authentication,Logon,BioCatchProfileOperation,BioCatch Get score Operation,,,,,
+bm001,BM001,op,core_app_web,Payments,GetBundleMetaDataOperation,Secure Gateway - Get Bundle Meta Data Operation,,,,,
+bp007,BP007,op,credit_cards,TAQ-Credit Card,DeleteCardDebitCardOperation,Payments - Delete Card Debit Card Operation,,,,,
+bp011,BP011,op,credit_cards,TAQ-Credit Card,ValidateCardDataOgoneOperation,Payments - Validate Card Data Ogone Operation,,,,,
+bp012,BP012,op,credit_cards,TAQ-Credit Card,OgoneCardPaymentOperation,Payments - Ogone Card Payment Operation,,,,,
+bp013,BP013,op,credit_cards,TAQ-Credit Card,NotifyCardPaymentStatusOperation,Payments - Notify Card Payment Status Operation,,,,,
+bp01b,BP01B,op,payments,Payments,ListofFromAccountsOperation,Payments - List of From Accounts Operation,,,,,
+bp02b,BP02B,op,payments,Payments,ListofToAccountsOperation,Payments - List of To Accounts Operation,,,,,
+bp03a,BP03A,op,payments,Payments,ValidateFundsTransferOperation,Payments - Validate Funds Transfer Operation,,,,,
+bp03b,BP03B,op,payments,Payments,ConfirmFundsTransferOperation,Payments - Confirm Funds Transfer Operation,,,,,
+bp04b,BP04B,op,credit_cards,TAQ-Credit Card,GetListOfCardPaymentsDetailsBAPSOperation,Payments - Get List Of Card Payment Detail BAPS Operation,,,,,
+bp10b,BP10B,op,credit_cards,TAQ-Credit Card,GetCardPaymentDetailsOgoneOperationWit,TAQ-Credit Card Make A Payment - Get Card Payment Details Ogone Operation With Sort Hide,,,,,
+bpv01,BPV01,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardPinViewEligibility,TAQ-Credit Card - Get TAQ-Credit Card Pin View Eligibility,,,,,
+bpv02,BPV02,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardPINWithLockStatus,TAQ-Credit Card - Get TAQ-Credit Card PIN With Lock Status,,,,,
+bpv03,BPV03,op,credit_cards,TAQ-Credit Card,GetPublicKeyAndNonceFromBcag,TAQ-Credit Card - Get Public Key And Nonce From Bcag,,,,,
+br001,BR001,op,credit_cards,TAQ-Credit Card,RedeemCashbackBalanceOperation,TAQ-Credit Card - Redeem Cashback Balance Operation,,,,,
+brc01,BRC01,op,current_accounts,Cards Hub,GetReplacementCardDetailsBMB,Cards Hub - Get Replacement Card Details BMB,,,,,
+brc02,BRC02,op,current_accounts,Cards Hub,SubmitCardReplacementBMB,Cards Hub - Submit Card Replacement BMB,,,,,
+brc03,BRC03,op,current_accounts,Cards Hub,GetAllCardDetailsBMB,Cards Hub - GetAllCardDetailsBMB,,,,,
+brc04,BRC04,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCustomerDetails,Cards Hub - Get TAQ-Credit Card Customer Details,,,,,
+bs009,BS009,op,credit_cards,TAQ-Credit Card,GetRecentCardTransactions,TAQ-Credit Card - Get Recent Card Transactions,,,,,
+bs010,BS010,op,credit_cards,TAQ-Credit Card,GetCardStatementDatesAndBalancesList,TAQ-Credit Card - Get Card Statement Dates And Balances List,,,,,
+bs011,BS011,op,credit_cards,TAQ-Credit Card,GetStatementedCardTransactions,TAQ-Credit Card - Get Statemented Card Transactions,,,,,
+bt007,BT007,op,credit_cards,Balance Transfer,GetAllTransferOffersBMBOMS,Balance Transfer - Get All Transfer Offers BMBOMS,,,,,
+bt008,BT008,op,credit_cards,Balance Transfer,ValidateTransferRequestBMBOMS,Balance Transfer - Validate Transfer Request BMBOMS,,,,,
+bt008a,BT008A,op,credit_cards,Balance Transfer,ValidateTransferRequestBMBOMS,Balance Transfer - Validate Transfer Request BMBOMS,,,,,
+bt009,BT009,op,credit_cards,Balance Transfer,SubmitTransferRequestBMBOMS,Balance Transfer - Submit Transfer Request BMBOMS,,,,,
+bt012,BT012,op,credit_cards,Balance Transfer,RetrieveSpendOffersOMSBMB,Balance Transfer - RetrieveSpendOffersOMSBMB,,,,,
+bt013,BT013,op,credit_cards,Balance Transfer,SpendOffersFulfilmentOMSBMB,Balance Transfer - Spend Offers Fulfilment OMSBMB,,,,,
+btp02,BTP02,op,payments,BTAP,BTapServicingBMB,BTAP - BTap Servicing BMB,,,,,
+btp02b,BTP02B,op,payments,BTAP,BTapServicingBMB,BTAP - BTap Servicing BMB,,,,,
+c001a,C001A,op,authentication,Logon,CustomerChecksAndConfigOperation,Login Check Eligibility - Customer Checks and Config Operation,,,,,
+c001ab,C001AB,op,authentication,Logon,CustomerChecksAndConfigOperation,Login Check Eligibility - Customer Checks and Config Operation,,,,,
+ca001,CA001,op,credit_cards,TAQ-Credit Card,CheckEligibilityForCardActivationOperation,Activate TAQ-Credit Card - Check Eligibility For Card Activation Operation,,,,,
+ca001b,CA001B,op,credit_cards,TAQ-Credit Card,CheckEligibilityForCardActivationOperation,Activate TAQ-Credit Card - Check Eligibility For Card Activation Operation,,,,,
+ca002,CA002,op,credit_cards,TAQ-Credit Card,ValidateCVVAndActivateCardOperation,Activate TAQ-Credit Card - Validate CVV And Activate Card Operation,,,,,
+ca002b,CA002B,op,credit_cards,TAQ-Credit Card,ValidateCVVAndActivateCardOperation,Activate TAQ-Credit Card - Validate CVV And Activate Card Operation,,,,,
+ca004,CA004,op,credit_cards,TAQ-Credit Card,ActivateCard,Activate TAQ-Credit Card - Activate Card,,,,,
+ca004b,CA004B,op,credit_cards,TAQ-Credit Card,ActivateCard,Activate TAQ-Credit Card - Activate Card,,,,,
+cb01a,CB01A,op,authentication,Logon,BCSCustomerChecksAndConfiguration,Login - BCS Customer Checks And Configuration,,,,,
+cb01ab,CB01AB,op,authentication,Logon,BCSCustomerChecksAndConfiguration,Login - BCS Customer Checks And Configuration,,,,,
+cc01c,CC01C,op,virtual_experiences,Chat,GetChatConfigurationOperation,Chat - Get Chat Configuration Operation,,,,,
+cc01cb,CC01CB,op,virtual_experiences,Chat,GetChatConfigurationOperation,Chat - Get Chat Configuration Operation,,,,,
+cf001,CF001,op,authentication,Logon,GetReferenceDataAndConfigOperation,Login Check Eligibility - Get Reference Data and Config Operation,,,,,
+cf001b,CF001B,op,authentication,Logon,GetReferenceDataAndConfigOperation,Login Check Eligibility - Get Reference Data and Config Operation,,,,,
+ci000,CI000,op,digital_communications_transformation,Statements and Documents Feature Design,GetCloudUserOperation,CloudIt - Get Cloud User Operation,,,,,
+ci000b,CI000B,op,digital_communications_transformation,Statements and Documents Feature Design,GetCloudUserOperation,CloudIt - Get Cloud User Operation,,,,,
+ci001,CI001,op,digital_communications_transformation,Statements and Documents Feature Design,GetLabelsAndDocumentsOperation,CloudIt - GetLabelsAndDocumentsOperation,,,,,
+ci001b,CI001B,op,digital_communications_transformation,Statements and Documents Feature Design,GetLabelsAndDocumentsOperation,CloudIt - GetLabelsAndDocumentsOperation,,,,,
+ci002,CI002,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentOperation,CloudIt - Get Document Operation,,,,,
+ci002b,CI002B,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentOperation,CloudIt - Get Document Operation,,,,,
+ci003,CI003,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentTypesOperation,CloudIt - Get Document Types Operation,,,,,
+ci003b,CI003B,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentTypesOperation,CloudIt - Get Document Types Operation,,,,,
+ci005,CI005,op,digital_communications_transformation,Statements and Documents Feature Design,GetMetadataTypesOperation,CloudIt - Get Metadata Types Operation,,,,,
+ci005b,CI005B,op,digital_communications_transformation,Statements and Documents Feature Design,GetMetadataTypesOperation,CloudIt - Get Metadata Types Operation,,,,,
+ci006,CI006,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentsAndUnusedTypesOperation,CloudIt - Get Documents And Unused Types Operation,,,,,
+ci006b,CI006B,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentsAndUnusedTypesOperation,CloudIt - Get Documents And Unused Types Operation,,,,,
+ci010,CI010,op,digital_communications_transformation,Statements and Documents Feature Design,ValidateNewDocumentOperation,CloudIt - Validate New Document Operation,,,,,
+ci010b,CI010B,op,digital_communications_transformation,Statements and Documents Feature Design,ValidateNewDocumentOperation,CloudIt - Validate New Document Operation,,,,,
+ci011,CI011,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentDownloadTokenOperation,CloudIt - Get Document Download Token Operation,,,,,
+ci011b,CI011B,op,digital_communications_transformation,Statements and Documents Feature Design,GetDocumentDownloadTokenOperation,CloudIt - Get Document Download Token Operation,,,,,
+ci012,CI012,op,digital_communications_transformation,Statements and Documents Feature Design,RetrieveDownloadTokenOperation,CloudIt - Retrieve Download Token Operation,,,,,
+ci012b,CI012B,op,digital_communications_transformation,Statements and Documents Feature Design,RetrieveDownloadTokenOperation,CloudIt - Retrieve Download Token Operation,,,,,
+ci021,CI021,op,digital_communications_transformation,Statements and Documents Feature Design,UpdateDocumentDetailsOperation,CloudIt - Update Document Details Operation,,,,,
+ci021b,CI021B,op,digital_communications_transformation,Statements and Documents Feature Design,UpdateDocumentDetailsOperation,CloudIt - Update Document Details Operation,,,,,
+ci022,CI022,op,digital_communications_transformation,CloudIt,CreateLabelOperation,CloudIt - Create Label Operation,,,,,
+ci022b,CI022B,op,digital_communications_transformation,CloudIt,CreateLabelOperation,CloudIt - Create Label Operation,,,,,
+ci023,CI023,op,digital_communications_transformation,Statements and Documents Feature Design,AddDocumentAlertOperation,CloudIt - Add Document Alert Operation,,,,,
+ci023b,CI023B,op,digital_communications_transformation,Statements and Documents Feature Design,AddDocumentAlertOperation,CloudIt - Add Document Alert Operation,,,,,
+ci024,CI024,op,digital_communications_transformation,CloudIt,RemoveDocumentAlertOperation,CloudIt - Remove Document Alert Operation,,,,,
+ci024b,CI024B,op,digital_communications_transformation,CloudIt,RemoveDocumentAlertOperation,CloudIt - Remove Document Alert Operation,,,,,
+ci024c,CI024C,op,digital_communications_transformation,Statements and Documents Feature Design,RemoveDocumentAlertOperation,CloudIt - Remove Document Alert Operation,,,,,
+ci025,CI025,op,digital_communications_transformation,Statements and Documents Feature Design,LinkLabelsToDocumentOperation,CloudIt - Link Labels To Document Operation,,,,,
+ci025b,CI025B,op,digital_communications_transformation,Statements and Documents Feature Design,LinkLabelsToDocumentOperation,CloudIt - Link Labels To Document Operation,,,,,
+ci025c,CI025C,op,digital_communications_transformation,Statements and Documents Feature Design,LinkLabelsToDocumentOperation,CloudIt - Link Labels To Document Operation,,,,,
+ci026,CI026,op,digital_communications_transformation,Statements and Documents Feature Design,UnlinkLabelsFromDocumentOperation,CloudIt - Unlink Labels From Document Operation,,,,,
+ci026b,CI026B,op,digital_communications_transformation,Statements and Documents Feature Design,UnlinkLabelsFromDocumentOperation,CloudIt - Unlink Labels From Document Operation,,,,,
+ci026c,CI026C,op,digital_communications_transformation,Statements and Documents Feature Design,UnlinkLabelsFromDocumentOperation,CloudIt - Unlink Labels From Document Operation,,,,,
+ci029,CI029,op,digital_communications_transformation,Statements and Documents Feature Design,DeleteDocumentOperation,CloudIt - Delete Document Operation,,,,,
+ci029b,CI029B,op,digital_communications_transformation,Statements and Documents Feature Design,DeleteDocumentOperation,CloudIt - Delete Document Operation,,,,,
+ci029c,CI029C,op,digital_communications_transformation,Statements and Documents Feature Design,DeleteDocumentOperation,CloudIt - Delete Document Operation,,,,,
+ci030,CI030,op,digital_communications_transformation,Statements and Documents Feature Design,HasTermsAndConditionsAcceptedOperation,CloudIt - Has Terms And Conditions Accepted Operation,,,,,
+ci030b,CI030B,op,digital_communications_transformation,Statements and Documents Feature Design,HasTermsAndConditionsAcceptedOperation,CloudIt - Has Terms And Conditions Accepted Operation,,,,,
+ci030c,CI030C,op,digital_communications_transformation,Statements and Documents Feature Design,HasTermsAndConditionsAcceptedOperation,CloudIt - Has Terms And Conditions Accepted Operation,,,,,
+ci031,CI031,op,digital_communications_transformation,CloudIt,GetCardDocsAndLabelForCustomerOperation,CloudIt - Get Card Docs And Label For Customer Operation,,,,,
+ci031b,CI031B,op,digital_communications_transformation,Statements and Documents Feature Design,GetCardDocsAndLabelForCustomerOperation,CloudIt - Get Card Docs And Label For Customer Operation,,,,,
+ci090,CI090,op,digital_communications_transformation,CloudIt,GetTermsAndConditionsOperation,CloudIt - Get Terms And Conditions Operation,,,,,
+ci090b,CI090B,op,digital_communications_transformation,CloudIt,GetTermsAndConditionsOperation,CloudIt - Get Terms And Conditions Operation,,,,,
+ci091,CI091,op,digital_communications_transformation,CloudIt,SaveTermsAndConditionsOperation,CloudIt - Save Terms And Conditions Operation,,,,,
+ci091b,CI091B,op,digital_communications_transformation,CloudIt,SaveTermsAndConditionsOperation,CloudIt - Save Terms And Conditions Operation,,,,,
+cop01,COP01,op,payments,Payments,ValidateNewPayeeOperation,Confirmation of Payee - Validate New Payee Operation,,,,,
+cop01b,COP01B,op,payments,Payments,ValidateNewPayeeOperation,Confirmation of Payee - Validate New Payee Operation,,,,,
+cop02,COP02,op,payments,Payments,ConfirmationOfPayeeAuditOperation.java,Confirmation of Payee - Audit Operation,,,,,
+cop02b,COP02B,op,payments,Payments,ConfirmationOfPayeeAuditOperation.java,Confirmation of Payee - Audit Operation,,,,,
+cq001,CQ001,op,payments,Cheque,MakeDeposit,Cheque - Make Deposit,,,,,
+cq001b,CQ001B,op,payments,Cheque,MakeDeposit,Cheque - Make Deposit,,,,,
+cq002,CQ002,op,payments,Cheque,GetChequeHistory,Cheque - Get Cheque History,,,,,
+cq002b,CQ002B,op,payments,Cheque,GetChequeHistory,Cheque - Get Cheque History,,,,,
+cq003,CQ003,op,payments,Cheque,StartChequeDeposit,Cheque - Start Cheque Deposit,,,,,
+cq003b,CQ003B,op,payments,Cheque,StartChequeDeposit,Cheque - Start Cheque Deposit,,,,,
+cq004,CQ004,op,payments,Cheque,AcceptChequeTermsAndConditions,Cheque - Accept Cheque Terms And Conditions,,,,,
+cq004b,CQ004B,op,payments,Cheque,AcceptChequeTermsAndConditions,Cheque - Accept Cheque Terms And Conditions,,,,,
+cq005,CQ005,op,payments,Cheque,GetCustomerLimitsOperation,Cheque - Get Customer Limits Operation,,,,,
+cq005b,CQ005B,op,payments,Cheque,GetCustomerLimitsOperation,Cheque - Get Customer Limits Operation,,,,,
+cq006,CQ006,op,payments,Cheque,GetChequeDepositAccounts,Cheque - Get Cheque Deposit Accounts,,,,,
+cq006b,CQ006B,op,payments,Cheque,GetChequeDepositAccounts,Cheque - Get Cheque Deposit Accounts,,,,,
+cr001,CR001,op,authentication,Register,RegistrationConfigOperation,Registration - Registration Config Operation,,,,,
+cr001b,CR001B,op,authentication,Register,RegistrationConfigOperation,Registration - Registration Config Operation,,,,,
+cr002,CR002,op,onboarding,Onboarding,NTBOnboardingRegistrationOperation,Onboarding - NTB Onboarding Registration Operation,,,,,
+cr002b,CR002B,op,onboarding,Onboarding,NTBOnboardingRegistrationOperation,Onboarding - NTB Onboarding Registration Operation,,,,,
+cr003,CR003,op,onboarding,Onboarding,NTBSaveTelephoneNumberOperation,Onboarding - NTB Save Telephone Number Operation,,,,,
+cr003b,CR003B,op,onboarding,Onboarding,NTBSaveTelephoneNumberOperation,Onboarding - NTB Save Telephone Number Operation,,,,,
+cr01a,CR01A,op,authentication,Tapit,SetRegMethod,Tapit - Set Reg Method,,,,,
+cr01ab,CR01AB,op,authentication,Tapit,SetRegMethod,Tapit - Set Reg Method,,,,,
+cv001,CV001,op,homepage_transactions,Calender View,CalendarViewOperation,Calender View - Calendar View Operation,,,,,
+cv001b,CV001B,op,homepage_transactions,Calender View,CalendarViewOperation,Calender View - Calendar View Operation,,,,,
+cw01,CW01,op,core_app_web,Security Protocol,ValidateCW,Security Protocol - Validate CW,,,,,
+cw01b,CW01B,op,core_app_web,Security Protocol,ValidateCW,Security Protocol - Validate CW,,,,,
+dcc01,DCC01,op,current_accounts,Cards Hub,EligibleDebitCardDetailsOperation,Cards Hub - Eligible Debit Card Details Operation,,,,,
+dcc01b,DCC01B,op,current_accounts,Cards Hub,EligibleDebitCardDetailsOperation,Cards Hub - Eligible Debit Card Details Operation,,,,,
+dcc02,DCC02,op,current_accounts,Cards Hub,DebitCardFeaturesOperation,Cards Hub - DebitCardFeaturesOperation,,,,,
+dcc02b,DCC02B,op,current_accounts,Cards Hub,DebitCardFeaturesOperation,Cards Hub - DebitCardFeaturesOperation,,,,,
+dcc03,DCC03,op,current_accounts,Cards Hub,DebitCardFeaturesUpdateOperation,Cards Hub - Debit Card Features Update Operation,,,,,
+dcc03b,DCC03B,op,current_accounts,Cards Hub,DebitCardFeaturesUpdateOperation,Cards Hub - Debit Card Features Update Operation,,,,,
+dcc04,DCC04,op,current_accounts,Cards Hub,BlockedUnblockedDebitCardOperation,Cards Hub - Blocked Unblocked Debit Card Operation,,,,,
+dcc04b,DCC04B,op,current_accounts,Cards Hub,BlockedUnblockedDebitCardOperation,Cards Hub - Blocked Unblocked Debit Card Operation,,,,,
+dcc05,DCC05,op,current_accounts,Cards Hub,RetrieveDebitCardPostalAddressOperation,Cards Hub - Retrieve Debit Card Postal Address Operation,,,,,
+dcc05b,DCC05B,op,current_accounts,Cards Hub,RetrieveDebitCardPostalAddressOperation,Cards Hub - Retrieve Debit Card Postal Address Operation,,,,,
+dcc06,DCC06,op,current_accounts,Cards Hub,ReplaceDamagedDebitCardOperation,Cards Hub - Replace Damaged Debit Card Operation,,,,,
+dcc06b,DCC06B,op,current_accounts,Cards Hub,ReplaceDamagedDebitCardOperation,Cards Hub - Replace Damaged Debit Card Operation,,,,,
+dda01,DDA01,op,authentication,Tapit,RetrieveTerminalRandom,Tapit - Retrieve Terminal Random,,,,,
+dda01b,DDA01B,op,authentication,Tapit,RetrieveTerminalRandom,Tapit - Retrieve Terminal Random,,,,,
+dda02,DDA02,op,authentication,Tapit,DDAValidation,Tapit - DDAValidation,,,,,
+dda02b,DDA02B,op,authentication,Tapit,DDAValidation,Tapit - DDAValidation,,,,,
+dda03,DDA03,op,authentication,Tapit,TapRetry,Tapit - Tap Retry,,,,,
+dda03b,DDA03B,op,authentication,Tapit,TapRetry,Tapit - Tap Retry,,,,,
+demo_control.audit.config_writes,demo_control.audit.config_writes,extra,demo_control,,,Config write log,,,design,False,
+demo_control.audit.interventions,demo_control.audit.interventions,extra,demo_control,,,Intervention history,,,design,False,
+demo_control.auth,demo_control.auth,extra,demo_control,,,Demo control sign-in,,,design,False,
+demo_control.bot_fleet.start,demo_control.bot_fleet.start,extra,demo_control,,,Start bot run,,,design,False,
+demo_control.bot_fleet.status,demo_control.bot_fleet.status,extra,demo_control,,,Bot fleet status,,,design,False,
+demo_control.bot_fleet.stop,demo_control.bot_fleet.stop,extra,demo_control,,,Stop bot run,,,design,False,
+demo_control.config.toggle,demo_control.config.toggle,extra,demo_control,,,Toggle friction flag,,,design,False,
+demo_control.config.view,demo_control.config.view,extra,demo_control,,,Current friction config (KV),,,design,False,
+demo_control.home,demo_control.home,extra,demo_control,,,Demo control panel,,,design,False,
+demo_control.kv.history,demo_control.kv.history,extra,demo_control,,,KV history,,,design,False,
+demo_control.preset.apply,demo_control.preset.apply,extra,demo_control,,,Apply preset,,,design,False,
+demo_control.preset.list,demo_control.preset.list,extra,demo_control,,,Preset scenarios,,,design,False,
+demo_control.pulse.signature_view,demo_control.pulse.signature_view,extra,demo_control,,,Live Pulse signature,,,design,False,
+demo_control.recovery,demo_control.recovery,extra,demo_control,,,Reset to safe defaults,,,design,False,
+demo_control.scenario.history,demo_control.scenario.history,extra,demo_control,,,Applied scenarios,,,design,False,
+dm001,DM001,op,authentication,Connected Devices,FetchConnectedDevicesOperation,Device Management - Fetch Connected Devices Operation,,,,,
+dm001b,DM001B,op,authentication,Connected Devices,FetchConnectedDevicesOperation,Device Management - Fetch Connected Devices Operation,,,,,
+dm002,DM002,op,authentication,Connected Devices,DeleteSelectedRegistrationOperation,Device Management - DeleteSelectedRegistrationOperation,,,,,
+dm002b,DM002B,op,authentication,Connected Devices,DeleteSelectedRegistrationOperation,Device Management - DeleteSelectedRegistrationOperation,,,,,
+dnc01,DNC01,op,authentication,Dynamic Invocation (Messages),RetrieveDynamicScreenContent,Dynamic message - Retrieve Screen Content Mapping,,,,,
+dnc01b,DNC01B,op,authentication,Dynamic Invocation (Messages),RetrieveDynamicScreenContent,Dynamic message - Retrieve Screen Content Mapping,,,,,
+dp001,DP001,op,core_app_web,Onboarding,NTBSaveDeviceAttributesOperation,Onboarding - NTB Save Device Attributes Operation,,,,,
+dp001b,DP001B,op,core_app_web,Onboarding,NTBSaveDeviceAttributesOperation,Onboarding - NTB Save Device Attributes Operation,,,,,
+dp002,DP002,op,onboarding,Onboarding,FraudnetSaveDeviceAttributesOperation,Onboarding - Fraudnet Save Device Attributes Operation,,,,,
+dp002b,DP002B,op,onboarding,Onboarding,FraudnetSaveDeviceAttributesOperation,Onboarding - Fraudnet Save Device Attributes Operation,,,,,
+dr01a,DR01A,op,onboarding,Registration,DeviceRegistrationHello,Logon Device Eligibility - Device Registration Hello,,,,,
+dr01ab,DR01AB,op,onboarding,Registration,DeviceRegistrationHello,Logon Device Eligibility - Device Registration Hello,,,,,
+dr01b,DR01B,op,authentication,Registration,DeviceRegistrationChallengeResponse,Logon Device Eligibility - Device Registration Challenge Response,,,,,
+dr01bb,DR01BB,op,authentication,Registration,DeviceRegistrationChallengeResponse,Logon Device Eligibility - Device Registration Challenge Response,,,,,
+ec010,EC010,op,authentication,Offers,GetBestOfferRetailerOperation,Offers - Get Best Offer Retailer Operation,,,,,
+ec010b,EC010B,op,authentication,Offers,GetBestOfferRetailerOperation,Offers - Get Best Offer Retailer Operation,,,,,
+ec014,EC014,op,segments_propositions_l2_essential,Offers,GetOffersForRetailerOperation,Offers - Get Offers For Retailer Operation,,,,,
+ec014b,EC014B,op,segments_propositions_l2_essential,Offers,GetOffersForRetailerOperation,Offers - Get Offers For Retailer Operation,,,,,
+ec016,EC016,op,segments_propositions_l2_essential,Offers,AcceptTermsAndConditionsForRewards,Offers - Accept Terms And Conditions For Rewards,,,,,
+ec016b,EC016B,op,segments_propositions_l2_essential,Offers,AcceptTermsAndConditionsForRewards,Offers - Accept Terms And Conditions For Rewards,,,,,
+ec020,EC020,op,segments_propositions_l2_essential,Offers,GetNudgeDetailOperation,Offers - Get Nudge Detail Operation,,,,,
+ec020b,EC020B,op,segments_propositions_l2_essential,Offers,GetNudgeDetailOperation,Offers - Get Nudge Detail Operation,,,,,
+errors.404,errors.404,extra,errors,,,Page not found,,,design,False,verboseCopy|ambiguousCTA
+errors.500,errors.500,extra,errors,,,Something went wrong,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.account_frozen,errors.account_frozen,extra,errors,,,Account temporarily frozen,,,design,False,verboseCopy|ambiguousCTA
+errors.api_error,errors.api_error,extra,errors,,,Service error,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.captcha,errors.captcha,extra,errors,,,Prove you're not a robot,,,design,False,verboseCopy|slowValidation|ambiguousCTA|unclearError
+errors.csrf_failed,errors.csrf_failed,extra,errors,,,Security check failed,,,design,False,verboseCopy|ambiguousCTA
+errors.daily_limit,errors.daily_limit,extra,errors,,,Daily limit reached,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.fallback,errors.fallback,extra,errors,,,Something didn't work,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.feature_unavailable,errors.feature_unavailable,extra,errors,,,This feature isn't available right now,,,design,False,verboseCopy|ambiguousCTA
+errors.geo_blocked,errors.geo_blocked,extra,errors,,,Service unavailable in your region,,,design,False,verboseCopy|ambiguousCTA
+errors.input_validation,errors.input_validation,extra,errors,,,Check your input,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.insufficient_funds,errors.insufficient_funds,extra,errors,,,Not enough money,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.kyc_required,errors.kyc_required,extra,errors,,,We need to verify your identity,,,design,False,verboseCopy|ambiguousCTA
+errors.locked_out,errors.locked_out,extra,errors,,,Account locked,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.maintenance,errors.maintenance,extra,errors,,,Scheduled maintenance,,,design,False,verboseCopy|ambiguousCTA
+errors.network_timeout,errors.network_timeout,extra,errors,,,Network timed out,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.offline,errors.offline,extra,errors,,,You're offline,,,design,False,verboseCopy|ambiguousCTA
+errors.payment.failed,errors.payment.failed,extra,errors,,,Payment couldn't be processed,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.permission_denied,errors.permission_denied,extra,errors,,,You don't have access,,,design,False,verboseCopy|ambiguousCTA
+errors.product_unavailable,errors.product_unavailable,extra,errors,,,This product isn't available to you,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.rate_limit,errors.rate_limit,extra,errors,,,Too many requests,,,design,False,verboseCopy|ambiguousCTA|unclearError
+errors.session_expired,errors.session_expired,extra,errors,,,Session expired,,,design,False,verboseCopy|ambiguousCTA
+errors.signed_out,errors.signed_out,extra,errors,,,You've been signed out,,,design,False,verboseCopy|ambiguousCTA
+errors.unsupported_browser,errors.unsupported_browser,extra,errors,,,Browser not supported,,,design,False,verboseCopy|ambiguousCTA
+errors.update_required,errors.update_required,extra,errors,,,Please update the app,,,design,False,verboseCopy|ambiguousCTA
+flc01,FLC01,op,digital_communications_transformation,Feature Logging Configuration,com.taq.mobile.gateway.operation.gen,Feature Logging Configuration - Feature Logging Configuration,,,,,
+flc01b,FLC01B,op,digital_communications_transformation,Feature Logging Configuration,com.taq.mobile.gateway.operation.gen,Feature Logging Configuration - Feature Logging Configuration,,,,,
+fp001,FP001,op,payments,International Payments,RetrieveForeignPaymentFromListOperation,International Payments - Retrieve Foreign Payment From List Operation,,,,,
+fp001b,FP001B,op,payments,International Payments,RetrieveForeignPaymentFromListOperation,International Payments - Retrieve Foreign Payment From List Operation,,,,,
+fp002,FP002,op,payments,International Payments,ValidateForeignPaymentsOperation,International Payments - Validate Foreign Payments Operation,,,,,
+fp002b,FP002B,op,payments,International Payments,ValidateForeignPaymentsOperation,International Payments - Validate Foreign Payments Operation,,,,,
+fp003,FP003,op,payments,International Payments,RetrieveCardListForInternationalPayments,International Payments - Retrieve Card List For International Payments,,,,,
+fp003b,FP003B,op,payments,International Payments,RetrieveCardListForInternationalPayments,International Payments - Retrieve Card List For International Payments,,,,,
+fp004,FP004,op,payments,International Payments,ConfirmForeignPaymentOperation,International Payments - Confirm Foreign Payment Operation,,,,,
+fp004b,FP004B,op,payments,International Payments,ConfirmForeignPaymentOperation,International Payments - Confirm Foreign Payment Operation,,,,,
+fp005,FP005,op,payments,International Payments,RetrieveForeignPaymentsCountrySpecificDa,International Payments - Retrieve Foreign Payments Country Specific Data Operation,,,,,
+fp005b,FP005B,op,payments,International Payments,RetrieveForeignPaymentsCountrySpecificDa,International Payments - Retrieve Foreign Payments Country Specific Data Operation,,,,,
+fp006,FP006,op,payments,International Payments,RetrieveForeignPaymentsBankDetailsOperat,International Payments - Retrieve Foreign Payments Bank Details Operation,,,,,
+fp006b,FP006B,op,payments,International Payments,RetrieveForeignPaymentsBankDetailsOperat,International Payments - Retrieve Foreign Payments Bank Details Operation,,,,,
+fp007,FP007,op,payments,International Payments,RetrieveExchangeRatesForeignPaymentsOp,International Payments - Retrieve Exchange Rates Foreign Payments Operation,,,,,
+fp007b,FP007B,op,payments,International Payments,RetrieveExchangeRatesForeignPaymentsOp,International Payments - Retrieve Exchange Rates Foreign Payments Operation,,,,,
+fp008,FP008,op,payments,International Payments,RetrieveBeneficiariesForeignPaymentsOpera,International Payments - Retrieve Beneficiaries Foreign Payments Operation,,,,,
+fp008b,FP008B,op,payments,International Payments,RetrieveBeneficiariesForeignPaymentsOpera,International Payments - Retrieve Beneficiaries Foreign Payments Operation,,,,,
+fp009,FP009,op,payments,International Payments,AcceptLiveExchangeRatesForeignPaymentsC,International Payments - Accept Live Exchange Rates Foreign Payments Operation,,,,,
+fp009b,FP009B,op,payments,International Payments,AcceptLiveExchangeRatesForeignPaymentsC,International Payments - Accept Live Exchange Rates Foreign Payments Operation,,,,,
+fp010,FP010,op,payments,International Payments,RejectLiveExchangeRatesForeignPaymentsO,International Payments - Reject Live Exchange Rates Foreign Payments Operation,,,,,
+fp010b,FP010B,op,payments,International Payments,RejectLiveExchangeRatesForeignPaymentsO,International Payments - Reject Live Exchange Rates Foreign Payments Operation,,,,,
+fp011,FP011,op,payments,International Payments,RetrieveLiveExchangeRatesForeignPayments,International Payments - Retrieve Live Exchange Rates Foreign Payments Operation,,,,,
+fp011b,FP011B,op,payments,International Payments,RetrieveLiveExchangeRatesForeignPayments,International Payments - Retrieve Live Exchange Rates Foreign Payments Operation,,,,,
+fp901,FP901,op,payments,International Payments,RetrieveForeignPaymentsCurrencyAndCount,International Payments - Retrieve Foreign Payments Currency And Country Operation,,,,,
+fp901b,FP901B,op,payments,International Payments,RetrieveForeignPaymentsCurrencyAndCount,International Payments - Retrieve Foreign Payments Currency And Country Operation,,,,,
+ftc01,FTC01,op,digital_communications_transformation,Digital Enrolment Journey (DEJ),GetSessionCacheDataForThinGatewayOper,Update Thin Gateway Session Cache,,,,,
+ftc01b,FTC01B,op,digital_communications_transformation,Digital Enrolment Journey (DEJ),GetSessionCacheDataForThinGatewayOper,Update Thin Gateway Session Cache,,,,,
+ga001,GA001,op,homepage_transactions,Display TAQ Apps,GetHomeScreenAppsOperation,Display TAQ Apps - Get Home Screen Apps Operation,,,,,
+ga001b,GA001B,op,homepage_transactions,Display TAQ Apps,GetHomeScreenAppsOperation,Display TAQ Apps - Get Home Screen Apps Operation,,,,,
+gba01,GBA01,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardAccountDetails,TAQ-Credit Card - Get TAQ-Credit Card Account Details,,,,,
+gba01b,GBA01B,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardAccountDetails,TAQ-Credit Card - Get TAQ-Credit Card Account Details,,,,,
+gbt01,GBT01,op,credit_cards,TAQ-Credit Card,GetLimitedTAQCreditCardTransactions,TAQ-Credit Card - Get Limited TAQ-Credit Card Transactions,,,,,
+gbt01b,GBT01B,op,credit_cards,TAQ-Credit Card,GetLimitedTAQCreditCardTransactions,TAQ-Credit Card - Get Limited TAQ-Credit Card Transactions,,,,,
+gc003,GC003,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCommercialCardTransaction,TAQ-Credit Card - Get TAQ-Credit Card Commercial Card Transactions Data Operation,,,,,
+gc003b,GC003B,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCommercialCardTransaction,TAQ-Credit Card - Get TAQ-Credit Card Commercial Card Transactions Data Operation,,,,,
+gc003c,GC003C,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCommercialCardTransaction,TAQ-Credit Card - Get TAQ-Credit Card Commercial Card Transactions Data Operation,,,,,
+gc02a,GC02A,op,credit_cards,TAQ-Credit Card,RetrieveCommercialCardDetails,TAQ-Credit Card - Retrieve Commercial Card Details,,,,,
+gc02ab,GC02AB,op,credit_cards,TAQ-Credit Card,RetrieveCommercialCardDetails,TAQ-Credit Card - Retrieve Commercial Card Details,,,,,
+gcd01,GCD01,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCustomerDetailsBMBV2,TAQ-Credit Card - Get TAQ-Credit Card Customer Details BMB V2,,,,,
+gcd01b,GCD01B,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCustomerDetailsBMBV2,TAQ-Credit Card - Get TAQ-Credit Card Customer Details BMB V2,,,,,
+gcd01c,GCD01C,op,credit_cards,TAQ-Credit Card,GetTAQCreditCardCustomerDetailsBMBV2,TAQ-Credit Card - Get TAQ-Credit Card Customer Details BMB V2,,,,,
+gel01,GEL01,op,core_app_web,Platform - Generic Logging,Genericevent logging,Platform - Generic Logging - Generic event logging,,,,,
+gel01b,GEL01B,op,core_app_web,Platform - Generic Logging,Genericevent logging,Platform - Generic Logging - Generic event logging,,,,,
+gel01c,GEL01C,op,core_app_web,Platform - Generic Logging,Genericevent logging,Platform - Generic Logging - Generic event logging,,,,,
+grc01,GRC01,op,cross_product_servicing,Change of Address,GetRegisteredCustomersOperation,Change of Address - Get Registered Customers Operation,,,,,
+grc01b,GRC01B,op,cross_product_servicing,Change of Address,GetRegisteredCustomersOperation,Change of Address - Get Registered Customers Operation,,,,,
+grc01c,GRC01C,op,cross_product_servicing,Change of Address,GetRegisteredCustomersOperation,Change of Address - Get Registered Customers Operation,,,,,
+ic001,IC001,op,credit_cards,TAQ-Credit Card,InstantCardEligibilityCheckOperation,Instant TAQ-Credit Card - Instant Card Eligibility Check Operation,,,,,
+ic001b,IC001B,op,credit_cards,TAQ-Credit Card,InstantCardEligibilityCheckOperation,Instant TAQ-Credit Card - Instant Card Eligibility Check Operation,,,,,
+ic001c,IC001C,op,credit_cards,TAQ-Credit Card,InstantCardEligibilityCheckOperation,Instant TAQ-Credit Card - Instant Card Eligibility Check Operation,,,,,
+ic002,IC002,op,credit_cards,TAQ-Credit Card,InstantCardAccountInquiryOperation,Instant TAQ-Credit Card - Instant Card Account Inquiry Operation,,,,,
+ic002b,IC002B,op,credit_cards,TAQ-Credit Card,InstantCardAccountInquiryOperation,Instant TAQ-Credit Card - Instant Card Account Inquiry Operation,,,,,
+ic003,IC003,op,credit_cards,TAQ-Credit Card,InstantCardGetSecurityCodeOperation,Instant TAQ-Credit Card - Instant Card Get Security Code Operation,,,,,
+ic003b,IC003B,op,credit_cards,TAQ-Credit Card,InstantCardGetSecurityCodeOperation,Instant TAQ-Credit Card - Instant Card Get Security Code Operation,,,,,
+ic004,IC004,op,credit_cards,Instant Debit Cards,InstantCardWriteLogViewCardDetailsEventOp,Instant TAQ-Credit Card - Instant Card Write Log View Card Details Event Operation,,,,,
+ic004b,IC004B,op,credit_cards,Instant Debit Cards,InstantCardWriteLogViewCardDetailsEventOp,Instant TAQ-Credit Card - Instant Card Write Log View Card Details Event Operation,,,,,
+id002,ID002,op,current_accounts,Instant Debit Cards,InstantDebitCardFrontDetailEnquiryOperati,Instant Debit Cards - Instant Debit Card Front Detail Enquiry Operation,,,,,
+id002b,ID002B,op,current_accounts,Instant Debit Cards,InstantDebitCardFrontDetailEnquiryOperati,Instant Debit Cards - Instant Debit Card Front Detail Enquiry Operation,,,,,
+id003,ID003,op,current_accounts,NTB Onboarding,InstantDebitCardBackDetailEnquiryOperatic,Instant Debit Cards - Instant Debit Card Back Detail Enquiry Operation,,,,,
+id003b,ID003B,op,current_accounts,Instant Debit Cards,InstantDebitCardBackDetailEnquiryOperatic,Instant Debit Cards - Instant Debit Card Back Detail Enquiry Operation,,,,,
+idp01,IDP01,op,payments,Open Banking,validateTppOperation,Open Banking - validate Tpp Operation,,,,,
+ins01,INS01,op,segments_propositions_l2_essential,Finance Coach,RetrieveCustomerInsights,Finance Coach - Retrieve Customer Insights,,,,,
+ins02,INS02,op,segments_propositions_l2_essential,Finance Coach,LoadInsightPreferences,Finance Coach - Load Insight Preferences,,,,,
+ins03,INS03,op,segments_propositions_l2_essential,Finance Coach,SaveInsightPreferences,Finance Coach - Save Insight Preferences,,,,,
+is001,IS001,op,savings,ISA,RetrieveCustomerDetailsForISACheck,ISA - Retrieve Customer Details For ISA Check,,,,,
+is002,IS002,op,savings,ISA,RetrieveISADeclaration,ISA - Retrieve IS A Declaration,,,,,
+is003,IS003,op,savings,ISA,AcceptISADeclaration,ISA - Accept IS A Declaration,,,,,
+iv011,IV011,op,help_me_manage_my_business,Making Business Special (MBS),MBSListInvoicesOperation,Making Business Special - List Invoices Operation,,,,,
+iv012,IV012,op,help_me_manage_my_business,Making Business Special (MBS),MBSCreateInvoiceOperation,Making Business Special - Create Invoice Operation,,,,,
+iv013,IV013,op,help_me_manage_my_business,Making Business Special (MBS),MBSRetrieveInvoiceOperation,Making Business Special - Retrieve Invoice Operation,,,,,
+iv014,IV014,op,help_me_manage_my_business,Making Business Special (MBS),MBSUpdateInvoiceOperation,Making Business Special - Update Invoice Operation,,,,,
+iv015,IV015,op,help_me_manage_my_business,Making Business Special (MBS),MBSCloneInvoiceOperation,Making Business Special - Clone Invoice Operation,,,,,
+iv022,IV022,op,help_me_manage_my_business,Making Business Special (MBS),MBSCreateLineItemOperation,Making Business Special - Create Line Item Operation,,,,,
+iv024,IV024,op,help_me_manage_my_business,Making Business Special (MBS),MBSUpdateLineItemOperation,Making Business Special - Update Line Item Operation,,,,,
+iv025,IV025,op,help_me_manage_my_business,Making Business Special (MBS),MBSRemoveLineItemOperation,Making Business Special - Remove Line Item Operation,,,,,
+iv031,IV031,op,help_me_manage_my_business,Making Business Special (MBS),MBSAssociateClientWithInvoiceOperation,Making Business Special - Associate Client With Invoice Operation,,,,,
+iv041,IV041,op,help_me_manage_my_business,Making Business Special (MBS),MBSListClientsOperation,Making Business Special - List Clients Operation,,,,,
+iv042,IV042,op,help_me_manage_my_business,Making Business Special (MBS),MBSCreateClientOperation,Making Business Special - Create Client Operation,,,,,
+iv043,IV043,op,help_me_manage_my_business,Making Business Special (MBS),MBSRetrieveClientOperation,Making Business Special - Retrieve Client Operation,,,,,
+iv044,IV044,op,help_me_manage_my_business,Making Business Special (MBS),MBSUpdateClientOperation,Making Business Special - Update Client Operation,,,,,
+iv051,IV051,op,help_me_manage_my_business,Making Business Special (MBS),MBSInvoiceStatisticsOperation,Making Business Special - Invoice Statistics Operation,,,,,
+iv061,IV061,op,help_me_manage_my_business,Making Business Special (MBS),MBSRetrieveSettingsOperation,Making Business Special - Retrieve Settings Operation,,,,,
+iv062,IV062,op,help_me_manage_my_business,Making Business Special (MBS),MBSUpdateSettingsOperation,Making Business Special - Update Settings Operation,,,,,
+iv071,IV071,op,help_me_manage_my_business,Making Business Special (MBS),RetrieveLineItems,Making Business Special - Retrieve Line Items,,,,,
+iv092,IV092,op,help_me_manage_my_business,Making Business Special (MBS),MBSReconcileMatchTransactionsOperation,Making Business Special - Reconcile Match Transactions Operation,,,,,
+iv102,IV102,op,help_me_manage_my_business,Making Business Special,MBSReconcileLinkTransactionOperation,Making Business Special - Reconcile Link Transaction Operation,,,,,
+iv105,IV105,op,help_me_manage_my_business,Making Business Special (MBS),MBSReconcileDeLinkTransactionOperation,Making Business Special - Reconcile DeLink Transaction Operation,,,,,
+jb01a,JB01A,op,core_app_web,Security Protocol,RequestRandomisationSeedForNewKeyPair,Security Protocol - RequestRandomisationSeedForNewKeyPair,,,,,
+jb01c,JB01C,op,authentication,Trust Anchor,ProvisionNewKeyV2,Trust Anchor - Provision New Key V2,,,,,
+jf000,JF000,op,authentication,Journey Framework,CreateNewJourney,Journey Framework - CreateNewJourney,,,,,
+l0001,L0001,op,core_app_web,Security Protocol,ClientLogging,Security Protocol - ClientLogging,,,,,
+l0002,L0002,op,core_app_web,Security Protocol,LogBadStatusDeviceOperation,Security Protocol - Log Bad Status Device Operation,,,,,
+l0003,L0003,op,core_app_web,Security Protocol,LogAnalyticsNotReachable,Security Protocol - Log Analytics Not Reachable,,,,,
+l0004,L0004,op,core_app_web,Security Protocol,ClientLoggingV2,Security Protocol - Client Logging V2,,,,,
+lf02a,LF02A,op,segments_propositions_l2_essential,Launchpad,SubmitDynamicFeedback,Launchpad - save Feedback Response,,,,,
+lh001,LH001,op,homepage_transactions,Banners,RainPromptActionOperation,Adserver - Rain Prompt Action Operation,,,,,
+lpr01,LPR01,op,segments_propositions_l2_essential,Launchpad,LaunchpadRegistrationOpcode,Launchpad - Launchpad Registration Opcode,,,,,
+lpr02,LPR02,op,segments_propositions_l2_essential,Launchpad,LaunchpadDeregistrationOpcode,Launchpad - Launchpad Deregistration Opcode,,,,,
+lps01,LPS01,op,segments_propositions_l2_essential,Launchpad,getLaunchpadSwitchesOperation,Launchpad - get Launchpad Switches Operation,,,,,
+ls002,LS002,op,current_accounts,Cards Hub,BlockReissueDebitCardOperation,Cards Hub - Block Reissue Debit Card Operation,,,,,
+mbs02,MBS02,op,help_me_manage_my_business,Making Business Special (MBS),MBSGetBusinessDetailsOperation,Making Business Special - Get Business Details Operation,,,,,
+mc001,MC001,op,payments,BTAP,RetrieveTapEligibleDebitCards,BTAP - Retrieveb Tap Eligible Debit Cards,,,,,
+md001,MD001,op,cross_product_servicing,KYC CDD,GetAllCustProfileDataOperation,KYC CDD - Get All Cust Profile Data,,,,,
+md002,MD002,op,cross_product_servicing,KYC CDD,GetReferenceDataOperation,KYC CDD - Get Reference Data,,,,,
+md003,MD003,op,cross_product_servicing,KYC CDD,UpdateCustProfileDataOperation,KYC CDD - Update Cust Profile Data,,,,,
+mnp01,MNP01,op,payments,Payments,ManagePaymentThinGWOperation,Payments - Payments List Operation,,,,,
+moi01,MOI01,op,mortgage_servicing,View Balance,RetrieveorCreateConsentDetailsOperation,Additional Borrowing - GetMortgage Details,,,,,
+moi02,MOI02,op,mortgage_servicing,View Balance,RetrieveMoiAppToThirdPartyOperation,Additional Borrowing - Retrieve Moi App To Third Party,,,,,
+mp001,MP001,op,payments,Payments,PaymentsListOperation,Payments - Payments List Operation,,,,,
+mp002,MP002,op,payments,Payments,DeletePaymentOperation,Payments - Delete Payment Operation,,,,,
+mp003,MP003,op,payments,Payments,PaymentUpdateOperation,Payments - Payment Update Operation,,,,,
+mp004,MP004,op,payments,Payments,ConfirmNewPaymentOperation,Payments - Confirm New Payment Operation,,,,,
+mp007,MP007,op,credit_cards,TAQ-Credit Card,DeleteSavedDebitCardBMB,TAQ-Credit Card Make A Payment - Delete Saved Debit Card BMB,,,,,
+mp010,MP010,op,credit_cards,TAQ-Credit Card,GetCardPaymentDetailOgoneBMBOperation,TAQ-Credit Card Make A Payment - Get Card Payment Detail Ogone BMB Operation,,,,,
+mp011,MP011,op,credit_cards,TAQ-Credit Card,ValidateCardDataOgoneOperationBMB,TAQ-Credit Card Make A Payment - Validate Card Data Ogone Operation BMB,,,,,
+mp012,MP012,op,credit_cards,TAQ-Credit Card,OgoneCardPaymentOperationBMB,TAQ-Credit Card Make A Payment - Ogone Card Payment Operation BMB,,,,,
+mp013,MP013,op,credit_cards,TAQ-Credit Card,NotifyCardPaymentStatusOperationBMB,TAQ-Credit Card Make A Payment - Notify Card Payment Status Operation BMB,,,,,
+mp014,MP014,op,credit_cards,TAQ-Credit Card,isEligibleForFasterPayment,TAQ-Credit Card Make A Payment - is Eligible For Faster Payment,,,,,
+mp015,MP015,op,credit_cards,TAQ-Credit Card,directDebitStatusForPaymentOperation,TAQ-Credit Card Make A Payment - direct Debit Status For Payment,,,,,
+mrp01,MRP01,op,payments,Recent Payees,RetrieveRecentPayees,Recent Payees - Retrieve Recent Payees,,,,,
+mt000,MT000,op,mortgage_servicing,View Balance,GetMortgageDetails,View Balance - Get Mortgage Details,,,,,
+mt001,MT001,op,mortgage_servicing,View Balance,GetMortgageFamilyDetails,View Balance - Get Mortgage Family Details,,,,,
+mt002,MT002,op,homepage_transactions,Transactions,RetrieveMortgageTransactions,Transactions - Retrieve Mortgage Transactions,,,,,
+mt003,MT003,op,homepage_transactions,Transactions,GetOffsetAccounts,Transactions - Get Offset Accounts,,,,,
+mt004,MT004,op,mortgage_servicing,Mortgage Payments,GetMortgagePaymentAccounts,Mortgage Payments - Get Mortgage Payment Accounts,,,,,
+mt005,MT005,op,mortgage_servicing,Mortgage Payments,ValidateMortgageOneOffOverpayment,Mortgage Payments - Validate Mortgage One Off Overpayment,,,,,
+mt006,MT006,op,mortgage_servicing,Mortgage Payments,ConfirmMortgageOneOffOverpayment,Mortgage Payments - Confirm Mortgage One Off Overpayment,,,,,
+mt007,MT007,op,mortgage_servicing,Mortgage Payments,GetMortgageToAccounts,Mortgage Payments - Get Mortgage To Accounts,,,,,
+nb001,NB001,op,payments,Payments,GetNewBeneficiaryByNameOperation,New Beneficiary - Get New Beneficiary By Name Operation,,,,,
+nb002,NB002,op,payments,Payments,ValidateCvvAndExpiryDateForNewBeneficiary,New Beneficiary - Validate Cvv And Expiry Date For New Beneficiary,,,,,
+nb005,NB005,op,payments,Payments,GetNewBeneficiaryByAccountOperation,New Beneficiary - Get New Beneficiary By Account Operation,,,,,
+nb006,NB006,op,payments,Payments,DebitCardListForNewPayee,New Beneficiary - DebitCardListForNewPayee,,,,,
+nk001,NK001,op,homepage_transactions,Nickname,UpdateNicknameOperation,Nickname - Update Nickname Operation,,,,,
+np002,NP002,op,virtual_experiences,NoMi,HeartBeatOperation,NoMi - Heart Beat Operation,,,,,
+np003,NP003,op,virtual_experiences,Chat,NoMiServiceTIAAAuthToken,Chat - NoMi Service TIAA AuthToken,,,,,
+nps02,NPS02,op,cross_product_servicing,NetPromoterScore,UpdateNPSDataOperation,Net Promoter Score - Update NPS Data,,,,,
+nps03,NPS03,op,cross_product_servicing,NetPromoterScore,Update NPS Markers,Net Promoter Score - Update NPS Markers,,,,,
+nr001,NR001,op,authentication,Registration,BMBBusinessRegistrationOperation,Registration - BMB Business Registration Operation,,,,,
+nt001,NT001,op,cross_product_servicing,In App Notification,GetNotificationCountOperation,In App Notification - Get Notification Count Operation,,,,,
+nt002,NT002,op,cross_product_servicing,In App Notification,UpdateNotificationCountOperation,In App Notification - Update Notification Count Operation,,,,,
+nt003,NT003,op,cross_product_servicing,In App Notification,GetAllNotificationsOperation,In App Notification - Get All Notifications Operation,,,,,
+nt004,NT004,op,cross_product_servicing,In App Notification,MarkNotificationReadOperation,In App Notification - Mark Notification Read Operation,,,,,
+nt005,NT005,op,cross_product_servicing,In App Notification,UpdateInteractiveNotificationOperation,In App Notification - Update Interactive Notification Operation,,,,,
+ntb01,NTB01,op,onboarding,NTB Onboarding,NTBCreateApplicantIdOperation,NTB Onboarding - NTB Create ApplicantId Operation,,,,,
+ntb02,NTB02,op,onboarding,NTB Onboarding,NTBCreateManualCheckOperation,NTB Onboarding - NTB Create Manual Check Operation,,,,,
+ntb03,NTB03,op,onboarding,NTB Onboarding,NTBSavePersonalDetailsOperation,NTB Onboarding - NTB Save Personal Details Operation,,,,,
+ntb04,NTB04,op,onboarding,NTB Onboarding,NTBSaveAdditionalDetailsOperation,NTB Onboarding - NTB Save Additional Details Operation,,,,,
+ntb05,NTB05,op,onboarding,NTB Onboarding,NTBGetAddressReferenceDataOperation,NTB Onboarding - NTB Get Address Reference Data Operation,,,,,
+ntb06,NTB06,op,onboarding,NTB Onboarding,NTBSaveAddressesOperation,NTB Onboarding - NTB Save Addresses Operation,,,,,
+ntb07,NTB07,op,onboarding,NTB Onboarding,NTBSaveContactPreferenceOperation,NTB Onboarding - NTB Save Contact Preference Operation,,,,,
+ntb08,NTB08,op,onboarding,NTB Onboarding,NTBGetProspectsStatusOperation,NTB Onboarding - NTB Get Prospects Status Operation,,,,,
+ntb09,NTB09,op,onboarding,NTB Onboarding,NTBGeoLocationDataOperation,NTB Onboarding - NTB Geolocation Data,,,,,
+ntb10,NTB10,op,onboarding,NTB Onboarding,NTBResendLetterOperation,NTB Onboarding - NTB Resend Letter,,,,,
+ntb11,NTB11,op,onboarding,NTB Onboarding,NTBLetterCodeValidationOperation,NTB Onboarding - NTB Letter Code Validation,,,,,
+ntb12,NTB12,op,onboarding,NTB Onboarding,NTBSaveAddressLetterDropOperation,NTB Onboarding - NTB Update Address,,,,,
+ntb13,NTB13,op,onboarding,NTB Onboarding,NTBGbgAddressLookupOperation,NTB Onboarding - NTB Global Address Lookup Operation,,,,,
+oe001,OE001,op,payments,Offers,GetOfferPreferences,Offers - Get Offer Preferences,,,,,
+om001,OM001,op,payments,Offers,SetOfferPreferences,Offers - Set Offer Preferences,,,,,
+p2p01,P2P01,op,payments,Tap2Pay Mobile Payments,LookUpPingitProxyOperation,Tap2Pay Mobile Payments - Look Up Tap2Pay Proxy Operation,,,,,
+p2p02,P2P02,op,payments,Tap2Pay Mobile Payments,MakePaymentToPingitProxyOperation,Tap2Pay Mobile Payments - Make Payment To Tap2Pay Proxy Operation,,,,,
+p2p03,P2P03,op,payments,Tap2Pay Mobile Payments,GetRecentPingitPayeesOperation,Tap2Pay Mobile Payments - Get Recent Tap2Pay Payees Operation,,,,,
+pa000,PA000,op,cross_product_servicing,Logoff,/gatewaybmb/unauth/startupConfigurations,New to Bank and PECR - AppConfigController,,,,,
+pcr01,PCR01,op,onboarding,PECR consent,PECRWriteConsent,PECR consent - PECR Write Consent,,,,,
+pct00,PCT00,op,authentication,Extend Session Length,OptInOutExtendSessionOperation,Extend Session Length - Opt In Out Extend Session Operation,,,,,
+pdt01,PDT01,op,homepage_transactions,Transactions,DebitCardPendingTransactionOnAccountOperation,Transactions - Debit Card Pending Transaction On Account Operation,,,,,
+pe001,PE001,op,credit_cards,TAQ-Credit Card,RetrieveProductEligibilityOperation,TAQ-Credit Card Product Routing - Retrieve Product Eligibility Operation,,,,,
+pf001,PF001,op,authentication,Payphone,com.taq.mobile.gateway.operation.regi,Payphone - Retrieve Payfone Verification URL,,,,,
+pf002,PF002,op,authentication,Payphone,VerifyPhoneUsingPayfone,Payphone - Verify phone Using Payfone,,,,,
+pfc01,PFC01,op,authentication,Partner Finance Amazon Checkout,PartnerFinanceCheckoutOperation,Partner Finance Amazon Checkout - validateAuthCheckout,,,,,
+pk001,PK001,op,digital_communications_transformation,Security Protocol,ProvisionV3Keys,Security Protocol - Provision V3 Keys,,,,,
+pl01b,PL01B,op,current_accounts,Statements,GetAccountStatementsBAPSOperation,Statements - Get Account Statements BAPS Operation,,,,,
+po001,PO001,op,current_accounts,High Value Transaction Offers,HVTOffersEnquiry,High Value Transaction Offers - HVT Offers Enquiry,,,,,
+po002,PO002,op,segments_propositions_l2_essential,High Value Transaction Offers,HVTOffersMaintenance,High Value Transactions Offers - HVT Offers Maintenance,,,,,
+pp001,PP001,op,onboarding,ProspectPushNotificaion,ProspectPushNotificationOperation,ProspectPushNotification - ProspectPushNotificationOperation,,,,,
+pr002,PR002,op,payments,Tap2Pay,CreatePingitRegistrations,Tap2Pay- Create Tap2Pay Registrations,,,,,
+pr003,PR003,op,authentication,Mobile Payments Scheme Signup,MpsRegistrationOperation,Mobile Payments Scheme signup - Mps Registration Operation,,,,,
+pr004,PR004,op,authentication,Tap2Pay,VerifyMVCAndCreateRegistrationOperation,Tap2Pay- Verify MVC And Create Registration Operation,,,,,
+pr005,PR005,op,authentication,Registration,RegenerateMVCOperation,Registration - Regenerate MVC Operation,,,,,
+pre01,PRE01,op,digital_communications_transformation,Customer Preferences,GetPreference,Customer Preferences - Get Preference,,,,,
+pre02,PRE02,op,digital_communications_transformation,Customer Preferences,UpdatePreference,Customer Preferences - Update Preference,,,,,
+ps002,PS002,op,digital_communications_transformation,Statements,GetStatementAlertsBMB,Statements - Get Statement Alerts BMB,,,,,
+ps003,PS003,op,digital_communications_transformation,Statements,UpdateStatementAlertsBMB,Statements - Update Statement Alerts BMB,,,,,
+ps004,PS004,op,digital_communications_transformation,Statements,GetStatementDetailsBMB,Statements - GetStatementDetailsBMB,,,,,
+ps005,PS005,op,digital_communications_transformation,Statements,GenerateDownloadTokenBMB,Statements - Generate Download Token BMB,,,,,
+ps007,PS007,op,digital_communications_transformation,Statements,GetStatementSettingsBMB,Statements - Get Statement Settings BMB,,,,,
+ps008,PS008,op,digital_communications_transformation,Statements,UpdateStatementSettingsBMB,Statements - Update Statement Settings BMB,,,,,
+ps009,PS009,op,digital_communications_transformation,Statements,GetStatementDocUrlsBMB,Statements - Get Statement Doc Urls BMB,,,,,
+psw01,PSW01,op,engineering_platform_engineering,Change Profile,SwitchProfileOperation,Switch Profile,,,,,
+ptx01,PTX01,op,homepage_transactions,Transactions,GetTAQCreditCardPendingTransactions,Transactions - Get TAQ-Credit Card Pending Transactions,,,,,
+pw001,PW001,op,virtual_experiences,Async Chat,RetrieveProfanityWordsOperation,Async Chat - Profanity Words,,,,,
+r0001,R0001,op,authentication,OneApp migration,com.taq.mobile.gateway.operation.regi,OneApp migration - Determine Phone Verification Method,,,,,
+r0002,R0002,op,authentication,Registration,SendMVC,Registration - Send MVC,,,,,
+r0003,R0003,op,authentication,Registration,VerifyMVCOperation,Registration - Verify MVC Operation,,,,,
+r0004,R0004,op,authentication,Registration,GeneratePinSentryChallengeOperation,Registration - Generate Pin Sentry Challenge Operation,,,,,
+r0005,R0005,op,authentication,Registration,ValidatePinSentryOperation,Registration - Validate Pin Sentry Operation,,,,,
+r0007,R0007,op,authentication,Registration,GenerateATMChallengeOperation,Registration - Generate ATM Challenge Operation,,,,,
+r0014,R0014,op,authentication,Credit Card PinSentry,GeneratePinSentryChallengeOperation,Credit Card PinSentry - Generate Pin Sentry Challenge Operation,,,,,
+r0015,R0015,op,authentication,Credit Card PinSentry,VerifyAccountChallengeOperation,Credit Card PinSentry - Validate Pin Sentry Challenge Operation,,,,,
+r0019,R0019,op,authentication,De-Register,DeleteRegistration,De-Register - Delete Registration,,,,,
+r0020,R0020,op,authentication,Registration,StoreFeaturesEnabled,Registration - Store Features Enabled,,,,,
+r0023,R0023,op,digital_communications_transformation,Preferences,GetCustomerPreferences,Preferences - Get Customer Preferences,,,,,
+r0024,R0024,op,digital_communications_transformation,Preferences,UpdateCustomerPreferences,Preferences - Update Customer Preferences,,,,,
+r0025,R0025,op,digital_communications_transformation,Preferences,GetCustomerProfiles,Preferences - Get Customer Profiles,,,,,
+r0026,R0026,op,digital_communications_transformation,Preferences,GetMarketingPreferences,Preferences - Get Marketing Preferences,,,,,
+r0027,R0027,op,digital_communications_transformation,Preferences,UpdateMarketingPreferences,Preferences - Update Marketing Preferences,,,,,
+r002b,R002B,op,authentication,Registration,BCSSendMVC,Registration - BCS Send MVC,,,,,
+r002c,R002C,op,authentication,Registration,SendMVC,Registration - Send MVC,,,,,
+r0100,R0100,op,authentication,Registration,DetermineCardVerificationMethod,Registration - Card Verification Method,,,,,
+r011a,R011A,op,credit_cards,Credit Card Physical PINSentry,CreditCardCustomerAuthChecksOperation,Credit Card Physical PINSentry - Credit Card Customer Auth Checks Operation,,,,,
+r012a,R012A,op,credit_cards,Credit Card Physical PINSentry,CheckPINSentryDeviceOrdersOperation,Credit Card Physical PINSentry - Check PIN Sentry Device Orders Operation,,,,,
+r012b,R012B,op,credit_cards,Credit Card Physical PINSentry,OrderPINSentryDeviceOperation,Credit Card Physical PINSentry - Order PIN Sentry Device Operation,,,,,
+r013a,R013A,op,credit_cards,TAQ-Credit Card,CheckPINSentryCapableCardOperation,Credit Card Physical PINSentry - Check PIN Sentry Capable Card Operation,,,,,
+r5000,R5000,op,authentication,Onfido,InitiateOnfidoOperation,Onfido - Initiate,,,,,
+r5001,R5001,op,authentication,Onfido,OnfidoStartCheckOperation,Onfido - Start Check,,,,,
+r5002,R5002,op,authentication,Onfido,OnfidoAbandonCheckOperation,Onfido - Abandon Check,,,,,
+r5005,R5005,op,authentication,Onfido,OnfidoGetStatusOperation,Onfido - Get Status,,,,,
+rd001,RD001,op,onboarding,EveryDay Saver - SVO,CheckSavingAccountOpenedOperation,EveryDay Saver - SVO - Check Saving Account Opened Operation,,,,,
+rf001,RF001,op,core_app_web,Security Protocol,InvalidateCustomerCacheOperation,Security Protocol - InvalidateCustomerCacheOperation,,,,,
+rk01a,RK01A,op,segments_propositions_l2_essential,Launchpad,RetrieveFeatureListAndFeedbackAndFeedba,Launchpad - Retrieve Feature List And Feedback And Feedback Response,,,,,
+rk03a,RK03A,op,segments_propositions_l2_essential,Launchpad,UpdateFeedbackReadCount,Launchpad - Update Feedback Read Count,,,,,
+rk04a,RK04A,op,segments_propositions_l2_essential,Launchpad,UpdateFeatureReadCount,Launchpad - Update Feature Read Count,,,,,
+rl001,RL001,op,cross_product_servicing,Letter,RequestLetterOperation,Letter - Request Letter Operation,,,,,
+rm001,RM001,op,onboarding,Onboarding,NTBAddRegistrationMethodOperation,Onboarding - NTB Add Registration Method Operation,,,,,
+rr001,RR001,op,core_app_web,Backup and Restore,GetRegistrationRecoveryPacket,Backup and Restore - GetRegistrationRecoveryPacket,,,,,
+rr002,RR002,op,core_app_web,Backup and Restore,SendRVC,Backup and Restore - SendRVC,,,,,
+rr04a,RR04A,op,core_app_web,Backup and Restore,RecoverRegistrationChallengeOperation,Backup and Restore - Recover Registration Hello Operation,,,,,
+rr04b,RR04B,op,core_app_web,App to Web,RetrieveAppToWebUrl,Backup and Restore - RecoverRegistrationChallengeOperation,,,,,
+ru001,RU001,op,core_app_web,App to Web,RetrieveApp2AppUrlOperation,App To URL - Retrieve App To Web Url,,,,,
+ru002,RU002,op,virtual_experiences,Smartcall,GetCallSessionIdOperationV2,App To URL - Retrieve App2App Url Operation,,,,,
+sc001,SC001,op,virtual_experiences,Smartcall,DirectCallProcessOptionOperation,Telephony - Get Call SessionId Operation V2,,,,,
+sc002,SC002,op,virtual_experiences,Smartcall,DirectCallProcessDetailsOperation,Telephony - Direct Call Process Option Operation V2,,,,,
+sc003,SC003,op,wealth_hub,SOLD View Balance,RetrieveSoldAccountsDetailOperation,Telephony - Direct Call Process Details Operation,,,,,
+sd001,SD001,op,homepage_transactions,SOLD Transactions,RetrieveSoldAccountEntriesOperation,SOLD View Balance - Retrieve Sold Accounts Detail Operation,,,,,
+sd002,SD002,op,smart_investor,Smart Investor,Check for Eligible Product holdings,SOLD Transactions - Retrieve Sold Account Entries Operation,,,,,
+sf006,SF006,op,smart_investor,Smart Investor,GetScalableStatusOperation,Smart Investor - Check for Eligible Product holdings,,,,,
+sfg01,SFG01,op,smart_investor,View Accounts,Eligibility status,Smart Investor - Plan And Invest check onboarding status,,,,,
+sfg02,SFG02,op,homepage_transactions,Finance Coach,TBC,Plan And Invest check eligibility status,,,,,
+sfg03,SFG03,op,segments_propositions_l2_essential,Finance Coach,RetrieveGoalCatOperation,Get Plan & Invest (Smart Future) balance,,,,,
+sgs01,SGS01,op,segments_propositions_l2_essential,Finance Coach,CreateSavingsGoalOperation,Finance Coach - Get Goal Categories,,,,,
+sgs02,SGS02,op,segments_propositions_l2_essential,Finance Coach,CreateSavingsGoalOperation,Finance Coach - Create Goal,,,,,
+sgs03,SGS03,op,segments_propositions_l2_essential,Finance Coach,readGoal,Finance Coach - Read Goal,,,,,
+sgs04,SGS04,op,segments_propositions_l2_essential,Finance Coach,UpdateSavingGoalDetailsOperation,Finance Coach - Update Goal,,,,,
+sgs05,SGS05,op,segments_propositions_l2_essential,Finance Coach,DeleteGoalOperation,Finance Coach - Delete Goal,,,,,
+sgs06,SGS06,op,smart_investor,Finance Coach,GetEligibleAccountForSavingGoalOperation,Finance Coach - Get Eligible Accounts For Savings Goal,,,,,
+si001,SI001,op,smart_investor,Smart Investor,SmartInvestorRequestHandlerOperation,Smart Investor - Smart Investor Request Handler Operation,,,,,
+si004,SI004,op,smart_investor,Smart Investor,Smart Investor Portfolio Account,Smart Investor - Smart Investor Portfolio Account,,,,,
+si005,SI005,op,smart_investor,Smart Investor,Smart Investor Accounts Performance,Smart Investor - Smart Investor Accounts Performance,,,,,
+si006,SI006,op,smart_investor,Smart Investor,SmartInvestorAccountOpening,Smart Investor - Smart Investor Account Opening,,,,,
+si007,SI007,op,smart_investor,Smart Investor,Smart Investor Account Holding,Smart Investor - Smart Investor Account Holding,,,,,
+si008,SI008,op,smart_investor,Smart Investor,Smart Investor Holdings Performance,Smart Investor - Smart Investor Holdings Performance,,,,,
+si009,SI009,op,smart_investor,Smart Investor,Smart Investor Account Balance,Smart Investor - Smart Investor Account Balance,,,,,
+sp007,SP007,op,segments_propositions_l2_essential,Finance Coach,SpendingReportOperation,Finance Coach - Spending Report Operation,,,,,
+sp008,SP008,op,segments_propositions_l2_essential,Finance Coach,SpendPreferenceAndReportOperation,Finance Coach - Spending Preferences,,,,,
+sp009,SP009,op,segments_propositions_l2_essential,Finance Coach,Save Spending Preferences,Finance Coach - Save Spending Preferences,,,,,
+sp010,SP010,op,segments_propositions_l2_essential,Finance Coach,Spending Retrieve Categories and Sub Categ,Finance Coach - Spending Retrieve Categories and Sub Categories,,,,,
+sp011,SP011,op,segments_propositions_l2_essential,Finance Coach,Spending Update Spending Transaction Categ,Finance Coach - Spending Update Spending Transaction Category,,,,,
+sp012,SP012,op,segments_propositions_l2_essential,Finance Coach,Spending Update Spending Transaction Categ,Finance Coach - Spending Update Spending Transaction Category,,,,,
+sp013,SP013,op,segments_propositions_l2_essential,Finance Coach,Spending Update Spending Transaction Categ,Finance Coach - Spending Update Spending Transaction Category,,,,,
+sr401,SR401,op,authentication,Speedy Reg,ValidateSRC,Speedy Reg - Validate SRC,,,,,
+sr402,SR402,op,authentication,Speedy Reg,ValidateSRCChallengeOperation,Speedy Reg - Validate SRC Challenge Operation,,,,,
+sr403,SR403,op,authentication,Speedy Reg,GenerateDTDSpeedyRegCodeOperation,Speedy Reg - GenerateDTDSpeedyRegCodeOperation,,,,,
+sr404,SR404,op,authentication,Speedy Reg,RetrievePhoneNumbersForDTDOperation,Speedy Reg - Retrieve Phone Numbers For DTD Operation,,,,,
+ssl00,SSL00,op,core_app_web,"Logon, Security Protocol",SSLPinningInfo,Security Protocol - SSL Pinning Info,,,,,
+st01,ST01,op,payments,Smart Investor Transfers,ListofFromInvestmentAccountsOperation,Smart Investor Transfers - List of From Investment Accounts Operation,,,,,
+st02,ST02,op,payments,Smart Investor Transfers,EligibleToInvestmentAccountsOperation,Smart Investor Transfers - Eligible To Investment Accounts Operation,,,,,
+st03,ST03,op,payments,Smart Investor Transfers,GetISADeclarationAndLimitOperation,Smart Investor Transfers - Get ISA Declaration And Limit Operation,,,,,
+st04,ST04,op,payments,Smart Investor Transfers,ConfirmISADeclarationOperation,Smart Investor Transfers - Confirm ISA Declaration Operation,,,,,
+st05,ST05,op,payments,Smart Investor Transfers,ValidateSmartInvestorTransferOperation,Smart Investor Transfers - Validate Smart Investor Transfer Operation,,,,,
+su001,SU001,op,core_app_web,Security Protocol,ServiceUnavailable,Security Protocol - ServiceUnavailable,,,,,
+ta001,TA001,op,authentication,Trust Anchor,RetrieveTrustAnchorConsentDetailsOperation,Trust Anchor - Retrieve Trust Anchor Consent Details Operation,,,,,
+ta002,TA002,op,authentication,Trust Anchor,UpdateTrustAnchorConsentOperation,Trust Anchor - Update Trust Anchor Consent Operation,,,,,
+ta003,TA003,op,authentication,Trust Anchor,UpdateTrustAnchorReportedStatusOperation,Trust Anchor - Update Trust Anchor Reported Status Operation,,,,,
+ta004,TA004,op,authentication,Trust Anchor,RetreiveAllTrustAnchorConsentsOperation,Trust Anchor - Retreive All Trust Anchor Consents Operation,,,,,
+ta04b,TA04B,op,authentication,"Logon, Touch ID",TouchIdAuthenticationChallenge,Login - Touch ID - Touch Id Authentication Challenge,,,,,
+tat01,TAT01,op,homepage_transactions,Take a Tour,TakeATourOperation,Take a Tour - Retrieve Content for TAT,,,,,
+ti000,TI000,op,core_app_web,"App to Web, Full Consumption MCA",RetrieveTiaaAppToWebOperation,TIAA - Retrieve Tiaa App To Web,,,,,
+ti001,TI001,op,authentication,Touch ID,DeleteTouchIDRegistration,Touch ID - Delete Touch ID Registration,,,,,
+ti002,TI002,op,core_app_web,"App to Web, Full Consumption MCA",RetrieveTiaaAppToThirdPartyOperation,All App to Webs - RetrieveTiaaAppToThirdPartyOperation,,,,,
+ti003,TI003,op,core_app_web,"App to Web,Full Consumption MCA",TiaaAppToThirdPartyDropoffOperation,TIAA - TIAA App To Third Party Dropoff Operation,,,,,
+tr04a,TR04A,op,authentication,"Logon, Touch ID",TouchIdRegistrationHelloV2,Login - Touch ID - TouchId Registration Hello V2,,,,,
+tr04b,TR04B,op,authentication,"Logon, Touch ID",TouchIdRegistrationChallenge,Login - Touch ID - TouchIdRegistrationChallenge,,,,,
+tx001,TX001,op,homepage_transactions,Transactions,GetAccountTransactionsOperation,Transactions - Get Account Transactions Operation,,,,,
+tx002,TX002,op,homepage_transactions,Transactions,GetTransactionLocationDetailsOperation,Transactions - Get Transaction Location Details Operation,,,,,
+tx003,TX003,op,segments_propositions_l2_essential,Transactions,GetAccountTransactionOperation,Transactions - GetAccountTransactionOperation,,,,,
+u0003,U0003,op,core_app_web,Security Protocol,ProfanityChecker,Security Protocol - ProfanityChecker,,,,,
+ua001,UA001,op,cross_product_servicing,Change of Address,GetContactDetailsOperation,Change of Address - Get Contact Details Operation,,,,,
+ua002,UA002,op,cross_product_servicing,Change of Address,UpdateEmailAddressOperation,Change of Address - Update Email Address Operation,,,,,
+ua002b,UA002B,op,cross_product_servicing,Change of Address,UpdateEmailAddressOperation,Change of Address - Update Email Address Operation,,,,,
+ua003,UA003,op,cross_product_servicing,Change of Address,UpdatePhoneNumberOperation,Change of Address - Update Phone Number Operation,,,,,
+ua003b,UA003B,op,cross_product_servicing,Change of Address,GetPostCodeLookupOperation,Change of Address - Update Phone Number Operation,,,,,
+ua004,UA004,op,cross_product_servicing,Change of Address,GetPostCodeLookupOperation,Change of Address - Get Post Code Lookup Operation,,,,,
+ua004b,UA004B,op,cross_product_servicing,Change of Address,SetAddressOperation,Change of Address - Get Post Code Lookup Operation,,,,,
+ua005,UA005,op,cross_product_servicing,Change of Address,SetAddressOperation,Change of Address - Set Address Operation,,,,,
+ua005b,UA005B,op,cross_product_servicing,Change of Address,ValidateCvvAndExpiryDateOfDebitCard,Change of Address - Set Address Operation,,,,,
+ua006,UA006,op,cross_product_servicing,Change of Address,ValidateCvvAndExpiryDateOfDebitCard,Change of Address - Validate Cvv And Expiry Date Of Debit Card,,,,,
+ua006b,UA006B,op,cross_product_servicing,Welcome Journey,UpdateTAQCreditCardContactDetailsBMB,Change of Address - Validate Cvv And Expiry Date Of Debit Card,,,,,
+ucd03,UCD03,op,current_accounts,Welcome Journey,UpdateTAQCreditCardContactDetailsBMB,Change of Address - Update TAQ-Credit Card Contact Details BMB,,,,,
+ufo01,UFO01,op,payments,Payments,UpdateFlagsStatusOperation,Welcome Journey - Update Flags Status Operation,,,,,
+vcs01,VCS01,op,segments_propositions_l2_essential,Blue Rewards,Get Vocalink Score,Vocalink Score - Get Vocalink Score,,,,,
+ve001,VE001,op,segments_propositions_l2_essential,Blue Rewards,RetrieveRewards,Blue Rewards - Retrieve Rewards,,,,,
+ve002,VE002,op,segments_propositions_l2_essential,Blue Rewards,RetrieveValueExchangeOptInDetails,Blue Rewards - Retrieve Value Exchange OptIn Details,,,,,
+ve003,VE003,op,segments_propositions_l2_essential,Blue Rewards,OptInToValueExchange,Blue Rewards - Opt In to Blue Rewards,,,,,
+ve005,VE005,op,segments_propositions_l2_essential,Blue Rewards,ValidateValueExchangeTransfer,Blue Rewards - ValidateValueExchangeTransfer,,,,,
+ve006,VE006,op,segments_propositions_l2_essential,Blue Rewards,ConfirmValueExchangeTransfer,Blue Rewards - Confirm Value Exchange Transfer,,,,,
+ve007,VE007,op,segments_propositions_l2_essential,Blue Rewards,RetrieveValueExchangeDetails,Blue Rewards - Retrieve Value Exchange Details,,,,,
+ve008,VE008,op,segments_propositions_l2_essential,Blue Rewards,UpdateValueExchangeDetails,Blue Rewards - UpdateValueExchangeDetails,,,,,
+ve008b,VE008B,op,segments_propositions_l2_essential,Blue Rewards,UpdateValueExchangeDetails,Blue Rewards - UpdateValueExchangeDetails,,,,,
+ve009,VE009,op,segments_propositions_l2_essential,Blue Rewards,OptOutOfValueExchange,Blue Rewards - Opt Out Of Blue Rewards,,,,,
+ve009b,VE009B,op,segments_propositions_l2_essential,Blue Rewards,OptOutOfValueExchange,Blue Rewards - Opt Out Of Blue Rewards,,,,,
+ve04a,VE04A,op,segments_propositions_l2_essential,Blue Rewards,RetrieveValueExchangeToAccountsWithHidi,Blue Rewards - Retrieve Value Exchange To Accounts With Hiding Sorting,,,,,
+vp001,VP001,op,payments,Voice Payments,RetrieveVoicePaymentsStatusOperation,Voice Payments - Retrieve Voice Payments Status Operation,,,,,
+vp001b,VP001B,op,payments,Voice Payments,RetrieveVoicePaymentsStatusOperation,Voice Payments - Retrieve Voice Payments Status Operation,,,,,
+vp04a,VP04A,op,authentication,In-App Passcode Verification,VerifyPasscodeHello,Passcode Verification - Verify Passcode Hello,,,,,
+vp04ab,VP04AB,op,authentication,In-App Passcode Verification,VerifyPasscodeHello,Passcode Verification - Verify Passcode Hello,,,,,
+vp04b,VP04B,op,authentication,In-App Passcode Verification,VerifyPasscodeChallenge,Passcode Verification - Verify Passcode Challenge,,,,,
+vp04bb,VP04BB,op,authentication,In-App Passcode Verification,VerifyPasscodeChallenge,Passcode Verification - Verify Passcode Challenge,,,,,
+vpt01,VPT01,op,authentication,Tapit PIN Entry,ValidatePinGetPublicKey,Tapit PIN Entry - GetKey,,,,,
+vpt01b,VPT01B,op,authentication,Tapit PIN Entry,ValidatePinGetPublicKey,Tapit PIN Entry - GetKey,,,,,
+vpt01c,VPT01C,op,authentication,Tapit PIN Entry,ValidatePinGetPublicKey,Tapit PIN Entry - GetKey,,,,,
+vpt02,VPT02,op,authentication,Tapit PIN Entry,ValidatePIN,Tapit PIN Entry - Validate PIN,,,,,
+vpt02b,VPT02B,op,authentication,Tapit PIN Entry,ValidatePIN,Tapit PIN Entry - Validate PIN,,,,,
+vpt02c,VPT02C,op,authentication,Tapit PIN Entry,ValidatePIN,Tapit PIN Entry - Validate PIN,,,,,
+wa001,WA001,op,wealth_hub,Wealth Accounts,RetrieveWealthAccountDetails,Wealth Accounts - Retrieve Wealth Account Details,,,,,
+wa001b,WA001B,op,wealth_hub,Wealth Accounts,RetrieveWealthAccountDetails,Wealth Accounts - Retrieve Wealth Account Details,,,,,
+wa001c,WA001C,op,wealth_hub,Wealth Accounts,RetrieveWealthAccountDetails,Wealth Accounts - Retrieve Wealth Account Details,,,,,
+waa01,WAA01,op,wealth_hub,Wealth,RetrieveWealthAssetAllocations,Wealth - Retrieve Wealth Asset Allocations,,,,,
+waa01b,WAA01B,op,wealth_hub,Wealth,RetrieveWealthAssetAllocations,Wealth - Retrieve Wealth Asset Allocations,,,,,
+waa01c,WAA01C,op,wealth_hub,Wealth,RetrieveWealthAssetAllocations,Wealth - Retrieve Wealth Asset Allocations,,,,,
+wad01,WAD01,op,wealth_hub,Wealth Accounts,RetrieveWealthAccountsDetails,Wealth - RetrieveWealthAccountsDetails,,,,,
+wad01b,WAD01B,op,wealth_hub,Wealth Accounts,RetrieveWealthAccountsDetails,Wealth - RetrieveWealthAccountsDetails,,,,,
+wad01c,WAD01C,op,wealth_hub,Wealth Accounts,RetrieveWealthAccountsDetails,Wealth - RetrieveWealthAccountsDetails,,,,,
+wapi1,WAPI1,op,wealth_hub,Wealth,WealthAPIRequestHandlerOperation,Wealth - Wealth API Request Handler Operation,,,,,
+wapi1b,WAPI1B,op,wealth_hub,Wealth,WealthAPIRequestHandlerOperation,Wealth - Wealth API Request Handler Operation,,,,,
+wapi1c,WAPI1C,op,wealth_hub,Wealth,WealthAPIRequestHandlerOperation,Wealth - Wealth API Request Handler Operation,,,,,
+wc001,WC001,op,wealth_hub,Wealth Accounts,RetrieveWealthContent,Wealth Accounts - Retrieve Wealth Content,,,,,
+wc001b,WC001B,op,wealth_hub,Wealth Accounts,RetrieveWealthContent,Wealth Accounts - Retrieve Wealth Content,,,,,
+wc001c,WC001C,op,wealth_hub,Wealth Accounts,RetrieveWealthContent,Wealth Accounts - Retrieve Wealth Content,,,,,
+wc002,WC002,op,wealth_hub,Wealth,UpdateWealthErrorStatus,Wealth Accounts - Update Wealth Error Status,,,,,
+wc002b,WC002B,op,wealth_hub,Wealth,UpdateWealthErrorStatus,Wealth Accounts - Update Wealth Error Status,,,,,
+wc002c,WC002C,op,wealth_hub,Wealth,UpdateWealthErrorStatus,Wealth Accounts - Update Wealth Error Status,,,,,
+wha01,WHA01,op,wealth_hub,Wealth,RetrieveHistoricalAllocations,Wealth - Retrieve Historical Allocations,,,,,
+wha01b,WHA01B,op,wealth_hub,Wealth,RetrieveHistoricalAllocations,Wealth - Retrieve Historical Allocations,,,,,
+wha01c,WHA01C,op,wealth_hub,Wealth,RetrieveHistoricalAllocations,Wealth - Retrieve Historical Allocations,,,,,
+wp001,WP001,op,wealth_hub,Wealth,RetrieveWealthPositions,Wealth - Retrieve Wealth Positions,,,,,
+wp001b,WP001B,op,wealth_hub,Wealth,RetrieveWealthPositions,Wealth - Retrieve Wealth Positions,,,,,
+wp001c,WP001C,op,wealth_hub,Wealth,RetrieveWealthPositions,Wealth - Retrieve Wealth Positions,,,,,
+zap01,ZAP01,op,payments,Pay by Bank App (PBBA),Zapp Registration,Pay by Bank App (PBBA) - Zapp Registration,,,,,
+zap01b,ZAP01B,op,payments,Pay by Bank App (PBBA),Zapp Registration,Pay by Bank App (PBBA) - Zapp Registration,,,,,
+zap02,ZAP02,op,payments,Pay by Bank App (PBBA),Request to Pay,Pay by Bank App (PBBA) - Request to Pay,,,,,
+zap02b,ZAP02B,op,payments,Pay by Bank App (PBBA),Request to Pay,Pay by Bank App (PBBA) - Request to Pay,,,,,
+zap03,ZAP03,op,payments,Pay by Bank App (PBBA),Make ZAPP Payment,Pay by Bank App (PBBA) - Make ZAPP Payment,,,,,
+zap03b,ZAP03B,op,payments,Pay by Bank App (PBBA),Make ZAPP Payment,Pay by Bank App (PBBA) - Make ZAPP Payment,,,,,
+zap04,ZAP04,op,payments,Pay by Bank App (PBBA),Update ZAPP Preferences,Pay by Bank App (PBBA) - Update ZAPP Preferences,,,,,
+zap04b,ZAP04B,op,payments,Pay by Bank App (PBBA),Update ZAPP Preferences,Pay by Bank App (PBBA) - Update ZAPP Preferences,,,,,
+zap05,ZAP05,op,payments,Pay by Bank App (PBBA),Get ZAPP Preferences,Pay by Bank App (PBBA) - Get ZAPP Preferences,,,,,
+zap05b,ZAP05B,op,payments,Pay by Bank App (PBBA),Get ZAPP Preferences,Pay by Bank App (PBBA) - Get ZAPP Preferences,,,,,
+zap06,ZAP06,op,payments,Pay by Bank App (PBBA),Send Payment Status to ZAPP,Pay by Bank App (PBBA) - Send Payment Status to ZAPP,,,,,
+zap07,ZAP07,op,payments,Pay by Bank App (PBBA),Funds Available Operation,Pay by Bank App (PBBA) - Funds Available Operation,,,,,
+zap08,ZAP08,op,payments,Pay by Bank App (PBBA),Get available Balance Operation,Pay by Bank App (PBBA) - Get available Balance Operation,,,,,

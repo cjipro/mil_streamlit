@@ -1,14 +1,18 @@
-_generated_by: scripts/build_taq_taxonomy.py (PULSE-137)
+_generated_by: scripts/build_taq_taxonomy.py (PULSE-137, PULSE-141)
 _do_not_edit: regenerate from taq-app/inventory/screens.yaml; do not hand-edit
 source: taq-app/inventory/screens.yaml
 source_meta: v2
-generated: '2026-05-24'
+generated: '2026-05-26'
 counts:
   op_codes: 697
   journeys: 24
   customer_journeys: 107
   orphans: 97
   customer_journey_coverage_pct: 86.08
+kinds:
+  api: 57
+  extra: 40
+  op: 600
 journeys:
 - api_inspector
 - authentication
