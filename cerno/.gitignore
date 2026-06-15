@@ -1,0 +1,26 @@
+# data outputs — never committed (anchored to cerno root, NOT docs/findings/)
+/data/
+/manifests/
+/findings/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# env
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# local-dev only (replica bootstrap)
+.jdk-*/
+.jdk-*.zip
+.venv*/
