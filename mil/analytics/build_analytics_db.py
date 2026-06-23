@@ -76,7 +76,7 @@ def load_reviews() -> list[dict]:
             rows.append({
                 "source":            source,
                 "competitor":        competitor,
-                "date":              r.get("date") or r.get("video_published_at") or None,
+                "date":              r.get("date") or r.get("at") or r.get("video_published_at") or None,
                 "content":           _content(r),
                 "rating":            _rating(r),
                 "author":            r.get("author") or r.get("userName") or None,
