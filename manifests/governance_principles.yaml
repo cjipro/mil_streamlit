@@ -452,32 +452,60 @@ violation_framework:
       blocks_build: false
       expires: false
 
+# ════════════════════════════════════════════════════════════════════
+# DATA POSTURE (PULSE-144) — read before interpreting the REG items below
+# ════════════════════════════════════════════════════════════════════
+# This system processes SYNTHETIC and PUBLIC data only:
+#   • CJI Pulse runs on a self-contained synthetic MA_D generator.
+#   • MIL processes public market signals (app reviews etc.) — no PII.
+#   • NO live customer data is processed anywhere in this repository.
+#   • Real-bank ingestion (real PII) stays on the work machine and never
+#     enters this OSS tree (Zero Entanglement).
+#
+# The REG-001..004 items are therefore PRODUCTION GATES, not outstanding
+# negligence. `status: OPEN` means "not yet cleared for live-customer-data
+# processing" — each MUST be closed before any live-data deployment. While
+# the posture stays synthetic-only, none of these block current work.
+data_posture:
+  mode: synthetic_and_public_only
+  live_customer_data_processed: false
+  reg_items_are: production_gates           # not current-work blockers
+  reg_gate: live_customer_data_processing
+  owner_note: >
+    Sole-maintainer project. The named owner on each REG item is the acting
+    data-governance owner; a formal DPO / data-protection function must be
+    assigned before any live-customer-data deployment.
+
 regulatory_open_items:
   - id: REG-001
     description: "Register formal DPIA with data protection function"
     severity: CRITICAL
     status: OPEN
+    gate: live_customer_data                 # gates production; not current synthetic work
     blocking: "Live customer data processing"
-    owner: TBD
+    owner: "Hussain Ahmed (acting data-governance owner)"
   - id: REG-002
-    description: "Complete audit of Customer_Profile_Dim — special category data question cannot be answered until complete"
+    description: "Complete full audit of Customer_Profile_Dim. Special-category question ANSWERED (DPIA Q3 = YES, special category processed per UK GDPR Art.9 — see data_dictionary_master.yaml); full CPD field audit still pending data access."
     severity: CRITICAL
-    status: OPEN
-    blocking: "DPIA Q3 completion"
-    owner: TBD
+    status: ANSWERABLE                        # reconciled with data_dictionary_master.yaml (was OPEN — drift)
+    gate: live_customer_data
+    blocking: "Full CPD audit (access-pending); DPIA Q3 itself answered"
+    owner: "Hussain Ahmed (acting data-governance owner)"
     table: CPD
   - id: REG-003
-    description: "Publish formal vulnerability data processing statement as governed artifact"
+    description: "Publish formal vulnerability data processing statement as governed artifact (drafting inputs confirmed available — see data_dictionary_master.yaml REG-003)."
     severity: HIGH
-    status: OPEN
+    status: ANSWERABLE                        # reconciled with data_dictionary_master.yaml (was OPEN — drift)
+    gate: live_customer_data
     blocking: "Live customer data processing"
-    owner: TBD
+    owner: "Hussain Ahmed (acting data-governance owner)"
   - id: REG-004
     description: "Publish explicit customer rights statement covering right to contest automated decisions. Document legal basis for each new derived field type."
     severity: HIGH
     status: OPEN
+    gate: live_customer_data
     blocking: "Live customer data processing"
-    owner: TBD
+    owner: "Hussain Ahmed (acting data-governance owner)"
 
 three_layer_governance:
   layer_1_marker_library:
