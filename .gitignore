@@ -136,3 +136,6 @@ mil/notify/_early_signal_send.py
 .claude/
 .continue/
 ops/gitlab_import/import_log.txt
+
+# HODOS-4 spike — generated decision surfaces
+hodos_kernel/output/
