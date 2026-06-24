@@ -51,7 +51,7 @@ routes:
 
   # ── CHR Governance Proposals ──────────────────────────────────
   chr_proposal:
-    model: "claude-opus-4-6"
+    model: "claude-opus-4-8"
     provider: anthropic
     max_tokens: 4096
     note: >
@@ -60,7 +60,7 @@ routes:
 
   # ── Teacher Autopsies ─────────────────────────────────────────
   teacher_autopsy:
-    model: "claude-opus-4-6"
+    model: "claude-opus-4-8"
     provider: anthropic
     max_tokens: 8192
     note: >
@@ -70,7 +70,7 @@ routes:
 
   # ── CLARK-3 Escalation Synthesis ──────────────────────────────
   clark_escalation_synthesis:
-    model: "claude-opus-4-6"
+    model: "claude-opus-4-8"
     provider: anthropic
     max_tokens: 1024
     note: >
@@ -80,7 +80,7 @@ routes:
 
   # ── MIL-49: PDB Email Lede ─────────────────────────────────────
   briefing_lede:
-    model: "claude-opus-4-7"
+    model: "claude-opus-4-8"
     provider: anthropic
     max_tokens: 800
     note: >
@@ -144,7 +144,7 @@ routes:
 
   # ── Teacher Autopsies (legacy route — superseded) ─────────────
   teacher:
-    model: "claude-opus-4-6"
+    model: "claude-opus-4-8"
     provider: anthropic
     max_tokens: 8192
     note: >
@@ -273,7 +273,7 @@ routes:
 
   # ── Ask Synthesis — deep (MIL-42) ─────────────────────────────
   ask_synthesis_deep:
-    model: "claude-opus-4-6"
+    model: "claude-opus-4-8"
     provider: anthropic
     max_tokens: 2048
     note: >
