@@ -642,7 +642,8 @@ def _vault_preflight() -> bool:
 _VALID_STEPS = {"1", "2", "4", "4a", "4b", "4c", "4d", "4e", "4f", "5", "5b", "5c", "5d", "5e"}
 
 
-def _run_isolated_steps(selected: set[str], enrich_model: str) -> None:
+def _run_isolated_steps(selected: set[str], enrich_model: str,
+                        journal=None, run_key: str | None = None) -> None:
     """
     MIL-124: --step isolated execution path.
 
@@ -654,7 +655,19 @@ def _run_isolated_steps(selected: set[str], enrich_model: str) -> None:
 
     Caller is responsible for prerequisites (e.g. --step 5d expects mil_findings.json
     to already exist from a prior real run or from --step 4).
+
+    MIL-186: when called from --resume, a `journal` + `run_key` are passed and each
+    completed step is marked 'done' so a second crash can be resumed again. For the
+    manual --step path both are None and nothing is journalled.
     """
+    def _jmark(step_id: str, label: str) -> None:
+        if journal is None or run_key is None:
+            return
+        try:
+            journal.mark(run_key, step_id, label, "done", "resumed")
+        except Exception as exc:
+            logger.debug("[journal] isolated mark failed (non-fatal): %s", exc)
+
     fetch_counts: dict = {}
 
     if "1" in selected:
@@ -741,6 +754,12 @@ def _run_isolated_steps(selected: set[str], enrich_model: str) -> None:
         if step_id in selected:
             logger.info("--- Step %s: Publish (isolated) ---", step_id)
             helper()
+            _jmark(step_id, f"{step_id} Publish")
+
+    # MIL-186: mark the non-publish steps that ran (publish steps marked in-loop above).
+    # Steps are idempotent, so a rare second crash simply re-runs them on the next --resume.
+    for _sid in selected - set(publish_helpers):
+        _jmark(_sid, f"{_sid} (isolated)")
 
     logger.info("=== Isolated step run complete: %s ===", sorted(selected))
 
@@ -759,19 +778,33 @@ def main() -> None:
             "Examples: --step 5d  |  --step 4,4d,5d"
         ),
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "MIL-186: resume today's crashed run — run only the steps not yet marked "
+            "done in the run journal (mil/data/run_journal.db). No manual --step needed. "
+            "Mutually exclusive with --step / --dry-run / --skip-fetch."
+        ),
+    )
     args = parser.parse_args()
 
     selected: set[str] | None = None
     if args.step:
-        if args.dry_run or args.skip_fetch:
-            parser.error("--step is mutually exclusive with --dry-run and --skip-fetch")
+        if args.dry_run or args.skip_fetch or args.resume:
+            parser.error("--step is mutually exclusive with --dry-run, --skip-fetch and --resume")
         requested = {s.strip() for s in args.step.split(",") if s.strip()}
         bad = requested - _VALID_STEPS
         if bad:
             parser.error(f"Unknown step IDs: {sorted(bad)}. Valid: {sorted(_VALID_STEPS)}")
         selected = requested
 
-    _mode = "step" if selected is not None else ("dry-run" if args.dry_run else ("skip-fetch" if args.skip_fetch else "full"))
+    if args.resume and (args.dry_run or args.skip_fetch):
+        parser.error("--resume is mutually exclusive with --dry-run and --skip-fetch")
+
+    _mode = ("step" if selected is not None else
+             ("resume" if args.resume else
+              ("dry-run" if args.dry_run else ("skip-fetch" if args.skip_fetch else "full"))))
     if not _acquire_single_instance_lock(_mode):
         return
 
@@ -788,10 +821,63 @@ def main() -> None:
     except Exception:
         _enrich_model = "unknown"
 
+    # MIL-186: run journal (fail-soft — a journal error never breaks the pipeline).
+    _journal = None
+    _run_key = None
+    try:
+        from mil.run_journal import RunJournal, today_key
+        _journal = RunJournal()
+        _run_key = today_key()
+    except Exception as exc:
+        logger.warning("[journal] unavailable (non-fatal): %s", exc)
+
     # MIL-124: --step isolated path bypasses heartbeats / run-log / summary / email.
     if selected is not None:
         _run_isolated_steps(selected, _enrich_model)
         return
+
+    # MIL-186: --resume — run only the steps not yet 'done' in today's journal.
+    if args.resume:
+        if _journal is None:
+            logger.error("[resume] run journal unavailable — cannot resume")
+            return
+        if not _journal.has_journal(_run_key):
+            logger.error("[resume] no journal for %s — nothing to resume (was a normal run started today?)", _run_key)
+            return
+        remaining = _journal.remaining_steps(_run_key)
+        if not remaining:
+            logger.info("[resume] %s: all steps already done — nothing to resume", _run_key)
+            _journal.finish_run(_run_key, "CLEAN")
+            return
+        logger.info("[resume] %s: completed=%s — running remaining=%s",
+                    _run_key, sorted(_journal.completed_step_ids(_run_key)), remaining)
+        _run_isolated_steps(set(remaining), _enrich_model, journal=_journal, run_key=_run_key)
+        _journal.finish_run(_run_key, "RESUMED")
+        logger.info("[resume] complete — ran %s. Run-log/email skipped on resume path; "
+                    "next scheduled run logs normally.", remaining)
+        return
+
+    # MIL-186: begin a fresh journal for today's normal run.
+    if _journal is not None:
+        try:
+            _journal.start_run(_run_key)
+        except Exception as exc:
+            logger.warning("[journal] start_run failed (non-fatal): %s", exc)
+            _journal = None
+
+    def _rec(entry: tuple[str, str, str]) -> None:
+        """Append a step result to the summary AND mark it in the run journal
+        (MIL-186). Additive — journal write is fail-soft."""
+        _steps.append(entry)
+        if _journal is None:
+            return
+        label, status, detail = entry
+        sid = label.split()[0]
+        st = {"DONE": "done", "FAIL": "fail", "SKIP": "skip"}.get(status, status.lower())
+        try:
+            _journal.mark(_run_key, sid, label, st, str(detail))
+        except Exception as exc:
+            logger.debug("[journal] mark failed (non-fatal): %s", exc)
 
     # MIL-38 Autonomous Heartbeat: STARTING ping before any step can fail.
     # Pairs with the CLEAN/PARTIAL/FAILED ping at end of main(). Absence of a
@@ -808,26 +894,26 @@ def main() -> None:
         fetch_counts = fetch_new_records()
         total_new = sum(fetch_counts.values())
         logger.info("Fetch complete. Total new records: %d", total_new)
-        _steps.append(("1  Fetch", "DONE", f"{total_new} new records"))
+        _rec(("1  Fetch", "DONE", f"{total_new} new records"))
 
         logger.info("--- Step 2+3: Enrich ---")
         try:
             from mil.harvester.enrich_sonnet import run_enrichment as sonnet_enrich
             _enrich_summary = sonnet_enrich()
             _enriched_count = sum(v.get("records_enriched", 0) for v in (_enrich_summary or {}).values())
-            _steps.append(("2  Enrich", "DONE", f"{_enriched_count} records enriched via {_enrich_model}"))
+            _rec(("2  Enrich", "DONE", f"{_enriched_count} records enriched via {_enrich_model}"))
         except Exception as exc:
             logger.warning("[enrich] failed: %s", exc)
             failed_steps.append("enrichment")
-            _steps.append(("2  Enrich", "FAIL", str(exc)[:60]))
+            _rec(("2  Enrich", "FAIL", str(exc)[:60]))
     else:
         logger.info("--skip-fetch set: skipping fetch and enrichment.")
-        _steps.append(("1  Fetch",  "SKIP", "--skip-fetch flag"))
-        _steps.append(("2  Enrich", "SKIP", "--skip-fetch flag"))
+        _rec(("1  Fetch",  "SKIP", "--skip-fetch flag"))
+        _rec(("2  Enrich", "SKIP", "--skip-fetch flag"))
 
     if args.dry_run:
         logger.info("--dry-run set: stopping before inference and publish.")
-        _steps.append(("3  Inference", "SKIP", "--dry-run flag"))
+        _rec(("3  Inference", "SKIP", "--dry-run flag"))
         return
 
     logger.info("--- Step 4: Inference ---")
@@ -839,10 +925,10 @@ def main() -> None:
         logger.warning("[inference] mil_agent exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("inference")
-        _steps.append(("4  Inference", "FAIL", f"exit code {result.returncode}"))
+        _rec(("4  Inference", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[inference] complete.")
-        _steps.append(("4  Inference", "DONE", "mil_findings.json updated"))
+        _rec(("4  Inference", "DONE", "mil_findings.json updated"))
 
     logger.info("--- Step 4a: Research Trigger ---")
     try:
@@ -850,11 +936,11 @@ def main() -> None:
         r = trigger_run()
         logger.info("[research_trigger] complete — triggered=%d skipped=%d ignored=%d",
                     r["triggered"], r["skipped"], r["ignored"])
-        _steps.append(("4a Research Trigger", "DONE", f"triggered={r['triggered']} skipped={r['skipped']}"))
+        _rec(("4a Research Trigger", "DONE", f"triggered={r['triggered']} skipped={r['skipped']}"))
     except Exception as exc:
         logger.warning("[research_trigger] failed (non-fatal): %s", exc)
         failed_steps.append("research_trigger")
-        _steps.append(("4a Research Trigger", "FAIL", str(exc)[:60]))
+        _rec(("4a Research Trigger", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4b: Vault ---")
     _vault_ok = _vault_preflight()
@@ -867,14 +953,14 @@ def main() -> None:
             logger.warning("[vault] vault_sync.py exited with code %d\n%s",
                            result.returncode, result.stderr.decode(errors="replace"))
             failed_steps.append("vault")
-            _steps.append(("4b Vault", "FAIL", f"exit code {result.returncode}"))
+            _rec(("4b Vault", "FAIL", f"exit code {result.returncode}"))
         else:
             logger.info("[vault] complete.")
-            _steps.append(("4b Vault", "DONE", "vault sync complete"))
+            _rec(("4b Vault", "DONE", "vault sync complete"))
     else:
         logger.warning("[vault] skipped — preflight failed")
         failed_steps.append("vault")
-        _steps.append(("4b Vault", "FAIL", "HDFS NameNode unreachable (port 9871)"))
+        _rec(("4b Vault", "FAIL", "HDFS NameNode unreachable (port 9871)"))
 
     logger.info("--- Step 4c: Clark Escalation ---")
     try:
@@ -882,11 +968,11 @@ def main() -> None:
         new_esc = scan_and_escalate()
         new_dg  = scan_and_downgrade()
         logger.info("[clark] %d new escalations | %d downgraded", len(new_esc), new_dg)
-        _steps.append(("4c Clark Escalation", "DONE", f"{len(new_esc)} escalated | {new_dg} downgraded"))
+        _rec(("4c Clark Escalation", "DONE", f"{len(new_esc)} escalated | {new_dg} downgraded"))
     except Exception as exc:
         logger.warning("[clark] escalation failed: %s", exc)
         failed_steps.append("clark")
-        _steps.append(("4c Clark Escalation", "FAIL", str(exc)[:60]))
+        _rec(("4c Clark Escalation", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4d: Benchmark + Persistence ---")
     _benchmark_result: dict = {}
@@ -898,11 +984,11 @@ def main() -> None:
         _trend = _benchmark_result.get("churn_risk_trend", "?")
         logger.info("[benchmark] churn_risk_score=%.2f trend=%s over_indexed=%d",
                     _churn, _trend, len(_benchmark_result.get("over_indexed", [])))
-        _steps.append(("4d Benchmark", "DONE", f"churn={_churn:.1f} trend={_trend}"))
+        _rec(("4d Benchmark", "DONE", f"churn={_churn:.1f} trend={_trend}"))
     except Exception as exc:
         logger.warning("[benchmark] failed (non-fatal): %s", exc)
         failed_steps.append("benchmark")
-        _steps.append(("4d Benchmark", "FAIL", str(exc)[:60]))
+        _rec(("4d Benchmark", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 4e: Analytics DB ---")
     try:
@@ -915,11 +1001,11 @@ def main() -> None:
         _spec.loader.exec_module(_mod)
         _mod.main()
         logger.info("[analytics] mil_analytics.db rebuilt.")
-        _steps.append(("4e Analytics DB", "DONE", "mil_analytics.db rebuilt"))
+        _rec(("4e Analytics DB", "DONE", "mil_analytics.db rebuilt"))
     except Exception as exc:
         logger.warning("[analytics] failed (non-fatal): %s", exc)
         failed_steps.append("analytics")
-        _steps.append(("4e Analytics DB", "FAIL", str(exc)[:60]))
+        _rec(("4e Analytics DB", "FAIL", str(exc)[:60]))
 
     # MIL-48: Drift detection (Silent Wall today; more detectors over time).
     # Non-fatal — drift alerts log + optionally Slack, but never block the run.
@@ -932,14 +1018,14 @@ def main() -> None:
             by_sev[a.severity] = by_sev.get(a.severity, 0) + 1
         if _alerts:
             logger.info("[drift] %d alert(s): %s", len(_alerts), by_sev)
-            _steps.append(("4f Drift Monitor", "DONE",
+            _rec(("4f Drift Monitor", "DONE",
                            f"{len(_alerts)} alert(s): {by_sev}"))
         else:
-            _steps.append(("4f Drift Monitor", "DONE", "no alerts"))
+            _rec(("4f Drift Monitor", "DONE", "no alerts"))
     except Exception as exc:
         logger.warning("[drift] failed (non-fatal): %s", exc)
         failed_steps.append("drift")
-        _steps.append(("4f Drift Monitor", "FAIL", str(exc)[:60]))
+        _rec(("4f Drift Monitor", "FAIL", str(exc)[:60]))
 
     logger.info("--- Step 5: Publish ---")
     result = subprocess.run(
@@ -950,10 +1036,10 @@ def main() -> None:
         logger.warning("[publish] publish.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v1")
-        _steps.append(("5  Publish V1", "FAIL", f"exit code {result.returncode}"))
+        _rec(("5  Publish V1", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish] briefing updated.")
-        _steps.append(("5  Publish V1", "DONE", "cjipro.com/briefing updated"))
+        _rec(("5  Publish V1", "DONE", "cjipro.com/briefing updated"))
 
     logger.info("--- Step 5b: Publish V2 ---")
     result = subprocess.run(
@@ -964,10 +1050,10 @@ def main() -> None:
         logger.warning("[publish_v2] publish_v2.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v2")
-        _steps.append(("5b Publish V2", "FAIL", f"exit code {result.returncode}"))
+        _rec(("5b Publish V2", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish_v2] briefing-v2 updated.")
-        _steps.append(("5b Publish V2", "DONE", "cjipro.com/briefing-v2 updated"))
+        _rec(("5b Publish V2", "DONE", "cjipro.com/briefing-v2 updated"))
 
     logger.info("--- Step 5c: Publish V3 ---")
     result = subprocess.run(
@@ -978,10 +1064,10 @@ def main() -> None:
         logger.warning("[publish_v3] publish_v3.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v3")
-        _steps.append(("5c Publish V3", "FAIL", f"exit code {result.returncode}"))
+        _rec(("5c Publish V3", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish_v3] briefing-v3 updated.")
-        _steps.append(("5c Publish V3", "DONE", "cjipro.com/briefing-v3 updated"))
+        _rec(("5c Publish V3", "DONE", "cjipro.com/briefing-v3 updated"))
 
     # MIL-39: V4 is Jinja2-rendered + FCA Consumer Duty 2.0 Provenance Chain.
     # Runs parallel to V3 for the cutover window.
@@ -994,10 +1080,10 @@ def main() -> None:
         logger.warning("[publish_v4] publish_v4.py exited with code %d\n%s",
                        result.returncode, result.stderr.decode(errors="replace"))
         failed_steps.append("publish_v4")
-        _steps.append(("5d Publish V4", "FAIL", f"exit code {result.returncode}"))
+        _rec(("5d Publish V4", "FAIL", f"exit code {result.returncode}"))
     else:
         logger.info("[publish_v4] briefing-v4 updated.")
-        _steps.append(("5d Publish V4", "DONE", "cjipro.com/briefing-v4 updated"))
+        _rec(("5d Publish V4", "DONE", "cjipro.com/briefing-v4 updated"))
 
     # MIL-86 dual-publish: also push the V4 HTML to the new Sonar URL paths.
     # Soft launch — non-critical. Briefing-v4 URL stays primary until cutover.
@@ -1023,14 +1109,14 @@ def main() -> None:
             logger.info("[publish_sonar] %s updated.", target)
     if sonar_failures:
         failed_steps.append("publish_sonar")
-        _steps.append(("5e Publish Sonar", "FAIL", f"{sonar_failures}/{len(sonar_targets)} target(s) failed"))
+        _rec(("5e Publish Sonar", "FAIL", f"{sonar_failures}/{len(sonar_targets)} target(s) failed"))
     else:
-        _steps.append(("5e Publish Sonar", "DONE",
+        _rec(("5e Publish Sonar", "DONE",
                        f"app.cjipro.com/sonar/{subject}/ + /{today}/ updated"))
 
     logger.info("--- Step 6: Log Run ---")
     _run_entry = _log_run(fetch_counts, _benchmark_result, failed_steps)
-    _steps.append(("6  Log Run", "DONE", f"Run #{_run_entry.get('run', '?')} | streak={_run_entry.get('m1_streak', '?')}/5"))
+    _rec(("6  Log Run", "DONE", f"Run #{_run_entry.get('run', '?')} | streak={_run_entry.get('m1_streak', '?')}/5"))
 
     _print_run_summary(_steps, fetch_counts, _benchmark_result, failed_steps, _enrich_model, _run_entry.get("run", 0))
 
@@ -1064,6 +1150,15 @@ def main() -> None:
             logger.warning("[briefing_email] distribution failed (non-fatal): %s", exc)
     else:
         logger.info("[briefing_email] run status=%s — skipping partner distribution (CLEAN only)", _status)
+
+    # MIL-186: mark today's journal run finished (enables --resume to detect completion).
+    if _journal is not None:
+        try:
+            _final = ("FAILED" if (_CRITICAL_STEPS & set(failed_steps)) else
+                      ("PARTIAL" if failed_steps else "CLEAN"))
+            _journal.finish_run(_run_key, _final)
+        except Exception as exc:
+            logger.warning("[journal] finish_run failed (non-fatal): %s", exc)
 
     logger.info("=== Done ===")
 
