@@ -50,6 +50,11 @@ _CITATION_RE = re.compile(r"\[([^\[\]]+?)\]")
 class VerificationResult:
     passed: bool
     violations: list[str] = field(default_factory=list)
+    # "ok"          — LLM support check ran and returned a parseable verdict
+    # "unavailable" — LLM support check could not run (exception / unparseable);
+    #                 the answer is NOT fully verified and must not pass silently
+    # "skipped"     — stage 1 (deterministic) already failed, so stage 2 didn't run
+    llm_check_status: str = "ok"
 
 
 def _check_citations_resolve(result: SynthesisResult, evidence: EvidenceBundle) -> list[str]:
@@ -95,7 +100,18 @@ def _check_quotes_verbatim(result: SynthesisResult, evidence: EvidenceBundle) ->
     return violations
 
 
-def _llm_support_check(result: SynthesisResult, evidence: EvidenceBundle) -> list[str]:
+def _llm_support_check(result: SynthesisResult, evidence: EvidenceBundle) -> list[str] | None:
+    """Stage-2 LLM support audit.
+
+    Returns:
+      []        — the check ran and the answer is supported (no violations)
+      [str, ...] — the check ran and found unsupported claims
+      None       — the check COULD NOT run (LLM error / unparseable response).
+                   This is an availability failure, NOT a clean pass: the caller
+                   must surface it (fail-flagged) rather than treat it as verified.
+                   MIL-184: previously every one of these paths returned [], which
+                   silently degraded a verifier outage to "everything verified".
+    """
     if not result.answer.strip():
         return []
 
@@ -117,17 +133,19 @@ def _llm_support_check(result: SynthesisResult, evidence: EvidenceBundle) -> lis
             max_tokens=256,
         )
     except Exception as exc:
-        logger.warning("[verifier] LLM check skipped: %s", exc)
-        return []
+        logger.warning("[verifier] LLM check UNAVAILABLE (call failed): %s", exc)
+        return None
 
     import json
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     if not match:
-        return []
+        logger.warning("[verifier] LLM check UNAVAILABLE (no JSON in response)")
+        return None
     try:
         parsed = json.loads(match.group(0))
     except json.JSONDecodeError:
-        return []
+        logger.warning("[verifier] LLM check UNAVAILABLE (JSON parse failed)")
+        return None
 
     if parsed.get("supported") is False:
         violations = parsed.get("violations") or []
@@ -136,12 +154,29 @@ def _llm_support_check(result: SynthesisResult, evidence: EvidenceBundle) -> lis
 
 
 def verify(result: SynthesisResult, evidence: EvidenceBundle) -> VerificationResult:
-    """Run the two-stage audit. Stage 2 only runs if stage 1 passes."""
+    """Run the two-stage audit. Stage 2 only runs if stage 1 passes.
+
+    Fail-flagged (MIL-184): if the stage-2 LLM support check cannot run, the
+    result does NOT pass silently — `llm_check_status` is set to "unavailable"
+    and an explicit violation is recorded, so an unverified answer is never
+    treated as verified (it is served with the flag attached but not cached).
+    """
     violations: list[str] = []
     violations.extend(_check_citations_resolve(result, evidence))
     violations.extend(_check_quotes_verbatim(result, evidence))
 
-    if not violations:
-        violations.extend(_llm_support_check(result, evidence))
+    if violations:
+        # Stage 1 already failed — stage 2 deliberately not run.
+        return VerificationResult(passed=False, violations=violations, llm_check_status="skipped")
 
-    return VerificationResult(passed=not violations, violations=violations)
+    llm_result = _llm_support_check(result, evidence)
+    if llm_result is None:
+        # Availability failure — fail-flagged, never a silent pass.
+        violations.append(
+            "verification incomplete: LLM support check unavailable — "
+            "answer not fully verified"
+        )
+        return VerificationResult(passed=False, violations=violations, llm_check_status="unavailable")
+
+    violations.extend(llm_result)
+    return VerificationResult(passed=not violations, violations=violations, llm_check_status="ok")
