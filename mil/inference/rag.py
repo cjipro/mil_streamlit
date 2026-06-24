@@ -37,13 +37,18 @@ def _load_embed_model():
     if _EMBED_MODEL is None:
         try:
             from sentence_transformers import SentenceTransformer
-            # device="cpu" pinned 2026-05-24. all-MiniLM-L6-v2 is tiny, so CPU cost is
+            from mil.config.retrieval_models import INFERENCE_EMBEDDING_MODEL, EMBEDDING_DEVICE
+            # device="cpu" pinned 2026-05-24. The model is tiny, so CPU cost is
             # negligible — but this in-process GPU encode was the operation in flight at
             # 3 mid-pipeline machine crashes (BSOD 0x116 VIDEO_TDR_ERROR on the RTX 5070 Ti
             # Laptop: 28/04, 05/05, 12/05). Pinning to CPU removes the GPU as a crash
             # trigger for the daily run. See memory project_gpu_tdr_crashes.md.
-            _EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
-            logger.info("[rag] Loaded sentence-transformer: all-MiniLM-L6-v2 (device=cpu)")
+            # MIL-183: model name centralised in retrieval_models. Still MiniLM here
+            # (NOT BGE like the chat retriever) — the 0.30 sim_threshold is calibrated
+            # to MiniLM's cosine distribution; swapping needs recalibration (follow-up).
+            _EMBED_MODEL = SentenceTransformer(INFERENCE_EMBEDDING_MODEL, device=EMBEDDING_DEVICE)
+            logger.info("[rag] Loaded sentence-transformer: %s (device=%s)",
+                        INFERENCE_EMBEDDING_MODEL, EMBEDDING_DEVICE)
         except Exception as exc:
             logger.warning("[rag] sentence-transformers unavailable (%s) — using keyword overlap", exc)
             _EMBED_MODEL = False
