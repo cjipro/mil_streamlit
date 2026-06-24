@@ -475,6 +475,22 @@ transformers==4.44.1  # PULSE-130: confirmed on edge node 2026-05-23
 #     yarl, zipp, zstandard, etc.) ---
 ```
 
+## ML model weights (run via `sentence-transformers`)
+
+These are model *weights* (not PyPI packages) loaded through the already-approved
+`sentence-transformers`. Listed here so the retrieval stack's model choices are
+governed alongside the package list. All run on CPU (TDR-crash mitigation).
+
+| Model | Used by | Role | Notes |
+|---|---|---|---|
+| `BAAI/bge-small-en-v1.5` | `mil/chat/retrievers/embedding.py` | Ask CJI Pro dense retrieval | MIL-183 — replaced the 2021-era `all-MiniLM-L6-v2`; 384-dim, CPU-friendly |
+| `cross-encoder/ms-marco-MiniLM-L6-v2` | `mil/chat/rerank.py` | Ask CJI Pro cross-encoder reranker | MIL-182 — re-scores merged candidates into one comparable ordering |
+| `all-MiniLM-L6-v2` | `mil/inference/rag.py` | CHRONICLE RAG matching | retained; `sim_threshold=0.30` calibrated to it. Swap deferred (recalibration) |
+
+Model names are centralised in `mil/config/retrieval_models.py`. Bank-env note:
+weights must be pre-staged into the offline HF cache for air-gapped nodes (no
+runtime download); on the dev/OSS machine they fetch from the HF Hub on first use.
+
 ## Bank-internal packages (env-only, not on PyPI)
 
 Per the `real_bank` naming-discipline lock, internal package names are

@@ -1,12 +1,14 @@
 """
-mil/chat/retrievers/embedding.py — MIL-41.
+mil/chat/retrievers/embedding.py — MIL-41 / MIL-183.
 
-Dense retriever over the enriched review corpus using all-MiniLM-L6-v2
-(same model family as mil/inference/rag.py).
+Dense retriever over the enriched review corpus. Model name comes from
+mil/config/retrieval_models.CHAT_EMBEDDING_MODEL (MIL-183: moved from the
+2021-era all-MiniLM-L6-v2 to BGE-small-en-v1.5).
 
-Embeddings are cached to disk as an .npz next to the corpus — rebuilt only
-when corpus files change (compared via max mtime). First call of a cold
-process pays the model-load latency; subsequent calls are O(N) cosine.
+Embeddings are cached to disk as an .npz next to the corpus. The cache is
+keyed on BOTH the corpus max-mtime AND the model name (MIL-183): swapping the
+model invalidates the cache and forces a re-encode, so we never silently serve
+vectors from one model against query vectors from another.
 """
 from __future__ import annotations
 
@@ -19,24 +21,40 @@ import numpy as np
 
 from mil.chat.retrievers._corpus import corpus_mtime, load_review_records
 from mil.chat.retrievers.base import Evidence, EvidenceBundle, Retriever
+from mil.config.retrieval_models import CHAT_EMBEDDING_MODEL, EMBEDDING_DEVICE
 
 logger = logging.getLogger(__name__)
 
 _MIL_ROOT    = Path(__file__).parent.parent.parent
 _CACHE_PATH  = _MIL_ROOT / "data" / "ask_embedding_cache.npz"
-_MODEL_NAME  = "all-MiniLM-L6-v2"
+_MODEL_NAME  = CHAT_EMBEDDING_MODEL
 
 
 @lru_cache(maxsize=1)
 def _load_model():
     from sentence_transformers import SentenceTransformer
-    logger.info("[embedding] loading %s", _MODEL_NAME)
-    return SentenceTransformer(_MODEL_NAME)
+    logger.info("[embedding] loading %s (device=%s)", _MODEL_NAME, EMBEDDING_DEVICE)
+    return SentenceTransformer(_MODEL_NAME, device=EMBEDDING_DEVICE)
+
+
+def _cached_model_name() -> str | None:
+    """Model name the on-disk cache was built with, or None if absent/legacy."""
+    if not _CACHE_PATH.exists():
+        return None
+    try:
+        loaded = np.load(_CACHE_PATH, allow_pickle=False)
+        if "model" in loaded:
+            return str(loaded["model"])
+    except Exception:
+        return None
+    return None  # legacy cache without a model stamp — treat as stale
 
 
 def _cache_valid() -> bool:
     if not _CACHE_PATH.exists():
         return False
+    if _cached_model_name() != _MODEL_NAME:
+        return False  # MIL-183: model changed (or legacy unstamped cache) → rebuild
     return _CACHE_PATH.stat().st_mtime >= corpus_mtime()
 
 
@@ -52,8 +70,8 @@ def _build_cache(records: list[dict]) -> np.ndarray:
         convert_to_numpy=True,
     ).astype(np.float32)
     ids = np.array([r["id"] for r in records])
-    np.savez(_CACHE_PATH, ids=ids, vectors=vectors)
-    logger.info("[embedding] cache written to %s", _CACHE_PATH)
+    np.savez(_CACHE_PATH, ids=ids, vectors=vectors, model=np.array(_MODEL_NAME))
+    logger.info("[embedding] cache written to %s (model=%s)", _CACHE_PATH, _MODEL_NAME)
     return vectors
 
 

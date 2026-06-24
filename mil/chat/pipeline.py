@@ -16,6 +16,7 @@ from typing import Optional
 
 from mil.chat import audit, cache, refusals
 from mil.chat.intent import Intent, IntentResult, classify, dispatch_plan
+from mil.chat.rerank import rerank
 from mil.chat.refusals import RefusalClass
 from mil.chat.retrievers.base import EvidenceBundle, Retriever
 from mil.chat.retrievers.bm25 import BM25Retriever
@@ -209,6 +210,12 @@ def ask(query: str, deep: bool = False, k_each: int = 8,
         return _refuse(trace_id, intent.value, RefusalClass.INSUFFICIENT_EVIDENCE, query,
                        latency_ms=int((time.monotonic() - started) * 1000),
                        partner_id=partner_id)
+
+    # ── 4b. Rerank (MIL-182) ──────────────────────────────────────────────
+    # Cross-encoder re-scores the merged candidates so synthesis sees ONE
+    # comparable ordering instead of incomparable per-retriever scores.
+    # Fail-soft: returns the bundle unchanged if the model is unavailable.
+    bundle = rerank(bundle)
 
     # ── 5. Synthesis ──────────────────────────────────────────────────────
     try:
