@@ -3004,6 +3004,12 @@ audit_findings:
 # ============================================================
 # REGULATORY OPEN ITEMS
 # ============================================================
+# DATA POSTURE (PULSE-144): this repo processes SYNTHETIC + PUBLIC data only;
+# NO live customer data is processed here. The REG items below are PRODUCTION
+# GATES that must be closed before any live-customer-data deployment, not
+# outstanding negligence. Canonical REG list + owners live in
+# manifests/governance_principles.yaml (regulatory_open_items + data_posture).
+# Keep the two in sync — drift between them is a bug.
 
 regulatory_items:
 
