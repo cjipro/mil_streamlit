@@ -357,8 +357,12 @@ body{overflow:hidden!important}
 .holter-app{height:100vh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 .holter-topnav,.holter-filter-strip{flex:0 0 auto!important;flex-wrap:wrap!important;height:auto!important;position:static!important}
 /* main = the single scroll region + responsive grid for the analytical clusters */
+/* HOL-93 — Intelligence surface is a SINGLE centred column, stacked, matching
+   the MIL v4 briefing width (768px). Boxes stack full-column instead of a
+   multi-column cell grid — the "like MIL v4" look. The full-width bands
+   (ticker/journey/altitude, grid-column 1/-1) span the single column. */
 main.holter-main{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
-  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))!important;gap:14px!important;align-items:start!important}
+  display:grid!important;grid-template-columns:minmax(0,768px)!important;justify-content:center!important;gap:14px!important;align-items:start!important}
 /* marquee + journey-KPI strip → full-width header bands at the top (out of the
    way so the box grid below can fill every row) */
 main.holter-main>.holter-ticker{grid-column:1 / -1!important;order:-2!important}
