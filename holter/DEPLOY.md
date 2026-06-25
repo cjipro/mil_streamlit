@@ -41,6 +41,40 @@ reverse proxy / tunnel** (like the rest of the stack), not be exposed directly.
 
 Access/error logs go to stdout/stderr for the supervisor or container to capture.
 
+## Cerno (work-machine) deployment — HOL-90
+
+The **Friction** surface (`/cerno`) renders the real Cerno friction pipeline
+output — the Stage-C marts + the Step-4 D-014 shortlist — through the Holter
+design system. It's the *real-data* half of the "Pulse deploys in two contexts"
+model; the Decisions/Intelligence/Verification surfaces stay for the OSS
+reference. Real data never leaves the work machine.
+
+| Var | Default | Meaning |
+|---|---|---|
+| `CERNO_MARTS_DIR` | *(unset → SAMPLE)* | directory holding the real marts. When unset, a synthetic fixture renders and the surface shows a **SAMPLE** badge. Set it on the work machine → **LIVE**. |
+| `CERNO_PRIMARY` | *(unset)* | when set (`1`), `/` redirects to `/cerno` so the Friction surface is the landing page. |
+
+**Marts directory contract** (drop any subset; missing pieces fall back to the
+sample fixture, per-piece):
+
+| file | what |
+|---|---|
+| `d014_shortlist.csv` \| `.parquet` | the Step-4 Top-N decision table (drives the feed + drill) |
+| `overview.json` | headline stats (sessions, customers, concentration, snapshot/map ids) |
+| `c_weak_links.*` / `c_friction_matrix.*` / `c_error_cascades.*` | the Stage-C marts (evidence boxes) |
+| `d014_candidate_detail.*` | *(optional)* per-candidate dossier; synthesised from the row if absent |
+
+Column-name remaps for the real marts live in `COLUMN_MAP` / `MART_MAPS` at the
+top of `holter/preview/cerno_source.py` — the only module that knows the marts
+layout. No real data is committed; the adapter is generic.
+
+Work-machine run:
+
+```
+CERNO_MARTS_DIR=/path/to/marts CERNO_PRIMARY=1 gunicorn -c holter/gunicorn.conf.py holter.server:app
+# dev: CERNO_MARTS_DIR=/path/to/marts CERNO_PRIMARY=1 py holter/server.py
+```
+
 ## Health check
 
 `GET /healthz` — liveness **and** light readiness: 200 only if the process is up

@@ -13,23 +13,33 @@ from __future__ import annotations
 
 import functools
 import json
+import os
 import sys
 from pathlib import Path
 
 import yaml
-from flask import Flask, Response, request
+from flask import Flask, Response, redirect, request
+
+# HOL-90 — on the work machine (real Cerno marts), the Friction surface is the
+# PRIMARY landing. Set CERNO_PRIMARY=1 there so `/` lands on /cerno; the
+# pulse-synthetic Decisions/Intelligence/Verification stay reachable as tabs and
+# remain the default in the OSS reference deployment (flag unset).
+_CERNO_PRIMARY = os.environ.get("CERNO_PRIMARY", "").strip().lower() not in ("", "0", "false", "no")
 
 REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from holter.preview import render_holter, render_home, render_mlops  # noqa: E402
+from holter.preview import render_cerno, render_holter, render_home, render_mlops  # noqa: E402
 from holter.preview._shared import discover_packs  # noqa: E402  (HOL-81 healthz)
 
 app = Flask(__name__)
 
-# (route, label) for the surface switcher, in display order.
+# (route, label) for the surface switcher, in display order. Friction (HOL-90)
+# is first — the PRIMARY surface in the work-machine deployment (real Cerno
+# marts / D-014); the pulse-synthetic surfaces stay for the OSS reference.
 _SURFACES: tuple[tuple[str, str], ...] = (
+    ("/cerno", "Friction"),
     ("/", "Decisions"),
     ("/workspace", "Intelligence"),
     ("/mlops", "Verification"),
@@ -418,8 +428,31 @@ def favicon() -> Response:
     return Response(_FAVICON, mimetype="image/svg+xml")
 
 
+@app.get("/cerno")
+def cerno() -> str:
+    """Cerno friction surface (HOL-90) — real marts/D-014 via cerno_source,
+    rendered through the Holter component library. LIVE on the work machine
+    (CERNO_MARTS_DIR set), SAMPLE fixture otherwise."""
+    theme = _resolve_theme(request.args.get("theme"))
+    return _page(render_cerno.render_page(), "/cerno", theme)
+
+
+@app.get("/cerno/candidate/<int:rank>")
+def cerno_candidate(rank: int):
+    """Per-candidate drill (HOL-90) — the dossier for one D-014 candidate."""
+    theme = _resolve_theme(request.args.get("theme"))
+    html = render_cerno.render_candidate_page(rank)
+    if html is None:
+        return Response("candidate not found", status=404)
+    return _page(html, "/cerno", theme)
+
+
 @app.get("/")
-def home() -> str:
+def home():
+    # Work-machine primary: land on the Cerno Friction surface (HOL-90).
+    if _CERNO_PRIMARY:
+        theme = request.args.get("theme")
+        return redirect("/cerno" + (f"?theme={theme}" if theme else ""), code=302)
     theme = _resolve_theme(request.args.get("theme"))
     return _page(render_home.render_page(), "/", theme)
 

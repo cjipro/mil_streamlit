@@ -25,13 +25,16 @@ _BANNED = [
 
 
 def test_surfaces_renamed():
+    # The pulse-synthetic reframe trio (HOL-83), now preceded by the Cerno
+    # Friction surface (HOL-90, work-machine primary).
     assert [label for _, label in S._SURFACES] == [
-        "Decisions", "Intelligence", "Verification"]
+        "Friction", "Decisions", "Intelligence", "Verification"]
 
 
 def test_routes_unchanged():
-    # URLs stay stable so ?theme= / ?pack= deep-links survive the rename.
-    assert [r for r, _ in S._SURFACES] == ["/", "/workspace", "/mlops"]
+    # URLs stay stable so ?theme= / ?pack= deep-links survive the rename; the
+    # pulse routes are unchanged, /cerno (HOL-90) is prepended.
+    assert [r for r, _ in S._SURFACES] == ["/cerno", "/", "/workspace", "/mlops"]
 
 
 def test_nav_renders_new_labels_on_every_surface():
