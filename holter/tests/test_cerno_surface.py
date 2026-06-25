@@ -41,15 +41,17 @@ def test_render_candidate_page_sections_and_escaping():
 
 
 def test_served_cerno_has_holter_chrome():
+    # The friction surface now lives under /exploration (HOL-94); /cerno redirects.
     client = app.test_client()
-    r = client.get("/cerno")
+    assert client.get("/cerno").status_code == 302
+    r = client.get("/exploration")
     assert r.status_code == 200
     body = r.get_data(as_text=True)
     # _page injects Row-1 (themes) + Row-2 (journey) + surface nav
     assert "cji-theme-picker" in body
     assert "cji-row2" in body
     assert "cji-surface-nav" in body
-    assert ">Friction</a>" in body
+    assert ">Exploration</a>" in body
 
 
 def test_drill_route_and_404():
@@ -64,7 +66,7 @@ def test_cerno_primary_redirects_root():
     try:
         r = app.test_client().get("/")
         assert r.status_code == 302
-        assert "/cerno" in r.headers["Location"]
+        assert "/exploration" in r.headers["Location"]
     finally:
         server._CERNO_PRIMARY = old
 

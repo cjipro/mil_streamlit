@@ -107,7 +107,7 @@ def test_nav_carries_theme_through_every_tab():
     nav = S._nav_html("/", "app-and-nps")
     assert 'href="/?theme=app-and-nps"' in nav
     assert 'href="/workspace?theme=app-and-nps"' in nav
-    assert 'href="/mlops?theme=app-and-nps"' in nav
+    assert 'href="/exploration?theme=app-and-nps"' in nav
 
 
 def test_nav_marks_active_surface():
@@ -157,11 +157,11 @@ def test_placeholder_param_falls_back_to_default_in_bar():
 def test_theme_rides_through_to_other_surfaces_in_nav():
     body = app.test_client().get("/?theme=app-and-nps").get_data(as_text=True)
     assert 'href="/workspace?theme=app-and-nps"' in body
-    assert 'href="/mlops?theme=app-and-nps"' in body
+    assert 'href="/exploration?theme=app-and-nps"' in body
 
 
 def test_workspace_and_mlops_also_carry_picker():
-    for path in ("/workspace", "/mlops"):
+    for path in ("/workspace", "/exploration"):
         body = app.test_client().get(path).get_data(as_text=True)
         assert _PICKER_MARK in body
 
