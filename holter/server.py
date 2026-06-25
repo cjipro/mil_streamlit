@@ -30,19 +30,26 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from holter.preview import render_cerno, render_holter, render_home, render_mlops  # noqa: E402
+from holter.preview import (  # noqa: E402
+    render_cerno,
+    render_exploration,
+    render_holter,
+    render_home,
+    render_mlops,
+)
 from holter.preview._shared import discover_packs  # noqa: E402  (HOL-81 healthz)
 
 app = Flask(__name__)
 
-# (route, label) for the surface switcher, in display order. Friction (HOL-90)
-# is first — the PRIMARY surface in the work-machine deployment (real Cerno
-# marts / D-014); the pulse-synthetic surfaces stay for the OSS reference.
+# (route, label) for the surface switcher, in display order. 3-surface IA:
+# Decisions (act) -> Intelligence (investigate one) -> Exploration (browse the
+# friction landscape AND verify it). Exploration folds the former standalone
+# Friction (D-014 feed + marts + drill) + Verification (drift/fairness/lineage/
+# synthesis) into one surface.
 _SURFACES: tuple[tuple[str, str], ...] = (
-    ("/cerno", "Friction"),
     ("/", "Decisions"),
     ("/workspace", "Intelligence"),
-    ("/mlops", "Verification"),
+    ("/exploration", "Exploration"),
 )
 
 # Anchor inside the design's existing dark top bar — identical across surfaces.
@@ -214,7 +221,7 @@ def _row2_html() -> str:
     """Row 2 selector bar — Journey ▾ · Sub Journey ▾ (gated) · Sort."""
     opts = "".join(
         f'<label class="cji-r2-opt">'
-        f'<input type="checkbox" class="cji-r2-jcheck" value="{jid}">'
+        f'<input type="checkbox" class="cji-r2-jcheck" name="journey" value="{jid}">'
         f'<span>{label}</span></label>'
         for jid, label in _load_journeys()
     )
@@ -227,8 +234,8 @@ def _row2_html() -> str:
         '<span class="cji-r2-caret">▾</span>'
         '</summary>'
         '<div class="cji-r2-menu">'
-        '<input type="text" class="cji-r2-search" placeholder="Search journeys…" '
-        'aria-label="Search journeys">'
+        '<input type="text" class="cji-r2-search" name="journey-search" '
+        'placeholder="Search journeys…" aria-label="Search journeys">'
         f'<div class="cji-r2-list">{opts}</div>'
         '</div>'
         '</details>'
@@ -350,8 +357,15 @@ body{overflow:hidden!important}
 .holter-app{height:100vh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 .holter-topnav,.holter-filter-strip{flex:0 0 auto!important;flex-wrap:wrap!important;height:auto!important;position:static!important}
 /* main = the single scroll region + responsive grid for the analytical clusters */
+/* HOL-93 — Intelligence surface: rows of THREE boxes, stacked vertically (the
+   native Holter trio layout), with content-height boxes (overlap fix below).
+   Fixed at 3 columns so it always reads as the three-up briefing grid; drops to
+   2 / 1 columns on narrower laptops. Full-width bands (ticker/journey/altitude)
+   span all columns via grid-column 1/-1. */
 main.holter-main{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
-  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))!important;gap:14px!important;align-items:start!important}
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;align-items:start!important}
+@media (max-width:1100px){main.holter-main{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media (max-width:760px){main.holter-main{grid-template-columns:1fr!important}}
 /* marquee + journey-KPI strip → full-width header bands at the top (out of the
    way so the box grid below can fill every row) */
 main.holter-main>.holter-ticker{grid-column:1 / -1!important;order:-2!important}
@@ -365,6 +379,16 @@ main.holter-main>.holter-altitude{grid-column:1 / -1!important}
 main.holter-main>.holter-row{display:contents!important}
 /* shrink rules — fit-or-wrap, never overflow */
 main.holter-main .holter-box{min-width:0!important}
+/* HOL-93 — overlap fix. The phone-screen-sized box (.holter-box
+   height:clamp(520-731px), the intentional mobile-screen aspect) is KEPT. The
+   overlap came from .box-body being overflow:visible: when the MIL content
+   (commentary prose, benchmark tables, findings/Clark lists) is taller than the
+   fixed body track, it spilled past the box bottom and collided with the row
+   below. Fix = contain it: the body SCROLLS inside the fixed box instead of
+   spilling out. min-height:0 lets the 1fr body track shrink so overflow-y can
+   engage. Scoped to the Intelligence surface (main.holter-main); Decisions
+   (main.home-main) + Verification (main.mlops-page) untouched. */
+main.holter-main .box-body{overflow-y:auto!important;overflow-x:hidden!important;min-height:0!important}
 main.holter-main img,main.holter-main svg,main.holter-main canvas{max-width:100%!important;height:auto!important}
 .holter-ticker,.holter-ticker-track,.holter-ticker-wrap{overflow:hidden!important;max-width:100%!important}
 
@@ -428,13 +452,28 @@ def favicon() -> Response:
     return Response(_FAVICON, mimetype="image/svg+xml")
 
 
-@app.get("/cerno")
-def cerno() -> str:
-    """Cerno friction surface (HOL-90) — real marts/D-014 via cerno_source,
-    rendered through the Holter component library. LIVE on the work machine
-    (CERNO_MARTS_DIR set), SAMPLE fixture otherwise."""
+@app.get("/exploration")
+def exploration() -> str:
+    """Exploration surface — explore the friction (D-014 feed + marts + drill)
+    AND verify it (drift / fairness / lineage / synthesis). Folds the former
+    standalone Friction (/cerno) + Verification (/mlops). LIVE on the work
+    machine (CERNO_MARTS_DIR), SAMPLE fixture otherwise."""
     theme = _resolve_theme(request.args.get("theme"))
-    return _page(render_cerno.render_page(), "/cerno", theme)
+    return _page(render_exploration.render_page(), "/exploration", theme)
+
+
+@app.get("/cerno")
+def cerno():
+    # Folded into Exploration (HOL-9x) — keep the path alive as a redirect.
+    theme = request.args.get("theme")
+    return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
+
+
+@app.get("/mlops")
+def mlops_redirect():
+    # Verification folded into Exploration (HOL-9x).
+    theme = request.args.get("theme")
+    return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
 
 
 @app.get("/cerno/candidate/<int:rank>")
@@ -444,15 +483,15 @@ def cerno_candidate(rank: int):
     html = render_cerno.render_candidate_page(rank)
     if html is None:
         return Response("candidate not found", status=404)
-    return _page(html, "/cerno", theme)
+    return _page(html, "/exploration", theme)
 
 
 @app.get("/")
 def home():
-    # Work-machine primary: land on the Cerno Friction surface (HOL-90).
+    # Work-machine primary: land on the Exploration surface (the friction story).
     if _CERNO_PRIMARY:
         theme = request.args.get("theme")
-        return redirect("/cerno" + (f"?theme={theme}" if theme else ""), code=302)
+        return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
     theme = _resolve_theme(request.args.get("theme"))
     return _page(render_home.render_page(), "/", theme)
 
@@ -462,12 +501,6 @@ def workspace() -> str:
     pack = request.args.get("pack")  # optional deep-link to a pack selection
     theme = _resolve_theme(request.args.get("theme"))
     return _page(render_holter.render_page(selected_pack_name=pack), "/workspace", theme)
-
-
-@app.get("/mlops")
-def mlops() -> str:
-    theme = _resolve_theme(request.args.get("theme"))
-    return _page(render_mlops.render_page(), "/mlops", theme)
 
 
 @app.get("/healthz")
