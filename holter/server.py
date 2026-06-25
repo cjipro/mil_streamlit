@@ -357,12 +357,15 @@ body{overflow:hidden!important}
 .holter-app{height:100vh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 .holter-topnav,.holter-filter-strip{flex:0 0 auto!important;flex-wrap:wrap!important;height:auto!important;position:static!important}
 /* main = the single scroll region + responsive grid for the analytical clusters */
-/* HOL-93 — Intelligence surface is a SINGLE centred column, stacked, matching
-   the MIL v4 briefing width (768px). Boxes stack full-column instead of a
-   multi-column cell grid — the "like MIL v4" look. The full-width bands
-   (ticker/journey/altitude, grid-column 1/-1) span the single column. */
+/* HOL-93 — Intelligence surface: rows of THREE boxes, stacked vertically (the
+   native Holter trio layout), with content-height boxes (overlap fix below).
+   Fixed at 3 columns so it always reads as the three-up briefing grid; drops to
+   2 / 1 columns on narrower laptops. Full-width bands (ticker/journey/altitude)
+   span all columns via grid-column 1/-1. */
 main.holter-main{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
-  display:grid!important;grid-template-columns:minmax(0,768px)!important;justify-content:center!important;gap:14px!important;align-items:start!important}
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;align-items:start!important}
+@media (max-width:1100px){main.holter-main{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media (max-width:760px){main.holter-main{grid-template-columns:1fr!important}}
 /* marquee + journey-KPI strip → full-width header bands at the top (out of the
    way so the box grid below can fill every row) */
 main.holter-main>.holter-ticker{grid-column:1 / -1!important;order:-2!important}
@@ -376,21 +379,16 @@ main.holter-main>.holter-altitude{grid-column:1 / -1!important}
 main.holter-main>.holter-row{display:contents!important}
 /* shrink rules — fit-or-wrap, never overflow */
 main.holter-main .holter-box{min-width:0!important}
-/* HOL-93 — the Intelligence surface carries variable-height MIL content
-   (commentary prose, benchmark tables, findings/Clark lists). The locked
-   uniform fixed-height cell (.holter-box height:clamp(520-731px) + the rigid
-   48/96/1fr/48 internal grid + overflow:visible) makes tall content spill the
-   box bottom and collide with the row below = overlapping boxes. On THIS
-   surface only (main.holter-main; Decisions=main.home-main and
-   Verification=main.mlops-page are untouched), let boxes size to their content
-   — the MIL-v4 stacked-panel look: height auto with a floor, body track grows.
-   overflow:visible is preserved (HOL-16 tooltips) and is now safe because the
-   box is as tall as its content, so nothing spills. */
-main.holter-main .holter-box{
-  height:auto!important;
-  min-height:340px!important;
-  grid-template-rows:48px 96px auto 48px!important;
-}
+/* HOL-93 — overlap fix. The phone-screen-sized box (.holter-box
+   height:clamp(520-731px), the intentional mobile-screen aspect) is KEPT. The
+   overlap came from .box-body being overflow:visible: when the MIL content
+   (commentary prose, benchmark tables, findings/Clark lists) is taller than the
+   fixed body track, it spilled past the box bottom and collided with the row
+   below. Fix = contain it: the body SCROLLS inside the fixed box instead of
+   spilling out. min-height:0 lets the 1fr body track shrink so overflow-y can
+   engage. Scoped to the Intelligence surface (main.holter-main); Decisions
+   (main.home-main) + Verification (main.mlops-page) untouched. */
+main.holter-main .box-body{overflow-y:auto!important;overflow-x:hidden!important;min-height:0!important}
 main.holter-main img,main.holter-main svg,main.holter-main canvas{max-width:100%!important;height:auto!important}
 .holter-ticker,.holter-ticker-track,.holter-ticker-wrap{overflow:hidden!important;max-width:100%!important}
 
