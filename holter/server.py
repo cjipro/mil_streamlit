@@ -470,10 +470,13 @@ def cerno():
 
 
 @app.get("/mlops")
-def mlops_redirect():
-    # Verification folded into Exploration (HOL-9x).
-    theme = request.args.get("theme")
-    return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
+def mlops() -> str:
+    # HOL-94 — the verify CONTENT is folded into Exploration's verify view; the
+    # full interactive MRM console stays reachable here (not in the 3-tab nav)
+    # for deep drift/fairness/lineage work + the pane interactivity the embedded
+    # view doesn't carry.
+    theme = _resolve_theme(request.args.get("theme"))
+    return _page(render_mlops.render_page(), "/exploration", theme)
 
 
 @app.get("/cerno/candidate/<int:rank>")

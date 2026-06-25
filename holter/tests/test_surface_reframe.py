@@ -14,7 +14,7 @@ from __future__ import annotations
 import holter.server as S
 from holter.server import app
 
-_SURFACE_PATHS = ("/", "/workspace", "/mlops")
+_SURFACE_PATHS = ("/", "/workspace", "/exploration")
 
 # MLOps-platform vocabulary that must not appear in the rendered interface.
 _BANNED = [
@@ -25,16 +25,14 @@ _BANNED = [
 
 
 def test_surfaces_renamed():
-    # The pulse-synthetic reframe trio (HOL-83), now preceded by the Cerno
-    # Friction surface (HOL-90, work-machine primary).
+    # 3-tab IA (HOL-94): Friction + Verification folded into Exploration.
     assert [label for _, label in S._SURFACES] == [
-        "Friction", "Decisions", "Intelligence", "Verification"]
+        "Decisions", "Intelligence", "Exploration"]
 
 
 def test_routes_unchanged():
-    # URLs stay stable so ?theme= / ?pack= deep-links survive the rename; the
-    # pulse routes are unchanged, /cerno (HOL-90) is prepended.
-    assert [r for r, _ in S._SURFACES] == ["/cerno", "/", "/workspace", "/mlops"]
+    # 3-tab IA (HOL-94): /cerno + /mlops fold into /exploration (both redirect).
+    assert [r for r, _ in S._SURFACES] == ["/", "/workspace", "/exploration"]
 
 
 def test_nav_renders_new_labels_on_every_surface():
@@ -43,17 +41,18 @@ def test_nav_renders_new_labels_on_every_surface():
         body = c.get(path).get_data(as_text=True)
         assert ">Decisions</a>" in body
         assert ">Intelligence</a>" in body
-        assert ">Verification</a>" in body
+        assert ">Exploration</a>" in body
 
 
 def test_verification_surface_has_boundary_line():
-    body = app.test_client().get("/mlops").get_data(as_text=True)
+    # Verify content now lives in the Exploration surface's verify view (HOL-94).
+    body = app.test_client().get("/exploration").get_data(as_text=True)
     assert "Model-deployment risk sits with the deploying data-science team" in body
     assert "verifies journey findings" in body
 
 
 def test_verification_pane_headers_reframed():
-    body = app.test_client().get("/mlops").get_data(as_text=True)
+    body = app.test_client().get("/exploration").get_data(as_text=True)
     for header in ("FINDING RELIABILITY", "JOURNEY FAIRNESS",
                    "FINDING LINEAGE", "SYNTHESIS PROVENANCE"):
         assert header in body

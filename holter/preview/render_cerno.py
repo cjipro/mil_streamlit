@@ -71,42 +71,48 @@ def _dominant_mode(row: dict) -> str:
     return max(comps, key=comps.get)
 
 
+def _compact(n) -> str:
+    n = n or 0
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.2f}M"
+    if n >= 1_000:
+        return f"{n / 1_000:.0f}k"
+    return str(n)
+
+
 def _context_box(stats: dict, live: bool, n_rows: int) -> str:
-    """The headline box — what the pipeline found (overview + the insight)."""
-    header = box_header("CERNO · FRICTION", "D-014 decision feed")
-    headline = headline_stat_card(
-        label="CANDIDATES",
-        value=str(stats.get("n_candidates", n_rows)),
-        delta=f'{stats.get("n_agentic", 0)} agentic',
-        traj="↻",
-        meta_left=f'{stats.get("total_sessions", 0):,} sessions · {stats.get("total_customers", 0):,} customers',
-        meta_right=f'{stats.get("concentration_pct", 0):.0f}% in {stats.get("concentration_states", 0)} states',
-        progress_pct=int(stats.get("concentration_pct", 0)),
-    )
+    """Compact FULL-WIDTH summary band (header zone above the hero) — not a
+    4-layer box, so it doesn't orphan a grid column (R1 panel fix)."""
+    kpis = [
+        (str(stats.get("n_candidates", n_rows)), "candidates"),
+        (str(stats.get("n_agentic", 0)), "agentic"),
+        (_compact(stats.get("total_sessions")), "sessions"),
+        (_compact(stats.get("total_customers")), "customers"),
+        (f'{stats.get("concentration_pct", 0):.0f}%',
+         f'friction in {stats.get("concentration_states", 0)} states'),
+        (f'{stats.get("error_free_pct", 0):.0f}%', "error-free"),
+    ]
+    kpi_html = "".join(f'<span class="ccb-kpi"><b>{v}</b>{l}</span>' for v, l in kpis)
     insight = (
-        "Friction is strongly concentrated (Pareto). The top priority is "
-        "high-volume <b>loop-driven</b> friction with no strong error signal — "
-        "customers stuck, not failing, so it is invisible to error-log monitoring. "
-        "That is the agentic-candidate sweet spot."
+        "Friction is strongly concentrated (Pareto). Top priority is high-volume "
+        "<b>loop-driven</b> friction with no strong error signal — customers stuck, "
+        "not failing, so it's invisible to error-log monitoring. The agentic sweet spot."
     )
-    body = (
-        f'<div class="cerno-insight">{insight}</div>'
-        + body_chip_strip([
-            ("Error-free", f'{stats.get("error_free_pct", 0):.0f}%', "var(--green)"),
-            ("Weak links", str(stats.get("n_weak_links", 0)), "var(--blue)"),
-            ("Risk", stats.get("risk_weights", "—"), "var(--text-3)"),
-        ])
+    badge = "" if live else '<span class="ccb-badge">SAMPLE</span> '
+    tail = "" if live else " — set CERNO_MARTS_DIR for LIVE"
+    foot = (f'{badge}Risk: {stats.get("risk_weights", "abandon 0.5 · error 0.3 · loop 0.2")} · '
+            f'snapshot {stats.get("snapshot_id", "—")} · map {stats.get("map_version", "—")}{tail}')
+    return (
+        '<div class="cerno-context-band">'
+        '<div class="ccb-title">CERNO · FRICTION <span>D-014 decision feed</span></div>'
+        f'<div class="ccb-kpis">{kpi_html}</div>'
+        f'<div class="ccb-insight">{insight}</div>'
+        f'<div class="ccb-foot">{foot}</div>'
+        "</div>"
     )
-    note = "" if live else "SAMPLE — set CERNO_MARTS_DIR on the work machine for LIVE data."
-    footer = box_footer(
-        stats.get("map_version", "—"), stats.get("snapshot_id", "—"),
-        live=live, note=note,
-    )
-    return render_box(header=header, headline=headline, body=body, footer=footer,
-                      accent_color="var(--blue)")
 
 
-def _candidate_box(r: dict, live: bool) -> str:
+def _candidate_box(r: dict, live: bool, hero: bool = False) -> str:
     rank = r.get("rank")
     cls = r.get("system_class", "—")
     addr = r.get("addressability", "—")
@@ -115,7 +121,10 @@ def _candidate_box(r: dict, live: bool) -> str:
     mode = _dominant_mode(r)
 
     star = " ★" if r.get("is_agentic") else ""
-    header = box_header(f"#{rank} · {cls}{star}", _e(str(r.get("role_shape", ""))))
+    title = f"#{rank} · {cls}{star}"
+    if hero:
+        title = "▲ TOP PRIORITY · " + title
+    header = box_header(title, _e(str(r.get("role_shape", ""))))
     headline = headline_stat_card(
         label="PRIORITY",
         value=f'{r.get("priority", 0)}',
@@ -142,7 +151,7 @@ def _candidate_box(r: dict, live: bool) -> str:
     footer = box_footer("D-014", clark.replace("_", " "), live=live,
                         note=f'<a class="cerno-drill" href="/cerno/candidate/{rank}">Drill into candidate →</a>')
     return render_box(header=header, headline=headline, body=body, footer=footer,
-                      accent_color=accent)
+                      accent_color=accent, box_attrs=('data-hero="1"' if hero else ""))
 
 
 _CERNO_CSS = """<style id="cerno-css">
@@ -161,6 +170,18 @@ _CERNO_CSS = """<style id="cerno-css">
   white-space:pre-wrap;word-break:break-word;display:block}
 .cerno-sig{font:400 12.5px/1.55 var(--sans);color:var(--text-2);margin:0}
 .cerno-note{font:400 11px/1.5 var(--sans);color:var(--text-3);margin:.6rem 0 0}
+.holter-box[data-hero]{grid-column:1 / -1;background:linear-gradient(180deg,rgba(0,183,245,.07),transparent 55%)}
+.cerno-context-band{grid-column:1 / -1;background:var(--card);border:1px solid var(--border);
+  border-left:3px solid var(--blue);border-radius:2px;padding:1rem 1.2rem}
+.ccb-title{font:700 13px/1 var(--sans);color:var(--blue);letter-spacing:.05em;text-transform:uppercase;margin:0 0 .8rem}
+.ccb-title span{color:var(--text-3);font-weight:500;text-transform:none;letter-spacing:0;margin-left:.6rem;font-size:11px}
+.ccb-kpis{display:flex;flex-wrap:wrap;gap:1.6rem;margin:0 0 .7rem}
+.ccb-kpi{font:400 10.5px/1.2 var(--sans);color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:baseline;gap:.35rem}
+.ccb-kpi b{font-family:var(--mono);font-size:19px;color:var(--text);font-weight:600;text-transform:none;letter-spacing:0}
+.ccb-insight{font:400 12.5px/1.5 var(--sans);color:var(--text-2);max-width:64rem;margin:0 0 .55rem}
+.ccb-insight b{color:var(--text)}
+.ccb-foot{font:400 10.5px/1.4 var(--mono);color:var(--text-3)}
+.ccb-badge{background:#E5E0D2;color:#8a6d1a;font-weight:700;padding:.05rem .35rem;border-radius:3px;font-family:var(--sans);font-size:9px}
 </style>"""
 
 
@@ -236,20 +257,31 @@ def _marts_boxes() -> str:
             + weak_box + fric_box + casc_box + "</div>")
 
 
-def render_page() -> str:
+def friction_main() -> str:
+    """The friction EXPLORE content (context + feed + marts) as holter-rows.
+    Reusable: the standalone page wraps it in _doc; the Exploration surface
+    (render_exploration) places it above the verify panes."""
     rows, live = src.shortlist()
     stats, _ = src.overview()
-
     boxes = '<div class="holter-row" data-row="cerno-context">'
     boxes += _context_box(stats, live, len(rows))
     boxes += "</div>"
+    # #3 — hero the top-priority candidate above the uniform tail (it recommends
+    # "start here" instead of reading as a flat browse-list).
+    if rows:
+        boxes += '<div class="holter-row" data-row="cerno-hero">'
+        boxes += _candidate_box(rows[0], live, hero=True)
+        boxes += "</div>"
     boxes += '<div class="holter-row" data-row="cerno-feed">'
-    for r in rows:
+    for r in rows[1:]:
         boxes += _candidate_box(r, live)
     boxes += "</div>"
     boxes += _marts_boxes()
+    return boxes
 
-    return _doc(boxes, "Cerno — friction")
+
+def render_page() -> str:
+    return _doc(friction_main(), "Cerno — friction")
 
 
 # ── per-candidate drill page ─────────────────────────────────────────────────
@@ -320,7 +352,7 @@ def render_candidate_page(rank: int) -> str | None:
         footer=box_footer("D-014", clark.replace("_", " "), live=live),
         accent_color=_ADDR_COLOR.get(addr, "var(--border)"))
 
-    back = '<div class="holter-row" data-row="cerno-back"><a class="cerno-back" href="/cerno">← D-014 feed</a></div>'
+    back = '<div class="holter-row" data-row="cerno-back"><a class="cerno-back" href="/exploration">← Exploration</a></div>'
     grid = (back + '<div class="holter-row" data-row="cerno-detail">'
             + verdict + sig_box + nb_box + ex_box + act_box + "</div>")
     return _doc(grid, f"Cerno — candidate #{rank}")
