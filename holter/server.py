@@ -30,19 +30,26 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from holter.preview import render_cerno, render_holter, render_home, render_mlops  # noqa: E402
+from holter.preview import (  # noqa: E402
+    render_cerno,
+    render_exploration,
+    render_holter,
+    render_home,
+    render_mlops,
+)
 from holter.preview._shared import discover_packs  # noqa: E402  (HOL-81 healthz)
 
 app = Flask(__name__)
 
-# (route, label) for the surface switcher, in display order. Friction (HOL-90)
-# is first — the PRIMARY surface in the work-machine deployment (real Cerno
-# marts / D-014); the pulse-synthetic surfaces stay for the OSS reference.
+# (route, label) for the surface switcher, in display order. 3-surface IA:
+# Decisions (act) -> Intelligence (investigate one) -> Exploration (browse the
+# friction landscape AND verify it). Exploration folds the former standalone
+# Friction (D-014 feed + marts + drill) + Verification (drift/fairness/lineage/
+# synthesis) into one surface.
 _SURFACES: tuple[tuple[str, str], ...] = (
-    ("/cerno", "Friction"),
     ("/", "Decisions"),
     ("/workspace", "Intelligence"),
-    ("/mlops", "Verification"),
+    ("/exploration", "Exploration"),
 )
 
 # Anchor inside the design's existing dark top bar — identical across surfaces.
@@ -214,7 +221,7 @@ def _row2_html() -> str:
     """Row 2 selector bar — Journey ▾ · Sub Journey ▾ (gated) · Sort."""
     opts = "".join(
         f'<label class="cji-r2-opt">'
-        f'<input type="checkbox" class="cji-r2-jcheck" value="{jid}">'
+        f'<input type="checkbox" class="cji-r2-jcheck" name="journey" value="{jid}">'
         f'<span>{label}</span></label>'
         for jid, label in _load_journeys()
     )
@@ -227,8 +234,8 @@ def _row2_html() -> str:
         '<span class="cji-r2-caret">▾</span>'
         '</summary>'
         '<div class="cji-r2-menu">'
-        '<input type="text" class="cji-r2-search" placeholder="Search journeys…" '
-        'aria-label="Search journeys">'
+        '<input type="text" class="cji-r2-search" name="journey-search" '
+        'placeholder="Search journeys…" aria-label="Search journeys">'
         f'<div class="cji-r2-list">{opts}</div>'
         '</div>'
         '</details>'
@@ -365,6 +372,21 @@ main.holter-main>.holter-altitude{grid-column:1 / -1!important}
 main.holter-main>.holter-row{display:contents!important}
 /* shrink rules — fit-or-wrap, never overflow */
 main.holter-main .holter-box{min-width:0!important}
+/* HOL-93 — the Intelligence surface carries variable-height MIL content
+   (commentary prose, benchmark tables, findings/Clark lists). The locked
+   uniform fixed-height cell (.holter-box height:clamp(520-731px) + the rigid
+   48/96/1fr/48 internal grid + overflow:visible) makes tall content spill the
+   box bottom and collide with the row below = overlapping boxes. On THIS
+   surface only (main.holter-main; Decisions=main.home-main and
+   Verification=main.mlops-page are untouched), let boxes size to their content
+   — the MIL-v4 stacked-panel look: height auto with a floor, body track grows.
+   overflow:visible is preserved (HOL-16 tooltips) and is now safe because the
+   box is as tall as its content, so nothing spills. */
+main.holter-main .holter-box{
+  height:auto!important;
+  min-height:340px!important;
+  grid-template-rows:48px 96px auto 48px!important;
+}
 main.holter-main img,main.holter-main svg,main.holter-main canvas{max-width:100%!important;height:auto!important}
 .holter-ticker,.holter-ticker-track,.holter-ticker-wrap{overflow:hidden!important;max-width:100%!important}
 
@@ -428,13 +450,28 @@ def favicon() -> Response:
     return Response(_FAVICON, mimetype="image/svg+xml")
 
 
-@app.get("/cerno")
-def cerno() -> str:
-    """Cerno friction surface (HOL-90) — real marts/D-014 via cerno_source,
-    rendered through the Holter component library. LIVE on the work machine
-    (CERNO_MARTS_DIR set), SAMPLE fixture otherwise."""
+@app.get("/exploration")
+def exploration() -> str:
+    """Exploration surface — explore the friction (D-014 feed + marts + drill)
+    AND verify it (drift / fairness / lineage / synthesis). Folds the former
+    standalone Friction (/cerno) + Verification (/mlops). LIVE on the work
+    machine (CERNO_MARTS_DIR), SAMPLE fixture otherwise."""
     theme = _resolve_theme(request.args.get("theme"))
-    return _page(render_cerno.render_page(), "/cerno", theme)
+    return _page(render_exploration.render_page(), "/exploration", theme)
+
+
+@app.get("/cerno")
+def cerno():
+    # Folded into Exploration (HOL-9x) — keep the path alive as a redirect.
+    theme = request.args.get("theme")
+    return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
+
+
+@app.get("/mlops")
+def mlops_redirect():
+    # Verification folded into Exploration (HOL-9x).
+    theme = request.args.get("theme")
+    return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
 
 
 @app.get("/cerno/candidate/<int:rank>")
@@ -444,15 +481,15 @@ def cerno_candidate(rank: int):
     html = render_cerno.render_candidate_page(rank)
     if html is None:
         return Response("candidate not found", status=404)
-    return _page(html, "/cerno", theme)
+    return _page(html, "/exploration", theme)
 
 
 @app.get("/")
 def home():
-    # Work-machine primary: land on the Cerno Friction surface (HOL-90).
+    # Work-machine primary: land on the Exploration surface (the friction story).
     if _CERNO_PRIMARY:
         theme = request.args.get("theme")
-        return redirect("/cerno" + (f"?theme={theme}" if theme else ""), code=302)
+        return redirect("/exploration" + (f"?theme={theme}" if theme else ""), code=302)
     theme = _resolve_theme(request.args.get("theme"))
     return _page(render_home.render_page(), "/", theme)
 
@@ -462,12 +499,6 @@ def workspace() -> str:
     pack = request.args.get("pack")  # optional deep-link to a pack selection
     theme = _resolve_theme(request.args.get("theme"))
     return _page(render_holter.render_page(selected_pack_name=pack), "/workspace", theme)
-
-
-@app.get("/mlops")
-def mlops() -> str:
-    theme = _resolve_theme(request.args.get("theme"))
-    return _page(render_mlops.render_page(), "/mlops", theme)
 
 
 @app.get("/healthz")
